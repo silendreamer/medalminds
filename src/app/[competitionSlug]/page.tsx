@@ -30,7 +30,7 @@ export default async function CompetitionPage({ params }: { params: Promise<{ co
         <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: competition.name }]} />
         <div className="hero-grid">
           <div>
-            <span className="eyebrow">{competition.subdomain}.example.com</span>
+            <span className="eyebrow">{competition.subdomain}.medalminds.com</span>
             <h1>{competition.name}</h1>
             <p className="subtitle">{competition.description}</p>
             <StatsCard {...getContentCounts(competitionSlug)} />

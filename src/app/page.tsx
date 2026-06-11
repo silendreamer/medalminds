@@ -7,7 +7,7 @@ export default function HomePage() {
       <section className="hero">
         <div className="container hero-grid">
           <div>
-            <span className="eyebrow">OlympiadPrep Hub</span>
+            <span className="eyebrow">MedalMinds</span>
             <h1>Practice, Learn, and Test Across Academic Competitions</h1>
             <p className="subtitle">
               Students can prepare for Science Bowl, Science Olympiad, and Math Olympiad from focused mini-sites

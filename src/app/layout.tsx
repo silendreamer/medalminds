@@ -5,8 +5,8 @@ import { Header } from "@/components/Header";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "OlympiadPrep Hub",
-  description: "Practice, learn, and test across academic competitions."
+  title: "MedalMinds",
+  description: "Practice, learn, and test across academic competitions with MedalMinds."
 };
 
 const fraunces = Fraunces({

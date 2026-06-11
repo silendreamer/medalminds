@@ -14,7 +14,7 @@ export function CompetitionCard({
     <article className="card spacious">
       <div className="stack">
         <div>
-          <span className="eyebrow">{competition.subdomain}.example.com ready</span>
+          <span className="eyebrow">{competition.subdomain}.medalminds.com ready</span>
           <h3>{competition.name}</h3>
         </div>
         <p>{competition.shortDescription}</p>

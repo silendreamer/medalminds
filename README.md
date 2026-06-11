@@ -1,6 +1,6 @@
-# OlympiadPrep Hub
+# MedalMinds
 
-OlympiadPrep Hub is a simple Next.js MVP for academic competition prep. It uses local TypeScript data files and dynamic routing to create mini-sites for:
+MedalMinds is a simple Next.js MVP for academic competition prep at `medalminds.com`. It uses local TypeScript data files and dynamic routing to create mini-sites for:
 
 - Science Bowl
 - Science Olympiad
@@ -22,6 +22,7 @@ Open `http://localhost:3000`.
 - `/`
 - `/science-bowl`
 - `/science-bowl/practice`
+- `/science-bowl/buzzer`
 - `/science-bowl/learning`
 - `/science-bowl/learning/[lessonId]`
 - `/science-bowl/tests`
@@ -62,7 +63,7 @@ Tests include metadata and a `questionIds` array. The test runner loads those lo
 
 This MVP uses local TypeScript data to stay simple and deployable without external services. The data helpers in `src/lib/data.ts` keep UI code separate from storage, so the local arrays can later be replaced with PostgreSQL, Supabase, Firebase, or another database without rewriting the route and component structure.
 
-Subdomain routing can also be added later by mapping hostnames like `science-bowl.example.com` to the same competition slugs currently used in path-based routes.
+Subdomain routing can also be added later by mapping hostnames like `science-bowl.medalminds.com` to the same competition slugs currently used in path-based routes.
 
 ## Disclaimer
 
