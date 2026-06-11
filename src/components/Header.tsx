@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { Atom } from "lucide-react";
-import { competitions } from "@/lib/data";
+import { competitions } from "@/data/competitions";
 import { competitionPath } from "@/lib/routes";
 import { CompetitionSwitcher } from "./CompetitionSwitcher";
 

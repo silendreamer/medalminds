@@ -1,7 +1,15 @@
 import { CompetitionCard } from "@/components/CompetitionCard";
 import { competitions, getContentCounts } from "@/lib/data";
 
-export default function HomePage() {
+export default async function HomePage() {
+  const competitionCounts = await Promise.all(
+    competitions.map(async (competition) => ({
+      slug: competition.slug,
+      counts: await getContentCounts(competition.slug)
+    }))
+  );
+  const countsBySlug = new Map(competitionCounts.map((item) => [item.slug, item.counts]));
+
   return (
     <>
       <section className="hero">
@@ -41,7 +49,11 @@ export default function HomePage() {
           </div>
           <div className="grid">
             {competitions.map((competition) => (
-              <CompetitionCard competition={competition} counts={getContentCounts(competition.slug)} key={competition.slug} />
+              <CompetitionCard
+                competition={competition}
+                counts={countsBySlug.get(competition.slug) ?? { questions: 0, lessons: 0, tests: 0 }}
+                key={competition.slug}
+              />
             ))}
           </div>
         </div>

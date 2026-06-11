@@ -7,9 +7,9 @@ import { competitionPath } from "@/lib/routes";
 export default async function TestsPage({ params }: { params: Promise<{ competitionSlug: string }> }) {
   const { competitionSlug } = await params;
   if (!isCompetitionSlug(competitionSlug)) notFound();
-  const competition = getCompetitionBySlug(competitionSlug);
+  const competition = await getCompetitionBySlug(competitionSlug);
   if (!competition) notFound();
-  const tests = getTestsByCompetition(competitionSlug);
+  const tests = await getTestsByCompetition(competitionSlug);
 
   return (
     <section className="section">

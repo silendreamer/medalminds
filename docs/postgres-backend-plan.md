@@ -1,11 +1,12 @@
-# PostgreSQL Backend Plan
+# PostgreSQL Backend Architecture
 
-This document outlines how MedalMinds can move from local TypeScript data files to a PostgreSQL-backed application without changing the current route structure or adding unnecessary platform complexity too early.
+This document describes the implemented PostgreSQL/Prisma backend path for MedalMinds. The app still supports local TypeScript data fallback when no database URL is configured, which keeps development and preview builds simple.
 
 ## Goals
 
 - Keep the current Next.js app and path-based routing.
-- Replace local TypeScript content arrays with database-backed reads.
+- Use database-backed reads when PostgreSQL is configured.
+- Keep local TypeScript content arrays as seed data and fallback data.
 - Preserve the competition mini-site model for Science Bowl, Science Olympiad, and Math Olympiad.
 - Support future admin/content workflows without building an admin dashboard in the first backend pass.
 - Make it easy to deploy on Vercel with a hosted PostgreSQL provider.
@@ -19,12 +20,13 @@ This document outlines how MedalMinds can move from local TypeScript data files 
 - No mandatory user accounts for browsing practice content.
 - No rewrite to another framework.
 
-## Recommended Stack
+## Implemented Stack
 
 - **App framework:** Existing Next.js app router.
 - **Database:** PostgreSQL.
-- **Database host:** Neon, Supabase Postgres, Railway Postgres, or Vercel Postgres.
-- **ORM/query layer:** Prisma for the first production backend.
+- **Database host:** Supabase Postgres, Neon, Railway Postgres, or Vercel Postgres.
+- **ORM/query layer:** Prisma.
+- **Driver adapter:** `@prisma/adapter-pg` with `pg`.
 - **Validation:** Zod for request validation once write endpoints exist.
 - **Auth later:** Auth.js, Clerk, or Supabase Auth only when user accounts become necessary.
 
@@ -38,9 +40,9 @@ Next.js routes/pages
         v
 src/lib/data.ts
         |
-        +-- MVP now: local TypeScript arrays
+        +-- no database URL: local TypeScript arrays
         |
-        +-- Backend phase: database repository functions
+        +-- database URL configured: Prisma-backed reads
                 |
                 v
           Prisma Client
@@ -49,7 +51,7 @@ src/lib/data.ts
           PostgreSQL
 ```
 
-The current UI should continue calling helper functions such as `getCompetitionBySlug`, `getQuestionsByCompetition`, `getLessonsByCompetition`, and `getTestsByCompetition`. During the migration, those helpers become async and read from PostgreSQL.
+The UI calls helper functions such as `getCompetitionBySlug`, `getQuestionsByCompetition`, `getLessonsByCompetition`, and `getTestsByCompetition`. Those helpers are async and read from PostgreSQL when available.
 
 ## Data Model
 
@@ -288,31 +290,16 @@ model BuzzerQuestion {
 
 ## Repository Layer
 
-Create a database-backed repository layer instead of querying Prisma directly in page components.
-
-Suggested structure:
+The database boundary is centralized in:
 
 ```text
 src/lib/db.ts
-src/lib/repositories/competitions.ts
-src/lib/repositories/questions.ts
-src/lib/repositories/lessons.ts
-src/lib/repositories/tests.ts
-src/lib/repositories/buzzer.ts
+src/lib/data.ts
 ```
 
-Then update `src/lib/data.ts` to either:
+`src/lib/db.ts` lazily creates a Prisma Client only when a database URL exists. This avoids bundling or connecting to PostgreSQL for local fallback builds.
 
-- re-export repository functions, or
-- become a compatibility layer while the UI migrates to async database functions.
-
-Example:
-
-```ts
-export async function getCompetitionBySlug(slug: string) {
-  return prisma.competition.findUnique({ where: { slug } });
-}
-```
+`src/lib/data.ts` is the compatibility repository layer. It uses Prisma reads when configured and local TypeScript data otherwise.
 
 ## Route Changes
 
@@ -350,12 +337,14 @@ Those endpoints should use Zod validation and only be introduced when persistent
 
 ### Phase 1: Database Foundation
 
-1. Add Prisma and PostgreSQL connection configuration.
-2. Create `prisma/schema.prisma`.
-3. Add `DATABASE_URL` to local `.env`.
-4. Create initial migration.
-5. Add seed script that imports current local TypeScript content.
-6. Verify seeded counts match the MVP:
+Completed:
+
+1. Added Prisma and PostgreSQL connection configuration.
+2. Created `prisma/schema.prisma`.
+3. Added `prisma.config.ts` for Prisma 7 CLI database URL handling.
+4. Added initial migration in `prisma/migrations/0001_init/migration.sql`.
+5. Added seed script at `prisma/seed.ts`.
+6. Seed script loads:
    - 3 competitions
    - 30 practice questions
    - 30 lessons
@@ -364,11 +353,12 @@ Those endpoints should use Zod validation and only be introduced when persistent
 
 ### Phase 2: Read Path Migration
 
-1. Create repository functions.
-2. Convert route pages to await repository reads.
-3. Keep client interaction state unchanged.
-4. Remove direct UI imports from `src/data/*`.
-5. Keep `src/data/*` temporarily as seed inputs.
+Completed:
+
+1. Converted route pages to await repository reads.
+2. Kept client interaction state unchanged.
+3. Kept `src/data/*` as seed inputs and fallback data.
+4. Kept client navigation imports on static competition config to avoid bundling PostgreSQL code in the browser.
 
 ### Phase 3: Content Operations
 
@@ -395,16 +385,34 @@ For Prisma migrations, some providers also recommend:
 DIRECT_URL="postgresql://USER:PASSWORD@HOST:PORT/DATABASE?sslmode=require"
 ```
 
+Vercel/Supabase integrations often provide:
+
+```bash
+POSTGRES_PRISMA_URL="postgresql://USER:PASSWORD@HOST:6543/DATABASE?sslmode=require&pgbouncer=true"
+POSTGRES_URL="postgresql://USER:PASSWORD@HOST:6543/DATABASE?sslmode=require"
+POSTGRES_URL_NON_POOLING="postgresql://USER:PASSWORD@HOST:5432/DATABASE?sslmode=require"
+```
+
+Runtime reads prefer `DATABASE_URL`, then `POSTGRES_PRISMA_URL`, then `POSTGRES_URL`, then `POSTGRES_URL_NON_POOLING`.
+
+Prisma migration commands prefer `DIRECT_URL`, then `POSTGRES_URL_NON_POOLING`, then `DATABASE_URL`, then `POSTGRES_PRISMA_URL`, then `POSTGRES_URL`.
+
 Never commit `.env` files.
 
 ## Deployment Notes
 
 ### Vercel
 
-1. Create a hosted PostgreSQL database.
-2. Add `DATABASE_URL` in Vercel project settings.
-3. Run migrations during deployment or through a controlled CI step.
-4. Run seed scripts manually for initial content.
+1. Create or connect a hosted PostgreSQL database.
+2. Add the Supabase/Vercel Postgres environment variables in Vercel project settings.
+3. Set the Vercel build command to:
+
+   ```bash
+   npm run vercel-build
+   ```
+
+4. The build command runs migrations, seeds initial content, and then builds Next.js.
+5. The app will use PostgreSQL at runtime when those env vars are present.
 
 ### Local Development
 

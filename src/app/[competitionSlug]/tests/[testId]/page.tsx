@@ -11,11 +11,11 @@ export default async function TestDetailPage({
 }) {
   const { competitionSlug, testId } = await params;
   if (!isCompetitionSlug(competitionSlug)) notFound();
-  const competition = getCompetitionBySlug(competitionSlug);
-  const test = getTestBySlug(competitionSlug, testId);
+  const competition = await getCompetitionBySlug(competitionSlug);
+  const test = await getTestBySlug(competitionSlug, testId);
   if (!competition || !test) notFound();
 
-  const questions = getQuestionsForTest(test.questionIds);
+  const questions = await getQuestionsForTest(test.questionIds);
 
   return (
     <section className="section">

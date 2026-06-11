@@ -11,8 +11,9 @@ export default async function BuzzerPage({ params }: { params: Promise<{ competi
     notFound();
   }
 
-  const competition = getCompetitionBySlug(competitionSlug);
+  const competition = await getCompetitionBySlug(competitionSlug);
   if (!competition) notFound();
+  const buzzerQuestions = await getBuzzerQuestions();
 
   return (
     <section className="section">
@@ -33,7 +34,7 @@ export default async function BuzzerPage({ params }: { params: Promise<{ competi
             </p>
           </div>
         </div>
-        <BuzzerArena questions={getBuzzerQuestions()} />
+        <BuzzerArena questions={buzzerQuestions} />
       </div>
     </section>
   );

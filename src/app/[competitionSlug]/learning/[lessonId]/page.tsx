@@ -10,8 +10,8 @@ export default async function LessonDetailPage({
 }) {
   const { competitionSlug, lessonId } = await params;
   if (!isCompetitionSlug(competitionSlug)) notFound();
-  const competition = getCompetitionBySlug(competitionSlug);
-  const lesson = getLessonBySlug(competitionSlug, lessonId);
+  const competition = await getCompetitionBySlug(competitionSlug);
+  const lesson = await getLessonBySlug(competitionSlug, lessonId);
   if (!competition || !lesson) notFound();
 
   return (

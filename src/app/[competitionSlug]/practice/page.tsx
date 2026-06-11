@@ -7,8 +7,9 @@ import { competitionPath } from "@/lib/routes";
 export default async function PracticePage({ params }: { params: Promise<{ competitionSlug: string }> }) {
   const { competitionSlug } = await params;
   if (!isCompetitionSlug(competitionSlug)) notFound();
-  const competition = getCompetitionBySlug(competitionSlug);
+  const competition = await getCompetitionBySlug(competitionSlug);
   if (!competition) notFound();
+  const questions = await getQuestionsByCompetition(competitionSlug);
 
   return (
     <section className="section">
@@ -26,7 +27,7 @@ export default async function PracticePage({ params }: { params: Promise<{ compe
             <h1>Practice Questions</h1>
           </div>
         </div>
-        <PracticeQuestionCard questions={getQuestionsByCompetition(competitionSlug)} />
+        <PracticeQuestionCard questions={questions} />
       </div>
     </section>
   );

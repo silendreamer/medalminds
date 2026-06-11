@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { competitions } from "@/lib/data";
+import { competitions } from "@/data/competitions";
 import { competitionPath } from "@/lib/routes";
 
 export function CompetitionSwitcher() {

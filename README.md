@@ -6,7 +6,7 @@ MedalMinds is a simple Next.js MVP for academic competition prep at `medalminds.
 - Science Olympiad
 - Math Olympiad
 
-The app includes practice questions, learning lessons, test-taking flows, and a Science Bowl Buzzer Arena. It is intentionally local-data only for the current MVP.
+The app includes practice questions, learning lessons, test-taking flows, and a Science Bowl Buzzer Arena. It can run from local TypeScript data for development, or from PostgreSQL when database environment variables are configured.
 
 ## Run locally
 
@@ -16,6 +16,14 @@ npm run dev
 ```
 
 Open `http://localhost:3000`.
+
+Without database variables, the app automatically uses the local TypeScript sample data. To run against PostgreSQL, copy `.env.example` to `.env.local`, set the database URL values, then run:
+
+```bash
+npm run db:deploy
+npm run db:seed
+npm run dev
+```
 
 ## Routes
 
@@ -62,18 +70,45 @@ Tests include metadata and a `questionIds` array. The test runner loads those lo
 
 ## PostgreSQL backend plan
 
-This MVP uses local TypeScript data to stay simple and deployable without external services. The data helpers in `src/lib/data.ts` keep UI code separate from storage, so the local arrays can later be replaced with PostgreSQL without rewriting the route and component structure.
+This MVP now includes a PostgreSQL/Prisma backend path. The data helpers in `src/lib/data.ts` read from PostgreSQL when a supported database URL is configured, and fall back to local TypeScript data when no database URL is present.
 
-The proposed backend architecture, schema, migration phases, and deployment notes live in [`docs/postgres-backend-plan.md`](docs/postgres-backend-plan.md).
+The backend architecture, schema, migration details, and deployment notes live in [`docs/postgres-backend-plan.md`](docs/postgres-backend-plan.md).
 
-Recommended first backend stack:
+Implemented backend stack:
 
 - PostgreSQL
 - Prisma
-- Hosted database provider such as Neon, Supabase Postgres, Railway Postgres, or Vercel Postgres
+- `@prisma/adapter-pg` with `pg`
+- Hosted database provider such as Supabase Postgres, Neon, Railway Postgres, or Vercel Postgres
 - Server-side repository functions called from the existing Next.js routes
 
-The first backend pass should focus on read-only content migration. User accounts, saved progress, admin tools, payments, and real-time features should stay out of scope until the core content database is stable.
+The current backend pass supports read-only content from PostgreSQL. User accounts, saved progress, admin tools, payments, and real-time features remain out of scope until the core content database is stable.
+
+## Vercel deployment
+
+For Vercel with Supabase Postgres, add the Supabase/Vercel integration environment variables to the project. The app recognizes:
+
+- `DATABASE_URL`
+- `POSTGRES_PRISMA_URL`
+- `POSTGRES_URL`
+- `POSTGRES_URL_NON_POOLING`
+- `DIRECT_URL`
+
+Runtime reads prefer `DATABASE_URL`, then `POSTGRES_PRISMA_URL`, then `POSTGRES_URL`. Prisma migrations prefer `DIRECT_URL` or `POSTGRES_URL_NON_POOLING`.
+
+Set the Vercel build command to:
+
+```bash
+npm run vercel-build
+```
+
+That command runs:
+
+1. `prisma migrate deploy`
+2. `prisma db seed`
+3. `next build`
+
+Do not commit `.env.local` or any Supabase service role keys.
 
 Subdomain routing can also be added later by mapping hostnames like `science-bowl.medalminds.com` to the same competition slugs currently used in path-based routes.
 

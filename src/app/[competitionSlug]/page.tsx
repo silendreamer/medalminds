@@ -16,12 +16,13 @@ export default async function CompetitionPage({ params }: { params: Promise<{ co
   const { competitionSlug } = await params;
   if (!isCompetitionSlug(competitionSlug)) notFound();
 
-  const competition = getCompetitionBySlug(competitionSlug);
+  const competition = await getCompetitionBySlug(competitionSlug);
   if (!competition) notFound();
 
-  const questions = getQuestionsByCompetition(competitionSlug);
-  const lessons = getLessonsByCompetition(competitionSlug);
-  const tests = getTestsByCompetition(competitionSlug);
+  const questions = await getQuestionsByCompetition(competitionSlug);
+  const lessons = await getLessonsByCompetition(competitionSlug);
+  const tests = await getTestsByCompetition(competitionSlug);
+  const counts = await getContentCounts(competitionSlug);
   const isScienceBowl = competitionSlug === "science-bowl";
 
   return (
@@ -33,7 +34,7 @@ export default async function CompetitionPage({ params }: { params: Promise<{ co
             <span className="eyebrow">{competition.subdomain}.medalminds.com</span>
             <h1>{competition.name}</h1>
             <p className="subtitle">{competition.description}</p>
-            <StatsCard {...getContentCounts(competitionSlug)} />
+            <StatsCard {...counts} />
             <nav className="competition-section-nav" aria-label={`${competition.name} sections`}>
               <Link href={practicePath(competitionSlug)}>Practice Questions</Link>
               <Link href={learningPath(competitionSlug)}>Learning</Link>
