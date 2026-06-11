@@ -6,7 +6,7 @@ MedalMinds is a simple Next.js MVP for academic competition prep at `medalminds.
 - Science Olympiad
 - Math Olympiad
 
-The app includes practice questions, learning lessons, and test-taking flows for each competition. It is intentionally database-free for the MVP.
+The app includes practice questions, learning lessons, test-taking flows, and a Science Bowl Buzzer Arena. It is intentionally local-data only for the current MVP.
 
 ## Run locally
 
@@ -38,6 +38,7 @@ Local content lives in:
 - `src/data/practiceQuestions.ts`
 - `src/data/lessons.ts`
 - `src/data/tests.ts`
+- `src/data/buzzerQuestions.ts`
 
 Shared types live in `src/types/index.ts`. Data lookup helpers live in `src/lib/data.ts`.
 
@@ -59,9 +60,20 @@ Lessons include a slug, metadata, key concepts, content sections, and mini revie
 
 Tests include metadata and a `questionIds` array. The test runner loads those local questions, shows one question at a time, allows navigation, and displays a scored review after submit.
 
-## Future upgrade path
+## PostgreSQL backend plan
 
-This MVP uses local TypeScript data to stay simple and deployable without external services. The data helpers in `src/lib/data.ts` keep UI code separate from storage, so the local arrays can later be replaced with PostgreSQL, Supabase, Firebase, or another database without rewriting the route and component structure.
+This MVP uses local TypeScript data to stay simple and deployable without external services. The data helpers in `src/lib/data.ts` keep UI code separate from storage, so the local arrays can later be replaced with PostgreSQL without rewriting the route and component structure.
+
+The proposed backend architecture, schema, migration phases, and deployment notes live in [`docs/postgres-backend-plan.md`](docs/postgres-backend-plan.md).
+
+Recommended first backend stack:
+
+- PostgreSQL
+- Prisma
+- Hosted database provider such as Neon, Supabase Postgres, Railway Postgres, or Vercel Postgres
+- Server-side repository functions called from the existing Next.js routes
+
+The first backend pass should focus on read-only content migration. User accounts, saved progress, admin tools, payments, and real-time features should stay out of scope until the core content database is stable.
 
 Subdomain routing can also be added later by mapping hostnames like `science-bowl.medalminds.com` to the same competition slugs currently used in path-based routes.
 
