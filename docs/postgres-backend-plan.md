@@ -73,14 +73,14 @@ updated_at timestamptz not null default now()
 
 ### practice_questions
 
-Stores reusable practice questions and toss-up style prompts.
+Stores reusable practice questions and toss-up style prompts. Difficulty is now a controlled enum instead of free text.
 
 ```sql
 id uuid primary key
 competition_id uuid not null references competitions(id)
 category text not null
 level text not null
-difficulty text not null
+difficulty Difficulty not null
 type text not null
 prompt text not null
 choices jsonb
@@ -96,6 +96,25 @@ Recommended indexes:
 ```sql
 create index practice_questions_competition_idx on practice_questions(competition_id);
 create index practice_questions_filters_idx on practice_questions(competition_id, category, difficulty, type);
+```
+
+### answers
+
+Stores answer options and accepted responses for a practice question.
+
+This table allows multiple correct answers, multiple distractors, stable option ordering, and future answer-level analytics. The legacy `correct_answer`, `alternate_answers`, and `choices` columns on `practice_questions` are still present for compatibility, but new database-backed reads prefer rows from `answers`.
+
+```sql
+id text primary key
+question_id text not null references practice_questions(id) on delete cascade
+text text not null
+is_correct boolean not null default false
+explanation text
+position integer not null
+created_at timestamptz not null default now()
+updated_at timestamptz not null default now()
+unique (question_id, text)
+unique (question_id, position)
 ```
 
 ### lessons
@@ -157,7 +176,7 @@ Stores Science Bowl Buzzer Arena question pairs.
 id uuid primary key
 competition_id uuid not null references competitions(id)
 category text not null
-difficulty text not null
+difficulty Difficulty not null
 tossup_prompt text not null
 tossup_answer text not null
 tossup_explanation text not null
@@ -212,16 +231,33 @@ model PracticeQuestion {
   competition      Competition  @relation(fields: [competitionId], references: [id])
   category         String
   level            String
-  difficulty       String
+  difficulty       Difficulty
   type             String
   prompt           String
   choices          Json?
   correctAnswer    String
   alternateAnswers String[]
   explanation      String
+  answers          Answer[]
   tests            TestQuestion[]
   createdAt        DateTime     @default(now())
   updatedAt        DateTime     @updatedAt
+}
+
+model Answer {
+  id          String           @id
+  questionId  String
+  question    PracticeQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  text        String
+  isCorrect   Boolean          @default(false)
+  explanation String?
+  position    Int
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  @@unique([questionId, text])
+  @@unique([questionId, position])
+  @@index([questionId])
 }
 
 model Lesson {
@@ -276,7 +312,7 @@ model BuzzerQuestion {
   competitionId      String
   competition        Competition @relation(fields: [competitionId], references: [id])
   category           String
-  difficulty         String
+  difficulty         Difficulty
   tossupPrompt       String
   tossupAnswer       String
   tossupExplanation  String
@@ -347,6 +383,7 @@ Completed:
 6. Seed script loads:
    - 3 competitions
    - 30 practice questions
+   - normalized answer rows for all practice questions
    - 30 lessons
    - 30 tests
    - 10 Science Bowl buzzer questions

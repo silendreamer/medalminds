@@ -1,5 +1,5 @@
 import { PrismaPg } from "@prisma/adapter-pg";
-import { PrismaClient } from "@prisma/client";
+import { Difficulty, PrismaClient } from "@prisma/client";
 import { Pool } from "pg";
 import { buzzerQuestions } from "../src/data/buzzerQuestions";
 import { competitions } from "../src/data/competitions";
@@ -20,6 +20,35 @@ if (!databaseUrl) {
 const pool = new Pool({ connectionString: databaseUrl });
 const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
+
+function toDbDifficulty(difficulty: string) {
+  if (difficulty === "Foundational") return Difficulty.FOUNDATIONAL;
+  if (difficulty === "Advanced") return Difficulty.ADVANCED;
+  return Difficulty.INTERMEDIATE;
+}
+
+function answerRowsForQuestion(question: (typeof practiceQuestions)[number]) {
+  const seen = new Set<string>();
+  const answers: Array<{ text: string; isCorrect: boolean; explanation?: string; position: number }> = [];
+
+  function addAnswer(text: string, isCorrect: boolean, position: number) {
+    const normalized = text.trim().toLowerCase();
+    if (seen.has(normalized)) return;
+    seen.add(normalized);
+    answers.push({
+      text,
+      isCorrect,
+      explanation: isCorrect ? question.explanation : undefined,
+      position
+    });
+  }
+
+  addAnswer(question.correctAnswer, true, 0);
+  question.alternateAnswers?.forEach((answer, index) => addAnswer(answer, true, index + 1));
+  question.choices?.forEach((choice, index) => addAnswer(choice, choice === question.correctAnswer, index + 100));
+
+  return answers;
+}
 
 async function main() {
   for (const competition of competitions) {
@@ -51,7 +80,7 @@ async function main() {
         competitionId: question.competitionSlug,
         category: question.category,
         level: question.level,
-        difficulty: question.difficulty,
+        difficulty: toDbDifficulty(question.difficulty),
         type: question.type,
         prompt: question.prompt,
         choices: question.choices ?? undefined,
@@ -64,7 +93,7 @@ async function main() {
         competitionId: question.competitionSlug,
         category: question.category,
         level: question.level,
-        difficulty: question.difficulty,
+        difficulty: toDbDifficulty(question.difficulty),
         type: question.type,
         prompt: question.prompt,
         choices: question.choices ?? undefined,
@@ -73,6 +102,21 @@ async function main() {
         explanation: question.explanation
       }
     });
+
+    await prisma.answer.deleteMany({ where: { questionId: question.id } });
+
+    for (const answer of answerRowsForQuestion(question)) {
+      await prisma.answer.create({
+        data: {
+          id: `${question.id}-answer-${answer.position}`,
+          questionId: question.id,
+          text: answer.text,
+          isCorrect: answer.isCorrect,
+          explanation: answer.explanation,
+          position: answer.position
+        }
+      });
+    }
   }
 
   for (const lesson of lessons) {
@@ -157,7 +201,7 @@ async function main() {
       update: {
         competitionId: question.competitionSlug,
         category: question.category,
-        difficulty: question.difficulty,
+        difficulty: toDbDifficulty(question.difficulty),
         tossupPrompt: question.tossupPrompt,
         tossupAnswer: question.tossupAnswer,
         tossupExplanation: question.tossupExplanation,
@@ -169,7 +213,7 @@ async function main() {
         id: question.id,
         competitionId: question.competitionSlug,
         category: question.category,
-        difficulty: question.difficulty,
+        difficulty: toDbDifficulty(question.difficulty),
         tossupPrompt: question.tossupPrompt,
         tossupAnswer: question.tossupAnswer,
         tossupExplanation: question.tossupExplanation,
@@ -183,13 +227,14 @@ async function main() {
   const counts = await Promise.all([
     prisma.competition.count(),
     prisma.practiceQuestion.count(),
+    prisma.answer.count(),
     prisma.lesson.count(),
     prisma.test.count(),
     prisma.buzzerQuestion.count()
   ]);
 
   console.log(
-    `Seed complete: ${counts[0]} competitions, ${counts[1]} questions, ${counts[2]} lessons, ${counts[3]} tests, ${counts[4]} buzzer questions.`
+    `Seed complete: ${counts[0]} competitions, ${counts[1]} questions, ${counts[2]} answers, ${counts[3]} lessons, ${counts[4]} tests, ${counts[5]} buzzer questions.`
   );
 }
 

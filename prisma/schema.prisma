@@ -6,6 +6,12 @@ datasource db {
   provider = "postgresql"
 }
 
+enum Difficulty {
+  FOUNDATIONAL
+  INTERMEDIATE
+  ADVANCED
+}
+
 model Competition {
   id               String             @id
   slug             String             @unique
@@ -28,19 +34,36 @@ model PracticeQuestion {
   competition      Competition    @relation(fields: [competitionId], references: [id], onDelete: Cascade)
   category         String
   level            String
-  difficulty       String
+  difficulty       Difficulty
   type             String
   prompt           String
   choices          Json?
   correctAnswer    String
   alternateAnswers String[]
   explanation      String
+  answers          Answer[]
   tests            TestQuestion[]
   createdAt        DateTime       @default(now())
   updatedAt        DateTime       @updatedAt
 
   @@index([competitionId])
   @@index([competitionId, category, difficulty, type])
+}
+
+model Answer {
+  id          String           @id
+  questionId  String
+  question    PracticeQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  text        String
+  isCorrect   Boolean          @default(false)
+  explanation String?
+  position    Int
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  @@unique([questionId, text])
+  @@unique([questionId, position])
+  @@index([questionId])
 }
 
 model Lesson {
@@ -97,7 +120,7 @@ model BuzzerQuestion {
   competitionId     String
   competition       Competition @relation(fields: [competitionId], references: [id], onDelete: Cascade)
   category          String
-  difficulty        String
+  difficulty        Difficulty
   tossupPrompt      String
   tossupAnswer      String
   tossupExplanation String

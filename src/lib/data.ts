@@ -1,4 +1,4 @@
-import type { Prisma } from "@prisma/client";
+import { Difficulty, type Prisma } from "@prisma/client";
 import { buzzerQuestions as localBuzzerQuestions } from "@/data/buzzerQuestions";
 import { competitions as localCompetitions } from "@/data/competitions";
 import { lessons as localLessons } from "@/data/lessons";
@@ -8,29 +8,53 @@ import type { CompetitionSlug, Lesson, PracticeQuestion, Test } from "@/types";
 import { getPrisma, hasDatabaseUrl } from "./db";
 
 type DbLesson = Prisma.LessonGetPayload<Record<string, never>>;
-type DbPracticeQuestion = Prisma.PracticeQuestionGetPayload<Record<string, never>>;
+type DbPracticeQuestion = Prisma.PracticeQuestionGetPayload<{
+  include: { answers: { orderBy: { position: "asc" } } };
+}>;
 type DbTestWithQuestions = Prisma.TestGetPayload<{
   include: {
     questions: {
       orderBy: { position: "asc" };
-      include: { question: true };
+      include: {
+        question: {
+          include: { answers: { orderBy: { position: "asc" } } };
+        };
+      };
     };
   };
 }>;
 type DbBuzzerQuestion = Prisma.BuzzerQuestionGetPayload<Record<string, never>>;
 
+function fromDbDifficulty(difficulty: Difficulty | string): PracticeQuestion["difficulty"] {
+  if (difficulty === Difficulty.FOUNDATIONAL || difficulty === "FOUNDATIONAL") return "Foundational";
+  if (difficulty === Difficulty.ADVANCED || difficulty === "ADVANCED") return "Advanced";
+  return "Intermediate";
+}
+
 function toPracticeQuestion(question: DbPracticeQuestion): PracticeQuestion {
+  const correctAnswers = question.answers.filter((answer) => answer.isCorrect);
+  const primaryCorrectAnswer = correctAnswers[0]?.text ?? question.correctAnswer;
+  const alternateAnswers = correctAnswers.slice(1).map((answer) => answer.text);
+  const answerChoices = question.answers.map((answer) => answer.text);
+
   return {
     id: question.id,
     competitionSlug: question.competitionId as CompetitionSlug,
     category: question.category,
     level: question.level,
-    difficulty: question.difficulty as PracticeQuestion["difficulty"],
+    difficulty: fromDbDifficulty(question.difficulty),
     type: question.type as PracticeQuestion["type"],
     prompt: question.prompt,
-    choices: Array.isArray(question.choices) ? question.choices.map(String) : undefined,
-    correctAnswer: question.correctAnswer,
-    alternateAnswers: question.alternateAnswers.length ? question.alternateAnswers : undefined,
+    choices:
+      question.type === "multiple_choice"
+        ? answerChoices.length
+          ? answerChoices
+          : Array.isArray(question.choices)
+            ? question.choices.map(String)
+            : undefined
+        : undefined,
+    correctAnswer: primaryCorrectAnswer,
+    alternateAnswers: alternateAnswers.length ? alternateAnswers : question.alternateAnswers.length ? question.alternateAnswers : undefined,
     explanation: question.explanation
   };
 }
@@ -70,7 +94,7 @@ function toBuzzerQuestion(question: DbBuzzerQuestion) {
     id: question.id,
     competitionSlug: question.competitionId as "science-bowl",
     category: question.category,
-    difficulty: question.difficulty as "Foundational" | "Intermediate" | "Advanced",
+    difficulty: fromDbDifficulty(question.difficulty),
     tossupPrompt: question.tossupPrompt,
     tossupAnswer: question.tossupAnswer,
     tossupExplanation: question.tossupExplanation,
@@ -112,7 +136,8 @@ export async function getQuestionsByCompetition(slug: CompetitionSlug) {
 
   const questions = await getPrisma().practiceQuestion.findMany({
     where: { competition: { slug } },
-    orderBy: { id: "asc" }
+    orderBy: { id: "asc" },
+    include: { answers: { orderBy: { position: "asc" } } }
   });
 
   return questions.map(toPracticeQuestion);
@@ -142,7 +167,11 @@ export async function getTestsByCompetition(slug: CompetitionSlug) {
     include: {
       questions: {
         orderBy: { position: "asc" },
-        include: { question: true }
+        include: {
+          question: {
+            include: { answers: { orderBy: { position: "asc" } } }
+          }
+        }
       }
     }
   });
@@ -178,7 +207,11 @@ export async function getTestBySlug(slug: CompetitionSlug, testSlug: string) {
     include: {
       questions: {
         orderBy: { position: "asc" },
-        include: { question: true }
+        include: {
+          question: {
+            include: { answers: { orderBy: { position: "asc" } } }
+          }
+        }
       }
     }
   });
@@ -194,7 +227,8 @@ export async function getQuestionsForTest(questionIds: string[]) {
   }
 
   const questions = await getPrisma().practiceQuestion.findMany({
-    where: { id: { in: questionIds } }
+    where: { id: { in: questionIds } },
+    include: { answers: { orderBy: { position: "asc" } } }
   });
   const byId = new Map(questions.map((question) => [question.id, toPracticeQuestion(question)]));
 
