@@ -1,12 +1,14 @@
+import "dotenv/config";
 import { PrismaPg } from "@prisma/adapter-pg";
-import { createHash } from "node:crypto";
-import { Difficulty, PrismaClient, QuestionFormat, QuestionKind, SchoolLevel } from "@prisma/client";
+import { config as loadDotenv } from "dotenv";
+import { Difficulty, PrismaClient, SchoolLevel } from "@prisma/client";
 import { Pool } from "pg";
 import { buzzerQuestions } from "../src/data/buzzerQuestions";
 import { competitions } from "../src/data/competitions";
 import { lessons } from "../src/data/lessons";
-import { practiceQuestions } from "../src/data/practiceQuestions";
 import { tests } from "../src/data/tests";
+
+loadDotenv({ path: ".env.local", override: false, quiet: true });
 
 const urlFromParts =
   process.env.POSTGRES_HOST &&
@@ -114,17 +116,6 @@ function toDbDifficulty(difficulty: string) {
   return Difficulty.INTERMEDIATE;
 }
 
-function toDbQuestionFormat(type: string) {
-  return type === "multiple_choice" ? QuestionFormat.MULTIPLE_CHOICE : QuestionFormat.SHORT_ANSWER;
-}
-
-function toSchoolLevel(level: string) {
-  const normalized = level.toLowerCase();
-  if (normalized.includes("middle") || normalized.includes("division b")) return SchoolLevel.MIDDLE_SCHOOL;
-  if (normalized.includes("high") || normalized.includes("division c")) return SchoolLevel.HIGH_SCHOOL;
-  return SchoolLevel.MIXED;
-}
-
 function slugify(value: string) {
   return value.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 }
@@ -132,35 +123,6 @@ function slugify(value: string) {
 function competitionLevelIdFor(competitionSlug: string, level: string) {
   const id = `${competitionSlug}-${slugify(level)}`;
   return competitionLevelIds.has(id) ? id : undefined;
-}
-
-function sourceHashForQuestion(question: (typeof practiceQuestions)[number]) {
-  return createHash("sha256")
-    .update(`${question.competitionSlug}|${question.category}|${question.prompt}|${question.correctAnswer}`)
-    .digest("hex");
-}
-
-function answerRowsForQuestion(question: (typeof practiceQuestions)[number]) {
-  const seen = new Set<string>();
-  const answers: Array<{ text: string; isCorrect: boolean; explanation?: string; position: number }> = [];
-
-  function addAnswer(text: string, isCorrect: boolean, position: number) {
-    const normalized = text.trim().toLowerCase();
-    if (seen.has(normalized)) return;
-    seen.add(normalized);
-    answers.push({
-      text,
-      isCorrect,
-      explanation: isCorrect ? question.explanation : undefined,
-      position
-    });
-  }
-
-  addAnswer(question.correctAnswer, true, 0);
-  question.alternateAnswers?.forEach((answer, index) => addAnswer(answer, true, index + 1));
-  question.choices?.forEach((choice, index) => addAnswer(choice, choice === question.correctAnswer, index + 100));
-
-  return answers;
 }
 
 async function main() {
@@ -202,82 +164,6 @@ async function main() {
         sortOrder: level.sortOrder
       },
       create: level
-    });
-  }
-
-  for (const question of practiceQuestions) {
-    await prisma.question.upsert({
-      where: { id: question.id },
-      update: {
-        competitionId: question.competitionSlug,
-        levelId: competitionLevelIdFor(question.competitionSlug, question.level),
-        category: question.category,
-        level: question.level,
-        difficulty: toDbDifficulty(question.difficulty),
-        format: toDbQuestionFormat(question.type),
-        questionKind: QuestionKind.PRACTICE,
-        schoolLevel: toSchoolLevel(question.level),
-        sourceProvider: "MedalMinds Original",
-        sourcePageUrl: undefined,
-        sourcePdfUrl: undefined,
-        sourceSet: "MVP Sample Content",
-        sourceRound: undefined,
-        sourceQuestionNumber: Number(question.id.match(/\d+$/)?.[0] ?? 0) || undefined,
-        sourceHash: sourceHashForQuestion(question),
-        prompt: question.prompt,
-        choices: question.choices ?? undefined,
-        correctAnswer: question.correctAnswer,
-        alternateAnswers: question.alternateAnswers ?? [],
-        explanation: question.explanation
-      },
-      create: {
-        id: question.id,
-        competitionId: question.competitionSlug,
-        levelId: competitionLevelIdFor(question.competitionSlug, question.level),
-        category: question.category,
-        level: question.level,
-        difficulty: toDbDifficulty(question.difficulty),
-        format: toDbQuestionFormat(question.type),
-        questionKind: QuestionKind.PRACTICE,
-        schoolLevel: toSchoolLevel(question.level),
-        sourceProvider: "MedalMinds Original",
-        sourcePageUrl: undefined,
-        sourcePdfUrl: undefined,
-        sourceSet: "MVP Sample Content",
-        sourceRound: undefined,
-        sourceQuestionNumber: Number(question.id.match(/\d+$/)?.[0] ?? 0) || undefined,
-        sourceHash: sourceHashForQuestion(question),
-        prompt: question.prompt,
-        choices: question.choices ?? undefined,
-        correctAnswer: question.correctAnswer,
-        alternateAnswers: question.alternateAnswers ?? [],
-        explanation: question.explanation
-      }
-    });
-
-    await prisma.answer.deleteMany({ where: { questionId: question.id } });
-    await prisma.answerExplanation.deleteMany({ where: { questionId: question.id } });
-
-    for (const answer of answerRowsForQuestion(question)) {
-      await prisma.answer.create({
-        data: {
-          id: `${question.id}-answer-${answer.position}`,
-          questionId: question.id,
-          text: answer.text,
-          isCorrect: answer.isCorrect,
-          explanation: answer.explanation,
-          position: answer.position
-        }
-      });
-    }
-
-    await prisma.answerExplanation.create({
-      data: {
-        id: `${question.id}-explanation-0`,
-        questionId: question.id,
-        shortExplanation: question.explanation,
-        position: 0
-      }
     });
   }
 
@@ -350,7 +236,16 @@ async function main() {
 
     await prisma.testQuestion.deleteMany({ where: { testId: test.id } });
 
-    for (const [position, questionId] of test.questionIds.entries()) {
+    const existingQuestionIds = new Set(
+      (
+        await prisma.question.findMany({
+          where: { id: { in: test.questionIds } },
+          select: { id: true }
+        })
+      ).map((question) => question.id)
+    );
+
+    for (const [position, questionId] of test.questionIds.filter((questionId) => existingQuestionIds.has(questionId)).entries()) {
       await prisma.testQuestion.create({
         data: {
           testId: test.id,

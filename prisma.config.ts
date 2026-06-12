@@ -1,5 +1,8 @@
 import "dotenv/config";
+import { config as loadDotenv } from "dotenv";
 import { defineConfig } from "prisma/config";
+
+loadDotenv({ path: ".env.local", override: false, quiet: true });
 
 function buildPostgresUrlFromParts() {
   const host = process.env.POSTGRES_HOST;

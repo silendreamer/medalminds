@@ -50,11 +50,12 @@ Local content lives in:
 
 Shared types live in `src/types/index.ts`. Data lookup helpers live in `src/lib/data.ts`.
 
-## Import DOE/OSTI Middle School Science Bowl Sample Questions
+## Import DOE/OSTI Science Bowl Sample Questions
 
-This repo includes a scripted importer for DOE/OSTI Middle School Science Bowl sample question PDFs.
+This repo includes scripted importers for DOE/OSTI Science Bowl sample question PDFs.
 
 - Source page: `https://science.osti.gov/wdts/nsb/Regional-Competitions/Resources/MS-Sample-Questions`
+- Source page: `https://science.osti.gov/wdts/nsb/Regional-Competitions/Resources/HS-Sample-Questions`
 - The importer discovers sample-round PDF links automatically from that page.
 - It downloads each PDF, extracts text, parses toss-up and bonus questions, and writes records into `Question` and `Answer` tables.
 - The importer stores source metadata like `sourcePdfUrl`, `sourceSet`, `sourceRound`, and `sourceHash`.
@@ -86,6 +87,14 @@ Import into the database:
 DATABASE_URL="postgres://..." npm run import:osti-ms-science-bowl
 ```
 
+Import the already-generated middle school and high school SQLite exports into the configured Prisma/PostgreSQL database:
+
+```bash
+npm run import:osti-sqlite
+```
+
+This command removes the old MedalMinds placeholder practice rows, reloads the DOE/OSTI Science Bowl rows from `.cache/osti-science-bowl/osti-ms-all-sets.sqlite` and `.cache/osti-science-bowl/osti-hs-all-sets.sqlite`, and creates `AnswerExplanation` rows for each imported question. Keep it as an explicit admin import, not part of the Vercel build command.
+
 Limit import scope:
 
 ```bash
@@ -102,6 +111,7 @@ What tables are populated:
 
 - `Question`
 - `Answer`
+- `AnswerExplanation`
 
 The importer reuses the existing Prisma schema and does not introduce a new ORM.
 
