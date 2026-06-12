@@ -38,6 +38,7 @@ model Competition {
   shortDescription String
   subdomain        String             @unique
   categories       String[]
+  levels           CompetitionLevel[]
   questions        Question[]
   lessons          Lesson[]
   tests            Test[]
@@ -46,10 +47,31 @@ model Competition {
   updatedAt        DateTime           @updatedAt
 }
 
+model CompetitionLevel {
+  id            String       @id
+  competitionId String
+  competition   Competition  @relation(fields: [competitionId], references: [id], onDelete: Cascade)
+  slug          String
+  name          String
+  description   String?
+  schoolLevel   SchoolLevel?
+  sortOrder     Int          @default(0)
+  questions     Question[]
+  lessons       Lesson[]
+  tests         Test[]
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  @@unique([competitionId, slug])
+  @@index([competitionId])
+}
+
 model Question {
   id               String         @id
   competitionId    String
   competition      Competition    @relation(fields: [competitionId], references: [id], onDelete: Cascade)
+  levelId          String?
+  competitionLevel CompetitionLevel? @relation(fields: [levelId], references: [id], onDelete: SetNull)
   category         String
   level            String
   difficulty       Difficulty
@@ -74,6 +96,7 @@ model Question {
   updatedAt        DateTime       @updatedAt
 
   @@index([competitionId])
+  @@index([levelId])
   @@index([competitionId, category, difficulty, format])
   @@index([competitionId, schoolLevel])
   @@index([sourceProvider, sourceSet])
@@ -99,6 +122,8 @@ model Lesson {
   id               String      @id
   competitionId    String
   competition      Competition @relation(fields: [competitionId], references: [id], onDelete: Cascade)
+  levelId          String?
+  competitionLevel CompetitionLevel? @relation(fields: [levelId], references: [id], onDelete: SetNull)
   slug             String
   title            String
   category         String
@@ -113,12 +138,15 @@ model Lesson {
 
   @@unique([competitionId, slug])
   @@index([competitionId])
+  @@index([levelId])
 }
 
 model Test {
   id               String         @id
   competitionId    String
   competition      Competition    @relation(fields: [competitionId], references: [id], onDelete: Cascade)
+  levelId          String?
+  competitionLevel CompetitionLevel? @relation(fields: [levelId], references: [id], onDelete: SetNull)
   slug             String
   title            String
   level            String
@@ -131,6 +159,7 @@ model Test {
 
   @@unique([competitionId, slug])
   @@index([competitionId])
+  @@index([levelId])
 }
 
 model TestQuestion {

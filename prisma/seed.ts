@@ -22,6 +22,83 @@ const pool = new Pool({ connectionString: databaseUrl });
 const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 
+const competitionLevels = [
+  {
+    id: "science-bowl-middle-school",
+    competitionId: "science-bowl",
+    slug: "middle-school",
+    name: "Middle School",
+    description: "Science Bowl preparation for grades 6-8.",
+    schoolLevel: SchoolLevel.MIDDLE_SCHOOL,
+    sortOrder: 10
+  },
+  {
+    id: "science-bowl-high-school",
+    competitionId: "science-bowl",
+    slug: "high-school",
+    name: "High School",
+    description: "Science Bowl preparation for grades 9-12.",
+    schoolLevel: SchoolLevel.HIGH_SCHOOL,
+    sortOrder: 20
+  },
+  {
+    id: "science-bowl-mixed-bowl-prep",
+    competitionId: "science-bowl",
+    slug: "mixed-bowl-prep",
+    name: "Mixed Bowl Prep",
+    description: "Science Bowl lessons that apply across middle and high school prep.",
+    schoolLevel: SchoolLevel.MIXED,
+    sortOrder: 30
+  },
+  {
+    id: "science-olympiad-division-b",
+    competitionId: "science-olympiad",
+    slug: "division-b",
+    name: "Division B",
+    description: "Science Olympiad middle school division preparation.",
+    schoolLevel: SchoolLevel.MIDDLE_SCHOOL,
+    sortOrder: 10
+  },
+  {
+    id: "science-olympiad-division-c",
+    competitionId: "science-olympiad",
+    slug: "division-c",
+    name: "Division C",
+    description: "Science Olympiad high school division preparation.",
+    schoolLevel: SchoolLevel.HIGH_SCHOOL,
+    sortOrder: 20
+  },
+  {
+    id: "science-olympiad-event-foundation",
+    competitionId: "science-olympiad",
+    slug: "event-foundation",
+    name: "Event Foundation",
+    description: "Science Olympiad event-based conceptual foundation.",
+    schoolLevel: SchoolLevel.MIXED,
+    sortOrder: 30
+  },
+  {
+    id: "math-olympiad-intro-olympiad",
+    competitionId: "math-olympiad",
+    slug: "intro-olympiad",
+    name: "Intro Olympiad",
+    description: "Entry-level olympiad problem-solving preparation.",
+    schoolLevel: SchoolLevel.MIXED,
+    sortOrder: 10
+  },
+  {
+    id: "math-olympiad-olympiad-builder",
+    competitionId: "math-olympiad",
+    slug: "olympiad-builder",
+    name: "Olympiad Builder",
+    description: "Intermediate olympiad problem-solving preparation.",
+    schoolLevel: SchoolLevel.MIXED,
+    sortOrder: 20
+  }
+];
+
+const competitionLevelIds = new Set(competitionLevels.map((level) => level.id));
+
 function toDbDifficulty(difficulty: string) {
   if (difficulty === "Foundational") return Difficulty.FOUNDATIONAL;
   if (difficulty === "Advanced") return Difficulty.ADVANCED;
@@ -37,6 +114,15 @@ function toSchoolLevel(level: string) {
   if (normalized.includes("middle") || normalized.includes("division b")) return SchoolLevel.MIDDLE_SCHOOL;
   if (normalized.includes("high") || normalized.includes("division c")) return SchoolLevel.HIGH_SCHOOL;
   return SchoolLevel.MIXED;
+}
+
+function slugify(value: string) {
+  return value.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+}
+
+function competitionLevelIdFor(competitionSlug: string, level: string) {
+  const id = `${competitionSlug}-${slugify(level)}`;
+  return competitionLevelIds.has(id) ? id : undefined;
 }
 
 function sourceHashForQuestion(question: (typeof practiceQuestions)[number]) {
@@ -91,11 +177,31 @@ async function main() {
     });
   }
 
+  for (const level of competitionLevels) {
+    await prisma.competitionLevel.upsert({
+      where: {
+        competitionId_slug: {
+          competitionId: level.competitionId,
+          slug: level.slug
+        }
+      },
+      update: {
+        id: level.id,
+        name: level.name,
+        description: level.description,
+        schoolLevel: level.schoolLevel,
+        sortOrder: level.sortOrder
+      },
+      create: level
+    });
+  }
+
   for (const question of practiceQuestions) {
     await prisma.question.upsert({
       where: { id: question.id },
       update: {
         competitionId: question.competitionSlug,
+        levelId: competitionLevelIdFor(question.competitionSlug, question.level),
         category: question.category,
         level: question.level,
         difficulty: toDbDifficulty(question.difficulty),
@@ -118,6 +224,7 @@ async function main() {
       create: {
         id: question.id,
         competitionId: question.competitionSlug,
+        levelId: competitionLevelIdFor(question.competitionSlug, question.level),
         category: question.category,
         level: question.level,
         difficulty: toDbDifficulty(question.difficulty),
@@ -165,6 +272,7 @@ async function main() {
       },
       update: {
         id: lesson.id,
+        levelId: competitionLevelIdFor(lesson.competitionSlug, lesson.level),
         title: lesson.title,
         category: lesson.category,
         level: lesson.level,
@@ -177,6 +285,7 @@ async function main() {
       create: {
         id: lesson.id,
         competitionId: lesson.competitionSlug,
+        levelId: competitionLevelIdFor(lesson.competitionSlug, lesson.level),
         slug: lesson.slug,
         title: lesson.title,
         category: lesson.category,
@@ -200,6 +309,7 @@ async function main() {
       },
       update: {
         id: test.id,
+        levelId: competitionLevelIdFor(test.competitionSlug, test.level),
         title: test.title,
         level: test.level,
         categories: test.categories,
@@ -209,6 +319,7 @@ async function main() {
       create: {
         id: test.id,
         competitionId: test.competitionSlug,
+        levelId: competitionLevelIdFor(test.competitionSlug, test.level),
         slug: test.slug,
         title: test.title,
         level: test.level,
@@ -262,6 +373,7 @@ async function main() {
 
   const counts = await Promise.all([
     prisma.competition.count(),
+    prisma.competitionLevel.count(),
     prisma.question.count(),
     prisma.answer.count(),
     prisma.lesson.count(),
@@ -270,7 +382,7 @@ async function main() {
   ]);
 
   console.log(
-    `Seed complete: ${counts[0]} competitions, ${counts[1]} questions, ${counts[2]} answers, ${counts[3]} lessons, ${counts[4]} tests, ${counts[5]} buzzer questions.`
+    `Seed complete: ${counts[0]} competitions, ${counts[1]} competition levels, ${counts[2]} questions, ${counts[3]} answers, ${counts[4]} lessons, ${counts[5]} tests, ${counts[6]} buzzer questions.`
   );
 }
 

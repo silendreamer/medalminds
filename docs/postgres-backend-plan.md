@@ -71,6 +71,31 @@ created_at timestamptz not null default now()
 updated_at timestamptz not null default now()
 ```
 
+### competition_levels
+
+Stores the division, grade band, or progression level within a competition.
+
+Examples:
+
+- Science Bowl: Middle School, High School, Mixed Bowl Prep
+- Science Olympiad: Division B, Division C, Event Foundation
+- Math Olympiad: Intro Olympiad, Olympiad Builder
+
+```sql
+id text primary key
+competition_id text not null references competitions(id) on delete cascade
+slug text not null
+name text not null
+description text
+school_level SchoolLevel
+sort_order integer not null default 0
+created_at timestamptz not null default now()
+updated_at timestamptz not null default now()
+unique (competition_id, slug)
+```
+
+Use this for the intended audience or division. Do not use it for question hardness.
+
 ### questions
 
 Stores reusable practice questions and toss-up style prompts. Difficulty is now a controlled enum instead of free text.
@@ -78,6 +103,7 @@ Stores reusable practice questions and toss-up style prompts. Difficulty is now 
 ```sql
 id uuid primary key
 competition_id uuid not null references competitions(id)
+level_id text references competition_levels(id) on delete set null
 category text not null
 level text not null
 difficulty Difficulty not null
@@ -116,7 +142,8 @@ Important distinctions:
 - `difficulty`: how hard the item is, such as foundational or advanced.
 - `format`: answer format, such as multiple choice or short answer.
 - `question_kind`: product/use context, such as practice, toss-up, bonus, or review.
-- `school_level`: intended school band, such as middle school, high school, or mixed.
+- `school_level`: broad school band, such as middle school, high school, or mixed.
+- `level_id`: normalized competition-specific level or division.
 
 ### answers
 
@@ -144,6 +171,7 @@ Stores learning lessons and detail-page content.
 ```sql
 id uuid primary key
 competition_id uuid not null references competitions(id)
+level_id text references competition_levels(id) on delete set null
 slug text not null
 title text not null
 category text not null
@@ -165,6 +193,7 @@ Stores test metadata.
 ```sql
 id uuid primary key
 competition_id uuid not null references competitions(id)
+level_id text references competition_levels(id) on delete set null
 slug text not null
 title text not null
 level text not null
@@ -237,6 +266,7 @@ model Competition {
   shortDescription String
   subdomain        String             @unique
   categories       String[]
+  levels           CompetitionLevel[]
   questions        Question[]
   lessons          Lesson[]
   tests            Test[]
@@ -245,10 +275,31 @@ model Competition {
   updatedAt        DateTime           @updatedAt
 }
 
+model CompetitionLevel {
+  id            String       @id
+  competitionId String
+  competition   Competition  @relation(fields: [competitionId], references: [id], onDelete: Cascade)
+  slug          String
+  name          String
+  description   String?
+  schoolLevel   SchoolLevel?
+  sortOrder     Int          @default(0)
+  questions     Question[]
+  lessons       Lesson[]
+  tests         Test[]
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  @@unique([competitionId, slug])
+  @@index([competitionId])
+}
+
 model Question {
   id               String       @id @default(uuid())
   competitionId    String
   competition      Competition  @relation(fields: [competitionId], references: [id])
+  levelId          String?
+  competitionLevel CompetitionLevel? @relation(fields: [levelId], references: [id], onDelete: SetNull)
   category         String
   level            String
   difficulty       Difficulty
@@ -293,6 +344,8 @@ model Lesson {
   id               String      @id @default(uuid())
   competitionId    String
   competition      Competition @relation(fields: [competitionId], references: [id])
+  levelId          String?
+  competitionLevel CompetitionLevel? @relation(fields: [levelId], references: [id], onDelete: SetNull)
   slug             String
   title            String
   category         String
@@ -312,6 +365,8 @@ model Test {
   id               String         @id @default(uuid())
   competitionId    String
   competition      Competition    @relation(fields: [competitionId], references: [id])
+  levelId          String?
+  competitionLevel CompetitionLevel? @relation(fields: [levelId], references: [id], onDelete: SetNull)
   slug             String
   title            String
   level            String
@@ -411,6 +466,7 @@ Completed:
 5. Added seed script at `prisma/seed.ts`.
 6. Seed script loads:
    - 3 competitions
+   - normalized competition levels
    - 30 questions
    - normalized answer rows for all practice questions
    - source metadata and deterministic source hashes for seeded questions
