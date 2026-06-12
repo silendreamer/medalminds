@@ -17,6 +17,19 @@ enum QuestionFormat {
   SHORT_ANSWER
 }
 
+enum QuestionKind {
+  PRACTICE
+  TOSSUP
+  BONUS
+  REVIEW
+}
+
+enum SchoolLevel {
+  MIDDLE_SCHOOL
+  HIGH_SCHOOL
+  MIXED
+}
+
 model Competition {
   id               String             @id
   slug             String             @unique
@@ -41,6 +54,15 @@ model Question {
   level            String
   difficulty       Difficulty
   format           QuestionFormat
+  questionKind     QuestionKind   @default(PRACTICE)
+  schoolLevel      SchoolLevel?
+  sourceProvider   String?
+  sourcePageUrl    String?
+  sourcePdfUrl     String?
+  sourceSet        String?
+  sourceRound      String?
+  sourceQuestionNumber Int?
+  sourceHash       String?        @unique
   prompt           String
   choices          Json?
   correctAnswer    String
@@ -53,6 +75,8 @@ model Question {
 
   @@index([competitionId])
   @@index([competitionId, category, difficulty, format])
+  @@index([competitionId, schoolLevel])
+  @@index([sourceProvider, sourceSet])
 }
 
 model Answer {

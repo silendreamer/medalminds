@@ -82,6 +82,15 @@ category text not null
 level text not null
 difficulty Difficulty not null
 format QuestionFormat not null
+question_kind QuestionKind not null default PRACTICE
+school_level SchoolLevel
+source_provider text
+source_page_url text
+source_pdf_url text
+source_set text
+source_round text
+source_question_number integer
+source_hash text unique
 prompt text not null
 choices jsonb
 correct_answer text not null
@@ -96,7 +105,18 @@ Recommended indexes:
 ```sql
 create index questions_competition_idx on questions(competition_id);
 create index questions_filters_idx on questions(competition_id, category, difficulty, format);
+create index questions_school_level_idx on questions(competition_id, school_level);
+create index questions_source_idx on questions(source_provider, source_set);
 ```
+
+Source metadata is optional because MedalMinds has original content and may later ingest material from many providers. `source_hash` is intended for deduplication and should be generated from stable source-identifying fields plus prompt/answer text.
+
+Important distinctions:
+
+- `difficulty`: how hard the item is, such as foundational or advanced.
+- `format`: answer format, such as multiple choice or short answer.
+- `question_kind`: product/use context, such as practice, toss-up, bonus, or review.
+- `school_level`: intended school band, such as middle school, high school, or mixed.
 
 ### answers
 
@@ -233,6 +253,15 @@ model Question {
   level            String
   difficulty       Difficulty
   format           QuestionFormat
+  questionKind     QuestionKind   @default(PRACTICE)
+  schoolLevel      SchoolLevel?
+  sourceProvider   String?
+  sourcePageUrl    String?
+  sourcePdfUrl     String?
+  sourceSet        String?
+  sourceRound      String?
+  sourceQuestionNumber Int?
+  sourceHash       String?        @unique
   prompt           String
   choices          Json?
   correctAnswer    String
@@ -384,6 +413,7 @@ Completed:
    - 3 competitions
    - 30 questions
    - normalized answer rows for all practice questions
+   - source metadata and deterministic source hashes for seeded questions
    - 30 lessons
    - 30 tests
    - 10 Science Bowl buzzer questions

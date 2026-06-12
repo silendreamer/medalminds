@@ -1,5 +1,6 @@
 import { PrismaPg } from "@prisma/adapter-pg";
-import { Difficulty, PrismaClient, QuestionFormat } from "@prisma/client";
+import { createHash } from "node:crypto";
+import { Difficulty, PrismaClient, QuestionFormat, QuestionKind, SchoolLevel } from "@prisma/client";
 import { Pool } from "pg";
 import { buzzerQuestions } from "../src/data/buzzerQuestions";
 import { competitions } from "../src/data/competitions";
@@ -29,6 +30,19 @@ function toDbDifficulty(difficulty: string) {
 
 function toDbQuestionFormat(type: string) {
   return type === "multiple_choice" ? QuestionFormat.MULTIPLE_CHOICE : QuestionFormat.SHORT_ANSWER;
+}
+
+function toSchoolLevel(level: string) {
+  const normalized = level.toLowerCase();
+  if (normalized.includes("middle") || normalized.includes("division b")) return SchoolLevel.MIDDLE_SCHOOL;
+  if (normalized.includes("high") || normalized.includes("division c")) return SchoolLevel.HIGH_SCHOOL;
+  return SchoolLevel.MIXED;
+}
+
+function sourceHashForQuestion(question: (typeof practiceQuestions)[number]) {
+  return createHash("sha256")
+    .update(`${question.competitionSlug}|${question.category}|${question.prompt}|${question.correctAnswer}`)
+    .digest("hex");
 }
 
 function answerRowsForQuestion(question: (typeof practiceQuestions)[number]) {
@@ -86,6 +100,15 @@ async function main() {
         level: question.level,
         difficulty: toDbDifficulty(question.difficulty),
         format: toDbQuestionFormat(question.type),
+        questionKind: QuestionKind.PRACTICE,
+        schoolLevel: toSchoolLevel(question.level),
+        sourceProvider: "MedalMinds Original",
+        sourcePageUrl: undefined,
+        sourcePdfUrl: undefined,
+        sourceSet: "MVP Sample Content",
+        sourceRound: undefined,
+        sourceQuestionNumber: Number(question.id.match(/\d+$/)?.[0] ?? 0) || undefined,
+        sourceHash: sourceHashForQuestion(question),
         prompt: question.prompt,
         choices: question.choices ?? undefined,
         correctAnswer: question.correctAnswer,
@@ -99,6 +122,15 @@ async function main() {
         level: question.level,
         difficulty: toDbDifficulty(question.difficulty),
         format: toDbQuestionFormat(question.type),
+        questionKind: QuestionKind.PRACTICE,
+        schoolLevel: toSchoolLevel(question.level),
+        sourceProvider: "MedalMinds Original",
+        sourcePageUrl: undefined,
+        sourcePdfUrl: undefined,
+        sourceSet: "MVP Sample Content",
+        sourceRound: undefined,
+        sourceQuestionNumber: Number(question.id.match(/\d+$/)?.[0] ?? 0) || undefined,
+        sourceHash: sourceHashForQuestion(question),
         prompt: question.prompt,
         choices: question.choices ?? undefined,
         correctAnswer: question.correctAnswer,
