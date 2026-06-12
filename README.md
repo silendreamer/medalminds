@@ -50,6 +50,61 @@ Local content lives in:
 
 Shared types live in `src/types/index.ts`. Data lookup helpers live in `src/lib/data.ts`.
 
+## Import DOE/OSTI Middle School Science Bowl Sample Questions
+
+This repo includes a scripted importer for DOE/OSTI Middle School Science Bowl sample question PDFs.
+
+- Source page: `https://science.osti.gov/wdts/nsb/Regional-Competitions/Resources/MS-Sample-Questions`
+- The importer discovers sample-round PDF links automatically from that page.
+- It downloads each PDF, extracts text, parses toss-up and bonus questions, and writes records into `Question` and `Answer` tables.
+- The importer stores source metadata like `sourcePdfUrl`, `sourceSet`, `sourceRound`, and `sourceHash`.
+- Duplicate prevention is implemented using a stable source hash based on the PDF URL, question kind, question number, and normalized prompt.
+
+Run a dry run first:
+
+```bash
+npm run import:osti-ms-science-bowl -- --dry-run --max-pdfs 2
+```
+
+Export parsed data instead of writing to Postgres:
+
+```bash
+npm run import:osti-ms-science-bowl -- --output-format=csv --max-pdfs 2
+```
+
+```bash
+npm run import:osti-ms-science-bowl -- --output-format=sql --max-pdfs 2
+```
+
+```bash
+npm run import:osti-ms-science-bowl -- --output-format=sqlite --max-pdfs 2
+```
+
+Import into the database:
+
+```bash
+DATABASE_URL="postgres://..." npm run import:osti-ms-science-bowl
+```
+
+Limit import scope:
+
+```bash
+npm run import:osti-ms-science-bowl -- --set 1 --round 1
+```
+
+Notes:
+
+- The script caches downloaded PDFs in `.cache/osti-science-bowl/` unless `--refresh` is passed.
+- The source page warns that answers may change as science advances.
+- If PostgreSQL environment variables are not configured, the importer will not execute database writes.
+
+What tables are populated:
+
+- `Question`
+- `Answer`
+
+The importer reuses the existing Prisma schema and does not introduce a new ORM.
+
 ## Add a new competition
 
 1. Add a competition record to `src/data/competitions.ts`.

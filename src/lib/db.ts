@@ -26,9 +26,13 @@ export function getPrisma() {
   }
 
   if (!globalForPrisma.prismaPool) {
-    globalForPrisma.prismaPool = new Pool({
-      connectionString: databaseUrl
-    });
+    const poolOptions: any = { connectionString: databaseUrl };
+    // When running against some hosted providers with self-signed certs,
+    // allow disabling strict TLS verification via NODE_TLS_REJECT_UNAUTHORIZED=0
+    if (process.env.NODE_TLS_REJECT_UNAUTHORIZED === '0') {
+      poolOptions.ssl = { rejectUnauthorized: false };
+    }
+    globalForPrisma.prismaPool = new Pool(poolOptions);
   }
 
   if (!globalForPrisma.prisma) {
