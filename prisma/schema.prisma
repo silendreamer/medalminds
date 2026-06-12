@@ -12,6 +12,11 @@ enum Difficulty {
   ADVANCED
 }
 
+enum QuestionFormat {
+  MULTIPLE_CHOICE
+  SHORT_ANSWER
+}
+
 model Competition {
   id               String             @id
   slug             String             @unique
@@ -20,7 +25,7 @@ model Competition {
   shortDescription String
   subdomain        String             @unique
   categories       String[]
-  questions        PracticeQuestion[]
+  questions        Question[]
   lessons          Lesson[]
   tests            Test[]
   buzzerQuestions  BuzzerQuestion[]
@@ -28,14 +33,14 @@ model Competition {
   updatedAt        DateTime           @updatedAt
 }
 
-model PracticeQuestion {
+model Question {
   id               String         @id
   competitionId    String
   competition      Competition    @relation(fields: [competitionId], references: [id], onDelete: Cascade)
   category         String
   level            String
   difficulty       Difficulty
-  type             String
+  format           QuestionFormat
   prompt           String
   choices          Json?
   correctAnswer    String
@@ -47,13 +52,13 @@ model PracticeQuestion {
   updatedAt        DateTime       @updatedAt
 
   @@index([competitionId])
-  @@index([competitionId, category, difficulty, type])
+  @@index([competitionId, category, difficulty, format])
 }
 
 model Answer {
   id          String           @id
   questionId  String
-  question    PracticeQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  question    Question         @relation(fields: [questionId], references: [id], onDelete: Cascade)
   text        String
   isCorrect   Boolean          @default(false)
   explanation String?
@@ -109,7 +114,7 @@ model TestQuestion {
   questionId String
   position   Int
   test       Test             @relation(fields: [testId], references: [id], onDelete: Cascade)
-  question   PracticeQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  question   Question         @relation(fields: [questionId], references: [id], onDelete: Cascade)
 
   @@id([testId, questionId])
   @@unique([testId, position])

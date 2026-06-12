@@ -71,7 +71,7 @@ created_at timestamptz not null default now()
 updated_at timestamptz not null default now()
 ```
 
-### practice_questions
+### questions
 
 Stores reusable practice questions and toss-up style prompts. Difficulty is now a controlled enum instead of free text.
 
@@ -81,7 +81,7 @@ competition_id uuid not null references competitions(id)
 category text not null
 level text not null
 difficulty Difficulty not null
-type text not null
+format QuestionFormat not null
 prompt text not null
 choices jsonb
 correct_answer text not null
@@ -94,19 +94,19 @@ updated_at timestamptz not null default now()
 Recommended indexes:
 
 ```sql
-create index practice_questions_competition_idx on practice_questions(competition_id);
-create index practice_questions_filters_idx on practice_questions(competition_id, category, difficulty, type);
+create index questions_competition_idx on questions(competition_id);
+create index questions_filters_idx on questions(competition_id, category, difficulty, format);
 ```
 
 ### answers
 
 Stores answer options and accepted responses for a practice question.
 
-This table allows multiple correct answers, multiple distractors, stable option ordering, and future answer-level analytics. The legacy `correct_answer`, `alternate_answers`, and `choices` columns on `practice_questions` are still present for compatibility, but new database-backed reads prefer rows from `answers`.
+This table allows multiple correct answers, multiple distractors, stable option ordering, and future answer-level analytics. The legacy `correct_answer`, `alternate_answers`, and `choices` columns on `questions` are still present for compatibility, but new database-backed reads prefer rows from `answers`.
 
 ```sql
 id text primary key
-question_id text not null references practice_questions(id) on delete cascade
+question_id text not null references questions(id) on delete cascade
 text text not null
 is_correct boolean not null default false
 explanation text
@@ -162,7 +162,7 @@ Links tests to practice questions in a stable order.
 
 ```sql
 test_id uuid not null references tests(id) on delete cascade
-question_id uuid not null references practice_questions(id)
+question_id uuid not null references questions(id)
 position integer not null
 primary key (test_id, question_id)
 unique (test_id, position)
@@ -217,7 +217,7 @@ model Competition {
   shortDescription String
   subdomain        String             @unique
   categories       String[]
-  questions        PracticeQuestion[]
+  questions        Question[]
   lessons          Lesson[]
   tests            Test[]
   buzzerQuestions  BuzzerQuestion[]
@@ -225,14 +225,14 @@ model Competition {
   updatedAt        DateTime           @updatedAt
 }
 
-model PracticeQuestion {
+model Question {
   id               String       @id @default(uuid())
   competitionId    String
   competition      Competition  @relation(fields: [competitionId], references: [id])
   category         String
   level            String
   difficulty       Difficulty
-  type             String
+  format           QuestionFormat
   prompt           String
   choices          Json?
   correctAnswer    String
@@ -247,7 +247,7 @@ model PracticeQuestion {
 model Answer {
   id          String           @id
   questionId  String
-  question    PracticeQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  question    Question         @relation(fields: [questionId], references: [id], onDelete: Cascade)
   text        String
   isCorrect   Boolean          @default(false)
   explanation String?
@@ -301,7 +301,7 @@ model TestQuestion {
   questionId String
   position   Int
   test       Test             @relation(fields: [testId], references: [id], onDelete: Cascade)
-  question   PracticeQuestion @relation(fields: [questionId], references: [id])
+  question   Question         @relation(fields: [questionId], references: [id])
 
   @@id([testId, questionId])
   @@unique([testId, position])
@@ -382,7 +382,7 @@ Completed:
 5. Added seed script at `prisma/seed.ts`.
 6. Seed script loads:
    - 3 competitions
-   - 30 practice questions
+   - 30 questions
    - normalized answer rows for all practice questions
    - 30 lessons
    - 30 tests
@@ -396,6 +396,7 @@ Completed:
 2. Kept client interaction state unchanged.
 3. Kept `src/data/*` as seed inputs and fallback data.
 4. Kept client navigation imports on static competition config to avoid bundling PostgreSQL code in the browser.
+5. Renamed the database model from `PracticeQuestion` to generic `Question` while keeping UI-facing TypeScript props compatible with the existing practice pages.
 
 ### Phase 3: Content Operations
 

@@ -1,5 +1,5 @@
 import { PrismaPg } from "@prisma/adapter-pg";
-import { Difficulty, PrismaClient } from "@prisma/client";
+import { Difficulty, PrismaClient, QuestionFormat } from "@prisma/client";
 import { Pool } from "pg";
 import { buzzerQuestions } from "../src/data/buzzerQuestions";
 import { competitions } from "../src/data/competitions";
@@ -25,6 +25,10 @@ function toDbDifficulty(difficulty: string) {
   if (difficulty === "Foundational") return Difficulty.FOUNDATIONAL;
   if (difficulty === "Advanced") return Difficulty.ADVANCED;
   return Difficulty.INTERMEDIATE;
+}
+
+function toDbQuestionFormat(type: string) {
+  return type === "multiple_choice" ? QuestionFormat.MULTIPLE_CHOICE : QuestionFormat.SHORT_ANSWER;
 }
 
 function answerRowsForQuestion(question: (typeof practiceQuestions)[number]) {
@@ -74,14 +78,14 @@ async function main() {
   }
 
   for (const question of practiceQuestions) {
-    await prisma.practiceQuestion.upsert({
+    await prisma.question.upsert({
       where: { id: question.id },
       update: {
         competitionId: question.competitionSlug,
         category: question.category,
         level: question.level,
         difficulty: toDbDifficulty(question.difficulty),
-        type: question.type,
+        format: toDbQuestionFormat(question.type),
         prompt: question.prompt,
         choices: question.choices ?? undefined,
         correctAnswer: question.correctAnswer,
@@ -94,7 +98,7 @@ async function main() {
         category: question.category,
         level: question.level,
         difficulty: toDbDifficulty(question.difficulty),
-        type: question.type,
+        format: toDbQuestionFormat(question.type),
         prompt: question.prompt,
         choices: question.choices ?? undefined,
         correctAnswer: question.correctAnswer,
@@ -226,7 +230,7 @@ async function main() {
 
   const counts = await Promise.all([
     prisma.competition.count(),
-    prisma.practiceQuestion.count(),
+    prisma.question.count(),
     prisma.answer.count(),
     prisma.lesson.count(),
     prisma.test.count(),

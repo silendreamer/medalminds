@@ -1,4 +1,4 @@
-import { Difficulty, type Prisma } from "@prisma/client";
+import { Difficulty, QuestionFormat, type Prisma } from "@prisma/client";
 import { buzzerQuestions as localBuzzerQuestions } from "@/data/buzzerQuestions";
 import { competitions as localCompetitions } from "@/data/competitions";
 import { lessons as localLessons } from "@/data/lessons";
@@ -8,7 +8,7 @@ import type { CompetitionSlug, Lesson, PracticeQuestion, Test } from "@/types";
 import { getPrisma, hasDatabaseUrl } from "./db";
 
 type DbLesson = Prisma.LessonGetPayload<Record<string, never>>;
-type DbPracticeQuestion = Prisma.PracticeQuestionGetPayload<{
+type DbQuestion = Prisma.QuestionGetPayload<{
   include: { answers: { orderBy: { position: "asc" } } };
 }>;
 type DbTestWithQuestions = Prisma.TestGetPayload<{
@@ -31,11 +31,18 @@ function fromDbDifficulty(difficulty: Difficulty | string): PracticeQuestion["di
   return "Intermediate";
 }
 
-function toPracticeQuestion(question: DbPracticeQuestion): PracticeQuestion {
+function fromDbQuestionFormat(format: QuestionFormat | string): PracticeQuestion["type"] {
+  return format === QuestionFormat.MULTIPLE_CHOICE || format === "MULTIPLE_CHOICE"
+    ? "multiple_choice"
+    : "short_answer";
+}
+
+function toPracticeQuestion(question: DbQuestion): PracticeQuestion {
   const correctAnswers = question.answers.filter((answer) => answer.isCorrect);
   const primaryCorrectAnswer = correctAnswers[0]?.text ?? question.correctAnswer;
   const alternateAnswers = correctAnswers.slice(1).map((answer) => answer.text);
   const answerChoices = question.answers.map((answer) => answer.text);
+  const type = fromDbQuestionFormat(question.format);
 
   return {
     id: question.id,
@@ -43,10 +50,10 @@ function toPracticeQuestion(question: DbPracticeQuestion): PracticeQuestion {
     category: question.category,
     level: question.level,
     difficulty: fromDbDifficulty(question.difficulty),
-    type: question.type as PracticeQuestion["type"],
+    type,
     prompt: question.prompt,
     choices:
-      question.type === "multiple_choice"
+      type === "multiple_choice"
         ? answerChoices.length
           ? answerChoices
           : Array.isArray(question.choices)
@@ -134,7 +141,7 @@ export async function getQuestionsByCompetition(slug: CompetitionSlug) {
     return localPracticeQuestions.filter((question) => question.competitionSlug === slug);
   }
 
-  const questions = await getPrisma().practiceQuestion.findMany({
+  const questions = await getPrisma().question.findMany({
     where: { competition: { slug } },
     orderBy: { id: "asc" },
     include: { answers: { orderBy: { position: "asc" } } }
@@ -226,7 +233,7 @@ export async function getQuestionsForTest(questionIds: string[]) {
       .filter((question): question is NonNullable<typeof question> => Boolean(question));
   }
 
-  const questions = await getPrisma().practiceQuestion.findMany({
+  const questions = await getPrisma().question.findMany({
     where: { id: { in: questionIds } },
     include: { answers: { orderBy: { position: "asc" } } }
   });
@@ -257,7 +264,7 @@ export async function getContentCounts(slug: CompetitionSlug) {
   }
 
   const [questions, lessons, tests] = await Promise.all([
-    prisma.practiceQuestion.count({ where: { competitionId: competition.id } }),
+    prisma.question.count({ where: { competitionId: competition.id } }),
     prisma.lesson.count({ where: { competitionId: competition.id } }),
     prisma.test.count({ where: { competitionId: competition.id } })
   ]);

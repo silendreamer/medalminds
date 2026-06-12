@@ -82,7 +82,7 @@ Implemented backend stack:
 - Hosted database provider such as Supabase Postgres, Neon, Railway Postgres, or Vercel Postgres
 - Server-side repository functions called from the existing Next.js routes
 
-The current backend pass supports read-only content from PostgreSQL. Practice question answers are normalized into an `Answer` table, and difficulty is defined as a PostgreSQL/Prisma enum with `FOUNDATIONAL`, `INTERMEDIATE`, and `ADVANCED`. User accounts, saved progress, admin tools, payments, and real-time features remain out of scope until the core content database is stable.
+The current backend pass supports read-only content from PostgreSQL. Questions use a generic `Question` table with a `QuestionFormat` enum, practice question answers are normalized into an `Answer` table, and difficulty is defined as a PostgreSQL/Prisma enum with `FOUNDATIONAL`, `INTERMEDIATE`, and `ADVANCED`. User accounts, saved progress, admin tools, payments, and real-time features remain out of scope until the core content database is stable.
 
 ## Vercel deployment
 
