@@ -8,11 +8,20 @@ import { lessons } from "../src/data/lessons";
 import { practiceQuestions } from "../src/data/practiceQuestions";
 import { tests } from "../src/data/tests";
 
+const urlFromParts =
+  process.env.POSTGRES_HOST &&
+  process.env.POSTGRES_USER &&
+  process.env.POSTGRES_PASSWORD &&
+  process.env.POSTGRES_DATABASE
+    ? `postgresql://${encodeURIComponent(process.env.POSTGRES_USER)}:${encodeURIComponent(process.env.POSTGRES_PASSWORD)}@${process.env.POSTGRES_HOST}:5432/${process.env.POSTGRES_DATABASE}?sslmode=require`
+    : undefined;
+
 const databaseUrl =
   process.env.DATABASE_URL ??
   process.env.POSTGRES_PRISMA_URL ??
   process.env.POSTGRES_URL ??
-  process.env.POSTGRES_URL_NON_POOLING;
+  process.env.POSTGRES_URL_NON_POOLING ??
+  urlFromParts;
 
 if (!databaseUrl) {
   throw new Error("DATABASE_URL is required to seed the database.");

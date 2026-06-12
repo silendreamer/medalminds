@@ -10,11 +10,20 @@ const globalForPrisma = globalThis as unknown as {
 export const hasDatabaseUrl = Boolean(getDatabaseUrl());
 
 export function getDatabaseUrl() {
+  const host = process.env.POSTGRES_HOST;
+  const user = process.env.POSTGRES_USER;
+  const password = process.env.POSTGRES_PASSWORD;
+  const database = process.env.POSTGRES_DATABASE;
+  const urlFromParts = host && user && password && database
+    ? `postgresql://${encodeURIComponent(user)}:${encodeURIComponent(password)}@${host}:5432/${database}?sslmode=require`
+    : undefined;
+
   return (
     process.env.DATABASE_URL ??
     process.env.POSTGRES_PRISMA_URL ??
     process.env.POSTGRES_URL ??
-    process.env.POSTGRES_URL_NON_POOLING
+    process.env.POSTGRES_URL_NON_POOLING ??
+    urlFromParts
   );
 }
 
