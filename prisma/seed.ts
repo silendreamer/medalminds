@@ -247,6 +247,7 @@ async function main() {
     });
 
     await prisma.answer.deleteMany({ where: { questionId: question.id } });
+    await prisma.answerExplanation.deleteMany({ where: { questionId: question.id } });
 
     for (const answer of answerRowsForQuestion(question)) {
       await prisma.answer.create({
@@ -260,6 +261,15 @@ async function main() {
         }
       });
     }
+
+    await prisma.answerExplanation.create({
+      data: {
+        id: `${question.id}-explanation-0`,
+        questionId: question.id,
+        shortExplanation: question.explanation,
+        position: 0
+      }
+    });
   }
 
   for (const lesson of lessons) {

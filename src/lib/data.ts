@@ -9,7 +9,10 @@ import { getPrisma, hasDatabaseUrl } from "./db";
 
 type DbLesson = Prisma.LessonGetPayload<Record<string, never>>;
 type DbQuestion = Prisma.QuestionGetPayload<{
-  include: { answers: { orderBy: { position: "asc" } } };
+  include: {
+    answers: { orderBy: { position: "asc" } };
+    answerExplanations: { orderBy: { position: "asc" } };
+  };
 }>;
 type DbTestWithQuestions = Prisma.TestGetPayload<{
   include: {
@@ -17,7 +20,10 @@ type DbTestWithQuestions = Prisma.TestGetPayload<{
       orderBy: { position: "asc" };
       include: {
         question: {
-          include: { answers: { orderBy: { position: "asc" } } };
+          include: {
+            answers: { orderBy: { position: "asc" } };
+            answerExplanations: { orderBy: { position: "asc" } };
+          };
         };
       };
     };
@@ -43,6 +49,7 @@ function toPracticeQuestion(question: DbQuestion): PracticeQuestion {
   const alternateAnswers = correctAnswers.slice(1).map((answer) => answer.text);
   const answerChoices = question.answers.map((answer) => answer.text);
   const type = fromDbQuestionFormat(question.format);
+  const explanation = question.answerExplanations[0]?.shortExplanation ?? question.explanation;
 
   return {
     id: question.id,
@@ -62,7 +69,7 @@ function toPracticeQuestion(question: DbQuestion): PracticeQuestion {
         : undefined,
     correctAnswer: primaryCorrectAnswer,
     alternateAnswers: alternateAnswers.length ? alternateAnswers : question.alternateAnswers.length ? question.alternateAnswers : undefined,
-    explanation: question.explanation
+    explanation
   };
 }
 
@@ -144,7 +151,10 @@ export async function getQuestionsByCompetition(slug: CompetitionSlug) {
   const questions = await getPrisma().question.findMany({
     where: { competition: { slug } },
     orderBy: { id: "asc" },
-    include: { answers: { orderBy: { position: "asc" } } }
+    include: {
+      answers: { orderBy: { position: "asc" } },
+      answerExplanations: { orderBy: { position: "asc" } }
+    }
   });
 
   return questions.map(toPracticeQuestion);
@@ -176,7 +186,10 @@ export async function getTestsByCompetition(slug: CompetitionSlug) {
         orderBy: { position: "asc" },
         include: {
           question: {
-            include: { answers: { orderBy: { position: "asc" } } }
+            include: {
+              answers: { orderBy: { position: "asc" } },
+              answerExplanations: { orderBy: { position: "asc" } }
+            }
           }
         }
       }
@@ -216,7 +229,10 @@ export async function getTestBySlug(slug: CompetitionSlug, testSlug: string) {
         orderBy: { position: "asc" },
         include: {
           question: {
-            include: { answers: { orderBy: { position: "asc" } } }
+            include: {
+              answers: { orderBy: { position: "asc" } },
+              answerExplanations: { orderBy: { position: "asc" } }
+            }
           }
         }
       }
@@ -235,7 +251,10 @@ export async function getQuestionsForTest(questionIds: string[]) {
 
   const questions = await getPrisma().question.findMany({
     where: { id: { in: questionIds } },
-    include: { answers: { orderBy: { position: "asc" } } }
+    include: {
+      answers: { orderBy: { position: "asc" } },
+      answerExplanations: { orderBy: { position: "asc" } }
+    }
   });
   const byId = new Map(questions.map((question) => [question.id, toPracticeQuestion(question)]));
 

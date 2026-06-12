@@ -164,6 +164,21 @@ unique (question_id, text)
 unique (question_id, position)
 ```
 
+### answer_explanations
+
+Stores the explanation shown after revealing the correct answer. This is separate from answers so a question can later support multiple explanation styles, such as short, detailed, coach-facing, or step-by-step.
+
+```sql
+id text primary key
+question_id text not null references questions(id) on delete cascade
+short_explanation text not null
+detailed_explanation text
+position integer not null default 0
+created_at timestamptz not null default now()
+updated_at timestamptz not null default now()
+unique (question_id, position)
+```
+
 ### lessons
 
 Stores learning lessons and detail-page content.
@@ -319,9 +334,24 @@ model Question {
   alternateAnswers String[]
   explanation      String
   answers          Answer[]
+  answerExplanations AnswerExplanation[]
   tests            TestQuestion[]
   createdAt        DateTime     @default(now())
   updatedAt        DateTime     @updatedAt
+}
+
+model AnswerExplanation {
+  id                  String   @id
+  questionId          String
+  question            Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  shortExplanation    String
+  detailedExplanation String?
+  position            Int      @default(0)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  @@unique([questionId, position])
+  @@index([questionId])
 }
 
 model Answer {
@@ -469,6 +499,7 @@ Completed:
    - normalized competition levels
    - 30 questions
    - normalized answer rows for all practice questions
+   - normalized answer explanation rows for all practice questions
    - source metadata and deterministic source hashes for seeded questions
    - 30 lessons
    - 30 tests
