@@ -122,6 +122,54 @@ function isDbEnabled() {
   return hasDatabaseUrl;
 }
 
+const subjectAliases: Record<string, string[]> = {
+  "Biology": ["Biology", "Life Science"],
+  "Chemistry": ["Chemistry"],
+  "Physics": ["Physics", "Physical Science"],
+  "Earth & Space": ["Earth & Space", "Earth & Space Science", "Earth Science", "Astronomy"],
+  "Energy": ["Energy"],
+  "Math": ["Math"],
+  "Anatomy": ["Anatomy"],
+  "Astronomy": ["Astronomy"],
+  "Disease Detectives": ["Disease Detectives"],
+  "Dynamic Planet": ["Dynamic Planet"],
+  "Forensics": ["Forensics"],
+  "Machines": ["Machines"],
+  "Number Theory": ["Number Theory"],
+  "Algebra": ["Algebra"],
+  "Geometry": ["Geometry"],
+  "Combinatorics": ["Combinatorics"],
+  "Probability": ["Probability"],
+  "Logic": ["Logic"]
+};
+
+function aliasesForSubject(subject?: string | null) {
+  if (!subject) return undefined;
+  return subjectAliases[subject] ?? [subject];
+}
+
+function localQuestionMatchesSubject(question: PracticeQuestion, subject?: string | null) {
+  const aliases = aliasesForSubject(subject);
+  return !aliases || aliases.includes(question.category);
+}
+
+function shuffle<T>(items: T[]) {
+  const copy = [...items];
+  for (let index = copy.length - 1; index > 0; index -= 1) {
+    const swapIndex = Math.floor(Math.random() * (index + 1));
+    [copy[index], copy[swapIndex]] = [copy[swapIndex], copy[index]];
+  }
+  return copy;
+}
+
+function questionWhereForSubject(slug: CompetitionSlug, subject?: string | null) {
+  const aliases = aliasesForSubject(subject);
+  return {
+    competition: { slug },
+    ...(aliases ? { category: { in: aliases } } : {})
+  };
+}
+
 export async function getCompetitions() {
   if (!isDbEnabled()) return localCompetitions;
 
@@ -160,13 +208,66 @@ export async function getQuestionsByCompetition(slug: CompetitionSlug) {
   return questions.map(toPracticeQuestion);
 }
 
-export async function getLessonsByCompetition(slug: CompetitionSlug) {
+export async function getRandomQuestionByCompetition(slug: CompetitionSlug, subject?: string | null) {
   if (!isDbEnabled()) {
-    return localLessons.filter((lesson) => lesson.competitionSlug === slug);
+    const questions = localPracticeQuestions.filter(
+      (question) => question.competitionSlug === slug && localQuestionMatchesSubject(question, subject)
+    );
+    return shuffle(questions)[0];
+  }
+
+  const questions = await getPrisma().question.findMany({
+    where: questionWhereForSubject(slug, subject),
+    take: 250,
+    orderBy: { updatedAt: "desc" },
+    include: {
+      answers: { orderBy: { position: "asc" } },
+      answerExplanations: { orderBy: { position: "asc" } }
+    }
+  });
+
+  return shuffle(questions).map(toPracticeQuestion)[0];
+}
+
+export async function getRandomMultipleChoiceQuestions(slug: CompetitionSlug, subject: string | null, count: number) {
+  if (!isDbEnabled()) {
+    return shuffle(
+      localPracticeQuestions.filter(
+        (question) =>
+          question.competitionSlug === slug &&
+          question.type === "multiple_choice" &&
+          localQuestionMatchesSubject(question, subject)
+      )
+    ).slice(0, count);
+  }
+
+  const questions = await getPrisma().question.findMany({
+    where: {
+      ...questionWhereForSubject(slug, subject),
+      format: "MULTIPLE_CHOICE"
+    },
+    take: Math.max(count * 8, 120),
+    orderBy: { updatedAt: "desc" },
+    include: {
+      answers: { orderBy: { position: "asc" } },
+      answerExplanations: { orderBy: { position: "asc" } }
+    }
+  });
+
+  return shuffle(questions.map(toPracticeQuestion).filter((question) => (question.choices?.length ?? 0) >= 4)).slice(0, count);
+}
+
+export async function getLessonsByCompetition(slug: CompetitionSlug, subject?: string | null) {
+  if (!isDbEnabled()) {
+    const aliases = aliasesForSubject(subject);
+    return localLessons.filter((lesson) => lesson.competitionSlug === slug && (!aliases || aliases.includes(lesson.category)));
   }
 
   const lessons = await getPrisma().lesson.findMany({
-    where: { competition: { slug } },
+    where: {
+      competition: { slug },
+      ...(aliasesForSubject(subject) ? { category: { in: aliasesForSubject(subject) } } : {})
+    },
     orderBy: { id: "asc" }
   });
 
