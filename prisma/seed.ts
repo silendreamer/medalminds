@@ -125,6 +125,144 @@ function competitionLevelIdFor(competitionSlug: string, level: string) {
   return competitionLevelIds.has(id) ? id : undefined;
 }
 
+function scienceBowlCategoryAliases(categories: string[], title: string) {
+  const aliases = new Set<string>();
+  const normalizedTitle = title.toLowerCase();
+  let titleSpecific = false;
+
+  function add(...values: string[]) {
+    values.forEach((value) => aliases.add(value));
+  }
+
+  function addAllCategories() {
+    add(
+      "Astronomy",
+      "Biology",
+      "Chemistry",
+      "Earth & Space Science",
+      "Earth Science",
+      "Energy",
+      "General Science",
+      "Life Science",
+      "Math",
+      "Physical Science",
+      "Physics"
+    );
+  }
+
+  if (normalizedTitle.includes("mixed") || normalizedTitle.includes("balance") || normalizedTitle.includes("endurance")) {
+    addAllCategories();
+    titleSpecific = true;
+  }
+
+  if (normalizedTitle.includes("recall")) {
+    addAllCategories();
+    titleSpecific = true;
+  }
+
+  if (normalizedTitle.includes("biology")) {
+    add("Biology", "Life Science");
+    titleSpecific = true;
+  }
+  if (normalizedTitle.includes("chemistry")) {
+    add("Chemistry");
+    titleSpecific = true;
+  }
+  if (normalizedTitle.includes("physics")) {
+    add("Physics", "Physical Science");
+    titleSpecific = true;
+  }
+  if (normalizedTitle.includes("earth") || normalizedTitle.includes("space")) {
+    add("Earth & Space Science", "Earth Science", "Astronomy");
+    titleSpecific = true;
+  }
+  if (normalizedTitle.includes("energy")) {
+    add("Energy");
+    titleSpecific = true;
+  }
+  if (normalizedTitle.includes("math")) {
+    add("Math");
+    titleSpecific = true;
+  }
+
+  if (!titleSpecific) {
+    for (const category of categories) {
+      if (category === "Biology") add("Biology", "Life Science");
+      else if (category === "Chemistry") add("Chemistry");
+      else if (category === "Physics") add("Physics", "Physical Science");
+      else if (category === "Earth & Space") add("Earth & Space Science", "Earth Science", "Astronomy");
+      else if (category === "Energy") add("Energy");
+      else if (category === "Math") add("Math");
+      else add(category);
+    }
+  }
+
+  return Array.from(aliases);
+}
+
+function scienceBowlSchoolLevelForTitle(title: string) {
+  const normalized = title.toLowerCase();
+  if (normalized.includes("high school")) return SchoolLevel.HIGH_SCHOOL;
+  if (normalized.includes("middle school")) return SchoolLevel.MIDDLE_SCHOOL;
+  return undefined;
+}
+
+async function getQuestionIdsForTest(test: (typeof tests)[number]) {
+  if (test.competitionSlug !== "science-bowl") {
+    const existingQuestionIds = new Set(
+      (
+        await prisma.question.findMany({
+          where: { id: { in: test.questionIds } },
+          select: { id: true }
+        })
+      ).map((question) => question.id)
+    );
+
+    return test.questionIds.filter((questionId) => existingQuestionIds.has(questionId));
+  }
+
+  const match = test.id.match(/-(\d+)$/);
+  const testNumber = match ? Number(match[1]) : 1;
+  const take = Math.max(test.questionIds.length, 8);
+  const categories = scienceBowlCategoryAliases(test.categories, test.title);
+  const schoolLevel = scienceBowlSchoolLevelForTitle(test.title);
+
+  const questions = await prisma.question.findMany({
+    where: {
+      competitionId: "science-bowl",
+      category: { in: categories },
+      ...(schoolLevel ? { schoolLevel } : {}),
+      OR: [
+        { format: "MULTIPLE_CHOICE" },
+        { format: "SHORT_ANSWER" }
+      ]
+    },
+    orderBy: [
+      { sourceSet: "asc" },
+      { sourceRound: "asc" },
+      { sourceQuestionNumber: "asc" },
+      { id: "asc" }
+    ],
+    skip: (testNumber - 1) * take,
+    take: take * 4,
+    include: {
+      answers: {
+        orderBy: { position: "asc" },
+        select: { text: true }
+      }
+    }
+  });
+
+  return questions
+    .filter(
+      (question) =>
+        question.format === "SHORT_ANSWER" ||
+        (question.answers.length === 4 && question.answers.every((answer) => !/answer\s*:/i.test(answer.text)))
+    )
+    .slice(0, take)
+    .map((question) => question.id);
+}
+
 async function main() {
   for (const competition of competitions) {
     await prisma.competition.upsert({
@@ -236,16 +374,9 @@ async function main() {
 
     await prisma.testQuestion.deleteMany({ where: { testId: test.id } });
 
-    const existingQuestionIds = new Set(
-      (
-        await prisma.question.findMany({
-          where: { id: { in: test.questionIds } },
-          select: { id: true }
-        })
-      ).map((question) => question.id)
-    );
+    const linkedQuestionIds = await getQuestionIdsForTest(test);
 
-    for (const [position, questionId] of test.questionIds.filter((questionId) => existingQuestionIds.has(questionId)).entries()) {
+    for (const [position, questionId] of linkedQuestionIds.entries()) {
       await prisma.testQuestion.create({
         data: {
           testId: test.id,

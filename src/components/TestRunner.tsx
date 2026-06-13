@@ -12,6 +12,8 @@ function isCorrect(question: PracticeQuestion, answer: string) {
   return accepted.includes(normalize(answer));
 }
 
+const multipleChoiceLabels = ["W", "X", "Y", "Z"];
+
 export function TestRunner({ test, questions }: { test: Test; questions: PracticeQuestion[] }) {
   const [current, setCurrent] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
@@ -92,13 +94,13 @@ export function TestRunner({ test, questions }: { test: Test; questions: Practic
             <p>{question.prompt}</p>
             {question.type === "multiple_choice" ? (
               <div className="stack">
-                {question.choices?.map((choice) => (
+                {question.choices?.map((choice, choiceIndex) => (
                   <button
                     className={`choice ${answers[question.id] === choice ? "selected" : ""}`}
                     key={choice}
                     onClick={() => setAnswer(choice)}
                   >
-                    {choice}
+                    {multipleChoiceLabels[choiceIndex] ? `${multipleChoiceLabels[choiceIndex]}) ${choice}` : choice}
                   </button>
                 ))}
               </div>

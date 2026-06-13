@@ -75,7 +75,7 @@ function parseJsonArray(value: string | null): string[] | undefined {
   if (!value) return undefined;
   try {
     const parsed = JSON.parse(value);
-    return Array.isArray(parsed) ? parsed.map((item) => requiredText(String(item))) : undefined;
+    return Array.isArray(parsed) ? parsed.map((item) => requiredText(String(item))).filter(Boolean) : undefined;
   } catch {
     return undefined;
   }
@@ -83,6 +83,10 @@ function parseJsonArray(value: string | null): string[] | undefined {
 
 function cleanText(value: string | null | undefined) {
   return value?.replace(/\u0000/g, "").trim() ?? null;
+}
+
+function cleanChoiceText(value: string) {
+  return requiredText(value).replace(/(^|\s+)ANSWER\s*:.*$/i, "").trim();
 }
 
 function requiredText(value: string) {
@@ -246,21 +250,23 @@ async function importSqliteFile(prisma: PrismaClient, sqlitePath: string) {
       sourceQuestionNumber: question.sourceQuestionNumber,
       sourceHash: question.sourceHash,
       prompt: requiredText(question.prompt),
-      choices: parseJsonArray(question.choices) ?? Prisma.JsonNull,
+      choices: parseJsonArray(question.choices)?.map(cleanChoiceText).filter(Boolean) ?? Prisma.JsonNull,
       correctAnswer: requiredText(question.correctAnswer),
       alternateAnswers: parseJsonArray(question.alternateAnswers) ?? [],
       explanation
     });
 
     answerRows.push(
-      ...answers.map((answer) => ({
-        id: answer.id,
-        questionId: question.id,
-        text: requiredText(answer.text),
-        isCorrect: Boolean(answer.isCorrect),
-        explanation: cleanText(answer.explanation),
-        position: answer.position
-      }))
+      ...answers
+        .map((answer) => ({
+          id: answer.id,
+          questionId: question.id,
+          text: cleanChoiceText(answer.text),
+          isCorrect: Boolean(answer.isCorrect),
+          explanation: cleanText(answer.explanation),
+          position: answer.position
+        }))
+        .filter((answer) => answer.text)
     );
 
     explanationRows.push({

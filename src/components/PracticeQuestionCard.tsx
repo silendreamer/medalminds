@@ -12,6 +12,8 @@ function isCorrect(question: PracticeQuestion, answer: string) {
   return accepted.includes(normalize(answer));
 }
 
+const multipleChoiceLabels = ["W", "X", "Y", "Z"];
+
 export function PracticeQuestionCard({ questions }: { questions: PracticeQuestion[] }) {
   const [category, setCategory] = useState("All");
   const [difficulty, setDifficulty] = useState("All");
@@ -100,7 +102,7 @@ export function PracticeQuestionCard({ questions }: { questions: PracticeQuestio
 
           {question.type === "multiple_choice" ? (
             <div className="stack">
-              {question.choices?.map((choice) => {
+              {question.choices?.map((choice, choiceIndex) => {
                 const selected = answer === choice;
                 const state = checked && selected ? (correct ? "correct" : "incorrect") : "";
                 return (
@@ -112,7 +114,7 @@ export function PracticeQuestionCard({ questions }: { questions: PracticeQuestio
                       setChecked(false);
                     }}
                   >
-                    {choice}
+                    {multipleChoiceLabels[choiceIndex] ? `${multipleChoiceLabels[choiceIndex]}) ${choice}` : choice}
                   </button>
                 );
               })}
