@@ -410,8 +410,7 @@ export async function getContentCounts(slug: CompetitionSlug) {
   if (!isDbEnabled()) {
     return {
       questions: localPracticeQuestions.filter((question) => question.competitionSlug === slug).length,
-      lessons: localLessons.filter((lesson) => lesson.competitionSlug === slug).length,
-      tests: localTests.filter((test) => test.competitionSlug === slug).length
+      lessons: localLessons.filter((lesson) => lesson.competitionSlug === slug).length
     };
   }
 
@@ -422,16 +421,15 @@ export async function getContentCounts(slug: CompetitionSlug) {
   });
 
   if (!competition) {
-    return { questions: 0, lessons: 0, tests: 0 };
+    return { questions: 0, lessons: 0 };
   }
 
-  const [questions, lessons, tests] = await Promise.all([
+  const [questions, lessons] = await Promise.all([
     prisma.question.count({ where: { competitionId: competition.id } }),
-    prisma.lesson.count({ where: { competitionId: competition.id } }),
-    prisma.test.count({ where: { competitionId: competition.id } })
+    prisma.lesson.count({ where: { competitionId: competition.id } })
   ]);
 
-  return { questions, lessons, tests };
+  return { questions, lessons };
 }
 
 export async function getBuzzerQuestions() {

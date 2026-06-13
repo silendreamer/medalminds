@@ -1,11 +1,9 @@
 export function StatsCard({
   questions,
-  lessons,
-  tests
+  lessons
 }: {
   questions: number;
   lessons: number;
-  tests: number;
 }) {
   return (
     <div className="stat-row">
@@ -16,10 +14,6 @@ export function StatsCard({
       <div className="stat">
         <strong>{lessons}</strong>
         <span>lessons</span>
-      </div>
-      <div className="stat">
-        <strong>{tests}</strong>
-        <span>tests</span>
       </div>
     </div>
   );

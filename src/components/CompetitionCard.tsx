@@ -8,7 +8,7 @@ export function CompetitionCard({
   counts
 }: {
   competition: Competition;
-  counts: { questions: number; lessons: number; tests: number };
+  counts: { questions: number; lessons: number };
 }) {
   return (
     <article className="card spacious">

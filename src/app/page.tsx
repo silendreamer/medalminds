@@ -23,7 +23,7 @@ export default async function HomePage() {
           {competitions.map((competition) => (
             <CompetitionCard
               competition={competition}
-              counts={countsBySlug.get(competition.slug) ?? { questions: 0, lessons: 0, tests: 0 }}
+              counts={countsBySlug.get(competition.slug) ?? { questions: 0, lessons: 0 }}
               key={competition.slug}
             />
           ))}
