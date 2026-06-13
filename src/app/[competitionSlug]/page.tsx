@@ -5,6 +5,8 @@ import { StatsCard } from "@/components/StatsCard";
 import {
   getCompetitionBySlug,
   getContentCounts,
+  getContentCountsBySchoolLevel,
+  getContentCountsForSubject,
   isCompetitionSlug
 } from "@/lib/data";
 import { buzzerPath, learningPath, practicePath, testsPath } from "@/lib/routes";
@@ -23,11 +25,26 @@ export default async function CompetitionPage({
   const competition = await getCompetitionBySlug(competitionSlug);
   if (!competition) notFound();
 
-  const counts = await getContentCounts(competitionSlug);
   const isScienceBowl = competitionSlug === "science-bowl";
+  const counts = isScienceBowl ? undefined : await getContentCounts(competitionSlug);
+  const scienceBowlLevelCounts = isScienceBowl
+    ? {
+        middleSchool: await getContentCountsBySchoolLevel(competitionSlug, "MIDDLE_SCHOOL"),
+        highSchool: await getContentCountsBySchoolLevel(competitionSlug, "HIGH_SCHOOL")
+      }
+    : undefined;
   const selectedLevel = isScienceBowl && (level === "middle-school" || level === "high-school") ? level : undefined;
   const selectedLevelLabel = selectedLevel === "middle-school" ? "Middle School" : selectedLevel === "high-school" ? "High School" : undefined;
+  const selectedSchoolLevel =
+    selectedLevel === "middle-school" ? "MIDDLE_SCHOOL" : selectedLevel === "high-school" ? "HIGH_SCHOOL" : undefined;
   const selectedSubject = subject && competition.categories.includes(subject) ? subject : undefined;
+  const subjectCounts = await Promise.all(
+    competition.categories.map(async (category) => ({
+      category,
+      counts: await getContentCountsForSubject(competitionSlug, category, selectedSchoolLevel)
+    }))
+  );
+  const countsBySubject = new Map(subjectCounts.map((item) => [item.category, item.counts]));
   const levelQuery = selectedLevel ? `level=${selectedLevel}` : "";
   const subjectQuery = [levelQuery, selectedSubject ? `subject=${encodeURIComponent(selectedSubject)}` : ""].filter(Boolean).join("&");
   const actionQuery = subjectQuery ? `?${subjectQuery}` : "";
@@ -40,7 +57,7 @@ export default async function CompetitionPage({
           <span className="eyebrow">{competition.subdomain}.medalminds.com</span>
           <h1>{competition.name}</h1>
           <p className="subtitle">{competition.description}</p>
-          <StatsCard {...counts} />
+          {counts && <StatsCard {...counts} />}
         </div>
 
         {isScienceBowl && !selectedLevel ? (
@@ -53,11 +70,13 @@ export default async function CompetitionPage({
                 <span className="eyebrow">Science Bowl</span>
                 <h2>Middle School</h2>
                 <p>Grades 6-8 practice questions, quick tests, and lessons.</p>
+                <StatsCard {...(scienceBowlLevelCounts?.middleSchool ?? { questions: 0, lessons: 0 })} />
               </Link>
               <Link className="card spacious stack" href={`/${competitionSlug}?level=high-school`}>
                 <span className="eyebrow">Science Bowl</span>
                 <h2>High School</h2>
                 <p>Grades 9-12 practice questions, quick tests, and lessons.</p>
+                <StatsCard {...(scienceBowlLevelCounts?.highSchool ?? { questions: 0, lessons: 0 })} />
               </Link>
             </div>
           </div>
@@ -84,6 +103,7 @@ export default async function CompetitionPage({
                   <span className="eyebrow">Subject</span>
                   <h2>{category}</h2>
                   <p>Practice questions, lessons, and quick tests for this topic.</p>
+                  <StatsCard {...(countsBySubject.get(category) ?? { questions: 0, lessons: 0 })} />
                 </Link>
               ))}
             </div>

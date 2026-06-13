@@ -155,10 +155,14 @@ function localQuestionMatchesSubject(question: PracticeQuestion, subject?: strin
   return !aliases || aliases.includes(question.category);
 }
 
-function localQuestionMatchesSchoolLevel(question: PracticeQuestion, schoolLevel?: SchoolLevelFilter | null) {
+function levelStringMatchesSchoolLevel(level: string, schoolLevel?: SchoolLevelFilter | null) {
   if (!schoolLevel) return true;
-  if (schoolLevel === "MIDDLE_SCHOOL") return question.level.toLowerCase().includes("middle");
-  return question.level.toLowerCase().includes("high");
+  if (schoolLevel === "MIDDLE_SCHOOL") return level.toLowerCase().includes("middle");
+  return level.toLowerCase().includes("high");
+}
+
+function localQuestionMatchesSchoolLevel(question: PracticeQuestion, schoolLevel?: SchoolLevelFilter | null) {
+  return levelStringMatchesSchoolLevel(question.level, schoolLevel);
 }
 
 function shuffle<T>(items: T[]) {
@@ -299,16 +303,33 @@ export async function getRandomMultipleChoiceQuestions(
     .filter((question): question is NonNullable<typeof question> => Boolean(question));
 }
 
-export async function getLessonsByCompetition(slug: CompetitionSlug, subject?: string | null) {
+export async function getLessonsByCompetition(
+  slug: CompetitionSlug,
+  subject?: string | null,
+  schoolLevel?: SchoolLevelFilter | null
+) {
   if (!isDbEnabled()) {
     const aliases = aliasesForSubject(subject);
-    return localLessons.filter((lesson) => lesson.competitionSlug === slug && (!aliases || aliases.includes(lesson.category)));
+    return localLessons.filter(
+      (lesson) =>
+        lesson.competitionSlug === slug &&
+        (!aliases || aliases.includes(lesson.category)) &&
+        levelStringMatchesSchoolLevel(lesson.level, schoolLevel)
+    );
   }
 
+  const aliases = aliasesForSubject(subject);
   const lessons = await getPrisma().lesson.findMany({
     where: {
       competition: { slug },
-      ...(aliasesForSubject(subject) ? { category: { in: aliasesForSubject(subject) } } : {})
+      ...(aliases ? { category: { in: aliases } } : {}),
+      ...(schoolLevel
+        ? {
+            competitionLevel: {
+              schoolLevel: { in: [schoolLevel, "MIXED"] }
+            }
+          }
+        : {})
     },
     orderBy: { id: "asc" }
   });
@@ -427,6 +448,112 @@ export async function getContentCounts(slug: CompetitionSlug) {
   const [questions, lessons] = await Promise.all([
     prisma.question.count({ where: { competitionId: competition.id } }),
     prisma.lesson.count({ where: { competitionId: competition.id } })
+  ]);
+
+  return { questions, lessons };
+}
+
+export async function getContentCountsBySchoolLevel(slug: CompetitionSlug, schoolLevel: SchoolLevelFilter) {
+  if (!isDbEnabled()) {
+    return {
+      questions: localPracticeQuestions.filter(
+        (question) =>
+          question.competitionSlug === slug &&
+          localQuestionMatchesSchoolLevel(question, schoolLevel)
+      ).length,
+      lessons: localLessons.filter(
+        (lesson) =>
+          lesson.competitionSlug === slug &&
+          levelStringMatchesSchoolLevel(lesson.level, schoolLevel)
+      ).length
+    };
+  }
+
+  const prisma = getPrisma();
+  const competition = await prisma.competition.findUnique({
+    where: { slug },
+    select: { id: true }
+  });
+
+  if (!competition) {
+    return { questions: 0, lessons: 0 };
+  }
+
+  const [questions, lessons] = await Promise.all([
+    prisma.question.count({
+      where: {
+        competitionId: competition.id,
+        schoolLevel
+      }
+    }),
+    prisma.lesson.count({
+      where: {
+        competitionId: competition.id,
+        competitionLevel: {
+          schoolLevel: { in: [schoolLevel, "MIXED"] }
+        }
+      }
+    })
+  ]);
+
+  return { questions, lessons };
+}
+
+export async function getContentCountsForSubject(
+  slug: CompetitionSlug,
+  subject: string,
+  schoolLevel?: SchoolLevelFilter | null
+) {
+  const aliases = aliasesForSubject(subject);
+
+  if (!isDbEnabled()) {
+    return {
+      questions: localPracticeQuestions.filter(
+        (question) =>
+          question.competitionSlug === slug &&
+          localQuestionMatchesSubject(question, subject) &&
+          localQuestionMatchesSchoolLevel(question, schoolLevel)
+      ).length,
+      lessons: localLessons.filter(
+        (lesson) =>
+          lesson.competitionSlug === slug &&
+          (!aliases || aliases.includes(lesson.category)) &&
+          levelStringMatchesSchoolLevel(lesson.level, schoolLevel)
+      ).length
+    };
+  }
+
+  const prisma = getPrisma();
+  const competition = await prisma.competition.findUnique({
+    where: { slug },
+    select: { id: true }
+  });
+
+  if (!competition) {
+    return { questions: 0, lessons: 0 };
+  }
+
+  const [questions, lessons] = await Promise.all([
+    prisma.question.count({
+      where: {
+        competitionId: competition.id,
+        ...(aliases ? { category: { in: aliases } } : {}),
+        ...(schoolLevel ? { schoolLevel } : {})
+      }
+    }),
+    prisma.lesson.count({
+      where: {
+        competitionId: competition.id,
+        ...(aliases ? { category: { in: aliases } } : {}),
+        ...(schoolLevel
+          ? {
+              competitionLevel: {
+                schoolLevel: { in: [schoolLevel, "MIXED"] }
+              }
+            }
+          : {})
+      }
+    })
   ]);
 
   return { questions, lessons };

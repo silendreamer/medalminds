@@ -28,7 +28,7 @@ export default async function PracticePage({
   const subjectQuery = subject ? `subject=${encodeURIComponent(subject)}` : "";
   const parentQuery = [levelQuery, subjectQuery].filter(Boolean).join("&");
   const question = await getRandomQuestionByCompetition(competitionSlug, subject, schoolLevel);
-  const lessons = await getLessonsByCompetition(competitionSlug, subject);
+  const lessons = await getLessonsByCompetition(competitionSlug, subject, schoolLevel);
 
   return (
     <section className="section">

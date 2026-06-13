@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { LessonCard } from "@/components/LessonCard";
-import { getCompetitionBySlug, getLessonsByCompetition, isCompetitionSlug } from "@/lib/data";
+import { getCompetitionBySlug, getLessonsByCompetition, isCompetitionSlug, type SchoolLevelFilter } from "@/lib/data";
 import { competitionPath } from "@/lib/routes";
 
 export default async function LearningPage({
@@ -16,7 +16,13 @@ export default async function LearningPage({
   if (!isCompetitionSlug(competitionSlug)) notFound();
   const competition = await getCompetitionBySlug(competitionSlug);
   if (!competition) notFound();
-  const lessons = await getLessonsByCompetition(competitionSlug, subject);
+  const schoolLevel: SchoolLevelFilter | undefined =
+    competitionSlug === "science-bowl" && level === "middle-school"
+      ? "MIDDLE_SCHOOL"
+      : competitionSlug === "science-bowl" && level === "high-school"
+        ? "HIGH_SCHOOL"
+        : undefined;
+  const lessons = await getLessonsByCompetition(competitionSlug, subject, schoolLevel);
   const parentQuery = [level ? `level=${level}` : "", subject ? `subject=${encodeURIComponent(subject)}` : ""].filter(Boolean).join("&");
 
   return (
