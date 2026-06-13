@@ -9,14 +9,15 @@ export default async function LearningPage({
   searchParams
 }: {
   params: Promise<{ competitionSlug: string }>;
-  searchParams: Promise<{ subject?: string }>;
+  searchParams: Promise<{ subject?: string; level?: string }>;
 }) {
   const { competitionSlug } = await params;
-  const { subject } = await searchParams;
+  const { subject, level } = await searchParams;
   if (!isCompetitionSlug(competitionSlug)) notFound();
   const competition = await getCompetitionBySlug(competitionSlug);
   if (!competition) notFound();
   const lessons = await getLessonsByCompetition(competitionSlug, subject);
+  const parentQuery = [level ? `level=${level}` : "", subject ? `subject=${encodeURIComponent(subject)}` : ""].filter(Boolean).join("&");
 
   return (
     <section className="section">
@@ -24,7 +25,7 @@ export default async function LearningPage({
         <Breadcrumbs
           items={[
             { label: "Home", href: "/" },
-            { label: competition.name, href: `${competitionPath(competitionSlug)}${subject ? `?subject=${encodeURIComponent(subject)}` : ""}` },
+            { label: competition.name, href: `${competitionPath(competitionSlug)}${parentQuery ? `?${parentQuery}` : ""}` },
             { label: "Learning" }
           ]}
         />

@@ -7,6 +7,8 @@ import { tests as localTests } from "@/data/tests";
 import type { CompetitionSlug, Lesson, PracticeQuestion, Test } from "@/types";
 import { getPrisma, hasDatabaseUrl } from "./db";
 
+export type SchoolLevelFilter = "MIDDLE_SCHOOL" | "HIGH_SCHOOL";
+
 type DbLesson = Prisma.LessonGetPayload<Record<string, never>>;
 type DbQuestion = Prisma.QuestionGetPayload<{
   include: {
@@ -153,6 +155,12 @@ function localQuestionMatchesSubject(question: PracticeQuestion, subject?: strin
   return !aliases || aliases.includes(question.category);
 }
 
+function localQuestionMatchesSchoolLevel(question: PracticeQuestion, schoolLevel?: SchoolLevelFilter | null) {
+  if (!schoolLevel) return true;
+  if (schoolLevel === "MIDDLE_SCHOOL") return question.level.toLowerCase().includes("middle");
+  return question.level.toLowerCase().includes("high");
+}
+
 function shuffle<T>(items: T[]) {
   const copy = [...items];
   for (let index = copy.length - 1; index > 0; index -= 1) {
@@ -162,11 +170,12 @@ function shuffle<T>(items: T[]) {
   return copy;
 }
 
-function questionWhereForSubject(slug: CompetitionSlug, subject?: string | null) {
+function questionWhereForSubject(slug: CompetitionSlug, subject?: string | null, schoolLevel?: SchoolLevelFilter | null) {
   const aliases = aliasesForSubject(subject);
   return {
     competition: { slug },
-    ...(aliases ? { category: { in: aliases } } : {})
+    ...(aliases ? { category: { in: aliases } } : {}),
+    ...(schoolLevel ? { schoolLevel } : {})
   };
 }
 
@@ -208,16 +217,23 @@ export async function getQuestionsByCompetition(slug: CompetitionSlug) {
   return questions.map(toPracticeQuestion);
 }
 
-export async function getRandomQuestionByCompetition(slug: CompetitionSlug, subject?: string | null) {
+export async function getRandomQuestionByCompetition(
+  slug: CompetitionSlug,
+  subject?: string | null,
+  schoolLevel?: SchoolLevelFilter | null
+) {
   if (!isDbEnabled()) {
     const questions = localPracticeQuestions.filter(
-      (question) => question.competitionSlug === slug && localQuestionMatchesSubject(question, subject)
+      (question) =>
+        question.competitionSlug === slug &&
+        localQuestionMatchesSubject(question, subject) &&
+        localQuestionMatchesSchoolLevel(question, schoolLevel)
     );
     return shuffle(questions)[0];
   }
 
   const questions = await getPrisma().question.findMany({
-    where: questionWhereForSubject(slug, subject),
+    where: questionWhereForSubject(slug, subject, schoolLevel),
     take: 250,
     orderBy: { updatedAt: "desc" },
     include: {
@@ -229,14 +245,20 @@ export async function getRandomQuestionByCompetition(slug: CompetitionSlug, subj
   return shuffle(questions).map(toPracticeQuestion)[0];
 }
 
-export async function getRandomMultipleChoiceQuestions(slug: CompetitionSlug, subject: string | null, count: number) {
+export async function getRandomMultipleChoiceQuestions(
+  slug: CompetitionSlug,
+  subject: string | null,
+  count: number,
+  schoolLevel?: SchoolLevelFilter | null
+) {
   if (!isDbEnabled()) {
     return shuffle(
       localPracticeQuestions.filter(
         (question) =>
           question.competitionSlug === slug &&
           question.type === "multiple_choice" &&
-          localQuestionMatchesSubject(question, subject)
+          localQuestionMatchesSubject(question, subject) &&
+          localQuestionMatchesSchoolLevel(question, schoolLevel)
       )
     ).slice(0, count);
   }
@@ -251,6 +273,7 @@ export async function getRandomMultipleChoiceQuestions(slug: CompetitionSlug, su
       WHERE c.slug = ${slug}
         AND q.format = 'MULTIPLE_CHOICE'
         ${aliases ? Prisma.sql`AND q.category IN (${Prisma.join(aliases)})` : Prisma.empty}
+        ${schoolLevel ? Prisma.sql`AND q."schoolLevel" = ${schoolLevel}::"SchoolLevel"` : Prisma.empty}
         AND (
           SELECT count(*)
           FROM "Answer" a

@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { QuickTestRunner } from "@/components/QuickTestRunner";
-import { getCompetitionBySlug, getRandomMultipleChoiceQuestions, isCompetitionSlug } from "@/lib/data";
+import { getCompetitionBySlug, getRandomMultipleChoiceQuestions, isCompetitionSlug, type SchoolLevelFilter } from "@/lib/data";
 import { competitionPath } from "@/lib/routes";
 
 export const dynamic = "force-dynamic";
@@ -12,17 +12,25 @@ export default async function TestsPage({
   searchParams
 }: {
   params: Promise<{ competitionSlug: string }>;
-  searchParams: Promise<{ subject?: string; size?: string }>;
+  searchParams: Promise<{ subject?: string; size?: string; level?: string }>;
 }) {
   const { competitionSlug } = await params;
-  const { subject, size } = await searchParams;
+  const { subject, size, level } = await searchParams;
   if (!isCompetitionSlug(competitionSlug)) notFound();
   const competition = await getCompetitionBySlug(competitionSlug);
   if (!competition) notFound();
   const requestedSize = Number(size);
   const testSize = [10, 25, 50].includes(requestedSize) ? requestedSize : undefined;
-  const questions = testSize ? await getRandomMultipleChoiceQuestions(competitionSlug, subject ?? null, testSize) : [];
+  const schoolLevel: SchoolLevelFilter | undefined =
+    competitionSlug === "science-bowl" && level === "middle-school"
+      ? "MIDDLE_SCHOOL"
+      : competitionSlug === "science-bowl" && level === "high-school"
+        ? "HIGH_SCHOOL"
+        : undefined;
+  const questions = testSize ? await getRandomMultipleChoiceQuestions(competitionSlug, subject ?? null, testSize, schoolLevel) : [];
+  const levelQuery = level ? `level=${level}` : "";
   const subjectQuery = subject ? `subject=${encodeURIComponent(subject)}` : "";
+  const parentQuery = [levelQuery, subjectQuery].filter(Boolean).join("&");
 
   return (
     <section className="section">
@@ -30,7 +38,7 @@ export default async function TestsPage({
         <Breadcrumbs
           items={[
             { label: "Home", href: "/" },
-            { label: competition.name, href: `${competitionPath(competitionSlug)}${subject ? `?subject=${encodeURIComponent(subject)}` : ""}` },
+            { label: competition.name, href: `${competitionPath(competitionSlug)}${parentQuery ? `?${parentQuery}` : ""}` },
             { label: "Tests" }
           ]}
         />
@@ -45,7 +53,7 @@ export default async function TestsPage({
             {[10, 25, 50].map((option) => (
               <Link
                 className="card spacious stack"
-                href={`${competitionPath(competitionSlug)}/tests?${[subjectQuery, `size=${option}`].filter(Boolean).join("&")}`}
+                href={`${competitionPath(competitionSlug)}/tests?${[levelQuery, subjectQuery, `size=${option}`].filter(Boolean).join("&")}`}
                 key={option}
               >
                 <span className="eyebrow">Quick test</span>

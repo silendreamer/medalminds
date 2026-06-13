@@ -14,10 +14,10 @@ export default async function CompetitionPage({
   searchParams
 }: {
   params: Promise<{ competitionSlug: string }>;
-  searchParams: Promise<{ subject?: string }>;
+  searchParams: Promise<{ subject?: string; level?: string }>;
 }) {
   const { competitionSlug } = await params;
-  const { subject } = await searchParams;
+  const { subject, level } = await searchParams;
   if (!isCompetitionSlug(competitionSlug)) notFound();
 
   const competition = await getCompetitionBySlug(competitionSlug);
@@ -25,8 +25,12 @@ export default async function CompetitionPage({
 
   const counts = await getContentCounts(competitionSlug);
   const isScienceBowl = competitionSlug === "science-bowl";
+  const selectedLevel = isScienceBowl && (level === "middle-school" || level === "high-school") ? level : undefined;
+  const selectedLevelLabel = selectedLevel === "middle-school" ? "Middle School" : selectedLevel === "high-school" ? "High School" : undefined;
   const selectedSubject = subject && competition.categories.includes(subject) ? subject : undefined;
-  const subjectQuery = selectedSubject ? `?subject=${encodeURIComponent(selectedSubject)}` : "";
+  const levelQuery = selectedLevel ? `level=${selectedLevel}` : "";
+  const subjectQuery = [levelQuery, selectedSubject ? `subject=${encodeURIComponent(selectedSubject)}` : ""].filter(Boolean).join("&");
+  const actionQuery = subjectQuery ? `?${subjectQuery}` : "";
 
   return (
     <section className="section">
@@ -39,16 +43,42 @@ export default async function CompetitionPage({
           <StatsCard {...counts} />
         </div>
 
-        {!selectedSubject ? (
+        {isScienceBowl && !selectedLevel ? (
           <div>
             <div className="section-heading">
-              <h2>Choose a subject</h2>
+              <h2>Choose your level</h2>
+            </div>
+            <div className="grid two">
+              <Link className="card spacious stack" href={`/${competitionSlug}?level=middle-school`}>
+                <span className="eyebrow">Science Bowl</span>
+                <h2>Middle School</h2>
+                <p>Grades 6-8 practice questions, quick tests, and lessons.</p>
+              </Link>
+              <Link className="card spacious stack" href={`/${competitionSlug}?level=high-school`}>
+                <span className="eyebrow">Science Bowl</span>
+                <h2>High School</h2>
+                <p>Grades 9-12 practice questions, quick tests, and lessons.</p>
+              </Link>
+            </div>
+          </div>
+        ) : !selectedSubject ? (
+          <div>
+            <div className="section-heading">
+              <div>
+                {selectedLevelLabel && <span className="eyebrow">{selectedLevelLabel}</span>}
+                <h2>Choose a subject</h2>
+              </div>
+              {selectedLevel && (
+                <Link className="ghost-button" href={`/${competitionSlug}`}>
+                  Change level
+                </Link>
+              )}
             </div>
             <div className="grid">
               {competition.categories.map((category) => (
                 <Link
                   className="card spacious stack"
-                  href={`/${competitionSlug}?subject=${encodeURIComponent(category)}`}
+                  href={`/${competitionSlug}?${[levelQuery, `subject=${encodeURIComponent(category)}`].filter(Boolean).join("&")}`}
                   key={category}
                 >
                   <span className="eyebrow">Subject</span>
@@ -64,23 +94,24 @@ export default async function CompetitionPage({
               <div>
                 <span className="eyebrow">Subject</span>
                 <h2>{selectedSubject}</h2>
+                {selectedLevelLabel && <p>{selectedLevelLabel}</p>}
               </div>
-              <Link className="ghost-button" href={`/${competitionSlug}`}>
+              <Link className="ghost-button" href={`/${competitionSlug}${selectedLevel ? `?level=${selectedLevel}` : ""}`}>
                 Change subject
               </Link>
             </div>
             <div className={`grid ${isScienceBowl ? "four" : ""}`}>
-              <Link className="card spacious stack" href={`${practicePath(competitionSlug)}${subjectQuery}`}>
+              <Link className="card spacious stack" href={`${practicePath(competitionSlug)}${actionQuery}`}>
                 <span className="eyebrow">Practice</span>
                 <h2>Questions</h2>
                 <p>Get one random question, answer it, then review the answer and topic explanation.</p>
               </Link>
-              <Link className="card spacious stack" href={`${testsPath(competitionSlug)}${subjectQuery}`}>
+              <Link className="card spacious stack" href={`${testsPath(competitionSlug)}${actionQuery}`}>
                 <span className="eyebrow">Test</span>
                 <h2>Quick Test</h2>
                 <p>Choose 10, 25, or 50 multiple-choice questions and get your score at the end.</p>
               </Link>
-              <Link className="card spacious stack" href={`${learningPath(competitionSlug)}${subjectQuery}`}>
+              <Link className="card spacious stack" href={`${learningPath(competitionSlug)}${actionQuery}`}>
                 <span className="eyebrow">Lessons</span>
                 <h2>Learn</h2>
                 <p>Browse short lessons connected to this subject.</p>
