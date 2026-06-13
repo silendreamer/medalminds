@@ -1,8 +1,8 @@
 import { notFound } from "next/navigation";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { LessonCard } from "@/components/LessonCard";
+import { buildStudyBreadcrumbs } from "@/lib/breadcrumbs";
 import { getCompetitionBySlug, getLessonsByCompetition, isCompetitionSlug, type SchoolLevelFilter } from "@/lib/data";
-import { competitionPath } from "@/lib/routes";
 
 export default async function LearningPage({
   params,
@@ -23,17 +23,18 @@ export default async function LearningPage({
         ? "HIGH_SCHOOL"
         : undefined;
   const lessons = await getLessonsByCompetition(competitionSlug, subject, schoolLevel);
-  const parentQuery = [level ? `level=${level}` : "", subject ? `subject=${encodeURIComponent(subject)}` : ""].filter(Boolean).join("&");
 
   return (
     <section className="section">
       <div className="container">
         <Breadcrumbs
-          items={[
-            { label: "Home", href: "/" },
-            { label: competition.name, href: `${competitionPath(competitionSlug)}${parentQuery ? `?${parentQuery}` : ""}` },
-            { label: "Learning" }
-          ]}
+          items={buildStudyBreadcrumbs({
+            competitionSlug,
+            competitionName: competition.name,
+            level,
+            subject,
+            current: "Learning"
+          })}
         />
         <div className="section-heading">
           <div>

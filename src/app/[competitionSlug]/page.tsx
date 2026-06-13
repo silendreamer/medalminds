@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { StatsCard } from "@/components/StatsCard";
+import { buildStudyBreadcrumbs } from "@/lib/breadcrumbs";
 import {
   getCompetitionBySlug,
   getContentCounts,
@@ -52,7 +53,14 @@ export default async function CompetitionPage({
   return (
     <section className="section">
       <div className="container stack">
-        <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: competition.name }]} />
+        <Breadcrumbs
+          items={buildStudyBreadcrumbs({
+            competitionSlug,
+            competitionName: competition.name,
+            level: selectedLevel,
+            subject: selectedSubject
+          })}
+        />
         <div className="simple-heading">
           <span className="eyebrow">{competition.subdomain}.medalminds.com</span>
           <h1>{competition.name}</h1>

@@ -1,11 +1,7 @@
 import Link from "next/link";
+import type { BreadcrumbItem } from "@/lib/breadcrumbs";
 
-interface Breadcrumb {
-  label: string;
-  href?: string;
-}
-
-export function Breadcrumbs({ items }: { items: Breadcrumb[] }) {
+export function Breadcrumbs({ items }: { items: BreadcrumbItem[] }) {
   return (
     <div className="breadcrumbs" aria-label="Breadcrumbs">
       {items.map((item, index) => (

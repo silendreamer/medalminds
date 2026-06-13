@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { QuickTestRunner } from "@/components/QuickTestRunner";
+import { buildStudyBreadcrumbs } from "@/lib/breadcrumbs";
 import { getCompetitionBySlug, getRandomMultipleChoiceQuestions, isCompetitionSlug, type SchoolLevelFilter } from "@/lib/data";
 import { competitionPath } from "@/lib/routes";
 
@@ -30,17 +31,18 @@ export default async function TestsPage({
   const questions = testSize ? await getRandomMultipleChoiceQuestions(competitionSlug, subject ?? null, testSize, schoolLevel) : [];
   const levelQuery = level ? `level=${level}` : "";
   const subjectQuery = subject ? `subject=${encodeURIComponent(subject)}` : "";
-  const parentQuery = [levelQuery, subjectQuery].filter(Boolean).join("&");
 
   return (
     <section className="section">
       <div className="container stack">
         <Breadcrumbs
-          items={[
-            { label: "Home", href: "/" },
-            { label: competition.name, href: `${competitionPath(competitionSlug)}${parentQuery ? `?${parentQuery}` : ""}` },
-            { label: "Tests" }
-          ]}
+          items={buildStudyBreadcrumbs({
+            competitionSlug,
+            competitionName: competition.name,
+            level,
+            subject,
+            current: "Tests"
+          })}
         />
         <div className="section-heading">
           <div>
