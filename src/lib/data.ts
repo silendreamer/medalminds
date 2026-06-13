@@ -45,12 +45,22 @@ function fromDbQuestionFormat(format: QuestionFormat | string): PracticeQuestion
     : "short_answer";
 }
 
+function stripInlineMultipleChoiceOptions(prompt: string, type: PracticeQuestion["type"]) {
+  if (type !== "multiple_choice") return prompt;
+  const stripped = prompt
+    .replace(/\s+W\)\s+[\s\S]*?\s+X\)\s+[\s\S]*?\s+Y\)\s+[\s\S]*?\s+Z\)\s+[\s\S]*$/i, "")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  return stripped || prompt;
+}
+
 function toPracticeQuestion(question: DbQuestion): PracticeQuestion {
   const correctAnswers = question.answers.filter((answer) => answer.isCorrect);
   const primaryCorrectAnswer = correctAnswers[0]?.text ?? question.correctAnswer;
   const alternateAnswers = correctAnswers.slice(1).map((answer) => answer.text);
-  const answerChoices = question.answers.map((answer) => answer.text);
   const type = fromDbQuestionFormat(question.format);
+  const answerChoices = shuffle(question.answers.map((answer) => answer.text));
   const explanation = question.answerExplanations[0]?.shortExplanation ?? question.explanation;
 
   return {
@@ -60,7 +70,7 @@ function toPracticeQuestion(question: DbQuestion): PracticeQuestion {
     level: question.level,
     difficulty: fromDbDifficulty(question.difficulty),
     type,
-    prompt: question.prompt,
+    prompt: stripInlineMultipleChoiceOptions(question.prompt, type),
     choices:
       type === "multiple_choice"
         ? answerChoices.length
