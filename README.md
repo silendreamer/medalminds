@@ -113,6 +113,38 @@ What tables are populated:
 - `Answer`
 - `AnswerExplanation`
 
+## Generate worked answer explanations
+
+The app displays `AnswerExplanation.shortExplanation` after a student checks an answer. If that row is missing, it falls back to the legacy `Question.explanation` field. To replace imported placeholder explanations with generated worked solutions, configure `OPENAI_API_KEY` in `.env.local` and run the admin script locally against the same Postgres database used by Vercel.
+
+Dry run a small batch first:
+
+```bash
+npm run generate:answer-explanations -- --limit=3 --list-only
+npm run generate:answer-explanations -- --limit=3
+```
+
+Write a small batch:
+
+```bash
+npm run generate:answer-explanations -- --limit=3 --write
+```
+
+Useful filters:
+
+```bash
+npm run generate:answer-explanations -- --school-level=middle-school --category=Physics --limit=5 --write
+npm run generate:answer-explanations -- --question-id=QUESTION_ID --write
+```
+
+The script prints a `verificationPath` for each generated row, such as:
+
+```text
+/science-bowl/practice?level=middle-school&subject=Physics&q=QUESTION_ID
+```
+
+After Vercel redeploys this code, open `https://medalminds.vercel.app` plus that path to inspect the exact question and confirm the generated solution appears after tapping `Check answer`.
+
 The importer reuses the existing Prisma schema and does not introduce a new ORM.
 
 ## Add a new competition

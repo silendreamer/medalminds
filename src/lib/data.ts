@@ -259,6 +259,36 @@ export async function getRandomQuestionByCompetition(
   return shuffle(questions).map(toPracticeQuestion)[0];
 }
 
+export async function getQuestionById(
+  slug: CompetitionSlug,
+  questionId: string,
+  subject?: string | null,
+  schoolLevel?: SchoolLevelFilter | null
+) {
+  if (!isDbEnabled()) {
+    return localPracticeQuestions.find(
+      (question) =>
+        question.id === questionId &&
+        question.competitionSlug === slug &&
+        localQuestionMatchesSubject(question, subject) &&
+        localQuestionMatchesSchoolLevel(question, schoolLevel)
+    );
+  }
+
+  const question = await getPrisma().question.findFirst({
+    where: {
+      id: questionId,
+      ...questionWhereForSubject(slug, subject, schoolLevel)
+    },
+    include: {
+      answers: { orderBy: { position: "asc" } },
+      answerExplanations: { orderBy: { position: "asc" } }
+    }
+  });
+
+  return question ? toPracticeQuestion(question) : undefined;
+}
+
 export async function getRandomMultipleChoiceQuestions(
   slug: CompetitionSlug,
   subject: string | null,
