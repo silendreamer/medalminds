@@ -1090,4 +1090,28 @@ p {
   .trust-strip span {
     width: 100%;
   }
+
+  .competition-intro {
+    display: none;
+  }
+
+  .selected-context {
+    align-items: center;
+    margin-bottom: 8px;
+  }
+
+  .selected-context .eyebrow,
+  .selected-context p {
+    display: none;
+  }
+
+  .selected-context h2 {
+    font-size: clamp(1.45rem, 7vw, 2rem);
+  }
+
+  .selected-context .ghost-button {
+    min-height: 36px;
+    padding: 7px 12px;
+    font-size: 0.88rem;
+  }
 }

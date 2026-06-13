@@ -61,7 +61,7 @@ export default async function CompetitionPage({
             subject: selectedSubject
           })}
         />
-        <div className="simple-heading">
+        <div className="simple-heading competition-intro">
           <span className="eyebrow">{competition.subdomain}.medalminds.com</span>
           <h1>{competition.name}</h1>
           <p className="subtitle">{competition.description}</p>
@@ -70,7 +70,7 @@ export default async function CompetitionPage({
 
         {isScienceBowl && !selectedLevel ? (
           <div>
-            <div className="section-heading">
+            <div className="section-heading selection-heading">
               <h2>Choose your level</h2>
             </div>
             <div className="grid two">
@@ -118,7 +118,7 @@ export default async function CompetitionPage({
           </div>
         ) : (
           <div>
-            <div className="section-heading">
+            <div className="section-heading selected-context">
               <div>
                 <span className="eyebrow">Subject</span>
                 <h2>{selectedSubject}</h2>
