@@ -1,4 +1,4 @@
-import { Difficulty, QuestionFormat, type Prisma } from "@prisma/client";
+import { Difficulty, Prisma, QuestionFormat } from "@prisma/client";
 import { buzzerQuestions as localBuzzerQuestions } from "@/data/buzzerQuestions";
 import { competitions as localCompetitions } from "@/data/competitions";
 import { lessons as localLessons } from "@/data/lessons";
@@ -241,20 +241,39 @@ export async function getRandomMultipleChoiceQuestions(slug: CompetitionSlug, su
     ).slice(0, count);
   }
 
-  const questions = await getPrisma().question.findMany({
-    where: {
-      ...questionWhereForSubject(slug, subject),
-      format: "MULTIPLE_CHOICE"
-    },
-    take: Math.max(count * 8, 120),
-    orderBy: { updatedAt: "desc" },
+  const aliases = aliasesForSubject(subject);
+  const prisma = getPrisma();
+  const randomQuestionIds = await prisma.$queryRaw<Array<{ id: string }>>(
+    Prisma.sql`
+      SELECT q.id
+      FROM "Question" q
+      INNER JOIN "Competition" c ON c.id = q."competitionId"
+      WHERE c.slug = ${slug}
+        AND q.format = 'MULTIPLE_CHOICE'
+        ${aliases ? Prisma.sql`AND q.category IN (${Prisma.join(aliases)})` : Prisma.empty}
+        AND (
+          SELECT count(*)
+          FROM "Answer" a
+          WHERE a."questionId" = q.id
+        ) = 4
+      ORDER BY random()
+      LIMIT ${count}
+    `
+  );
+  const ids = randomQuestionIds.map((question) => question.id);
+
+  const questions = await prisma.question.findMany({
+    where: { id: { in: ids } },
     include: {
       answers: { orderBy: { position: "asc" } },
       answerExplanations: { orderBy: { position: "asc" } }
     }
   });
+  const byId = new Map(questions.map((question) => [question.id, toPracticeQuestion(question)]));
 
-  return shuffle(questions.map(toPracticeQuestion).filter((question) => (question.choices?.length ?? 0) >= 4)).slice(0, count);
+  return ids
+    .map((id) => byId.get(id))
+    .filter((question): question is NonNullable<typeof question> => Boolean(question));
 }
 
 export async function getLessonsByCompetition(slug: CompetitionSlug, subject?: string | null) {
