@@ -5,6 +5,7 @@ import { buildStudyBreadcrumbs } from "@/lib/breadcrumbs";
 import {
   getCompetitionBySlug,
   getLessonsByCompetition,
+  getPrimaryConceptLessonForQuestion,
   getQuestionById,
   getRandomQuestionByCompetition,
   isCompetitionSlug,
@@ -35,6 +36,8 @@ export default async function PracticePage({
     ? await getQuestionById(competitionSlug, q, subject, schoolLevel)
     : await getRandomQuestionByCompetition(competitionSlug, subject, schoolLevel);
   const lessons = await getLessonsByCompetition(competitionSlug, subject, schoolLevel);
+  const conceptLesson = question ? await getPrimaryConceptLessonForQuestion(question.id) : undefined;
+  const learnMoreLesson = conceptLesson ?? lessons[0];
 
   return (
     <section className="section">
@@ -54,7 +57,7 @@ export default async function PracticePage({
             <h1>{subject ?? "Practice"} Questions</h1>
           </div>
         </div>
-        {question ? <SimplePracticeQuestion question={question} lesson={lessons[0]} /> : <div className="empty">No questions are available yet.</div>}
+        {question ? <SimplePracticeQuestion question={question} lesson={learnMoreLesson} /> : <div className="empty">No questions are available yet.</div>}
       </div>
     </section>
   );

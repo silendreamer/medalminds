@@ -110,6 +110,132 @@ const competitionLevels = [
 
 const competitionLevelIds = new Set(competitionLevels.map((level) => level.id));
 
+const conceptLessonSeeds = [
+  {
+    concept: {
+      id: "science-bowl-middle-school-math-common-denominators-and-fraction-midpoints",
+      competitionId: "science-bowl",
+      slug: "common-denominators-and-fraction-midpoints",
+      title: "Common Denominators and Fraction Midpoints",
+      category: "Math",
+      schoolLevel: SchoolLevel.MIDDLE_SCHOOL,
+      shortDescription: "Use common denominators and averages to locate fractions between two values.",
+      aliases: ["fraction midpoint", "common denominators", "average of fractions"]
+    },
+    lesson: {
+      id: "science-bowl-concept-lesson-common-denominators-and-fraction-midpoints",
+      slug: "common-denominators-and-fraction-midpoints",
+      title: "Common Denominators and Fraction Midpoints",
+      category: "Math",
+      level: "Middle School",
+      estimatedMinutes: 6,
+      summary: "A fraction halfway between two fractions is found by rewriting both values with a common denominator, then averaging them.",
+      keyConcepts: ["Common denominators", "Fraction averages", "Number line reasoning"],
+      contentSections: [
+        {
+          heading: "Core Idea",
+          body: "To compare or average fractions, first rewrite them with a shared denominator. This turns the problem into comparing or averaging numerators on the same scale."
+        },
+        {
+          heading: "Fast Move",
+          body: "For two fractions, add them and divide by two. If the denominators differ, convert first so the arithmetic stays clean and the midpoint is exact."
+        },
+        {
+          heading: "Check",
+          body: "The midpoint should be larger than the smaller fraction and smaller than the larger fraction. That quick estimate catches many fraction mistakes."
+        }
+      ],
+      reviewQuestions: [
+        "Why is a common denominator useful before averaging fractions?",
+        "How can you check that a fraction is really between two given fractions?"
+      ]
+    },
+    questionIds: ["osti-00088d9abb821deea4e9c06683115ed5679abba25da91fc360d9e9296c5b30a6"]
+  },
+  {
+    concept: {
+      id: "science-bowl-middle-school-life-science-biological-species-concept",
+      competitionId: "science-bowl",
+      slug: "biological-species-concept",
+      title: "Biological Species Concept",
+      category: "Life Science",
+      schoolLevel: SchoolLevel.MIDDLE_SCHOOL,
+      shortDescription: "Identify species by the ability to interbreed and produce fertile offspring.",
+      aliases: ["species definition", "interbreeding", "fertile offspring"]
+    },
+    lesson: {
+      id: "science-bowl-concept-lesson-biological-species-concept",
+      slug: "biological-species-concept",
+      title: "Biological Species Concept",
+      category: "Life Science",
+      level: "Middle School",
+      estimatedMinutes: 6,
+      summary: "The biological species concept groups organisms by whether they can mate naturally and produce fertile offspring.",
+      keyConcepts: ["Species", "Reproductive isolation", "Fertile offspring"],
+      contentSections: [
+        {
+          heading: "Core Idea",
+          body: "A species is often defined as a group of organisms that can interbreed and produce offspring that can also reproduce. This focuses on gene flow between organisms."
+        },
+        {
+          heading: "Science Bowl Clue",
+          body: "Phrases like interbreed, fertile offspring, or reproductively isolated usually point to the biological species concept."
+        },
+        {
+          heading: "Common Trap",
+          body: "Do not confuse species with genus or family. Those are broader taxonomic groups and do not require all members to interbreed."
+        }
+      ],
+      reviewQuestions: [
+        "What does fertile offspring mean?",
+        "Why does reproductive isolation help separate species?"
+      ]
+    },
+    questionIds: ["osti-0009aec2ece9cdf18df616e51f031d06d530aaa77d404906872de3512c422479"]
+  },
+  {
+    concept: {
+      id: "science-bowl-middle-school-life-science-neurotransmitters-and-chemical-synapses",
+      competitionId: "science-bowl",
+      slug: "neurotransmitters-and-chemical-synapses",
+      title: "Neurotransmitters and Chemical Synapses",
+      category: "Life Science",
+      schoolLevel: SchoolLevel.MIDDLE_SCHOOL,
+      shortDescription: "Explain how neurons send signals across chemical synapses using neurotransmitters.",
+      aliases: ["chemical synapse", "neurotransmitters", "synaptic cleft"]
+    },
+    lesson: {
+      id: "science-bowl-concept-lesson-neurotransmitters-and-chemical-synapses",
+      slug: "neurotransmitters-and-chemical-synapses",
+      title: "Neurotransmitters and Chemical Synapses",
+      category: "Life Science",
+      level: "Middle School",
+      estimatedMinutes: 7,
+      summary: "At chemical synapses, neurons communicate by releasing neurotransmitters that cross a small gap and bind to receptors on another cell.",
+      keyConcepts: ["Neurotransmitters", "Synaptic cleft", "Receptors"],
+      contentSections: [
+        {
+          heading: "Core Idea",
+          body: "An electrical signal travels down a neuron, but at many synapses the message crosses to the next cell chemically. The chemicals used for this transfer are neurotransmitters."
+        },
+        {
+          heading: "Signal Path",
+          body: "The sending neuron releases neurotransmitters into the synaptic cleft. Those molecules bind to receptors on the receiving cell and help start the next signal."
+        },
+        {
+          heading: "Common Trap",
+          body: "Do not answer with the name of the gap when the question asks for the chemical messenger. The gap is the synapse or synaptic cleft; the messenger is the neurotransmitter."
+        }
+      ],
+      reviewQuestions: [
+        "What molecule carries a signal across a chemical synapse?",
+        "What is the difference between a neurotransmitter and the synaptic cleft?"
+      ]
+    },
+    questionIds: ["osti-00262e300ce34a1d553c7a0ba84b50c297134ced9cefdc97a4171bc50d74f2ff"]
+  }
+];
+
 function toDbDifficulty(difficulty: string) {
   if (difficulty === "Foundational") return Difficulty.FOUNDATIONAL;
   if (difficulty === "Advanced") return Difficulty.ADVANCED;
@@ -342,6 +468,91 @@ async function main() {
     });
   }
 
+  for (const seed of conceptLessonSeeds) {
+    await prisma.concept.upsert({
+      where: {
+        competitionId_slug_category_schoolLevel: {
+          competitionId: seed.concept.competitionId,
+          slug: seed.concept.slug,
+          category: seed.concept.category,
+          schoolLevel: seed.concept.schoolLevel
+        }
+      },
+      update: {
+        id: seed.concept.id,
+        title: seed.concept.title,
+        shortDescription: seed.concept.shortDescription,
+        aliases: seed.concept.aliases
+      },
+      create: seed.concept
+    });
+
+    await prisma.lesson.upsert({
+      where: {
+        competitionId_slug: {
+          competitionId: seed.concept.competitionId,
+          slug: seed.lesson.slug
+        }
+      },
+      update: {
+        id: seed.lesson.id,
+        levelId: competitionLevelIdFor(seed.concept.competitionId, seed.lesson.level),
+        conceptId: seed.concept.id,
+        title: seed.lesson.title,
+        category: seed.lesson.category,
+        level: seed.lesson.level,
+        estimatedMinutes: seed.lesson.estimatedMinutes,
+        summary: seed.lesson.summary,
+        keyConcepts: seed.lesson.keyConcepts,
+        contentSections: seed.lesson.contentSections,
+        reviewQuestions: seed.lesson.reviewQuestions
+      },
+      create: {
+        id: seed.lesson.id,
+        competitionId: seed.concept.competitionId,
+        levelId: competitionLevelIdFor(seed.concept.competitionId, seed.lesson.level),
+        conceptId: seed.concept.id,
+        slug: seed.lesson.slug,
+        title: seed.lesson.title,
+        category: seed.lesson.category,
+        level: seed.lesson.level,
+        estimatedMinutes: seed.lesson.estimatedMinutes,
+        summary: seed.lesson.summary,
+        keyConcepts: seed.lesson.keyConcepts,
+        contentSections: seed.lesson.contentSections,
+        reviewQuestions: seed.lesson.reviewQuestions
+      }
+    });
+
+    for (const questionId of seed.questionIds) {
+      const question = await prisma.question.findUnique({
+        where: { id: questionId },
+        select: { id: true }
+      });
+
+      if (question) {
+        await prisma.questionConcept.upsert({
+          where: {
+            questionId_conceptId: {
+              questionId,
+              conceptId: seed.concept.id
+            }
+          },
+          update: {
+            isPrimary: true,
+            position: 0
+          },
+          create: {
+            questionId,
+            conceptId: seed.concept.id,
+            isPrimary: true,
+            position: 0
+          }
+        });
+      }
+    }
+  }
+
   for (const test of tests) {
     await prisma.test.upsert({
       where: {
@@ -419,6 +630,7 @@ async function main() {
   const counts = await Promise.all([
     prisma.competition.count(),
     prisma.competitionLevel.count(),
+    prisma.concept.count(),
     prisma.question.count(),
     prisma.answer.count(),
     prisma.lesson.count(),
@@ -427,7 +639,7 @@ async function main() {
   ]);
 
   console.log(
-    `Seed complete: ${counts[0]} competitions, ${counts[1]} competition levels, ${counts[2]} questions, ${counts[3]} answers, ${counts[4]} lessons, ${counts[5]} tests, ${counts[6]} buzzer questions.`
+    `Seed complete: ${counts[0]} competitions, ${counts[1]} competition levels, ${counts[2]} concepts, ${counts[3]} questions, ${counts[4]} answers, ${counts[5]} lessons, ${counts[6]} tests, ${counts[7]} buzzer questions.`
   );
 }
 

@@ -377,6 +377,31 @@ export async function getLessonsByCompetition(
   return lessons.map(toLesson);
 }
 
+export async function getPrimaryConceptLessonForQuestion(questionId: string) {
+  if (!isDbEnabled()) return undefined;
+
+  const questionConcept = await getPrisma().questionConcept.findFirst({
+    where: {
+      questionId,
+      isPrimary: true
+    },
+    orderBy: { position: "asc" },
+    include: {
+      concept: {
+        include: {
+          lessons: {
+            orderBy: { id: "asc" },
+            take: 1
+          }
+        }
+      }
+    }
+  });
+  const lesson = questionConcept?.concept.lessons[0];
+
+  return lesson ? toLesson(lesson) : undefined;
+}
+
 export async function getTestsByCompetition(slug: CompetitionSlug) {
   if (!isDbEnabled()) {
     return localTests.filter((test) => test.competitionSlug === slug);
