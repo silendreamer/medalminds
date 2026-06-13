@@ -15,7 +15,8 @@
     "db:seed": "tsx prisma/seed.ts",
     "import:osti-ms-science-bowl": "tsx scripts/import-osti-ms-science-bowl.ts",
     "import:osti-sqlite": "tsx scripts/import-osti-sqlite-to-prisma.ts",
-    "generate:answer-explanations": "tsx scripts/generate-answer-explanations.ts"
+    "generate:answer-explanations": "tsx scripts/generate-answer-explanations.ts",
+    "generate:question-concepts": "tsx scripts/generate-question-concepts.ts"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.8.0",

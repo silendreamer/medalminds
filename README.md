@@ -145,6 +145,38 @@ The script prints a `verificationPath` for each generated row, such as:
 
 After Vercel redeploys this code, open `https://medalminds.vercel.app` plus that path to inspect the exact question and confirm the generated solution appears after tapping `Check answer`.
 
+## Group questions into reusable learn-more concepts
+
+Use concepts to avoid generating one lesson per question. The concept generator prefers an existing concept in the same competition/category/school level, links the question to that concept, and creates a new concept lesson only when no existing concept fits. The default write safety cap is `--max-new-concepts=3`.
+
+Inspect candidates without using OpenAI tokens:
+
+```bash
+npm run generate:question-concepts -- --limit=5 --list-only
+```
+
+Dry run AI decisions without writing:
+
+```bash
+npm run generate:question-concepts -- --limit=5
+```
+
+Write links and allow at most three new concept lessons:
+
+```bash
+npm run generate:question-concepts -- --limit=5 --write
+```
+
+Useful filters:
+
+```bash
+npm run generate:question-concepts -- --school-level=middle-school --category=Math --limit=10 --write
+npm run generate:question-concepts -- --question-id=QUESTION_ID --write
+npm run generate:question-concepts -- --limit=50 --max-new-concepts=10 --write
+```
+
+Do not run with a very high `--max-new-concepts` unless you intentionally want to expand the lesson library. Existing concepts should absorb similar questions.
+
 The importer reuses the existing Prisma schema and does not introduce a new ORM.
 
 ## Add a new competition
