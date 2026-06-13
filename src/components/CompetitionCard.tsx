@@ -1,7 +1,6 @@
 import Link from "next/link";
 import type { Competition } from "@/types";
 import { competitionPath } from "@/lib/routes";
-import { StatsCard } from "./StatsCard";
 
 export function CompetitionCard({
   competition,
@@ -10,15 +9,21 @@ export function CompetitionCard({
   competition: Competition;
   counts: { questions: number; lessons: number };
 }) {
+  const isScienceBowl = competition.slug === "science-bowl";
+  const questionStat = isScienceBowl ? `${counts.questions.toLocaleString()} practice questions` : "Coming soon";
+
   return (
-    <article className="card spacious">
-      <div className="stack">
+    <article className="competition-card">
+      <div className="competition-card-content">
         <div>
-          <span className="eyebrow">{competition.subdomain}.medalminds.com ready</span>
-          <h3>{competition.name}</h3>
+          <span className="eyebrow">{competition.subdomain}.medalminds.com</span>
+          <h2>{competition.name}</h2>
         </div>
         <p>{competition.shortDescription}</p>
-        <StatsCard {...counts} />
+        <div className="mini-stat-list">
+          <span>{questionStat}</span>
+          <span>{counts.lessons.toLocaleString()} lessons</span>
+        </div>
         <Link className="button" href={competitionPath(competition.slug)}>
           Enter {competition.name}
         </Link>

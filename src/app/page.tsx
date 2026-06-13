@@ -1,5 +1,31 @@
+import Link from "next/link";
+import { BookOpen, Brain, ChartNoAxesColumnIncreasing, Route, ShieldCheck } from "lucide-react";
 import { CompetitionCard } from "@/components/CompetitionCard";
 import { competitions, getContentCounts } from "@/lib/data";
+import { competitionPath } from "@/lib/routes";
+
+const features = [
+  {
+    title: "Focused practice",
+    description: "Move quickly from topic selection to questions that match the competition format.",
+    icon: Brain
+  },
+  {
+    title: "Competition-specific prep",
+    description: "Science Bowl, Science Olympiad, and Math Olympiad each keep their own training path.",
+    icon: Route
+  },
+  {
+    title: "Lessons + questions together",
+    description: "Review the concept behind a missed question without leaving the page.",
+    icon: BookOpen
+  },
+  {
+    title: "Built for steady improvement",
+    description: "Short sessions, quick tests, and clear review loops make progress easier to sustain.",
+    icon: ChartNoAxesColumnIncreasing
+  }
+];
 
 export default async function HomePage() {
   const competitionCounts = await Promise.all(
@@ -9,26 +35,111 @@ export default async function HomePage() {
     }))
   );
   const countsBySlug = new Map(competitionCounts.map((item) => [item.slug, item.counts]));
+  const scienceBowlCounts = countsBySlug.get("science-bowl") ?? { questions: 21747, lessons: 10 };
 
   return (
-    <section className="section">
-      <div className="container stack">
-        <div className="simple-heading">
-          <span className="eyebrow">MedalMinds</span>
-          <h1>Choose a competition</h1>
-          <p className="subtitle">Pick where you want to train. We will keep everything else out of the way.</p>
+    <>
+      <section className="home-hero">
+        <div className="container hero-grid">
+          <div className="hero-copy">
+            <span className="eyebrow">Premium competition prep</span>
+            <h1>Train smarter for academic competitions</h1>
+            <p className="subtitle">
+              Practice Science Bowl, Science Olympiad, and Math Olympiad with focused lessons, question banks, and
+              competition-specific prep paths.
+            </p>
+            <div className="hero-actions">
+              <Link className="button button-lg" href={competitionPath("science-bowl")}>
+                Start with Science Bowl
+              </Link>
+              <Link className="ghost-button button-lg" href="#competitions">
+                Explore competitions
+              </Link>
+            </div>
+            <div className="trust-strip" aria-label="Platform highlights">
+              <span>{scienceBowlCounts.questions.toLocaleString()}+ practice questions</span>
+              <span>Competition-specific lessons</span>
+              <span>Built for focused prep</span>
+            </div>
+          </div>
+          <div className="hero-panel" aria-hidden="true">
+            <div className="hero-panel-top">
+              <ShieldCheck size={28} />
+              <span>Medal-ready study path</span>
+            </div>
+            <div className="hero-metric">
+              <strong>{scienceBowlCounts.questions.toLocaleString()}+</strong>
+              <span>Science Bowl questions indexed by subject and level</span>
+            </div>
+            <div className="hero-panel-grid">
+              <span>Middle School</span>
+              <span>High School</span>
+              <span>Lessons</span>
+              <span>Quick Tests</span>
+            </div>
+          </div>
         </div>
+      </section>
 
-        <div className="grid">
-          {competitions.map((competition) => (
-            <CompetitionCard
-              competition={competition}
-              counts={countsBySlug.get(competition.slug) ?? { questions: 0, lessons: 0 }}
-              key={competition.slug}
-            />
-          ))}
+      <section className="section" id="competitions">
+        <div className="container stack">
+          <div className="section-heading">
+            <div>
+              <span className="eyebrow">Prep tracks</span>
+              <h2>Choose your competition</h2>
+              <p>Pick a track and start training with the right questions, lessons, and review flow.</p>
+            </div>
+          </div>
+          <div className="grid competition-grid">
+            {competitions.map((competition) => (
+              <CompetitionCard
+                competition={competition}
+                counts={countsBySlug.get(competition.slug) ?? { questions: 0, lessons: 0 }}
+                key={competition.slug}
+              />
+            ))}
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
+
+      <section className="section">
+        <div className="container stack">
+          <div className="section-heading">
+            <div>
+              <span className="eyebrow">Why Medal Minds</span>
+              <h2>Designed for serious prep</h2>
+            </div>
+          </div>
+          <div className="grid four">
+            {features.map((feature) => {
+              const Icon = feature.icon;
+              return (
+                <article className="feature-card" key={feature.title}>
+                  <span className="feature-icon">
+                    <Icon size={22} />
+                  </span>
+                  <h3>{feature.title}</h3>
+                  <p>{feature.description}</p>
+                </article>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      <section className="section">
+        <div className="container">
+          <div className="cta-band">
+            <div>
+              <span className="eyebrow">Start simple</span>
+              <h2>Start with one competition. Build momentum from there.</h2>
+            </div>
+            <Link className="button button-lg" href={competitionPath("science-bowl")}>
+              Start Practicing
+            </Link>
+          </div>
+        </div>
+      </section>
+    </>
   );
 }

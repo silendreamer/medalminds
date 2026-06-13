@@ -1,6 +1,6 @@
 "use client";
 
-import { Atom } from "lucide-react";
+import { Medal } from "lucide-react";
 
 export function Footer() {
   return (
@@ -8,9 +8,9 @@ export function Footer() {
       <div className="container footer-inner">
         <div className="brand footer-brand">
           <span className="brand-mark">
-            <Atom size={22} />
+            <Medal size={22} />
           </span>
-          MedalMinds
+          Medal Minds
         </div>
         <p>
           This is an independent educational practice platform. It is not affiliated with or endorsed by any

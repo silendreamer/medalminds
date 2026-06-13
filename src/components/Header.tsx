@@ -1,10 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { Atom } from "lucide-react";
+import { Medal } from "lucide-react";
 import { competitions } from "@/data/competitions";
 import { competitionPath } from "@/lib/routes";
-import { CompetitionSwitcher } from "./CompetitionSwitcher";
 
 export function Header() {
   return (
@@ -12,9 +11,9 @@ export function Header() {
       <div className="nav-inner">
         <Link className="brand" href="/">
           <span className="brand-mark">
-            <Atom size={24} />
+            <Medal size={24} />
           </span>
-          MedalMinds
+          Medal Minds
         </Link>
         <nav className="nav-links" aria-label="Main navigation">
           <Link className="nav-link" href="/">
@@ -26,7 +25,9 @@ export function Header() {
             </Link>
           ))}
         </nav>
-        <CompetitionSwitcher />
+        <Link className="button nav-cta" href={competitionPath("science-bowl")}>
+          Start Practicing
+        </Link>
       </div>
     </header>
   );
