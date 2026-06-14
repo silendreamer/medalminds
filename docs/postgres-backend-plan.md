@@ -1,4 +1,5 @@
 # PostgreSQL Backend Architecture
+# PostgreSQL Backend Architecture
 
 This document describes the implemented PostgreSQL/Prisma backend path for MedalMinds. The app still supports local TypeScript data fallback when no database URL is configured, which keeps development and preview builds simple.
 

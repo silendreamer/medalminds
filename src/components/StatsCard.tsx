@@ -1,3 +1,5 @@
+import { formatApproximateCount } from "@/lib/format";
+
 export function StatsCard({
   questions,
   lessons
@@ -8,11 +10,11 @@ export function StatsCard({
   return (
     <div className="stat-row">
       <div className="stat">
-        <strong>{questions}</strong>
+        <strong>{formatApproximateCount(questions)}</strong>
         <span>practice questions</span>
       </div>
       <div className="stat">
-        <strong>{lessons}</strong>
+        <strong>{formatApproximateCount(lessons)}</strong>
         <span>lessons</span>
       </div>
     </div>
