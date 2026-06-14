@@ -35,10 +35,13 @@ export function getPrisma() {
   }
 
   if (!globalForPrisma.prismaPool) {
-    const poolOptions: any = { connectionString: databaseUrl };
+    const poolConnectionString = new URL(databaseUrl);
+    poolConnectionString.searchParams.delete("sslmode");
+    const poolOptions: any = { connectionString: poolConnectionString.toString() };
     // When running against some hosted providers with self-signed certs,
     // allow disabling strict TLS verification via NODE_TLS_REJECT_UNAUTHORIZED=0
-    if (process.env.NODE_TLS_REJECT_UNAUTHORIZED === '0') {
+    const isSupabaseHost = /supabase\.com/i.test(databaseUrl) || /supabase\.co/i.test(databaseUrl);
+    if (process.env.NODE_TLS_REJECT_UNAUTHORIZED === '0' || isSupabaseHost) {
       poolOptions.ssl = { rejectUnauthorized: false };
     }
     globalForPrisma.prismaPool = new Pool(poolOptions);

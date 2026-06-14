@@ -20,6 +20,13 @@ type ExistingConcept = Prisma.ConceptGetPayload<{
   };
 }>;
 
+type ConceptCandidateScore = {
+  concept: ExistingConcept;
+  score: number;
+  matchedTokens: string[];
+  matchedPhrases: string[];
+};
+
 type ConceptDecision = {
   useExistingConceptId: string | null;
   createNewConcept: boolean;
@@ -52,11 +59,207 @@ function parsePositiveInt(value: string | undefined, fallback: number) {
   return Number.isInteger(parsed) && parsed > 0 ? parsed : fallback;
 }
 
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function isRetryableFetchError(error: unknown) {
+  if (!error || typeof error !== "object") return false;
+  const code = (error as { code?: string }).code;
+  const message = (error as { message?: string }).message ?? "";
+  return code === "ECONNRESET" || code === "ETIMEDOUT" || message.includes("fetch failed");
+}
+
+async function fetchJsonWithRetry(url: string, init: RequestInit, attempts = 4) {
+  let lastError: unknown;
+  for (let attempt = 1; attempt <= attempts; attempt += 1) {
+    try {
+      const response = await fetch(url, init);
+      if (response.ok) return response;
+      if (response.status === 429 || response.status >= 500) {
+        lastError = new Error(`HTTP ${response.status}`);
+      } else {
+        return response;
+      }
+    } catch (error) {
+      lastError = error;
+      if (!isRetryableFetchError(error)) throw error;
+    }
+    if (attempt < attempts) {
+      await sleep(500 * attempt * attempt);
+    }
+  }
+  throw lastError instanceof Error ? lastError : new Error("Request failed after retries.");
+}
+
+async function mapWithConcurrency<T, U>(items: T[], concurrency: number, mapper: (item: T, index: number) => Promise<U>) {
+  const results: U[] = new Array(items.length);
+  let cursor = 0;
+
+  async function worker() {
+    while (true) {
+      const index = cursor;
+      cursor += 1;
+      if (index >= items.length) return;
+      results[index] = await mapper(items[index], index);
+    }
+  }
+
+  await Promise.all(Array.from({ length: Math.min(concurrency, items.length) }, () => worker()));
+  return results;
+}
+
 function slugify(value: string) {
   return value
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/(^-|-$)/g, "");
+}
+
+const STOPWORDS = new Set([
+  "the",
+  "and",
+  "or",
+  "for",
+  "with",
+  "from",
+  "into",
+  "this",
+  "that",
+  "what",
+  "which",
+  "when",
+  "where",
+  "who",
+  "whom",
+  "why",
+  "how",
+  "a",
+  "an",
+  "of",
+  "in",
+  "on",
+  "to",
+  "by",
+  "is",
+  "are",
+  "was",
+  "were",
+  "be",
+  "been",
+  "being",
+  "at",
+  "as",
+  "it",
+  "its",
+  "their",
+  "they",
+  "them",
+  "these",
+  "those",
+  "do",
+  "does",
+  "did",
+  "not",
+  "than",
+  "then",
+  "also"
+]);
+
+function normalizeText(value: string) {
+  return value
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function tokenizeConceptText(value: string) {
+  return normalizeText(value)
+    .split(" ")
+    .map((token) => token.replace(/^(un|re|in|im|non|dis|mis)/, "").replace(/(ing|ed|es|s)$/, ""))
+    .filter((token) => token.length >= 3 && !STOPWORDS.has(token));
+}
+
+function conceptSearchText(concept: ExistingConcept) {
+  return [
+    concept.title,
+    concept.shortDescription,
+    ...(concept.aliases ?? [])
+  ]
+    .filter(Boolean)
+    .join(" ");
+}
+
+function scoreExistingConcept(question: QuestionWithRelations, concept: ExistingConcept): ConceptCandidateScore {
+  const promptText = normalizeText(question.prompt);
+  const answerText = normalizeText(question.correctAnswer);
+  const promptTokens = new Set(tokenizeConceptText(`${question.prompt} ${question.correctAnswer}`));
+  const conceptTokens = new Set(tokenizeConceptText(conceptSearchText(concept)));
+  const matchedTokens: string[] = [];
+  let score = 0;
+
+  for (const token of conceptTokens) {
+    if (promptTokens.has(token)) {
+      matchedTokens.push(token);
+      score += 1;
+    }
+  }
+
+  const matchedPhrases: string[] = [];
+  const phraseSources = [
+    concept.title,
+    ...(concept.aliases ?? []),
+    concept.shortDescription
+  ]
+    .map((phrase) => phrase.trim())
+    .filter(Boolean);
+
+  for (const phrase of phraseSources) {
+    const normalizedPhrase = normalizeText(phrase);
+    if (normalizedPhrase.length < 4) continue;
+    if (promptText.includes(normalizedPhrase) || answerText.includes(normalizedPhrase)) {
+      matchedPhrases.push(phrase);
+      score += Math.min(4, Math.ceil(normalizedPhrase.split(" ").length * 1.5));
+    }
+  }
+
+  if (concept.title && (promptText.includes(normalizeText(concept.title)) || answerText.includes(normalizeText(concept.title)))) {
+    score += 3;
+  }
+
+  if (concept.category === question.category) {
+    score += 1;
+  }
+
+  if (concept.schoolLevel && concept.schoolLevel === question.schoolLevel) {
+    score += 1;
+  }
+
+  // Favor concepts that share the actual scientific language from the prompt.
+  if (matchedTokens.length > 0) {
+    score += Math.min(2, matchedTokens.length);
+  }
+
+  return {
+    concept,
+    score,
+    matchedTokens,
+    matchedPhrases
+  };
+}
+
+function chooseLocalConcept(question: QuestionWithRelations, concepts: ExistingConcept[]) {
+  const ranked = concepts
+    .map((concept) => scoreExistingConcept(question, concept))
+    .sort((a, b) => b.score - a.score);
+  const best = ranked[0];
+  if (!best) return null;
+
+  // Require an actual topical signal, not just same category/level.
+  if (best.score < 4) return null;
+
+  return best;
 }
 
 function schoolLevelFromArg(value: string | undefined) {
@@ -98,7 +301,7 @@ function questionInput(question: QuestionWithRelations) {
 }
 
 function conceptInput(concepts: ExistingConcept[]) {
-  return concepts.slice(0, 50).map((concept) => ({
+  return concepts.slice(0, 150).map((concept) => ({
     id: concept.id,
     title: concept.title,
     slug: concept.slug,
@@ -116,6 +319,7 @@ Goal:
 - Prefer an existing concept if it covers the same underlying skill or fact pattern.
 - Create a new concept only when none of the existing concepts fit.
 - Do not create overly narrow concepts that only restate one question.
+- Prefer broader reusable concepts over narrow question-specific phrasing.
 - Do not name a concept after a proper noun, species, organism, person, place, or one-off example unless that entity is the actual reusable topic.
 - Generalize examples to the underlying science or math principle students should learn.
 - The concept should be reusable by many similar questions.
@@ -131,8 +335,8 @@ ${JSON.stringify(conceptInput(concepts), null, 2)}
 Decision rules:
 - If an existing concept fits, set useExistingConceptId to that exact id and createNewConcept to false.
 - If no existing concept fits, set useExistingConceptId to null and createNewConcept to true.
-- If creating a new concept, also generate a short reusable lesson.
-- If using an existing concept, still fill the lesson fields with concise reusable content, but the script will not create a duplicate lesson.
+- If creating a new concept, also generate a full reusable lesson with sections for Core Idea, Science Bowl Clue, Common Trap, and Mini review.
+- If using an existing concept, still fill the lesson fields with concise reusable content.
 - Set needsReview to true if confidence is low or if the question is ambiguous.
 
 Output schema:
@@ -170,16 +374,19 @@ function validateDecision(value: unknown, existingConceptIds: Set<string>): Conc
 
   const candidate = value as Partial<ConceptDecision>;
   const useExistingConceptId = candidate.useExistingConceptId ?? null;
-  if (useExistingConceptId !== null && !existingConceptIds.has(useExistingConceptId)) {
-    throw new Error(`Model selected unknown concept id: ${useExistingConceptId}`);
-  }
   if (typeof candidate.createNewConcept !== "boolean") {
     throw new Error("Model output did not include createNewConcept.");
   }
-  if (useExistingConceptId && candidate.createNewConcept) {
+  let createNewConcept = candidate.createNewConcept;
+  let normalizedUseExistingConceptId = useExistingConceptId;
+  if (useExistingConceptId !== null && !existingConceptIds.has(useExistingConceptId)) {
+    normalizedUseExistingConceptId = null;
+    createNewConcept = true;
+  }
+  if (normalizedUseExistingConceptId && createNewConcept) {
     throw new Error("Model output both selected an existing concept and requested a new concept.");
   }
-  if (!useExistingConceptId && !candidate.createNewConcept) {
+  if (!normalizedUseExistingConceptId && !createNewConcept) {
     throw new Error("Model output neither selected an existing concept nor requested a new concept.");
   }
   if (typeof candidate.conceptTitle !== "string" || !candidate.conceptTitle.trim()) {
@@ -198,7 +405,7 @@ function validateDecision(value: unknown, existingConceptIds: Set<string>): Conc
   if (typeof candidate.lessonSummary !== "string" || !candidate.lessonSummary.trim()) {
     throw new Error("Model output did not include lessonSummary.");
   }
-  if (!Array.isArray(candidate.lessonSections) || candidate.lessonSections.length < 2) {
+  if (!Array.isArray(candidate.lessonSections) || candidate.lessonSections.length < 4) {
     throw new Error("Model output did not include enough lessonSections.");
   }
   const lessonSections = candidate.lessonSections.map((section) => {
@@ -212,17 +419,17 @@ function validateDecision(value: unknown, existingConceptIds: Set<string>): Conc
   }).filter((section) => section.heading && section.body);
 
   return {
-    useExistingConceptId,
-    createNewConcept: candidate.createNewConcept,
+    useExistingConceptId: normalizedUseExistingConceptId,
+    createNewConcept,
     conceptTitle: candidate.conceptTitle.trim(),
     conceptSlug: slugify(candidate.conceptSlug || candidate.conceptTitle),
     shortDescription: candidate.shortDescription.trim(),
-    aliases: validateStringArray(candidate.aliases, "aliases", 1).slice(0, 8),
+    aliases: validateStringArray(candidate.aliases ?? [], "aliases", 0).slice(0, 8),
     confidence,
     needsReview: candidate.needsReview,
     lessonSummary: candidate.lessonSummary.trim(),
     lessonKeyConcepts: validateStringArray(candidate.lessonKeyConcepts, "lessonKeyConcepts", 3).slice(0, 5),
-    lessonSections: lessonSections.slice(0, 3),
+    lessonSections: lessonSections.slice(0, 4),
     reviewQuestions: validateStringArray(candidate.reviewQuestions, "reviewQuestions", 2).slice(0, 3)
   };
 }
@@ -233,7 +440,7 @@ async function requestConceptDecision(question: QuestionWithRelations, concepts:
     throw new Error("OPENAI_API_KEY is required.");
   }
 
-  const response = await fetch("https://api.openai.com/v1/chat/completions", {
+  const response = await fetchJsonWithRetry("https://api.openai.com/v1/chat/completions", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -392,7 +599,7 @@ async function writeDecision(question: QuestionWithRelations, decision: ConceptD
         title: decision.conceptTitle,
         category: question.category,
         level: question.level,
-        estimatedMinutes: 7,
+        estimatedMinutes: 10,
         summary: decision.lessonSummary,
         keyConcepts: decision.lessonKeyConcepts,
         contentSections: decision.lessonSections,
@@ -407,13 +614,60 @@ async function writeDecision(question: QuestionWithRelations, decision: ConceptD
         title: decision.conceptTitle,
         category: question.category,
         level: question.level,
-        estimatedMinutes: 7,
+        estimatedMinutes: 10,
         summary: decision.lessonSummary,
         keyConcepts: decision.lessonKeyConcepts,
         contentSections: decision.lessonSections,
         reviewQuestions: decision.reviewQuestions
       }
     });
+  } else {
+    const existingConcept = await prisma.concept.findUnique({
+      where: { id: conceptId },
+      include: {
+        lessons: {
+          orderBy: { id: "asc" },
+          take: 1
+        }
+      }
+    });
+
+    if (existingConcept && existingConcept.lessons.length === 0) {
+      await prisma.lesson.upsert({
+        where: {
+          competitionId_slug: {
+            competitionId: question.competitionId,
+            slug: decision.conceptSlug
+          }
+        },
+        update: {
+          conceptId,
+          title: decision.conceptTitle,
+          category: question.category,
+          level: question.level,
+          estimatedMinutes: 10,
+          summary: decision.lessonSummary,
+          keyConcepts: decision.lessonKeyConcepts,
+          contentSections: decision.lessonSections,
+          reviewQuestions: decision.reviewQuestions
+        },
+        create: {
+          id: lessonId,
+          competitionId: question.competitionId,
+          levelId: question.levelId,
+          conceptId,
+          slug: decision.conceptSlug,
+          title: decision.conceptTitle,
+          category: question.category,
+          level: question.level,
+          estimatedMinutes: 10,
+          summary: decision.lessonSummary,
+          keyConcepts: decision.lessonKeyConcepts,
+          contentSections: decision.lessonSections,
+          reviewQuestions: decision.reviewQuestions
+        }
+      });
+    }
   }
 
   await prisma.questionConcept.upsert({
@@ -441,6 +695,7 @@ async function writeDecision(question: QuestionWithRelations, decision: ConceptD
 async function main() {
   const limit = parsePositiveInt(readArg("limit"), 5);
   const delayMs = parsePositiveInt(readArg("delay-ms"), 350);
+  const concurrency = parsePositiveInt(readArg("concurrency"), 5);
   const maxNewConcepts = parsePositiveInt(readArg("max-new-concepts"), 3);
   const model = readArg("model") ?? process.env.OPENAI_MODEL ?? "gpt-4o-mini";
   const write = hasFlag("write");
@@ -473,6 +728,7 @@ async function main() {
     model,
     promptVersion: PROMPT_VERSION,
     selected: questions.length,
+    concurrency,
     maxNewConcepts,
     filters: { competitionSlug, category, schoolLevel, questionId, overwrite }
   }, null, 2));
@@ -496,42 +752,89 @@ async function main() {
   let createdConcepts = 0;
   let skippedForNewConceptCap = 0;
   for (const question of questions) {
-    const concepts = await getCandidateConcepts(question);
-    const decision = await requestConceptDecision(question, concepts, model);
-    const wouldCreate = decision.createNewConcept && !decision.useExistingConceptId;
+    try {
+      const concepts = await getCandidateConcepts(question);
+      const localMatch = chooseLocalConcept(question, concepts);
+      let decision = localMatch
+        ? ({
+            useExistingConceptId: localMatch.concept.id,
+            createNewConcept: false,
+            conceptTitle: localMatch.concept.title,
+            conceptSlug: localMatch.concept.slug,
+            shortDescription: localMatch.concept.shortDescription,
+            aliases: localMatch.concept.aliases,
+            confidence: (localMatch.score >= 7 ? "high" : "medium") as "high" | "medium",
+            needsReview: false,
+            lessonSummary: `${localMatch.concept.shortDescription} This lesson explains the idea, the clue words to listen for, the common trap, and a quick review.`,
+            lessonKeyConcepts: [localMatch.concept.title, ...(localMatch.concept.aliases ?? []).slice(0, 2)].slice(0, 4),
+            lessonSections: [
+              {
+                heading: "Core Idea",
+                body: `${localMatch.concept.shortDescription} Start by naming the underlying concept instead of jumping to the first remembered fact.`
+              },
+              {
+                heading: "Science Bowl Clue",
+                body: localMatch.matchedPhrases.length > 0
+                  ? `Look for clue words such as ${localMatch.matchedPhrases.slice(0, 3).join(", ")}. These usually point directly to this topic in a buzzer round.`
+                  : "Look for the core scientific terms that identify the underlying topic in a buzzer round."
+              },
+              {
+                heading: "Common Trap",
+                body: "Do not stop at the surface detail of the question. Identify the broader concept the clue is testing."
+              },
+              {
+                heading: "Mini review",
+                body: `If you can define ${localMatch.concept.title} in one sentence and name one way it appears in a Science Bowl clue, you have the gist.`
+              }
+            ],
+            reviewQuestions: [
+              `What is the key idea behind ${localMatch.concept.title}?`,
+              `How would you recognize ${localMatch.concept.title} in a new Science Bowl clue?`
+            ]
+          } satisfies ConceptDecision)
+        : await requestConceptDecision(question, concepts, model);
+      const wouldCreate = decision.createNewConcept && !decision.useExistingConceptId;
 
-    if (write && wouldCreate && createdConcepts >= maxNewConcepts) {
-      skippedForNewConceptCap += 1;
+      if (write && wouldCreate && createdConcepts >= maxNewConcepts) {
+        skippedForNewConceptCap += 1;
+        console.log(JSON.stringify({
+          questionId: question.id,
+          verificationPath: buildVerificationPath(question),
+          skipped: true,
+          reason: "max-new-concepts reached",
+          proposedConceptTitle: decision.conceptTitle
+        }, null, 2));
+        continue;
+      }
+
+      let conceptId = decision.useExistingConceptId;
+      if (write) {
+        conceptId = await writeDecision(question, decision);
+        linked += 1;
+        if (wouldCreate) createdConcepts += 1;
+      }
+
       console.log(JSON.stringify({
         questionId: question.id,
         verificationPath: buildVerificationPath(question),
-        skipped: true,
-        reason: "max-new-concepts reached",
-        proposedConceptTitle: decision.conceptTitle
+        conceptId,
+        createNewConcept: decision.createNewConcept,
+        conceptTitle: decision.conceptTitle,
+        confidence: decision.confidence,
+        needsReview: decision.needsReview,
+        write
+      }, null, 2));
+    } catch (error) {
+      console.error(JSON.stringify({
+        questionId: question.id,
+        verificationPath: buildVerificationPath(question),
+        error: error instanceof Error ? error.message : String(error)
       }, null, 2));
       continue;
     }
 
-    let conceptId = decision.useExistingConceptId;
-    if (write) {
-      conceptId = await writeDecision(question, decision);
-      linked += 1;
-      if (wouldCreate) createdConcepts += 1;
-    }
-
-    console.log(JSON.stringify({
-      questionId: question.id,
-      verificationPath: buildVerificationPath(question),
-      conceptId,
-      createNewConcept: decision.createNewConcept,
-      conceptTitle: decision.conceptTitle,
-      confidence: decision.confidence,
-      needsReview: decision.needsReview,
-      write
-    }, null, 2));
-
     if (delayMs > 0) {
-      await new Promise((resolve) => setTimeout(resolve, delayMs));
+      await sleep(delayMs);
     }
   }
 

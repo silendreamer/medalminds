@@ -129,27 +129,27 @@ export default async function CompetitionPage({
               </Link>
             </div>
             <div className={`grid ${isScienceBowl ? "four" : ""}`}>
+              <Link className="card spacious stack" href={`${learningPath(competitionSlug)}${actionQuery}`}>
+                <span className="eyebrow">Lessons</span>
+                <h2>Learning</h2>
+                <p>Browse lessons connected to this subject and level.</p>
+              </Link>
               <Link className="card spacious stack" href={`${practicePath(competitionSlug)}${actionQuery}`}>
                 <span className="eyebrow">Practice</span>
-                <h2>Questions</h2>
+                <h2>Practice Questions</h2>
                 <p>Get one random question, answer it, then review the answer and topic explanation.</p>
               </Link>
               <Link className="card spacious stack" href={`${testsPath(competitionSlug)}${actionQuery}`}>
-                <span className="eyebrow">Test</span>
-                <h2>Quick Test</h2>
+                <span className="eyebrow">Tests</span>
+                <h2>Quizzes</h2>
                 <p>Choose 10, 25, or 50 multiple-choice questions and get your score at the end.</p>
-              </Link>
-              <Link className="card spacious stack" href={`${learningPath(competitionSlug)}${actionQuery}`}>
-                <span className="eyebrow">Lessons</span>
-                <h2>Learn</h2>
-                <p>Browse short lessons connected to this subject.</p>
               </Link>
               {isScienceBowl && (
                 <Link className="card spacious stack" href={buzzerPath()}>
                 <span className="eyebrow">Buzz</span>
-                <h2>Buzzer Arena</h2>
-                <p>Practice solo timing or run a two-team local toss-up and bonus round.</p>
-              </Link>
+                  <h2>Buzzer Practice</h2>
+                  <p>Practice solo timing or run a two-team local toss-up and bonus round.</p>
+                </Link>
               )}
             </div>
           </div>
