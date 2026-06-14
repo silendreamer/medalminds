@@ -112,7 +112,7 @@ function resetRoundState(nextMode: BuzzerMode, nowMs: number, index = 0): Buzzer
 }
 
 export function createInitialBuzzerState(nowMs = Date.now()): BuzzerState {
-  return resetRoundState("solo", nowMs, 0);
+  return resetRoundState("teams", nowMs, 0);
 }
 
 export function formatBuzzerElapsed(ms: number) {
@@ -347,4 +347,3 @@ export function buzzerReducer(state: BuzzerState, action: BuzzerAction): BuzzerS
       return state;
   }
 }
-

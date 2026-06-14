@@ -16,8 +16,8 @@ export default async function BuzzerPage({ params }: { params: Promise<{ competi
   const buzzerQuestions = await getBuzzerQuestions();
 
   return (
-    <section className="section">
-      <div className="container">
+    <section className="section buzzer-page">
+      <div className="container stack">
         <Breadcrumbs
           items={[
             { label: "Home", href: "/" },
@@ -25,15 +25,6 @@ export default async function BuzzerPage({ params }: { params: Promise<{ competi
             { label: "Buzzer Arena" }
           ]}
         />
-        <div className="section-heading">
-          <div>
-            <span className="eyebrow">Science Bowl</span>
-            <h1>Science Bowl Buzzer Arena</h1>
-            <p className="subtitle">
-              Simulate toss-up timing, local buzz-ins, moderator scoring, bonus conversion, and session review with original sample questions.
-            </p>
-          </div>
-        </div>
         <BuzzerArena questions={buzzerQuestions} />
       </div>
     </section>
