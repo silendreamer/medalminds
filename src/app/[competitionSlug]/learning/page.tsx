@@ -32,8 +32,9 @@ export default async function LearningPage({
             competitionSlug,
             competitionName: competition.name,
             level,
+            action: "Learning",
             subject,
-            current: "Learning"
+            current: subject ? undefined : "Learning"
           })}
         />
         <div className="section-heading">

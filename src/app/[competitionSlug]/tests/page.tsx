@@ -40,8 +40,9 @@ export default async function TestsPage({
             competitionSlug,
             competitionName: competition.name,
             level,
+            action: "Tests",
             subject,
-            current: "Tests"
+            current: subject ? undefined : "Tests"
           })}
         />
         <div className="section-heading">

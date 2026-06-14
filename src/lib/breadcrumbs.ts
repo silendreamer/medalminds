@@ -17,12 +17,14 @@ export function buildStudyBreadcrumbs({
   competitionSlug,
   competitionName,
   level,
+  action,
   subject,
   current
 }: {
   competitionSlug: CompetitionSlug;
   competitionName: string;
   level?: string | null;
+  action?: string | null;
   subject?: string | null;
   current?: string;
 }) {
@@ -40,17 +42,15 @@ export function buildStudyBreadcrumbs({
     });
   }
 
-  if (current) {
-    items.push({ label: current });
+  if (action) {
+    items.push({ label: action });
   }
 
   if (subject) {
-    const subjectQuery = [levelQuery, `subject=${encodeURIComponent(subject)}`].filter(Boolean).join("&");
-    items.push({
-      label: subject,
-      href: `${competitionPath(competitionSlug)}?${subjectQuery}`
-    });
-  } else if (!current && items.length > 1) {
+    items.push({ label: subject });
+  } else if (current && !action) {
+    items.push({ label: current });
+  } else if (items.length > 1) {
     delete items[items.length - 1].href;
   }
 

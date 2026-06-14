@@ -77,7 +77,7 @@ export default async function CompetitionPage({
             competitionSlug,
             competitionName: competition.name,
             level: selectedLevel,
-            current: selectedAction ? actionLabelMap[selectedAction] : undefined
+            action: selectedAction ? actionLabelMap[selectedAction] : undefined
           })}
         />
         <div className="simple-heading competition-intro">

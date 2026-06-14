@@ -47,8 +47,9 @@ export default async function PracticePage({
             competitionSlug,
             competitionName: competition.name,
             level,
+            action: "Practice",
             subject,
-            current: "Practice"
+            current: subject ? undefined : "Practice"
           })}
         />
         <div className="section-heading">
