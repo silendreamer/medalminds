@@ -58,7 +58,7 @@ export default async function HomePage() {
               </Link>
             </div>
             <div className="trust-strip" aria-label="Platform highlights">
-              <span>{formatApproximateCount(scienceBowlCounts.questions)}+ practice questions</span>
+              <span>{formatApproximateCount(scienceBowlCounts.questions)} practice questions</span>
               <span>Competition-specific lessons</span>
               <span>Built for focused prep</span>
             </div>
@@ -69,7 +69,7 @@ export default async function HomePage() {
               <span>Medal-ready study path</span>
             </div>
             <div className="hero-metric">
-              <strong>{formatApproximateCount(scienceBowlCounts.questions)}+</strong>
+              <strong>{formatApproximateCount(scienceBowlCounts.questions)}</strong>
               <span>Science Bowl questions indexed by subject and level</span>
             </div>
             <div className="hero-panel-grid">
