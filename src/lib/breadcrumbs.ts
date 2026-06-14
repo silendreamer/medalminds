@@ -40,17 +40,17 @@ export function buildStudyBreadcrumbs({
     });
   }
 
+  if (current) {
+    items.push({ label: current });
+  }
+
   if (subject) {
     const subjectQuery = [levelQuery, `subject=${encodeURIComponent(subject)}`].filter(Boolean).join("&");
     items.push({
       label: subject,
       href: `${competitionPath(competitionSlug)}?${subjectQuery}`
     });
-  }
-
-  if (current) {
-    items.push({ label: current });
-  } else if (items.length > 1) {
+  } else if (!current && items.length > 1) {
     delete items[items.length - 1].href;
   }
 

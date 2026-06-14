@@ -75,8 +75,16 @@ export const lessons: Lesson[] = (Object.keys(topics) as CompetitionSlug[]).flat
       ],
       contentSections: [
         {
+          heading: "What it is",
+          body: `${topic.concept} is the underlying idea students should recognize before they start solving. A strong definition helps you separate the clue from the answer choice.`
+        },
+        {
           heading: "Core Idea",
           body: `${topic.concept} becomes easier when you name the quantities, units, or structures involved before solving. ${sectionVoice[competitionSlug]}`
+        },
+        {
+          heading: "How it works",
+          body: `Think about what changes, what stays fixed, and what relationship the question is asking you to use. That structure often matters more than the surface wording.`
         },
         {
           heading: "Science Bowl Clue",
@@ -85,6 +93,10 @@ export const lessons: Lesson[] = (Object.keys(topics) as CompetitionSlug[]).flat
         {
           heading: "Common Trap",
           body: `Do not stop at a memorized keyword. Confirm that the answer matches the requested direction, scale, or comparison in the question.`
+        },
+        {
+          heading: "Mini review",
+          body: `If you can explain ${topic.concept} in one sentence and give one clue that reveals it, you are ready to recognize it faster on the next question.`
         }
       ],
       reviewQuestions: [

@@ -133,8 +133,16 @@ const conceptLessonSeeds = [
       keyConcepts: ["Common denominators", "Fraction averages", "Number line reasoning"],
       contentSections: [
         {
+          heading: "What it is",
+          body: "A fraction midpoint is the number halfway between two fractions on the number line."
+        },
+        {
           heading: "Core Idea",
           body: "To compare or average fractions, first rewrite them with a shared denominator. This turns the problem into comparing or averaging numerators on the same scale."
+        },
+        {
+          heading: "How it works",
+          body: "Once both fractions are on the same denominator, you can compare their numerators directly or average them to find the value in the middle."
         },
         {
           heading: "Science Bowl Clue",
@@ -143,6 +151,10 @@ const conceptLessonSeeds = [
         {
           heading: "Common Trap",
           body: "Do not average the denominators and the numerators separately. The correct midpoint comes from putting the fractions on the same scale first."
+        },
+        {
+          heading: "Mini review",
+          body: "Remember the workflow: convert to a common scale, compare or average the numerators, and check that the answer sits between the originals."
         }
       ],
       reviewQuestions: [
@@ -174,8 +186,16 @@ const conceptLessonSeeds = [
       keyConcepts: ["Species", "Reproductive isolation", "Fertile offspring"],
       contentSections: [
         {
+          heading: "What it is",
+          body: "The biological species concept defines species by whether organisms can naturally interbreed and produce fertile offspring."
+        },
+        {
           heading: "Core Idea",
           body: "A species is often defined as a group of organisms that can interbreed and produce offspring that can also reproduce. This focuses on gene flow between organisms."
+        },
+        {
+          heading: "How it works",
+          body: "If two groups cannot produce fertile offspring together, gene flow stops and they are considered separate species under this concept."
         },
         {
           heading: "Science Bowl Clue",
@@ -184,6 +204,10 @@ const conceptLessonSeeds = [
         {
           heading: "Common Trap",
           body: "Do not confuse species with genus or family. Those are broader taxonomic groups and do not require all members to interbreed."
+        },
+        {
+          heading: "Mini review",
+          body: "When you hear fertile offspring and reproductive isolation, think biological species concept, not just a general taxonomy label."
         }
       ],
       reviewQuestions: [
@@ -215,8 +239,16 @@ const conceptLessonSeeds = [
       keyConcepts: ["Neurotransmitters", "Synaptic cleft", "Receptors"],
       contentSections: [
         {
+          heading: "What it is",
+          body: "Neurotransmitters are chemical messengers neurons use to send a signal across a synapse."
+        },
+        {
           heading: "Core Idea",
           body: "An electrical signal travels down a neuron, but at many synapses the message crosses to the next cell chemically. The chemicals used for this transfer are neurotransmitters."
+        },
+        {
+          heading: "How it works",
+          body: "A signal reaches the end of the neuron, neurotransmitters are released into the synaptic cleft, and they bind to receptors on the next cell to continue the message."
         },
         {
           heading: "Science Bowl Clue",
@@ -225,6 +257,10 @@ const conceptLessonSeeds = [
         {
           heading: "Common Trap",
           body: "Do not answer with the name of the gap when the question asks for the chemical messenger. The gap is the synapse or synaptic cleft; the messenger is the neurotransmitter."
+        },
+        {
+          heading: "Mini review",
+          body: "Signal down the neuron, chemical across the cleft, receptor on the next cell. That is the quick pattern to remember."
         }
       ],
       reviewQuestions: [
