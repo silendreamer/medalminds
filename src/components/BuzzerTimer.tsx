@@ -1,36 +1,31 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
+import { formatBuzzerElapsed } from "@/lib/buzzerEngine";
 
 export function BuzzerTimer({
   running,
-  resetKey,
+  elapsedMs,
   onTick
 }: {
   running: boolean;
-  resetKey: string;
-  onTick?: (seconds: number) => void;
+  elapsedMs: number;
+  onTick: (nowMs: number) => void;
 }) {
-  const [seconds, setSeconds] = useState(0);
-
-  useEffect(() => {
-    setSeconds(0);
-    onTick?.(0);
-  }, [resetKey, onTick]);
-
   useEffect(() => {
     if (!running) return;
 
-    const interval = window.setInterval(() => {
-      setSeconds((current) => {
-        const next = current + 1;
-        onTick?.(next);
-        return next;
-      });
-    }, 1000);
+    let frame = 0;
+    const loop = () => {
+      onTick(performance.now());
+      frame = window.requestAnimationFrame(loop);
+    };
 
-    return () => window.clearInterval(interval);
-  }, [running, onTick]);
+    frame = window.requestAnimationFrame(loop);
 
-  return <span className="buzzer-timer">{seconds.toString().padStart(2, "0")}s</span>;
+    return () => window.cancelAnimationFrame(frame);
+  }, [onTick, running]);
+
+  return <span className="buzzer-timer">{formatBuzzerElapsed(elapsedMs)}</span>;
 }
+

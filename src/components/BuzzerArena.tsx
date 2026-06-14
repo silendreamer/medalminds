@@ -1,205 +1,160 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useReducer } from "react";
 import type { BuzzerQuestion } from "@/data/buzzerQuestions";
+import {
+  buzzerReducer,
+  createInitialBuzzerState,
+  formatBuzzerElapsed,
+  getPhaseLabel,
+  type BuzzerMode,
+  type BuzzerTeam
+} from "@/lib/buzzerEngine";
 import { BuzzerControls } from "./BuzzerControls";
 import { BuzzerQuestionCard } from "./BuzzerQuestionCard";
 import { BuzzerScoreboard } from "./BuzzerScoreboard";
+import { BuzzerSessionLog } from "./BuzzerSessionLog";
 import { BuzzerTimer } from "./BuzzerTimer";
-
-type Mode = "solo" | "teams";
-type Team = "A" | "B";
 
 function normalize(value: string) {
   return value.trim().toLowerCase().replace(/\s+/g, " ");
 }
 
 export function BuzzerArena({ questions }: { questions: BuzzerQuestion[] }) {
-  const [mode, setMode] = useState<Mode>("solo");
-  const [index, setIndex] = useState(0);
-  const [started, setStarted] = useState(false);
-  const [timerRunning, setTimerRunning] = useState(false);
-  const [timerResetKey, setTimerResetKey] = useState("0-0");
-  const [soloBuzzed, setSoloBuzzed] = useState(false);
-  const [soloAnswer, setSoloAnswer] = useState("");
-  const [soloResult, setSoloResult] = useState<"correct" | "incorrect" | null>(null);
-  const [buzzedTeam, setBuzzedTeam] = useState<Team | null>(null);
-  const [teamScores, setTeamScores] = useState({ A: 0, B: 0 });
-  const [tossupMarked, setTossupMarked] = useState<"correct" | "incorrect" | null>(null);
-  const [bonusMarked, setBonusMarked] = useState<"correct" | "incorrect" | null>(null);
-  const [elapsed, setElapsed] = useState(0);
+  const [state, dispatch] = useReducer(buzzerReducer, undefined, () => createInitialBuzzerState(Date.now()));
+  if (!questions.length) {
+    return <div className="empty">No buzzer questions are available yet.</div>;
+  }
 
-  const question = questions[index];
-  const showSoloExplanation = Boolean(soloResult);
-  const showTeamExplanation = Boolean(tossupMarked);
-  const showBonus = mode === "teams" && tossupMarked === "correct";
-  const activeTeamLabel = buzzedTeam ? `Team ${buzzedTeam}` : "No team has buzzed";
-
-  const resetQuestionState = useCallback(
-    (nextIndex = index) => {
-      setStarted(false);
-      setTimerRunning(false);
-      setTimerResetKey(`${nextIndex}-${Date.now()}`);
-      setSoloBuzzed(false);
-      setSoloAnswer("");
-      setSoloResult(null);
-      setBuzzedTeam(null);
-      setTossupMarked(null);
-      setBonusMarked(null);
-      setElapsed(0);
-    },
-    [index]
-  );
+  const displayIndex = state.index % questions.length;
+  const question = questions[displayIndex];
+  const activeEntries = useMemo(() => state.sessionLog.slice(0, 6), [state.sessionLog]);
 
   const startQuestion = useCallback(() => {
-    setStarted(true);
-    setTimerRunning(true);
-    setTimerResetKey(`${index}-${Date.now()}`);
-    setSoloBuzzed(false);
-    setSoloAnswer("");
-    setSoloResult(null);
-    setBuzzedTeam(null);
-    setTossupMarked(null);
-    setBonusMarked(null);
-  }, [index]);
+    dispatch({ type: "start_question", nowMs: performance.now() });
+  }, []);
 
   const soloBuzz = useCallback(() => {
-    if (!started || soloBuzzed) return;
-    setSoloBuzzed(true);
-    setTimerRunning(false);
-  }, [soloBuzzed, started]);
+    dispatch({ type: "solo_buzz", nowMs: performance.now() });
+  }, []);
 
-  const teamBuzz = useCallback(
-    (team: Team) => {
-      if (mode !== "teams" || !started || buzzedTeam) return;
-      setBuzzedTeam(team);
-      setTimerRunning(false);
-    },
-    [buzzedTeam, mode, started]
-  );
+  const teamBuzz = useCallback((team: BuzzerTeam) => {
+    dispatch({ type: "team_buzz", team, nowMs: performance.now() });
+  }, []);
+
+  const markSoloAnswer = useCallback(() => {
+    dispatch({ type: "submit_solo_answer", isCorrect: normalize(state.soloAnswer) === normalize(question.tossupAnswer), nowMs: performance.now() });
+  }, [question.tossupAnswer, state.soloAnswer]);
+
+  const markTossup = useCallback((result: "correct" | "incorrect") => {
+    dispatch({ type: "mark_tossup", result, nowMs: performance.now() });
+  }, []);
+
+  const markBonus = useCallback((result: "correct" | "incorrect") => {
+    dispatch({ type: "mark_bonus", result, nowMs: performance.now() });
+  }, []);
+
+  const nextQuestion = useCallback(() => {
+    dispatch({ type: "next_question", nowMs: performance.now() });
+  }, []);
+
+  const resetRound = useCallback(() => {
+    dispatch({ type: "reset_round", nowMs: performance.now() });
+  }, []);
+
+  const tick = useCallback((nowMs: number) => {
+    dispatch({ type: "tick", nowMs });
+  }, []);
 
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
       if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) return;
-      if (event.key.toLowerCase() === "a") teamBuzz("A");
-      if (event.key.toLowerCase() === "l") teamBuzz("B");
+      if (state.mode === "teams" && state.phase === "question") {
+        if (event.key.toLowerCase() === "a") teamBuzz("A");
+        if (event.key.toLowerCase() === "l") teamBuzz("B");
+      }
     }
 
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [teamBuzz]);
+  }, [state.mode, state.phase, teamBuzz]);
 
-  const answerCorrect = useMemo(
-    () => normalize(soloAnswer) === normalize(question.tossupAnswer),
-    [question.tossupAnswer, soloAnswer]
-  );
+  useEffect(() => {
+    if (!state.timerRunning) return;
+    const interval = window.setInterval(() => {
+      dispatch({ type: "tick", nowMs: performance.now() });
+    }, 50);
 
-  function submitSoloAnswer() {
-    setSoloResult(answerCorrect ? "correct" : "incorrect");
-  }
+    return () => window.clearInterval(interval);
+  }, [state.timerRunning]);
 
-  function markTossup(result: "correct" | "incorrect") {
-    if (!buzzedTeam) return;
-    setTossupMarked(result);
-    if (result === "correct") {
-      setTeamScores((scores) => ({ ...scores, [buzzedTeam]: scores[buzzedTeam] + 4 }));
-    }
-  }
-
-  function markBonus(result: "correct" | "incorrect") {
-    if (!buzzedTeam || bonusMarked) return;
-    setBonusMarked(result);
-    if (result === "correct") {
-      setTeamScores((scores) => ({ ...scores, [buzzedTeam]: scores[buzzedTeam] + 10 }));
-    }
-  }
-
-  function nextQuestion() {
-    const nextIndex = index + 1 >= questions.length ? 0 : index + 1;
-    setIndex(nextIndex);
-    resetQuestionState(nextIndex);
-  }
-
-  function resetRound() {
-    setIndex(0);
-    setTeamScores({ A: 0, B: 0 });
-    resetQuestionState(0);
-  }
-
-  if (!question) {
-    return <div className="empty">No buzzer questions are available yet.</div>;
-  }
+  const showSoloAnswerPanel = state.mode === "solo" && state.soloBuzzed && !state.soloResult;
+  const showBonus = state.mode === "teams" && state.tossupMarked === "correct";
+  const showBonusControls = state.mode === "teams" && state.tossupMarked === "correct" && !state.bonusMarked;
+  const showTeamJudging = state.mode === "teams" && Boolean(state.buzzedTeam) && !state.tossupMarked;
 
   return (
     <div className="buzzer-arena">
       <div className="card buzzer-mode-panel">
         <div>
           <span className="eyebrow">Mode</span>
-          <h3>{mode === "solo" ? "Solo Practice" : "Two-Team Local"}</h3>
+          <h3>{state.mode === "solo" ? "Solo Practice" : "Two-Team Local"}</h3>
+          <p>{getPhaseLabel(state)}</p>
         </div>
         <div className="buzzer-mode-toggle" role="tablist" aria-label="Buzzer mode selector">
           <button
-            className={mode === "solo" ? "active" : ""}
-            onClick={() => {
-              setMode("solo");
-              resetRound();
-            }}
+            className={state.mode === "solo" ? "active" : ""}
+            onClick={() => dispatch({ type: "set_mode", mode: "solo", nowMs: performance.now() })}
           >
             Solo Practice
           </button>
           <button
-            className={mode === "teams" ? "active" : ""}
-            onClick={() => {
-              setMode("teams");
-              resetRound();
-            }}
+            className={state.mode === "teams" ? "active" : ""}
+            onClick={() => dispatch({ type: "set_mode", mode: "teams", nowMs: performance.now() })}
           >
             Two-Team Local
           </button>
         </div>
       </div>
 
-      {mode === "teams" && <BuzzerScoreboard teamA={teamScores.A} teamB={teamScores.B} />}
+      {state.mode === "teams" && <BuzzerScoreboard teamA={state.teamScores.A} teamB={state.teamScores.B} />}
 
       <div className="buzzer-layout">
         <div className="stack">
           <BuzzerQuestionCard
             question={question}
-            questionNumber={index + 1}
+            questionNumber={displayIndex + 1}
             total={questions.length}
-            started={started}
-            showBonus={showBonus}
-            showTossupExplanation={mode === "solo" ? showSoloExplanation : showTeamExplanation}
-            showBonusExplanation={Boolean(bonusMarked)}
+            mode={state.mode}
+            phase={state.phase}
+            soloBuzzed={state.soloBuzzed}
+            soloAnswer={state.soloAnswer}
+            soloResult={state.soloResult}
+            buzzedTeam={state.buzzedTeam}
+            tossupMarked={state.tossupMarked}
+            bonusMarked={state.bonusMarked}
           />
 
-          {mode === "solo" && soloBuzzed && (
+          {showSoloAnswerPanel && (
             <div className="card stack">
               <h3>Submit your toss-up answer</h3>
               <input
                 className="input"
-                value={soloAnswer}
-                onChange={(event) => setSoloAnswer(event.target.value)}
+                value={state.soloAnswer}
+                onChange={(event) => dispatch({ type: "set_solo_answer", answer: event.target.value })}
                 placeholder="Type your answer"
               />
               <div className="actions">
-                <button className="button" disabled={!soloAnswer || Boolean(soloResult)} onClick={submitSoloAnswer}>
+                <button className="button" disabled={!state.soloAnswer} onClick={markSoloAnswer}>
                   Submit Answer
                 </button>
               </div>
-              {soloResult && (
-                <div className={`feedback ${soloResult === "correct" ? "good" : "bad"}`}>
-                  <strong>{soloResult === "correct" ? "Correct" : "Incorrect"}</strong>
-                  <p>Answer: {question.tossupAnswer}</p>
-                  <p>{question.tossupExplanation}</p>
-                </div>
-              )}
             </div>
           )}
 
-          {mode === "teams" && buzzedTeam && !tossupMarked && (
+          {showTeamJudging && state.buzzedTeam && (
             <div className="card stack">
-              <h3>{activeTeamLabel} buzzed first</h3>
+              <h3>Team {state.buzzedTeam} buzzed first</h3>
               <p>Moderator marks the toss-up response.</p>
               <div className="actions">
                 <button className="button" onClick={() => markTossup("correct")}>
@@ -212,9 +167,9 @@ export function BuzzerArena({ questions }: { questions: BuzzerQuestion[] }) {
             </div>
           )}
 
-          {mode === "teams" && showBonus && !bonusMarked && (
+          {showBonusControls && state.buzzedTeam && (
             <div className="card stack">
-              <h3>Bonus for {activeTeamLabel}</h3>
+              <h3>Bonus for Team {state.buzzedTeam}</h3>
               <p>Moderator marks the bonus response.</p>
               <div className="actions">
                 <button className="button" onClick={() => markBonus("correct")}>
@@ -231,23 +186,35 @@ export function BuzzerArena({ questions }: { questions: BuzzerQuestion[] }) {
         <aside className="stack">
           <div className="card buzzer-status-card">
             <span className="eyebrow">Timer</span>
-            <BuzzerTimer running={timerRunning} resetKey={timerResetKey} onTick={setElapsed} />
-            <p>{started ? `Question clock is ${timerRunning ? "running" : "stopped"} at ${elapsed}s.` : "Start a question to begin."}</p>
+            <BuzzerTimer running={state.timerRunning} elapsedMs={state.elapsedMs} onTick={tick} />
+            <p>
+              {state.started ? `Question clock is ${state.timerRunning ? "running" : "stopped"} at ${formatBuzzerElapsed(state.elapsedMs)}.` : "Start a question to begin."}
+            </p>
+            <div className="badge-list">
+              <span className="badge neutral">{getPhaseLabel(state)}</span>
+              <span className="badge neutral">
+                {state.mode === "solo" ? "Solo" : `Score ${state.teamScores.A}-${state.teamScores.B}`}
+              </span>
+            </div>
           </div>
+
           <BuzzerControls
-            mode={mode}
-            started={started}
-            buzzedTeam={buzzedTeam}
-            soloBuzzed={soloBuzzed}
+            mode={state.mode}
+            phase={state.phase}
+            buzzedTeam={state.buzzedTeam}
+            soloBuzzed={state.soloBuzzed}
             onStart={startQuestion}
             onSoloBuzz={soloBuzz}
             onTeamBuzz={teamBuzz}
             onReset={resetRound}
           />
+
           <div className="card stack">
             <h3>Keyboard hints</h3>
-            {mode === "teams" ? (
-              <p>Team A buzzes with <strong>A</strong>. Team B buzzes with <strong>L</strong>. First buzz locks the round.</p>
+            {state.mode === "teams" ? (
+              <p>
+                Team A buzzes with <strong>A</strong>. Team B buzzes with <strong>L</strong>. First buzz locks the round.
+              </p>
             ) : (
               <p>Solo mode uses the on-screen buzz button for this MVP.</p>
             )}
@@ -255,6 +222,8 @@ export function BuzzerArena({ questions }: { questions: BuzzerQuestion[] }) {
               Next Question
             </button>
           </div>
+
+          <BuzzerSessionLog entries={activeEntries} />
         </aside>
       </div>
     </div>

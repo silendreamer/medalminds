@@ -30,7 +30,7 @@ export default async function BuzzerPage({ params }: { params: Promise<{ competi
             <span className="eyebrow">Science Bowl</span>
             <h1>Science Bowl Buzzer Arena</h1>
             <p className="subtitle">
-              Simulate toss-up timing, local buzz-ins, moderator scoring, and bonus conversion with original sample questions.
+              Simulate toss-up timing, local buzz-ins, moderator scoring, bonus conversion, and session review with original sample questions.
             </p>
           </div>
         </div>
