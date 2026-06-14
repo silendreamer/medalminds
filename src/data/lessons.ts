@@ -79,8 +79,8 @@ export const lessons: Lesson[] = (Object.keys(topics) as CompetitionSlug[]).flat
           body: `${topic.concept} becomes easier when you name the quantities, units, or structures involved before solving. ${sectionVoice[competitionSlug]}`
         },
         {
-          heading: "Practice Move",
-          body: `Build a one-line checklist for ${topic.category}: identify the prompt clue, select the relevant rule, then verify the answer against the context.`
+          heading: "Science Bowl Clue",
+          body: `Look for the clue that points to ${topic.concept} instead of chasing the first familiar keyword. In a timed round, the clue is often the fastest path to the correct concept.`
         },
         {
           heading: "Common Trap",

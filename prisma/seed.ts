@@ -137,12 +137,12 @@ const conceptLessonSeeds = [
           body: "To compare or average fractions, first rewrite them with a shared denominator. This turns the problem into comparing or averaging numerators on the same scale."
         },
         {
-          heading: "Fast Move",
-          body: "For two fractions, add them and divide by two. If the denominators differ, convert first so the arithmetic stays clean and the midpoint is exact."
+          heading: "Science Bowl Clue",
+          body: "If the question asks for a value between two fractions, or a midpoint on a number line, rewrite with a common denominator before you do any averaging."
         },
         {
-          heading: "Check",
-          body: "The midpoint should be larger than the smaller fraction and smaller than the larger fraction. That quick estimate catches many fraction mistakes."
+          heading: "Common Trap",
+          body: "Do not average the denominators and the numerators separately. The correct midpoint comes from putting the fractions on the same scale first."
         }
       ],
       reviewQuestions: [
@@ -219,8 +219,8 @@ const conceptLessonSeeds = [
           body: "An electrical signal travels down a neuron, but at many synapses the message crosses to the next cell chemically. The chemicals used for this transfer are neurotransmitters."
         },
         {
-          heading: "Signal Path",
-          body: "The sending neuron releases neurotransmitters into the synaptic cleft. Those molecules bind to receptors on the receiving cell and help start the next signal."
+          heading: "Science Bowl Clue",
+          body: "If the stem mentions neurons, gaps between cells, or signals crossing a synapse, the answer is usually the neurotransmitter rather than the gap itself."
         },
         {
           heading: "Common Trap",

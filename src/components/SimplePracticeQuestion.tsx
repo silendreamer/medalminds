@@ -1,7 +1,9 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import type { Lesson, PracticeQuestion } from "@/types";
+import { lessonPath } from "@/lib/routes";
 
 const multipleChoiceLabels = ["W", "X", "Y", "Z"];
 
@@ -103,12 +105,25 @@ export function SimplePracticeQuestion({
               </button>
             </div>
             <p>{lesson.summary}</p>
-            {lesson.contentSections.slice(0, 2).map((section) => (
+            <div className="content-section stack">
+              <h3>Key concepts</h3>
+              <div className="badge-list">
+                {lesson.keyConcepts.map((concept) => (
+                  <span className="badge neutral" key={concept}>
+                    {concept}
+                  </span>
+                ))}
+              </div>
+            </div>
+            {lesson.contentSections.slice(0, 1).map((section) => (
               <div className="content-section" key={section.heading}>
                 <h3>{section.heading}</h3>
                 <p>{section.body}</p>
               </div>
             ))}
+            <Link className="button" href={lessonPath(lesson.competitionSlug, lesson.slug)}>
+              Open full lesson
+            </Link>
           </div>
         </div>
       )}
