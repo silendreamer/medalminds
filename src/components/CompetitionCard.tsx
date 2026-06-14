@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { Competition } from "@/types";
 import { competitionPath } from "@/lib/routes";
+import { formatApproximateCount } from "@/lib/format";
 
 export function CompetitionCard({
   competition,
@@ -10,7 +11,7 @@ export function CompetitionCard({
   counts: { questions: number; lessons: number };
 }) {
   const isScienceBowl = competition.slug === "science-bowl";
-  const questionStat = isScienceBowl ? `${counts.questions.toLocaleString()} practice questions` : "Coming soon";
+  const questionStat = isScienceBowl ? `${formatApproximateCount(counts.questions)} practice questions` : "Coming soon";
 
   return (
     <article className="competition-card">
@@ -22,7 +23,7 @@ export function CompetitionCard({
         <p>{competition.shortDescription}</p>
         <div className="mini-stat-list">
           <span>{questionStat}</span>
-          <span>{counts.lessons.toLocaleString()} lessons</span>
+          <span>{formatApproximateCount(counts.lessons)} lessons</span>
         </div>
         <Link className="button" href={competitionPath(competition.slug)}>
           Enter {competition.name}

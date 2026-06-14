@@ -2,6 +2,7 @@ import Link from "next/link";
 import { BookOpen, Brain, ChartNoAxesColumnIncreasing, Route, ShieldCheck } from "lucide-react";
 import { CompetitionCard } from "@/components/CompetitionCard";
 import { competitions, getContentCounts } from "@/lib/data";
+import { formatApproximateCount } from "@/lib/format";
 import { competitionPath } from "@/lib/routes";
 
 const features = [
@@ -35,7 +36,7 @@ export default async function HomePage() {
     }))
   );
   const countsBySlug = new Map(competitionCounts.map((item) => [item.slug, item.counts]));
-  const scienceBowlCounts = countsBySlug.get("science-bowl") ?? { questions: 21747, lessons: 10 };
+  const scienceBowlCounts = countsBySlug.get("science-bowl") ?? { questions: 20000, lessons: 10 };
 
   return (
     <>
@@ -57,7 +58,7 @@ export default async function HomePage() {
               </Link>
             </div>
             <div className="trust-strip" aria-label="Platform highlights">
-              <span>{scienceBowlCounts.questions.toLocaleString()}+ practice questions</span>
+              <span>{formatApproximateCount(scienceBowlCounts.questions)}+ practice questions</span>
               <span>Competition-specific lessons</span>
               <span>Built for focused prep</span>
             </div>
@@ -68,7 +69,7 @@ export default async function HomePage() {
               <span>Medal-ready study path</span>
             </div>
             <div className="hero-metric">
-              <strong>{scienceBowlCounts.questions.toLocaleString()}+</strong>
+              <strong>{formatApproximateCount(scienceBowlCounts.questions)}+</strong>
               <span>Science Bowl questions indexed by subject and level</span>
             </div>
             <div className="hero-panel-grid">
