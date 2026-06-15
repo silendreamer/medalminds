@@ -23,7 +23,6 @@ type RoomEvent = {
 type OrganizerQuestion = {
   id: string;
   category: string;
-  difficulty: string;
   questionKind: string;
   format: string;
   prompt: string;
@@ -362,20 +361,14 @@ function OrganizerConsole({
                 <span className="eyebrow">Current question</span>
                 <h2>Round {room.roundNumber}</h2>
               </div>
-              <div className="badge-list">
-                {question && <span className="badge">{question.category}</span>}
-                {question && <span className="badge neutral">{question.difficulty}</span>}
-              </div>
             </div>
             {question ? (
               <>
+                <p className="buzzer-question-line">
+                  <strong>{question.questionKind}</strong> - {question.category} - {question.format}
+                </p>
                 <p className="buzzer-question-text">{question.prompt}</p>
-                <div className="badge-list">
-                  <span className="badge">{question.questionKind}</span>
-                  <span className="badge neutral">{question.format}</span>
-                  <span className="badge neutral">{question.category}</span>
-                  <span className="badge neutral">{question.difficulty}</span>
-                </div>
+                <div className="buzzer-choice-label">Choices</div>
                 <div className="buzzer-choice-grid">
                   {question.choices?.map((choice, index) => {
                     const letter = letters[index];
@@ -387,7 +380,11 @@ function OrganizerConsole({
                     );
                   })}
                 </div>
-                <p className="feedback good">Correct answer: {question.correctLetter ? `${question.correctLetter} - ` : ""}{question.correctAnswer}</p>
+                <div className="buzzer-answer-label">Right Answer</div>
+                <p className="feedback good">
+                  {question.correctLetter ? `${question.correctLetter} - ` : ""}
+                  {question.correctAnswer}
+                </p>
               </>
             ) : (
               <p className="empty">No multiple-choice question is loaded.</p>

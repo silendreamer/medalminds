@@ -1554,6 +1554,18 @@ p {
   gap: 16px;
 }
 
+.buzzer-question-line,
+.buzzer-choice-label,
+.buzzer-answer-label {
+  color: var(--brand-deep);
+  font-weight: 800;
+}
+
+.buzzer-question-line {
+  font-size: 1rem;
+  letter-spacing: 0.01em;
+}
+
 .buzzer-question-text {
   min-height: 120px;
   border: 1px solid var(--line);
@@ -1653,6 +1665,11 @@ p {
 .buzzer-buzz-card p {
   color: var(--muted);
   font-weight: 800;
+}
+
+.buzzer-choice-label,
+.buzzer-answer-label {
+  margin-top: 2px;
 }
 
 .buzzer-log-entry {

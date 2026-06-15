@@ -364,6 +364,7 @@ export async function applyBuzzerAction(code: string, action: BuzzerRoomAction) 
     const bonusQuestionId = correct && isTossup ? await pairedBonusQuestionId(room.currentQuestionId ?? "") : null;
     const nextQuestionId = correct && bonusQuestionId ? bonusQuestionId : await randomScienceBowlQuestionId();
     const keepBuzzedSeat = Boolean(correct && bonusQuestionId);
+    const points = correct ? (isBonus ? 10 : 4) : 0;
     await prisma.buzzerRoom.update({
       where: { id: room.id },
       data: {
@@ -372,8 +373,8 @@ export async function applyBuzzerAction(code: string, action: BuzzerRoomAction) 
         buzzedSeatId: keepBuzzedSeat ? room.buzzedSeatId : null,
         currentQuestionId: isBonus || !correct || !bonusQuestionId ? nextQuestionId : bonusQuestionId,
         roundNumber: correct && bonusQuestionId ? room.roundNumber : { increment: 1 },
-        ...(correct && buzzedSeat.team === "A" ? { teamAScore: { increment: 10 } } : {}),
-        ...(correct && buzzedSeat.team === "B" ? { teamBScore: { increment: 10 } } : {})
+        ...(correct && points > 0 && buzzedSeat.team === "A" ? { teamAScore: { increment: points } } : {}),
+        ...(correct && points > 0 && buzzedSeat.team === "B" ? { teamBScore: { increment: points } } : {})
       }
     });
     if (!keepBuzzedSeat) {
@@ -386,8 +387,8 @@ export async function applyBuzzerAction(code: string, action: BuzzerRoomAction) 
         type: correct ? (bonusQuestionId ? "BONUS_QUEUED" : "CORRECT") : "INCORRECT",
         message: correct
           ? bonusQuestionId
-            ? `${buzzedSeat.participantName ?? buzzedSeat.slot.toUpperCase()} - Correct (+10). Bonus question loaded.`
-            : `${buzzedSeat.participantName ?? buzzedSeat.slot.toUpperCase()} - Correct (+10).`
+            ? `${buzzedSeat.participantName ?? buzzedSeat.slot.toUpperCase()} - Correct (+${points}). Bonus question loaded.`
+            : `${buzzedSeat.participantName ?? buzzedSeat.slot.toUpperCase()} - Correct (+${points}).`
           : `${buzzedSeat.participantName ?? buzzedSeat.slot.toUpperCase()} - Incorrect.`
       }
     });
