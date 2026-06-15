@@ -13,6 +13,13 @@ export type BuzzerRoomAction =
   | { type: "nextQuestion"; organizerPassword: string }
   | { type: "reset"; organizerPassword: string };
 
+export type BuzzerRoomSetup = {
+  teamAName: string;
+  teamBName: string;
+  totalRounds: number;
+  timerDurationMs: number;
+};
+
 const ROOM_TTL_HOURS = 12;
 const TIMER_DURATION_MS = 15000;
 const SEATS: Array<{ team: BuzzerTeam; slot: string }> = [
@@ -89,6 +96,17 @@ function formatLabel(value: string | null | undefined) {
   return value === "MULTIPLE_CHOICE" ? "Multiple Choice" : "Short Answer";
 }
 
+function clampText(value: unknown, fallback: string) {
+  const text = String(value ?? "").trim();
+  return text || fallback;
+}
+
+function clampInteger(value: unknown, fallback: number, min: number, max: number) {
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed)) return fallback;
+  return Math.min(max, Math.max(min, Math.trunc(parsed)));
+}
+
 function questionForOrganizer(room: RoomWithRelations): (PracticeQuestion & { correctLetter: string | null; questionKind: string; format: string }) | null {
   const question = room.currentQuestion;
   if (!question) return null;
@@ -128,6 +146,9 @@ export function serializeBuzzerRoom(room: RoomWithRelations, role: BuzzerRole) {
     role,
     status: effectiveStatus(room),
     roundNumber: room.roundNumber,
+    totalRounds: room.totalRounds,
+    teamAName: room.teamAName,
+    teamBName: room.teamBName,
     teamAScore: room.teamAScore,
     teamBScore: room.teamBScore,
     timerDurationMs: room.timerDurationMs,
@@ -225,10 +246,14 @@ async function includeRoom(code: string) {
   });
 }
 
-export async function createBuzzerRoom() {
+export async function createBuzzerRoom(setup?: Partial<BuzzerRoomSetup>) {
   const prisma = getPrisma();
   const currentQuestionId = await randomScienceBowlQuestionId();
   if (!currentQuestionId) throw new Error("No Science Bowl toss-up questions are available.");
+  const teamAName = clampText(setup?.teamAName, "Team A");
+  const teamBName = clampText(setup?.teamBName, "Team B");
+  const totalRounds = clampInteger(setup?.totalRounds, 3, 1, 20);
+  const timerDurationMs = clampInteger(setup?.timerDurationMs, TIMER_DURATION_MS, 5000, 120000);
 
   let code = makeCode();
   for (let attempt = 0; attempt < 5; attempt += 1) {
@@ -242,8 +267,11 @@ export async function createBuzzerRoom() {
       id: id("room"),
       code,
       organizerPassword: makePassword(),
+      teamAName,
+      teamBName,
+      totalRounds,
       currentQuestionId,
-      timerDurationMs: TIMER_DURATION_MS,
+      timerDurationMs,
       expiresAt: addHours(new Date(), ROOM_TTL_HOURS),
       seats: {
         create: SEATS.map((seat) => ({

@@ -5,7 +5,13 @@ export const dynamic = "force-dynamic";
 
 export async function POST(request: Request) {
   try {
-    const room = await createBuzzerRoom();
+    const body = await request.json().catch(() => ({}));
+    const room = await createBuzzerRoom({
+      teamAName: body?.teamAName,
+      teamBName: body?.teamBName,
+      totalRounds: body?.totalRounds,
+      timerDurationMs: body?.timerDurationMs
+    });
     const url = new URL(request.url);
     const shareUrl = `${url.origin}/science-bowl/buzzer?room=${room.code}`;
 

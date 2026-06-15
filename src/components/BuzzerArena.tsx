@@ -36,6 +36,9 @@ type BuzzerRoom = {
   role: "organizer" | "participant";
   status: RoomStatus;
   roundNumber: number;
+  totalRounds: number;
+  teamAName: string;
+  teamBName: string;
   teamAScore: number;
   teamBScore: number;
   timerDurationMs: number;
@@ -53,7 +56,20 @@ type ReadyRoom = {
   room: BuzzerRoom;
 };
 
+type SetupState = {
+  teamAName: string;
+  teamBName: string;
+  totalRounds: number;
+  timerSeconds: number;
+};
+
 const letters = ["W", "X", "Y", "Z"];
+const DEFAULT_SETUP: SetupState = {
+  teamAName: "Team A",
+  teamBName: "Team B",
+  totalRounds: 3,
+  timerSeconds: 15
+};
 
 function formatTimer(ms: number) {
   const seconds = Math.max(0, Math.ceil(ms / 1000));
@@ -64,18 +80,20 @@ function eventTime(value: string) {
   return new Date(value).toLocaleTimeString([], { minute: "numeric", second: "2-digit" });
 }
 
-function teamName(team: Team) {
-  return team === "A" ? "Team A" : "Team B";
+function roomTeamName(room: BuzzerRoom, team: Team) {
+  return team === "A" ? room.teamAName : room.teamBName;
 }
 
 export function BuzzerArena() {
-  const [screen, setScreen] = useState<"start" | "ready" | "join" | "room">("start");
+  const [screen, setScreen] = useState<"start" | "setup" | "ready" | "join" | "room">("start");
+  const [setupStep, setSetupStep] = useState<1 | 2 | 3>(1);
   const [readyRoom, setReadyRoom] = useState<ReadyRoom | null>(null);
   const [room, setRoom] = useState<BuzzerRoom | null>(null);
   const [roomCode, setRoomCode] = useState("");
   const [participantName, setParticipantName] = useState("");
   const [organizerPassword, setOrganizerPassword] = useState("");
   const [selectedSeatId, setSelectedSeatId] = useState<string | null>(null);
+  const [setup, setSetup] = useState<SetupState>(DEFAULT_SETUP);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
 
@@ -120,7 +138,16 @@ export function BuzzerArena() {
     setBusy(true);
     setError("");
     try {
-      const response = await fetch("/api/buzzer/rooms", { method: "POST" });
+      const response = await fetch("/api/buzzer/rooms", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          teamAName: setup.teamAName,
+          teamBName: setup.teamBName,
+          totalRounds: setup.totalRounds,
+          timerDurationMs: setup.timerSeconds * 1000
+        })
+      });
       const payload = await response.json();
       if (!response.ok) throw new Error(payload.error ?? "Could not create game.");
       setReadyRoom(payload);
@@ -185,6 +212,20 @@ export function BuzzerArena() {
     setScreen("room");
   }
 
+  function beginSetup() {
+    setSetup(DEFAULT_SETUP);
+    setSetupStep(1);
+    setScreen("setup");
+  }
+
+  function nextStep() {
+    setSetupStep((current) => (current === 1 ? 2 : current === 2 ? 3 : 3));
+  }
+
+  function previousStep() {
+    setSetupStep((current) => (current === 3 ? 2 : current === 2 ? 1 : 1));
+  }
+
   if (screen === "ready" && readyRoom) {
     return (
       <div className="buzzer-room-shell">
@@ -199,6 +240,12 @@ export function BuzzerArena() {
             </button>
           </div>
           <p className="subtitle">Share this link with your teams. Save the password so you can rejoin if you close the page.</p>
+          <div className="badge-list">
+            <span className="badge">{readyRoom.room.teamAName}</span>
+            <span className="badge neutral">{readyRoom.room.teamBName}</span>
+            <span className="badge neutral">{readyRoom.room.totalRounds} rounds</span>
+            <span className="badge neutral">{formatTimer(readyRoom.room.timerDurationMs).replace("0:", "")} round clock</span>
+          </div>
           <label className="form-field">
             <span>Share link</span>
             <div className="buzzer-copy-row">
@@ -214,6 +261,104 @@ export function BuzzerArena() {
             </div>
           </label>
           <button className="button button-lg" onClick={enterOrganizerRoom} type="button">Enter game room</button>
+        </div>
+      </div>
+    );
+  }
+
+  if (screen === "setup") {
+    return (
+      <div className="buzzer-room-shell">
+        <div className="buzzer-room-modal card spacious">
+          <div className="buzzer-setup-header">
+            <div>
+              <span className="eyebrow">Match setup</span>
+              <h1>Set up the match</h1>
+              <p className="subtitle">Complete these steps before you create the room.</p>
+            </div>
+            <div className="buzzer-stepper" aria-label="Match setup steps">
+              {[1, 2, 3].map((step) => (
+                <div className={`buzzer-step ${setupStep >= step ? "active" : ""}`} key={step}>
+                  <span>{step}</span>
+                  <strong>{step === 1 ? "Teams" : step === 2 ? "Settings" : "Start"}</strong>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {setupStep === 1 && (
+            <div className="buzzer-setup-grid">
+              <label className="card buzzer-setup-card">
+                <span className="buzzer-team-letter">A</span>
+                <span className="eyebrow">Team name</span>
+                <input value={setup.teamAName} onChange={(event) => setSetup((current) => ({ ...current, teamAName: event.target.value }))} />
+                <p className="subtitle">Pick anything fun. You can rename this later.</p>
+              </label>
+              <label className="card buzzer-setup-card highlight">
+                <span className="buzzer-team-letter">B</span>
+                <span className="eyebrow">Team name</span>
+                <input value={setup.teamBName} onChange={(event) => setSetup((current) => ({ ...current, teamBName: event.target.value }))} />
+                <p className="subtitle">Pick anything fun. You can rename this later.</p>
+              </label>
+            </div>
+          )}
+
+          {setupStep === 2 && (
+            <div className="buzzer-setup-grid settings">
+              <label className="card buzzer-setup-card">
+                <span className="eyebrow">Rounds</span>
+                <strong>Number of rounds</strong>
+                <input
+                  inputMode="numeric"
+                  min={1}
+                  max={20}
+                  type="number"
+                  value={setup.totalRounds}
+                  onChange={(event) => setSetup((current) => ({ ...current, totalRounds: Number(event.target.value || 3) }))}
+                />
+              </label>
+              <label className="card buzzer-setup-card highlight">
+                <span className="eyebrow">Clock</span>
+                <strong>Time limit per round</strong>
+                <input
+                  inputMode="numeric"
+                  min={5}
+                  max={120}
+                  type="number"
+                  value={setup.timerSeconds}
+                  onChange={(event) => setSetup((current) => ({ ...current, timerSeconds: Number(event.target.value || 15) }))}
+                />
+                <p className="subtitle">Enter seconds. The room timer will use this value for each round.</p>
+              </label>
+            </div>
+          )}
+
+          {setupStep === 3 && (
+            <div className="buzzer-review">
+              <div className="feedback">
+                <strong>{setup.teamAName}</strong> vs <strong>{setup.teamBName}</strong>
+              </div>
+              <div className="feedback">
+                <strong>{setup.totalRounds}</strong> rounds, <strong>{setup.timerSeconds}s</strong> per round
+              </div>
+              <p className="subtitle">If this looks right, create the room and send teams the link.</p>
+            </div>
+          )}
+
+          <div className="buzzer-form-actions">
+            <button className="ghost-button" onClick={setupStep === 1 ? () => setScreen("start") : previousStep} type="button">
+              {setupStep === 1 ? "Back" : "Previous"}
+            </button>
+            {setupStep < 3 ? (
+              <button className="button" onClick={nextStep} type="button">
+                Continue
+              </button>
+            ) : (
+              <button className="button" disabled={busy} onClick={createRoom} type="button">
+                Create game
+              </button>
+            )}
+          </div>
         </div>
       </div>
     );
@@ -281,10 +426,10 @@ export function BuzzerArena() {
         <p className="subtitle">Run quick-recall practice for Science Bowl toss-up format.</p>
       </div>
       <div className="buzzer-start-grid">
-        <button className="card buzzer-start-card" disabled={busy} onClick={createRoom} type="button">
+        <button className="card buzzer-start-card" disabled={busy} onClick={beginSetup} type="button">
           <span className="buzzer-start-icon">+</span>
           <strong>Create new game</strong>
-          <span>You will be the organizer. Get a shareable link and recovery password.</span>
+          <span>Set team names, round count, and the round clock before you create the room.</span>
         </button>
         <button className="card buzzer-start-card" onClick={() => setScreen("join")} type="button">
           <span className="buzzer-start-icon">-&gt;</span>
@@ -338,9 +483,11 @@ function OrganizerConsole({
               {room.buzzedSeat ? (
                 <>
                   <h2>{room.buzzedSeat.participantName}</h2>
-                  <p>{teamName(room.buzzedSeat.team)} - {room.buzzedSeat.slot.toUpperCase()}</p>
+                  <p>{roomTeamName(room, room.buzzedSeat.team)} - {room.buzzedSeat.slot.toUpperCase()}</p>
                   <div className="actions">
-                    <button className="button" disabled={busy || room.status === "JUDGED"} onClick={() => onAction({ type: "judge", organizerPassword, result: "correct" })} type="button">Correct</button>
+                    <button className="button" disabled={busy || room.status === "JUDGED"} onClick={() => onAction({ type: "judge", organizerPassword, result: "correct" })} type="button">
+                      Correct +{room.question?.questionKind === "BONUS" ? 10 : 4}
+                    </button>
                     <button className="ghost-button" disabled={busy || room.status === "JUDGED"} onClick={() => onAction({ type: "judge", organizerPassword, result: "incorrect" })} type="button">Incorrect</button>
                   </div>
                 </>
@@ -359,7 +506,7 @@ function OrganizerConsole({
             <div className="buzzer-card-header">
               <div>
                 <span className="eyebrow">Current question</span>
-                <h2>Round {room.roundNumber}</h2>
+                <h2>Round {room.roundNumber} of {room.totalRounds}</h2>
               </div>
             </div>
             {question ? (
@@ -398,7 +545,7 @@ function OrganizerConsole({
           <RoundLog events={room.events} />
           <section className="card spacious buzzer-leading-card">
             <span className="eyebrow">Leading</span>
-            <h2>{room.teamAScore === room.teamBScore ? "Tied" : room.teamAScore > room.teamBScore ? "Team A" : "Team B"}</h2>
+            <h2>{room.teamAScore === room.teamBScore ? "Tied" : room.teamAScore > room.teamBScore ? room.teamAName : room.teamBName}</h2>
             <p>{room.teamAScore} - {room.teamBScore}</p>
           </section>
         </aside>
@@ -472,7 +619,7 @@ function ParticipantRoom({
             {seatedSeat && room.status === "WAITING" && "Wait for the organizer to start the round."}
             {room.status === "BONUS" && "Bonus question in progress. Only the organizer reads it."}
             {seatedSeat && room.status === "RUNNING" && !room.buzzedSeat && "Buzz when you know it."}
-            {room.buzzedSeat && `${room.buzzedSeat.participantName} buzzed in for ${teamName(room.buzzedSeat.team)}.`}
+            {room.buzzedSeat && `${room.buzzedSeat.participantName} buzzed in for ${roomTeamName(room, room.buzzedSeat.team)}.`}
             {room.status === "TIMEOUT" && "Time expired."}
           </p>
         </section>
@@ -499,7 +646,7 @@ function TeamCard({ room, team }: { room: BuzzerRoom; team: Team }) {
       <header>
         <div>
           <span className="buzzer-team-letter">{team}</span>
-          <strong>{teamName(team)}</strong>
+          <strong>{roomTeamName(room, team)}</strong>
         </div>
         <strong>{score}</strong>
       </header>
@@ -538,7 +685,7 @@ function ParticipantTeamCard({
       <header>
         <div>
           <span className="buzzer-team-letter">{team}</span>
-          <strong>{teamName(team)}</strong>
+          <strong>{roomTeamName(room, team)}</strong>
         </div>
         <strong>{score}</strong>
       </header>

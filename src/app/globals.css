@@ -1434,6 +1434,96 @@ p {
   margin: 0 auto;
 }
 
+.buzzer-setup-header {
+  display: grid;
+  gap: 18px;
+}
+
+.buzzer-stepper {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.buzzer-step {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  padding: 10px 8px;
+  color: var(--muted);
+  text-align: center;
+}
+
+.buzzer-step span {
+  width: 42px;
+  height: 42px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  background: rgba(255, 255, 255, 0.88);
+}
+
+.buzzer-step strong {
+  font-size: 0.84rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.buzzer-step.active span {
+  background: var(--brand);
+  color: var(--gold-soft);
+  border-color: var(--brand);
+}
+
+.buzzer-step.active strong {
+  color: var(--brand);
+}
+
+.buzzer-setup-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.buzzer-setup-grid.settings {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.buzzer-setup-card {
+  display: grid;
+  gap: 10px;
+  align-content: start;
+}
+
+.buzzer-setup-card input {
+  width: 100%;
+  min-height: 46px;
+  border: 0;
+  border-bottom: 2px solid var(--brand);
+  border-radius: 0;
+  background: transparent;
+  color: var(--foreground);
+  font-size: 1.25rem;
+  font-weight: 800;
+  padding: 6px 0 10px;
+}
+
+.buzzer-setup-card.highlight {
+  background: var(--gold-soft);
+}
+
+.buzzer-setup-card strong {
+  font-size: 1.15rem;
+}
+
+.buzzer-review {
+  display: grid;
+  gap: 12px;
+}
+
 .buzzer-room-modal-header,
 .buzzer-room-topline,
 .buzzer-card-header,
@@ -1825,7 +1915,8 @@ p {
 
   .buzzer-scoreboard,
   .buzzer-start-grid,
-  .buzzer-choice-grid {
+  .buzzer-choice-grid,
+  .buzzer-setup-grid {
     grid-template-columns: 1fr;
   }
 
@@ -1842,7 +1933,8 @@ p {
   .buzzer-team-card,
   .buzzer-foot-card,
   .buzzer-timer-panel,
-  .buzzer-question-console {
+  .buzzer-question-console,
+  .buzzer-setup-card {
     padding: 16px;
   }
 }
@@ -1931,5 +2023,15 @@ p {
 
   .buzzer-buzz-card .buzzer-big-button {
     min-height: 170px;
+  }
+
+  .buzzer-stepper {
+    grid-template-columns: 1fr;
+  }
+
+  .buzzer-step {
+    grid-template-columns: auto 1fr;
+    justify-items: start;
+    text-align: left;
   }
 }
