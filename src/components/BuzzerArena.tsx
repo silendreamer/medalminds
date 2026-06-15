@@ -36,6 +36,7 @@ type BuzzerRoom = {
   role: "organizer" | "participant";
   status: RoomStatus;
   roundNumber: number;
+  questionNumber: number;
   totalRounds: number;
   teamAName: string;
   teamBName: string;
@@ -89,7 +90,7 @@ function roomTeamName(room: BuzzerRoom, team: Team) {
 
 export function BuzzerArena() {
   const [screen, setScreen] = useState<"start" | "setup" | "ready" | "join" | "room">("start");
-  const [setupStep, setSetupStep] = useState<1 | 2 | 3>(1);
+  const [setupStep, setSetupStep] = useState<1 | 2>(1);
   const [readyRoom, setReadyRoom] = useState<ReadyRoom | null>(null);
   const [room, setRoom] = useState<BuzzerRoom | null>(null);
   const [roomCode, setRoomCode] = useState("");
@@ -222,11 +223,11 @@ export function BuzzerArena() {
   }
 
   function nextStep() {
-    setSetupStep((current) => (current === 1 ? 2 : current === 2 ? 3 : 3));
+    setSetupStep((current) => (current === 1 ? 2 : 2));
   }
 
   function previousStep() {
-    setSetupStep((current) => (current === 3 ? 2 : current === 2 ? 1 : 1));
+    setSetupStep((current) => (current === 2 ? 1 : 1));
   }
 
   if (screen === "ready" && readyRoom) {
@@ -280,10 +281,10 @@ export function BuzzerArena() {
               <p className="subtitle">Complete these steps before you create the room.</p>
             </div>
             <div className="buzzer-stepper" aria-label="Match setup steps">
-              {[1, 2, 3].map((step) => (
+              {[1, 2].map((step) => (
                 <div className={`buzzer-step ${setupStep >= step ? "active" : ""}`} key={step}>
                   <span>{step}</span>
-                  <strong>{step === 1 ? "Teams" : step === 2 ? "Settings" : "Start"}</strong>
+                  <strong>{step === 1 ? "Teams" : "Settings"}</strong>
                 </div>
               ))}
             </div>
@@ -336,24 +337,12 @@ export function BuzzerArena() {
             </div>
           )}
 
-          {setupStep === 3 && (
-            <div className="buzzer-review">
-              <div className="feedback">
-                <strong>{setup.teamAName}</strong> vs <strong>{setup.teamBName}</strong>
-              </div>
-              <div className="feedback">
-                <strong>{setup.totalRounds}</strong> rounds, <strong>{setup.timerMinutes} minutes</strong> per round
-              </div>
-              <p className="subtitle">If this looks right, create the room and send teams the link.</p>
-            </div>
-          )}
-
           <div className="buzzer-form-actions">
             <button className="ghost-button" onClick={setupStep === 1 ? () => setScreen("start") : previousStep} type="button">
               {setupStep === 1 ? "Back" : "Previous"}
             </button>
-            {setupStep < 3 ? (
-            <button className="button" onClick={nextStep} type="button">
+            {setupStep === 1 ? (
+              <button className="button" onClick={nextStep} type="button">
                 Continue
               </button>
             ) : (
@@ -517,7 +506,7 @@ function OrganizerConsole({
             <div className="buzzer-card-header">
               <div>
                 <span className="eyebrow">Current question</span>
-                <h2>Round {room.roundNumber} of {room.totalRounds}</h2>
+                <h2>Question {room.questionNumber}</h2>
               </div>
             </div>
             {question ? (

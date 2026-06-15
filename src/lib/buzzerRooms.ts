@@ -153,6 +153,7 @@ export function serializeBuzzerRoom(room: RoomWithRelations, role: BuzzerRole) {
     role,
     status: effectiveStatus(room),
     roundNumber: room.roundNumber,
+    questionNumber: room.questionNumber,
     totalRounds: room.totalRounds,
     teamAName: room.teamAName,
     teamBName: room.teamBName,
@@ -279,6 +280,7 @@ export async function createBuzzerRoom(setup?: Partial<BuzzerRoomSetup>) {
       teamAName,
       teamBName,
       totalRounds,
+      questionNumber: 1,
       currentQuestionId,
       timerDurationMs,
       timerElapsedMs: 0,
@@ -365,7 +367,7 @@ export async function applyBuzzerAction(code: string, action: BuzzerRoomAction) 
     });
     await prisma.buzzerSeat.updateMany({ where: { roomId: room.id }, data: { buzzedAt: null } });
     await prisma.buzzerRoomEvent.create({
-      data: { id: id("event"), roomId: room.id, type: "ROUND_STARTED", message: `Round ${room.roundNumber} started.` }
+      data: { id: id("event"), roomId: room.id, type: "ROUND_STARTED", message: `Question ${room.questionNumber} started.` }
     });
   }
 
@@ -432,7 +434,7 @@ export async function applyBuzzerAction(code: string, action: BuzzerRoomAction) 
         status: correct && bonusQuestionId ? "BONUS" : "WAITING",
         buzzedSeatId: keepBuzzedSeat ? room.buzzedSeatId : null,
         currentQuestionId: isBonus || !correct || !bonusQuestionId ? nextQuestionId : bonusQuestionId,
-        roundNumber: correct && bonusQuestionId ? room.roundNumber : { increment: 1 },
+        questionNumber: { increment: 1 },
         ...(correct && points > 0 && buzzedSeat.team === "A" ? { teamAScore: { increment: points } } : {}),
         ...(correct && points > 0 && buzzedSeat.team === "B" ? { teamBScore: { increment: points } } : {})
       }
@@ -461,15 +463,19 @@ export async function applyBuzzerAction(code: string, action: BuzzerRoomAction) 
       where: { id: room.id },
       data: {
         currentQuestionId: nextQuestionId,
-        status: "RUNNING",
-        timerStartedAt: null,
+        status: room.status === "PAUSED" ? "PAUSED" : "RUNNING",
         buzzedSeatId: null,
-        roundNumber: { increment: 1 }
+        questionNumber: { increment: 1 }
       }
     });
     await prisma.buzzerSeat.updateMany({ where: { roomId: room.id }, data: { buzzedAt: null } });
     await prisma.buzzerRoomEvent.create({
-      data: { id: id("event"), roomId: room.id, type: "NEXT_QUESTION", message: "Advanced to the next question." }
+      data: {
+        id: id("event"),
+        roomId: room.id,
+        type: "NEXT_QUESTION",
+        message: `Advanced to question ${room.questionNumber + 1}.`
+      }
     });
   }
 

@@ -261,6 +261,7 @@ model BuzzerRoom {
   timerElapsedMs      Int               @default(0)
   totalRounds         Int               @default(3)
   roundNumber         Int               @default(1)
+  questionNumber      Int               @default(1)
   currentQuestionId   String?
   currentQuestion     Question?          @relation(fields: [currentQuestionId], references: [id], onDelete: SetNull)
   buzzedSeatId        String?
