@@ -10,6 +10,7 @@ export type BuzzerRoomAction =
   | { type: "start"; organizerPassword: string }
   | { type: "toggleTimer"; organizerPassword: string }
   | { type: "doneReading"; organizerPassword: string }
+  | { type: "markInterrupt"; organizerPassword: string }
   | { type: "buzz"; seatId: string; participantName?: string }
   | { type: "judge"; organizerPassword: string; result: "correct" | "incorrect" }
   | { type: "nextQuestion"; organizerPassword: string }
@@ -107,6 +108,17 @@ function questionClockDurationFor(questionKind: QuestionKind | string | null | u
 
 function questionKindWord(value: QuestionKind | string | null | undefined) {
   return value === QuestionKind.BONUS || value === "BONUS" ? "Bonus" : "Tossup";
+}
+
+function startQuestionClockData(room: RoomWithRelations, forceInterrupt: boolean) {
+  const questionKind = room.currentQuestion?.questionKind;
+  return {
+    status: questionKind === QuestionKind.BONUS ? "BONUS" : room.buzzedSeatId ? "BUZZED" : "RUNNING",
+    questionClockStartedAt: new Date(),
+    questionClockDurationMs: questionClockDurationFor(questionKind),
+    questionClockElapsedMs: 0,
+    buzzedIsInterrupt: forceInterrupt
+  };
 }
 
 function questionClockRemaining(room: RoomWithRelations) {
@@ -342,6 +354,17 @@ async function includeRoomWithTimeout(code: string) {
         }
       });
     }
+
+    if (update.count && roundTimerExpired) {
+      await prisma.buzzerRoomEvent.create({
+        data: {
+          id: id("event"),
+          roomId: room.id,
+          type: "ROUND_CLOCK_EXPIRED",
+          message: "Round clock expired."
+        }
+      });
+    }
   }
 
   return includeRoom(code);
@@ -520,24 +543,33 @@ export async function applyBuzzerAction(code: string, action: BuzzerRoomAction) 
 
   if (action.type === "doneReading") {
     requireOrganizer(room, action.organizerPassword);
-    const questionKind = room.currentQuestion?.questionKind;
-    const durationMs = questionClockDurationFor(questionKind);
     await prisma.buzzerRoom.update({
       where: { id: room.id },
-      data: {
-        status: questionKind === QuestionKind.BONUS ? "BONUS" : room.buzzedSeatId ? "BUZZED" : "RUNNING",
-        questionClockStartedAt: new Date(),
-        questionClockDurationMs: durationMs,
-        questionClockElapsedMs: 0,
-        buzzedIsInterrupt: Boolean(room.buzzedSeatId && room.questionClockStartedAt == null)
-      }
+      data: startQuestionClockData(room, false)
     });
     await prisma.buzzerRoomEvent.create({
       data: {
         id: id("event"),
         roomId: room.id,
         type: "DONE_READING",
-        message: `Done reading. ${questionClockDurationFor(questionKind) === 20_000 ? "Bonus" : "Tossup"} clock started.`
+        message: `Done reading. ${questionKindWord(room.currentQuestion?.questionKind)} clock started.`
+      }
+    });
+  }
+
+  if (action.type === "markInterrupt") {
+    requireOrganizer(room, action.organizerPassword);
+    if (!room.buzzedSeatId) throw new Error("No buzzed participant to classify.");
+    await prisma.buzzerRoom.update({
+      where: { id: room.id },
+      data: startQuestionClockData(room, true)
+    });
+    await prisma.buzzerRoomEvent.create({
+      data: {
+        id: id("event"),
+        roomId: room.id,
+        type: "INTERRUPT_CONFIRMED",
+        message: "Buzz counted as interrupt."
       }
     });
   }
@@ -550,7 +582,7 @@ export async function applyBuzzerAction(code: string, action: BuzzerRoomAction) 
       throw new Error("Buzz is not available.");
     const result = await prisma.buzzerRoom.updateMany({
       where: { id: room.id, buzzedSeatId: null, status: { in: ["READING", "RUNNING"] } },
-      data: { buzzedSeatId: seat.id, status: "BUZZED", buzzedIsInterrupt: room.status === "READING" }
+      data: { buzzedSeatId: seat.id, status: "BUZZED", buzzedIsInterrupt: false }
     });
     if (result.count) {
       await prisma.buzzerSeat.update({ where: { id: seat.id }, data: { buzzedAt: new Date() } });
@@ -558,9 +590,9 @@ export async function applyBuzzerAction(code: string, action: BuzzerRoomAction) 
         data: {
           id: id("event"),
           roomId: room.id,
-          type: room.status === "READING" ? "INTERRUPT" : "BUZZED",
+          type: room.status === "READING" ? "BUZZED_DURING_READING" : "BUZZED",
           message: room.status === "READING"
-            ? `${seat.participantName} interrupted for Team ${seat.team}.`
+            ? `${seat.participantName} buzzed during reading for Team ${seat.team}.`
             : `${seat.participantName} buzzed in for Team ${seat.team}.`
         }
       });

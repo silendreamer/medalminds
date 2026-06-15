@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type MutableRefObject } from "react";
 
 type Team = "A" | "B";
 type RoomStatus = "WAITING" | "READING" | "RUNNING" | "PAUSED" | "BUZZED" | "BONUS" | "JUDGED" | "TIMEOUT" | "ENDED";
@@ -76,6 +76,68 @@ const DEFAULT_SETUP: SetupState = {
   timerMinutes: 10
 };
 
+function createAudioContext() {
+  const AudioContextCtor = window.AudioContext || (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+  return AudioContextCtor ? new AudioContextCtor() : null;
+}
+
+async function playBuzzSound(audioContextRef: MutableRefObject<AudioContext | null>) {
+  const audioContext = audioContextRef.current ?? createAudioContext();
+  if (!audioContext) return;
+  audioContextRef.current = audioContext;
+  if (audioContext.state === "suspended") await audioContext.resume();
+
+  const startAt = audioContext.currentTime;
+  const gain = audioContext.createGain();
+  gain.connect(audioContext.destination);
+  gain.gain.setValueAtTime(0.0001, startAt);
+  gain.gain.exponentialRampToValueAtTime(0.18, startAt + 0.01);
+  gain.gain.exponentialRampToValueAtTime(0.0001, startAt + 0.38);
+
+  const oscA = audioContext.createOscillator();
+  oscA.type = "sine";
+  oscA.frequency.setValueAtTime(880, startAt);
+  oscA.frequency.exponentialRampToValueAtTime(1175, startAt + 0.18);
+  oscA.connect(gain);
+  oscA.start(startAt);
+  oscA.stop(startAt + 0.2);
+
+  const oscB = audioContext.createOscillator();
+  oscB.type = "triangle";
+  oscB.frequency.setValueAtTime(1320, startAt + 0.16);
+  oscB.connect(gain);
+  oscB.start(startAt + 0.16);
+  oscB.stop(startAt + 0.36);
+}
+
+async function playTimeOverSound(audioContextRef: MutableRefObject<AudioContext | null>) {
+  const audioContext = audioContextRef.current ?? createAudioContext();
+  if (!audioContext) return;
+  audioContextRef.current = audioContext;
+  if (audioContext.state === "suspended") await audioContext.resume();
+
+  const startAt = audioContext.currentTime;
+  const gain = audioContext.createGain();
+  gain.connect(audioContext.destination);
+  gain.gain.setValueAtTime(0.0001, startAt);
+  gain.gain.exponentialRampToValueAtTime(0.16, startAt + 0.01);
+  gain.gain.exponentialRampToValueAtTime(0.0001, startAt + 0.75);
+
+  const first = audioContext.createOscillator();
+  first.type = "square";
+  first.frequency.setValueAtTime(440, startAt);
+  first.connect(gain);
+  first.start(startAt);
+  first.stop(startAt + 0.22);
+
+  const second = audioContext.createOscillator();
+  second.type = "square";
+  second.frequency.setValueAtTime(294, startAt + 0.28);
+  second.connect(gain);
+  second.start(startAt + 0.28);
+  second.stop(startAt + 0.58);
+}
+
 function formatTimer(ms: number) {
   const totalSeconds = Math.max(0, Math.ceil(ms / 1000));
   const minutes = Math.floor(totalSeconds / 60);
@@ -103,6 +165,8 @@ export function BuzzerArena() {
   const [setup, setSetup] = useState<SetupState>(DEFAULT_SETUP);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const latestEventIdRef = useRef<string | null>(null);
 
   const isOrganizer = room?.role === "organizer";
   const seatedSeat = useMemo(
@@ -146,6 +210,28 @@ export function BuzzerArena() {
     }, 750);
     return () => window.clearInterval(timer);
   }, [fetchRoom, room?.code, screen]);
+
+  useEffect(() => {
+    if (screen !== "room" || !room?.events.length) return;
+    const newestEvent = room.events[0];
+
+    if (!latestEventIdRef.current) {
+      latestEventIdRef.current = newestEvent.id;
+      return;
+    }
+
+    if (latestEventIdRef.current === newestEvent.id) return;
+    latestEventIdRef.current = newestEvent.id;
+
+    if (["BUZZED", "BUZZED_DURING_READING"].includes(newestEvent.type)) {
+      playBuzzSound(audioContextRef).catch(() => undefined);
+      return;
+    }
+
+    if (["QUESTION_DEAD", "ROUND_CLOCK_EXPIRED"].includes(newestEvent.type)) {
+      playTimeOverSound(audioContextRef).catch(() => undefined);
+    }
+  }, [room?.events, screen]);
 
   async function createRoom() {
     setBusy(true);
@@ -479,7 +565,8 @@ function OrganizerConsole({
   const questionClockVisible = room.questionClockDurationMs > 0 || room.status === "TIMEOUT";
   const questionClockPct = room.questionClockDurationMs > 0 ? Math.max(0, Math.min(100, (questionClockMs / room.questionClockDurationMs) * 100)) : 0;
   const questionClockLabel = room.status === "TIMEOUT" ? "Time up" : room.questionClockDurationMs > 0 ? (questionClockMs <= 0 ? "Time up" : `${(questionClockMs / 1000).toFixed(1)}s`) : "";
-  const canReadDone = room.questionClockDurationMs === 0 && !["WAITING", "TIMEOUT", "ENDED"].includes(room.status);
+  const canReadDone = !["WAITING", "TIMEOUT", "ENDED"].includes(room.status);
+  const pendingBuzzClassification = Boolean(room.buzzedSeat && room.questionClockDurationMs === 0);
   const gameEnded = room.status === "ENDED";
 
   return (
@@ -512,7 +599,13 @@ function OrganizerConsole({
                   <h2>{room.buzzedSeat.participantName}</h2>
                   <p>{room.buzzedSeat.participantName} has buzzed in for {roomTeamName(room, room.buzzedSeat.team)} - {room.buzzedSeat.slot.toUpperCase()}</p>
                   {room.buzzedIsInterrupt && <span className="badge neutral">Interrupt</span>}
+                  {pendingBuzzClassification && <span className="badge neutral">Awaiting organizer ruling</span>}
                   <div className="actions">
+                    {pendingBuzzClassification && (
+                      <button className="ghost-button" disabled={busy || gameEnded} onClick={() => onAction({ type: "markInterrupt", organizerPassword })} type="button">
+                        Count interrupt
+                      </button>
+                    )}
                     <button className="button" disabled={busy || room.status === "JUDGED" || gameEnded} onClick={() => onAction({ type: "judge", organizerPassword, result: "correct" })} type="button">
                       Correct +{room.question?.questionKind === "BONUS" ? 10 : 4}
                     </button>
