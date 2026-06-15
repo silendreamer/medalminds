@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 type Team = "A" | "B";
-type RoomStatus = "WAITING" | "RUNNING" | "BUZZED" | "JUDGED" | "TIMEOUT";
+type RoomStatus = "WAITING" | "RUNNING" | "BUZZED" | "BONUS" | "JUDGED" | "TIMEOUT";
 
 type Seat = {
   id: string;
@@ -24,6 +24,8 @@ type OrganizerQuestion = {
   id: string;
   category: string;
   difficulty: string;
+  questionKind: string;
+  format: string;
   prompt: string;
   choices?: string[];
   correctAnswer: string;
@@ -348,7 +350,7 @@ function OrganizerConsole({
               )}
             </div>
             <div className="actions">
-              <button className="button" disabled={busy || room.status === "RUNNING"} onClick={() => onAction({ type: "start", organizerPassword })} type="button">Start</button>
+              <button className="button" disabled={busy || room.status !== "WAITING"} onClick={() => onAction({ type: "start", organizerPassword })} type="button">Start</button>
               <button className="ghost-button" disabled={busy} onClick={() => onAction({ type: "reset", organizerPassword })} type="button">Reset</button>
               <button className="ghost-button" disabled={busy} onClick={() => onAction({ type: "nextQuestion", organizerPassword })} type="button">Next question</button>
             </div>
@@ -368,6 +370,12 @@ function OrganizerConsole({
             {question ? (
               <>
                 <p className="buzzer-question-text">{question.prompt}</p>
+                <div className="badge-list">
+                  <span className="badge">{question.questionKind}</span>
+                  <span className="badge neutral">{question.format}</span>
+                  <span className="badge neutral">{question.category}</span>
+                  <span className="badge neutral">{question.difficulty}</span>
+                </div>
                 <div className="buzzer-choice-grid">
                   {question.choices?.map((choice, index) => {
                     const letter = letters[index];
@@ -465,6 +473,7 @@ function ParticipantRoom({
           <p>
             {!seatedSeat && "Sit at a seat first."}
             {seatedSeat && room.status === "WAITING" && "Wait for the organizer to start the round."}
+            {room.status === "BONUS" && "Bonus question in progress. Only the organizer reads it."}
             {seatedSeat && room.status === "RUNNING" && !room.buzzedSeat && "Buzz when you know it."}
             {room.buzzedSeat && `${room.buzzedSeat.participantName} buzzed in for ${teamName(room.buzzedSeat.team)}.`}
             {room.status === "TIMEOUT" && "Time expired."}

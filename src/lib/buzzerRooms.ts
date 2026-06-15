@@ -1,4 +1,4 @@
-import { Prisma } from "@prisma/client";
+import { Prisma, QuestionKind } from "@prisma/client";
 import type { PracticeQuestion } from "@/types";
 import { getPrisma } from "./db";
 
@@ -78,12 +78,24 @@ function effectiveStatus(room: RoomWithRelations) {
   return room.status;
 }
 
-function questionForOrganizer(room: RoomWithRelations): (PracticeQuestion & { correctLetter: string | null }) | null {
+function questionKindLabel(value: QuestionKind | string | null | undefined) {
+  if (value === QuestionKind.BONUS || value === "BONUS") return "BONUS";
+  if (value === QuestionKind.TOSSUP || value === "TOSSUP") return "TOSS-UP";
+  if (value === QuestionKind.REVIEW || value === "REVIEW") return "REVIEW";
+  return "PRACTICE";
+}
+
+function formatLabel(value: string | null | undefined) {
+  return value === "MULTIPLE_CHOICE" ? "Multiple Choice" : "Short Answer";
+}
+
+function questionForOrganizer(room: RoomWithRelations): (PracticeQuestion & { correctLetter: string | null; questionKind: string; format: string }) | null {
   const question = room.currentQuestion;
   if (!question) return null;
   const choices = question.answers.slice(0, 4).map((answer) => answer.text);
   const correctIndex = question.answers.slice(0, 4).findIndex((answer) => answer.isCorrect);
   const correctText = question.answers.slice(0, 4)[correctIndex]?.text ?? question.correctAnswer;
+  const type = question.format === "MULTIPLE_CHOICE" ? "multiple_choice" : "short_answer";
 
   return {
     id: question.id,
@@ -94,15 +106,17 @@ function questionForOrganizer(room: RoomWithRelations): (PracticeQuestion & { co
       question.difficulty === "FOUNDATIONAL"
         ? "Foundational"
         : question.difficulty === "ADVANCED"
-          ? "Advanced"
-          : "Intermediate",
-    type: "multiple_choice",
+        ? "Advanced"
+        : "Intermediate",
+    type,
     prompt: stripInlineMultipleChoiceOptions(question.prompt),
-    choices,
+    choices: type === "multiple_choice" ? choices : undefined,
     correctAnswer: correctText,
     alternateAnswers: [],
     explanation: question.explanation,
-    correctLetter: correctIndex >= 0 ? choiceLetters[correctIndex] : null
+    correctLetter: correctIndex >= 0 ? choiceLetters[correctIndex] : null,
+    questionKind: questionKindLabel(question.questionKind),
+    format: formatLabel(question.format)
   };
 }
 
@@ -153,17 +167,51 @@ async function randomScienceBowlQuestionId() {
       FROM "Question" q
       INNER JOIN "Competition" c ON c.id = q."competitionId"
       WHERE c.slug = 'science-bowl'
-        AND q.format = 'MULTIPLE_CHOICE'
+        AND q."questionKind" = 'TOSSUP'
         AND (
           SELECT count(*)
           FROM "Answer" a
           WHERE a."questionId" = q.id
-        ) = 4
+        ) >= CASE WHEN q.format = 'MULTIPLE_CHOICE' THEN 4 ELSE 1 END
       ORDER BY random()
       LIMIT 1
     `
   );
   return rows[0]?.id ?? null;
+}
+
+async function pairedBonusQuestionId(questionId: string) {
+  const prisma = getPrisma();
+  const current = await prisma.question.findUnique({
+    where: { id: questionId },
+    select: {
+      competitionId: true,
+      sourcePdfUrl: true,
+      sourceSet: true,
+      sourceRound: true,
+      sourceQuestionNumber: true,
+      category: true,
+      schoolLevel: true
+    }
+  });
+
+  if (!current) return null;
+
+  const bonus = await prisma.question.findFirst({
+    where: {
+      competitionId: current.competitionId,
+      questionKind: QuestionKind.BONUS,
+      sourcePdfUrl: current.sourcePdfUrl,
+      sourceSet: current.sourceSet,
+      sourceRound: current.sourceRound,
+      sourceQuestionNumber: current.sourceQuestionNumber,
+      category: current.category,
+      schoolLevel: current.schoolLevel
+    },
+    select: { id: true }
+  });
+
+  return bonus?.id ?? null;
 }
 
 async function includeRoom(code: string) {
@@ -180,7 +228,7 @@ async function includeRoom(code: string) {
 export async function createBuzzerRoom() {
   const prisma = getPrisma();
   const currentQuestionId = await randomScienceBowlQuestionId();
-  if (!currentQuestionId) throw new Error("No Science Bowl multiple-choice questions are available.");
+  if (!currentQuestionId) throw new Error("No Science Bowl toss-up questions are available.");
 
   let code = makeCode();
   for (let attempt = 0; attempt < 5; attempt += 1) {
@@ -310,21 +358,37 @@ export async function applyBuzzerAction(code: string, action: BuzzerRoomAction) 
     const buzzedSeat = room.buzzedSeatId ? room.seats.find((seat) => seat.id === room.buzzedSeatId) : null;
     if (!buzzedSeat) throw new Error("No buzzed participant to judge.");
     const correct = action.result === "correct";
+    const currentKind = room.currentQuestion?.questionKind;
+    const isTossup = currentKind === QuestionKind.TOSSUP;
+    const isBonus = currentKind === QuestionKind.BONUS;
+    const bonusQuestionId = correct && isTossup ? await pairedBonusQuestionId(room.currentQuestionId ?? "") : null;
+    const nextQuestionId = correct && bonusQuestionId ? bonusQuestionId : await randomScienceBowlQuestionId();
+    const keepBuzzedSeat = Boolean(correct && bonusQuestionId);
     await prisma.buzzerRoom.update({
       where: { id: room.id },
       data: {
-        status: "JUDGED",
+        status: correct && bonusQuestionId ? "BONUS" : "WAITING",
         timerStartedAt: null,
+        buzzedSeatId: keepBuzzedSeat ? room.buzzedSeatId : null,
+        currentQuestionId: isBonus || !correct || !bonusQuestionId ? nextQuestionId : bonusQuestionId,
+        roundNumber: correct && bonusQuestionId ? room.roundNumber : { increment: 1 },
         ...(correct && buzzedSeat.team === "A" ? { teamAScore: { increment: 10 } } : {}),
         ...(correct && buzzedSeat.team === "B" ? { teamBScore: { increment: 10 } } : {})
       }
     });
+    if (!keepBuzzedSeat) {
+      await prisma.buzzerSeat.updateMany({ where: { roomId: room.id }, data: { buzzedAt: null } });
+    }
     await prisma.buzzerRoomEvent.create({
       data: {
         id: id("event"),
         roomId: room.id,
-        type: correct ? "CORRECT" : "INCORRECT",
-        message: `${buzzedSeat.participantName ?? buzzedSeat.slot.toUpperCase()} - ${correct ? "Correct (+10)" : "Incorrect"}.`
+        type: correct ? (bonusQuestionId ? "BONUS_QUEUED" : "CORRECT") : "INCORRECT",
+        message: correct
+          ? bonusQuestionId
+            ? `${buzzedSeat.participantName ?? buzzedSeat.slot.toUpperCase()} - Correct (+10). Bonus question loaded.`
+            : `${buzzedSeat.participantName ?? buzzedSeat.slot.toUpperCase()} - Correct (+10).`
+          : `${buzzedSeat.participantName ?? buzzedSeat.slot.toUpperCase()} - Incorrect.`
       }
     });
   }
