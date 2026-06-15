@@ -452,7 +452,7 @@ export async function applyBuzzerAction(code: string, action: BuzzerRoomAction) 
     await prisma.buzzerRoom.update({
       where: { id: room.id },
       data: {
-        status: correct && bonusQuestionId ? "BONUS" : "WAITING",
+        status: correct && bonusQuestionId ? "BONUS" : "RUNNING",
         buzzedSeatId: keepBuzzedSeat ? room.buzzedSeatId : null,
         currentQuestionId: isBonus || !correct || !bonusQuestionId ? nextQuestionId : bonusQuestionId,
         questionNumber: { increment: 1 },
