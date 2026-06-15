@@ -8,6 +8,7 @@ export type BuzzerRoomAction =
   | { type: "sit"; participantName: string; team: BuzzerTeam; slot: string }
   | { type: "stand"; seatId: string; participantName?: string }
   | { type: "start"; organizerPassword: string }
+  | { type: "toggleTimer"; organizerPassword: string }
   | { type: "buzz"; seatId: string; participantName?: string }
   | { type: "judge"; organizerPassword: string; result: "correct" | "incorrect" }
   | { type: "nextQuestion"; organizerPassword: string }
@@ -17,11 +18,11 @@ export type BuzzerRoomSetup = {
   teamAName: string;
   teamBName: string;
   totalRounds: number;
-  timerDurationMs: number;
+  timerMinutes: number;
 };
 
 const ROOM_TTL_HOURS = 12;
-const TIMER_DURATION_MS = 15000;
+const TIMER_DURATION_MS = 10 * 60 * 1000;
 const SEATS: Array<{ team: BuzzerTeam; slot: string }> = [
   { team: "A", slot: "a1" },
   { team: "A", slot: "a2" },
@@ -65,9 +66,15 @@ function id(prefix: string) {
 }
 
 function timeRemaining(room: RoomWithRelations) {
-  if ((room.status !== "RUNNING" && room.status !== "BUZZED") || !room.timerStartedAt) return room.timerDurationMs;
-  const buzzedAt = room.buzzedSeatId ? room.seats.find((seat) => seat.id === room.buzzedSeatId)?.buzzedAt : null;
-  const elapsed = (buzzedAt?.getTime() ?? Date.now()) - room.timerStartedAt.getTime();
+  if (room.status === "PAUSED") {
+    return Math.max(0, room.timerDurationMs - room.timerElapsedMs);
+  }
+
+  if (!room.timerStartedAt) {
+    return Math.max(0, room.timerDurationMs - room.timerElapsedMs);
+  }
+
+  const elapsed = room.timerElapsedMs + (Date.now() - room.timerStartedAt.getTime());
   return Math.max(0, room.timerDurationMs - elapsed);
 }
 
@@ -81,7 +88,7 @@ function stripInlineMultipleChoiceOptions(prompt: string) {
 }
 
 function effectiveStatus(room: RoomWithRelations) {
-  if (room.status === "RUNNING" && timeRemaining(room) <= 0) return "TIMEOUT";
+  if (room.status !== "PAUSED" && room.timerStartedAt && timeRemaining(room) <= 0) return "TIMEOUT";
   return room.status;
 }
 
@@ -152,6 +159,7 @@ export function serializeBuzzerRoom(room: RoomWithRelations, role: BuzzerRole) {
     teamAScore: room.teamAScore,
     teamBScore: room.teamBScore,
     timerDurationMs: room.timerDurationMs,
+    timerElapsedMs: room.timerElapsedMs,
     remainingMs: timeRemaining(room),
     expiresAt: room.expiresAt.toISOString(),
     buzzedSeatId: room.buzzedSeatId,
@@ -253,7 +261,8 @@ export async function createBuzzerRoom(setup?: Partial<BuzzerRoomSetup>) {
   const teamAName = clampText(setup?.teamAName, "Team A");
   const teamBName = clampText(setup?.teamBName, "Team B");
   const totalRounds = clampInteger(setup?.totalRounds, 3, 1, 20);
-  const timerDurationMs = clampInteger(setup?.timerDurationMs, TIMER_DURATION_MS, 5000, 120000);
+  const timerMinutes = clampInteger(setup?.timerMinutes, 10, 1, 60);
+  const timerDurationMs = timerMinutes * 60 * 1000;
 
   let code = makeCode();
   for (let attempt = 0; attempt < 5; attempt += 1) {
@@ -272,6 +281,7 @@ export async function createBuzzerRoom(setup?: Partial<BuzzerRoomSetup>) {
       totalRounds,
       currentQuestionId,
       timerDurationMs,
+      timerElapsedMs: 0,
       expiresAt: addHours(new Date(), ROOM_TTL_HOURS),
       seats: {
         create: SEATS.map((seat) => ({
@@ -351,12 +361,35 @@ export async function applyBuzzerAction(code: string, action: BuzzerRoomAction) 
     requireOrganizer(room, action.organizerPassword);
     await prisma.buzzerRoom.update({
       where: { id: room.id },
-      data: { status: "RUNNING", timerStartedAt: new Date(), buzzedSeatId: null }
+      data: { status: "RUNNING", timerStartedAt: new Date(), timerElapsedMs: 0, buzzedSeatId: null }
     });
     await prisma.buzzerSeat.updateMany({ where: { roomId: room.id }, data: { buzzedAt: null } });
     await prisma.buzzerRoomEvent.create({
       data: { id: id("event"), roomId: room.id, type: "ROUND_STARTED", message: `Round ${room.roundNumber} started.` }
     });
+  }
+
+  if (action.type === "toggleTimer") {
+    requireOrganizer(room, action.organizerPassword);
+    const now = new Date();
+    if (room.status === "PAUSED") {
+      await prisma.buzzerRoom.update({
+        where: { id: room.id },
+        data: { status: "RUNNING", timerStartedAt: now }
+      });
+      await prisma.buzzerRoomEvent.create({
+        data: { id: id("event"), roomId: room.id, type: "TIMER_RESUMED", message: "Timer resumed." }
+      });
+    } else {
+      const elapsed = room.timerStartedAt ? room.timerElapsedMs + (now.getTime() - room.timerStartedAt.getTime()) : room.timerElapsedMs;
+      await prisma.buzzerRoom.update({
+        where: { id: room.id },
+        data: { status: "PAUSED", timerStartedAt: null, timerElapsedMs: elapsed }
+      });
+      await prisma.buzzerRoomEvent.create({
+        data: { id: id("event"), roomId: room.id, type: "TIMER_PAUSED", message: "Timer paused." }
+      });
+    }
   }
 
   if (action.type === "buzz") {
@@ -397,7 +430,6 @@ export async function applyBuzzerAction(code: string, action: BuzzerRoomAction) 
       where: { id: room.id },
       data: {
         status: correct && bonusQuestionId ? "BONUS" : "WAITING",
-        timerStartedAt: null,
         buzzedSeatId: keepBuzzedSeat ? room.buzzedSeatId : null,
         currentQuestionId: isBonus || !correct || !bonusQuestionId ? nextQuestionId : bonusQuestionId,
         roundNumber: correct && bonusQuestionId ? room.roundNumber : { increment: 1 },
@@ -429,7 +461,7 @@ export async function applyBuzzerAction(code: string, action: BuzzerRoomAction) 
       where: { id: room.id },
       data: {
         currentQuestionId: nextQuestionId,
-        status: "WAITING",
+        status: "RUNNING",
         timerStartedAt: null,
         buzzedSeatId: null,
         roundNumber: { increment: 1 }
@@ -445,7 +477,7 @@ export async function applyBuzzerAction(code: string, action: BuzzerRoomAction) 
     requireOrganizer(room, action.organizerPassword);
     await prisma.buzzerRoom.update({
       where: { id: room.id },
-      data: { status: "WAITING", timerStartedAt: null, buzzedSeatId: null }
+      data: { status: "WAITING", timerStartedAt: null, timerElapsedMs: 0, buzzedSeatId: null }
     });
     await prisma.buzzerSeat.updateMany({ where: { roomId: room.id }, data: { buzzedAt: null } });
     await prisma.buzzerRoomEvent.create({

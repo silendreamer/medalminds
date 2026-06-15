@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 type Team = "A" | "B";
-type RoomStatus = "WAITING" | "RUNNING" | "BUZZED" | "BONUS" | "JUDGED" | "TIMEOUT";
+type RoomStatus = "WAITING" | "RUNNING" | "PAUSED" | "BUZZED" | "BONUS" | "JUDGED" | "TIMEOUT";
 
 type Seat = {
   id: string;
@@ -42,6 +42,7 @@ type BuzzerRoom = {
   teamAScore: number;
   teamBScore: number;
   timerDurationMs: number;
+  timerElapsedMs: number;
   remainingMs: number;
   buzzedSeat: Pick<Seat, "id" | "team" | "slot" | "participantName"> | null;
   seats: Seat[];
@@ -60,7 +61,7 @@ type SetupState = {
   teamAName: string;
   teamBName: string;
   totalRounds: number;
-  timerSeconds: number;
+  timerMinutes: number;
 };
 
 const letters = ["W", "X", "Y", "Z"];
@@ -68,12 +69,14 @@ const DEFAULT_SETUP: SetupState = {
   teamAName: "Team A",
   teamBName: "Team B",
   totalRounds: 3,
-  timerSeconds: 15
+  timerMinutes: 10
 };
 
 function formatTimer(ms: number) {
-  const seconds = Math.max(0, Math.ceil(ms / 1000));
-  return `0:${String(seconds).padStart(2, "0")}`;
+  const totalSeconds = Math.max(0, Math.ceil(ms / 1000));
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  return `${minutes}:${String(seconds).padStart(2, "0")}`;
 }
 
 function eventTime(value: string) {
@@ -145,7 +148,7 @@ export function BuzzerArena() {
           teamAName: setup.teamAName,
           teamBName: setup.teamBName,
           totalRounds: setup.totalRounds,
-          timerDurationMs: setup.timerSeconds * 1000
+          timerMinutes: setup.timerMinutes
         })
       });
       const payload = await response.json();
@@ -244,7 +247,7 @@ export function BuzzerArena() {
             <span className="badge">{readyRoom.room.teamAName}</span>
             <span className="badge neutral">{readyRoom.room.teamBName}</span>
             <span className="badge neutral">{readyRoom.room.totalRounds} rounds</span>
-            <span className="badge neutral">{formatTimer(readyRoom.room.timerDurationMs).replace("0:", "")} round clock</span>
+            <span className="badge neutral">{formatTimer(readyRoom.room.timerDurationMs)} round clock</span>
           </div>
           <label className="form-field">
             <span>Share link</span>
@@ -322,13 +325,13 @@ export function BuzzerArena() {
                 <strong>Time limit per round</strong>
                 <input
                   inputMode="numeric"
-                  min={5}
-                  max={120}
+                  min={1}
+                  max={60}
                   type="number"
-                  value={setup.timerSeconds}
-                  onChange={(event) => setSetup((current) => ({ ...current, timerSeconds: Number(event.target.value || 15) }))}
+                  value={setup.timerMinutes}
+                  onChange={(event) => setSetup((current) => ({ ...current, timerMinutes: Number(event.target.value || 10) }))}
                 />
-                <p className="subtitle">Enter seconds. The room timer will use this value for each round.</p>
+                <p className="subtitle">Enter minutes. The room timer counts down the full round length.</p>
               </label>
             </div>
           )}
@@ -339,7 +342,7 @@ export function BuzzerArena() {
                 <strong>{setup.teamAName}</strong> vs <strong>{setup.teamBName}</strong>
               </div>
               <div className="feedback">
-                <strong>{setup.totalRounds}</strong> rounds, <strong>{setup.timerSeconds}s</strong> per round
+                <strong>{setup.totalRounds}</strong> rounds, <strong>{setup.timerMinutes} minutes</strong> per round
               </div>
               <p className="subtitle">If this looks right, create the room and send teams the link.</p>
             </div>
@@ -350,7 +353,7 @@ export function BuzzerArena() {
               {setupStep === 1 ? "Back" : "Previous"}
             </button>
             {setupStep < 3 ? (
-              <button className="button" onClick={nextStep} type="button">
+            <button className="button" onClick={nextStep} type="button">
                 Continue
               </button>
             ) : (
@@ -496,7 +499,15 @@ function OrganizerConsole({
               )}
             </div>
             <div className="actions">
-              <button className="button" disabled={busy || room.status !== "WAITING"} onClick={() => onAction({ type: "start", organizerPassword })} type="button">Start</button>
+              {room.status === "WAITING" ? (
+                <button className="button" disabled={busy} onClick={() => onAction({ type: "start", organizerPassword })} type="button">
+                  Start
+                </button>
+              ) : (
+                <button className="button" disabled={busy} onClick={() => onAction({ type: "toggleTimer", organizerPassword })} type="button">
+                  {room.status === "PAUSED" ? "Resume" : "Pause"}
+                </button>
+              )}
               <button className="ghost-button" disabled={busy} onClick={() => onAction({ type: "reset", organizerPassword })} type="button">Reset</button>
               <button className="ghost-button" disabled={busy} onClick={() => onAction({ type: "nextQuestion", organizerPassword })} type="button">Next question</button>
             </div>
@@ -617,6 +628,7 @@ function ParticipantRoom({
           <p>
             {!seatedSeat && "Sit at a seat first."}
             {seatedSeat && room.status === "WAITING" && "Wait for the organizer to start the round."}
+            {room.status === "PAUSED" && "Timer paused. Wait for the organizer to resume."}
             {room.status === "BONUS" && "Bonus question in progress. Only the organizer reads it."}
             {seatedSeat && room.status === "RUNNING" && !room.buzzedSeat && "Buzz when you know it."}
             {room.buzzedSeat && `${room.buzzedSeat.participantName} buzzed in for ${roomTeamName(room, room.buzzedSeat.team)}.`}

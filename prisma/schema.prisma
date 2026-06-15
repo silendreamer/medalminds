@@ -258,6 +258,7 @@ model BuzzerRoom {
   teamBScore          Int               @default(0)
   timerStartedAt      DateTime?
   timerDurationMs     Int               @default(15000)
+  timerElapsedMs      Int               @default(0)
   totalRounds         Int               @default(3)
   roundNumber         Int               @default(1)
   currentQuestionId   String?
