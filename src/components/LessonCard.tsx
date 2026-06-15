@@ -4,11 +4,11 @@ import { lessonPath } from "@/lib/routes";
 
 export function LessonCard({ lesson }: { lesson: Lesson }) {
   return (
-    <article className="card stack">
+    <article className="card stack lesson-card">
       <div className="card-header">
         <div>
           <h3>{lesson.title}</h3>
-          <p>{lesson.summary}</p>
+          <p className="card-copy">{lesson.summary}</p>
         </div>
         <span className="badge">{lesson.estimatedMinutes} min</span>
       </div>

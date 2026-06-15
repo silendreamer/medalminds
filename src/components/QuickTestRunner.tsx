@@ -29,7 +29,7 @@ export function QuickTestRunner({ questions }: { questions: PracticeQuestion[] }
 
   if (submitted) {
     return (
-      <div className="card spacious stack">
+      <div className="card spacious stack practice-card">
         <div>
           <span className="eyebrow">Score</span>
           <h2>
@@ -57,7 +57,7 @@ export function QuickTestRunner({ questions }: { questions: PracticeQuestion[] }
   }
 
   return (
-    <article className="card spacious stack">
+    <article className="card spacious stack practice-card">
       <div className="card-header">
         <div>
           <span className="eyebrow">
@@ -67,7 +67,7 @@ export function QuickTestRunner({ questions }: { questions: PracticeQuestion[] }
         </div>
         <span className="badge neutral">Multiple choice</span>
       </div>
-      <p>{question.prompt}</p>
+      <p className="question-prompt">{question.prompt}</p>
       <div className="stack">
         {question.choices?.map((choice, index) => (
           <button

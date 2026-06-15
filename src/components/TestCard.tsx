@@ -4,11 +4,11 @@ import { testPath } from "@/lib/routes";
 
 export function TestCard({ test }: { test: Test }) {
   return (
-    <article className="card stack">
+    <article className="card stack lesson-card">
       <div className="card-header">
         <div>
           <h3>{test.title}</h3>
-          <p>{test.description}</p>
+          <p className="card-copy">{test.description}</p>
         </div>
         <span className="badge">{test.timeLimitMinutes} min</span>
       </div>

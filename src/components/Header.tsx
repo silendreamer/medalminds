@@ -10,10 +10,13 @@ export function Header() {
     <header className="site-header">
       <div className="nav-inner">
         <Link className="brand" href="/">
-          <span className="brand-mark">
+          <span aria-hidden="true" className="brand-mark">
             <Medal size={24} />
           </span>
-          Medal Minds
+          <span className="brand-copy">
+            <strong>Medal Minds</strong>
+            <span>Competition prep platform</span>
+          </span>
         </Link>
         <nav className="nav-links" aria-label="Main navigation">
           <Link className="nav-link" href="/">

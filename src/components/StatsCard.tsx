@@ -8,7 +8,7 @@ export function StatsCard({
   lessons: number;
 }) {
   return (
-    <div className="stat-row">
+    <div className="stat-row stats-card">
       <div className="stat">
         <strong>{formatApproximateCount(questions)}</strong>
         <span>practice questions</span>

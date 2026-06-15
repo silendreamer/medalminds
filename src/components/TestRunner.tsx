@@ -34,7 +34,7 @@ export function TestRunner({ test, questions }: { test: Test; questions: Practic
     <div className="test-layout">
       <aside className="card side-panel stack">
         <h3>{test.title}</h3>
-        <p>{test.timeLimitMinutes} minute limit</p>
+        <p className="card-copy">{test.timeLimitMinutes} minute limit</p>
         <div className="question-nav">
           {questions.map((item, index) => (
             <button
@@ -52,7 +52,7 @@ export function TestRunner({ test, questions }: { test: Test; questions: Practic
         </button>
       </aside>
 
-      <section className="card spacious stack">
+      <section className="card spacious stack practice-card">
         {submitted ? (
           <>
             <div>
@@ -71,7 +71,7 @@ export function TestRunner({ test, questions }: { test: Test; questions: Practic
                     <strong>
                       Question {index + 1}: {correct ? "Correct" : "Needs review"}
                     </strong>
-                    <p>{item.prompt}</p>
+                    <p className="question-prompt">{item.prompt}</p>
                     <p>Your answer: {userAnswer || "No answer"}</p>
                     <p>Correct answer: {item.correctAnswer}</p>
                     <p>{item.explanation}</p>
@@ -91,7 +91,7 @@ export function TestRunner({ test, questions }: { test: Test; questions: Practic
               </div>
               <span className="badge neutral">{question.difficulty}</span>
             </div>
-            <p>{question.prompt}</p>
+            <p className="question-prompt">{question.prompt}</p>
             {question.type === "multiple_choice" ? (
               <div className="stack">
                 {question.choices?.map((choice, choiceIndex) => (

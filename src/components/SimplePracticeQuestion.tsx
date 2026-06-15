@@ -30,7 +30,7 @@ export function SimplePracticeQuestion({
 
   return (
     <>
-      <article className="card spacious stack">
+      <article className="card spacious stack practice-card">
         <div className="card-header">
           <div>
             <span className="eyebrow">{question.category}</span>
@@ -38,7 +38,7 @@ export function SimplePracticeQuestion({
           </div>
           <span className="badge neutral">{question.type.replace("_", " ")}</span>
         </div>
-        <p>{question.prompt}</p>
+        <p className="question-prompt">{question.prompt}</p>
 
         {question.type === "multiple_choice" ? (
           <div className="stack">
@@ -104,7 +104,7 @@ export function SimplePracticeQuestion({
                 Close
               </button>
             </div>
-            <p>{lesson.summary}</p>
+            <p className="card-copy">{lesson.summary}</p>
             <div className="content-section stack">
               <h3>Key concepts</h3>
               <div className="badge-list">

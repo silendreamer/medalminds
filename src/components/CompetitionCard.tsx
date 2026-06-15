@@ -16,14 +16,20 @@ export function CompetitionCard({
   return (
     <article className="competition-card">
       <div className="competition-card-content">
-        <div>
+        <div className="stack compact">
           <span className="eyebrow">{competition.subdomain}.medalminds.com</span>
           <h2>{competition.name}</h2>
         </div>
-        <p>{competition.shortDescription}</p>
+        <p className="card-copy">{competition.shortDescription}</p>
         <div className="mini-stat-list">
-          <span>{questionStat}</span>
-          <span>{formatApproximateCount(counts.lessons)} lessons</span>
+          <span>
+            <strong>{questionStat}</strong>
+            <small>Questions</small>
+          </span>
+          <span>
+            <strong>{formatApproximateCount(counts.lessons)}</strong>
+            <small>Lessons</small>
+          </span>
         </div>
         <Link className="button" href={competitionPath(competition.slug)}>
           Enter {competition.name}
