@@ -1195,6 +1195,180 @@ p {
   font-weight: 800;
 }
 
+.buzzer-practice-shell {
+  display: grid;
+  gap: 22px;
+  justify-items: center;
+  padding: clamp(10px, 2vw, 24px) 0;
+}
+
+.buzzer-practice-heading {
+  width: min(760px, 100%);
+  text-align: center;
+}
+
+.buzzer-practice-card {
+  width: min(760px, 100%);
+  display: grid;
+  gap: 20px;
+}
+
+.buzzer-practice-top,
+.buzzer-meta-row,
+.buzzer-practice-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.buzzer-timer-row {
+  display: grid;
+  gap: 12px;
+}
+
+.buzzer-countdown {
+  color: var(--brand-deep);
+  font-family: var(--font-fraunces), Georgia, serif;
+  font-size: clamp(3.75rem, 12vw, 7rem);
+  font-weight: 800;
+  line-height: 0.9;
+  text-align: center;
+}
+
+.buzzer-timer-track {
+  height: 14px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--brand-soft);
+}
+
+.buzzer-timer-track span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--brand);
+  transition:
+    width 100ms linear,
+    background 160ms ease;
+}
+
+.buzzer-timer-track.low span,
+.buzzer-timer-track.buzzer-phase-timeout span,
+.buzzer-timer-track.incorrect span {
+  background: var(--bad);
+}
+
+.buzzer-timer-track.correct span {
+  background: var(--success);
+}
+
+.buzzer-hidden-prompt {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--brand-soft);
+  padding: clamp(18px, 4vw, 26px);
+  text-align: center;
+}
+
+.buzzer-hidden-prompt h2 {
+  font-size: clamp(1.45rem, 4vw, 2.25rem);
+  margin-bottom: 8px;
+}
+
+.buzzer-choice-list {
+  display: grid;
+  gap: 10px;
+}
+
+.buzzer-choice-button {
+  width: 100%;
+  min-height: 58px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--panel);
+  color: var(--foreground);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 14px;
+  text-align: left;
+}
+
+.buzzer-choice-button strong {
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  background: var(--gold-soft);
+  color: var(--brand);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+}
+
+.buzzer-choice-button span {
+  font-size: 1.02rem;
+  font-weight: 800;
+}
+
+.buzzer-choice-button:not(:disabled):hover {
+  border-color: var(--gold);
+  background: var(--gold-soft);
+}
+
+.buzzer-choice-button:disabled {
+  cursor: not-allowed;
+}
+
+.buzzer-choice-button.correct {
+  border-color: var(--success);
+  background: color-mix(in oklch, var(--success) 14%, var(--panel));
+}
+
+.buzzer-choice-button.incorrect {
+  border-color: var(--bad);
+  background: color-mix(in oklch, var(--bad) 10%, var(--panel));
+}
+
+.buzzer-choice-button.muted {
+  opacity: 0.58;
+}
+
+.buzzer-organizer-sheet {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--panel);
+  padding: 14px;
+}
+
+.buzzer-organizer-sheet summary {
+  cursor: pointer;
+  color: var(--brand);
+  font-weight: 900;
+}
+
+.buzzer-organizer-sheet[open] summary {
+  margin-bottom: 14px;
+}
+
+.buzzer-organizer-choices {
+  display: grid;
+  gap: 8px;
+}
+
+.buzzer-practice-footer {
+  border-top: 1px solid var(--line);
+  padding-top: 16px;
+}
+
+.buzzer-practice-footer > div:first-child {
+  flex: 1 1 280px;
+}
+
 .footer {
   margin-top: 48px;
   border-top: 1px solid var(--line);

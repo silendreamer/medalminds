@@ -1,8 +1,10 @@
 import { notFound } from "next/navigation";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { BuzzerArena } from "@/components/BuzzerArena";
-import { getBuzzerQuestions, getCompetitionBySlug } from "@/lib/data";
+import { getCompetitionBySlug, getRandomMultipleChoiceQuestions } from "@/lib/data";
 import { competitionPath } from "@/lib/routes";
+
+export const dynamic = "force-dynamic";
 
 export default async function BuzzerPage({ params }: { params: Promise<{ competitionSlug: string }> }) {
   const { competitionSlug } = await params;
@@ -13,7 +15,7 @@ export default async function BuzzerPage({ params }: { params: Promise<{ competi
 
   const competition = await getCompetitionBySlug(competitionSlug);
   if (!competition) notFound();
-  const buzzerQuestions = await getBuzzerQuestions();
+  const buzzerQuestions = await getRandomMultipleChoiceQuestions("science-bowl", null, 25);
 
   return (
     <section className="section buzzer-page">
@@ -22,7 +24,7 @@ export default async function BuzzerPage({ params }: { params: Promise<{ competi
           items={[
             { label: "Home", href: "/" },
             { label: competition.name, href: competitionPath("science-bowl") },
-            { label: "Buzzer Arena" }
+            { label: "Buzzer Practice" }
           ]}
         />
         <BuzzerArena questions={buzzerQuestions} />

@@ -1,272 +1,180 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useReducer } from "react";
-import type { BuzzerQuestion } from "@/data/buzzerQuestions";
-import {
-  buzzerReducer,
-  createInitialBuzzerState,
-  formatBuzzerElapsed,
-  getPhaseLabel,
-  type BuzzerTeam
-} from "@/lib/buzzerEngine";
-import { BuzzerControls } from "./BuzzerControls";
-import { BuzzerQuestionCard } from "./BuzzerQuestionCard";
-import { BuzzerScoreboard } from "./BuzzerScoreboard";
-import { BuzzerSessionLog } from "./BuzzerSessionLog";
-import { BuzzerTimer } from "./BuzzerTimer";
+import { useEffect, useMemo, useRef, useState } from "react";
+import type { PracticeQuestion } from "@/types";
+
+type BuzzerPhase = "idle" | "ticking" | "answered" | "timeout";
+type ChoiceLetter = "W" | "X" | "Y" | "Z";
+
+const STARTING_SECONDS = 5.0;
+const CHOICE_LETTERS: ChoiceLetter[] = ["W", "X", "Y", "Z"];
 
 function normalize(value: string) {
-  return value.trim().toLowerCase().replace(/\s+/g, " ");
+  return value.trim().toLowerCase().replace(/^[wxyz]\)\s*/i, "").replace(/\s+/g, " ");
 }
 
-const teamARoster = ["A One", "A Captain", "A Two"];
-const teamBRoster = ["B One", "B Captain", "B Two"];
+function getCorrectLetter(question: PracticeQuestion, choices: string[]) {
+  const normalizedAnswer = normalize(question.correctAnswer);
+  const directLetter = question.correctAnswer.trim().toUpperCase();
+  if (CHOICE_LETTERS.includes(directLetter as ChoiceLetter)) return directLetter as ChoiceLetter;
 
-export function BuzzerArena({ questions }: { questions: BuzzerQuestion[] }) {
-  const [state, dispatch] = useReducer(buzzerReducer, undefined, () => createInitialBuzzerState(Date.now()));
-  if (!questions.length) {
-    return <div className="empty">No buzzer questions are available yet.</div>;
+  const matchIndex = choices.findIndex((choice) => normalize(choice) === normalizedAnswer);
+  return matchIndex >= 0 ? CHOICE_LETTERS[matchIndex] : null;
+}
+
+export function BuzzerArena({ questions }: { questions: PracticeQuestion[] }) {
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const [phase, setPhase] = useState<BuzzerPhase>("idle");
+  const [remaining, setRemaining] = useState(STARTING_SECONDS);
+  const [picked, setPicked] = useState<ChoiceLetter | null>(null);
+  const [questionIndex, setQuestionIndex] = useState(0);
+
+  const currentQuestion = questions[questionIndex];
+  const choices = useMemo(() => currentQuestion?.choices?.slice(0, 4) ?? [], [currentQuestion]);
+  const correctLetter = currentQuestion ? getCorrectLetter(currentQuestion, choices) : null;
+  const isCorrect = Boolean(picked && correctLetter && picked === correctLetter);
+  const elapsed = (STARTING_SECONDS - remaining).toFixed(1);
+  const progress = (remaining / STARTING_SECONDS) * 100;
+
+  function clearClock() {
+    if (!intervalRef.current) return;
+    clearInterval(intervalRef.current);
+    intervalRef.current = null;
   }
 
-  const displayIndex = state.index % questions.length;
-  const question = questions[displayIndex];
-  const activeEntries = useMemo(() => state.sessionLog.slice(0, 5), [state.sessionLog]);
+  function start() {
+    clearClock();
+    setPhase("ticking");
+    setRemaining(STARTING_SECONDS);
+    setPicked(null);
+    intervalRef.current = setInterval(() => {
+      setRemaining((r) => {
+        const next = +(r - 0.1).toFixed(1);
+        if (next <= 0.1) {
+          clearClock();
+          setPhase("timeout");
+          return 0;
+        }
+        return next;
+      });
+    }, 100);
+  }
 
-  const startQuestion = useCallback(() => {
-    dispatch({ type: "start_question", nowMs: performance.now() });
-  }, []);
+  function pickChoice(letter: ChoiceLetter) {
+    if (phase !== "ticking") return;
+    clearClock();
+    setPicked(letter);
+    setPhase("answered");
+  }
 
-  const soloBuzz = useCallback(() => {
-    dispatch({ type: "solo_buzz", nowMs: performance.now() });
-  }, []);
+  function tryAnother() {
+    clearClock();
+    setPhase("idle");
+    setRemaining(STARTING_SECONDS);
+    setPicked(null);
+    setQuestionIndex((index) => (questions.length ? (index + 1) % questions.length : 0));
+  }
 
-  const teamBuzz = useCallback((team: BuzzerTeam) => {
-    dispatch({ type: "team_buzz", team, nowMs: performance.now() });
-  }, []);
+  useEffect(() => clearClock, []);
 
-  const markSoloAnswer = useCallback(() => {
-    dispatch({
-      type: "submit_solo_answer",
-      isCorrect: normalize(state.soloAnswer) === normalize(question.tossupAnswer),
-      nowMs: performance.now()
-    });
-  }, [question.tossupAnswer, state.soloAnswer]);
-
-  const markTossup = useCallback((result: "correct" | "incorrect") => {
-    dispatch({ type: "mark_tossup", result, nowMs: performance.now() });
-  }, []);
-
-  const markBonus = useCallback((result: "correct" | "incorrect") => {
-    dispatch({ type: "mark_bonus", result, nowMs: performance.now() });
-  }, []);
-
-  const nextQuestion = useCallback(() => {
-    dispatch({ type: "next_question", nowMs: performance.now() });
-  }, []);
-
-  const resetRound = useCallback(() => {
-    dispatch({ type: "reset_round", nowMs: performance.now() });
-  }, []);
-
-  const tick = useCallback((nowMs: number) => {
-    dispatch({ type: "tick", nowMs });
-  }, []);
-
-  useEffect(() => {
-    function onKeyDown(event: KeyboardEvent) {
-      if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) return;
-      if (state.mode === "teams" && state.phase === "question") {
-        if (event.key.toLowerCase() === "a") teamBuzz("A");
-        if (event.key.toLowerCase() === "l") teamBuzz("B");
-      }
-    }
-
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, [state.mode, state.phase, teamBuzz]);
-
-  useEffect(() => {
-    if (!state.timerRunning) return;
-    const interval = window.setInterval(() => {
-      dispatch({ type: "tick", nowMs: performance.now() });
-    }, 50);
-
-    return () => window.clearInterval(interval);
-  }, [state.timerRunning]);
-
-  const showSoloAnswerPanel = state.mode === "solo" && state.soloBuzzed && !state.soloResult;
-  const showBonusControls = state.mode === "teams" && state.tossupMarked === "correct" && !state.bonusMarked;
-  const showTeamJudging = state.mode === "teams" && Boolean(state.buzzedTeam) && !state.tossupMarked;
-  const bannerLabel =
-    state.mode === "teams"
-      ? state.buzzedTeam
-        ? `Team ${state.buzzedTeam} has buzzed in`
-        : "Waiting for official to classify buzz"
-      : state.started
-        ? "Solo practice live"
-        : "Ready to start";
-  const bannerSubtext =
-    state.mode === "teams"
-      ? state.buzzedTeam
-        ? "The buzzer is locked. Judge the response and clear the round when you are done."
-        : "Start the question, then let the first team lock the buzzer."
-      : "Start a question, buzz in, and submit your answer locally.";
+  if (!currentQuestion || choices.length < 4) {
+    return <div className="empty">No multiple-choice buzzer questions are available yet.</div>;
+  }
 
   return (
-    <div className="buzzer-shell">
-      <section className="buzzer-banner">
-        <div>
-          <span className="eyebrow">Science Bowl</span>
-          <h2>Science Bowl Buzzer Arena</h2>
-          <p>{bannerSubtext}</p>
+    <div className="buzzer-practice-shell">
+      <div className="simple-heading buzzer-practice-heading">
+        <span className="eyebrow">Science Bowl</span>
+        <h1>Buzzer Practice</h1>
+        <p className="subtitle">Science Bowl toss-up format. Beat the clock.</p>
+      </div>
+
+      <article className="card spacious buzzer-practice-card">
+        <div className="buzzer-practice-top">
+          <span className="eyebrow">Live practice round</span>
+          <span className={`badge neutral buzzer-phase-${phase}`}>{phase}</span>
         </div>
-        <div className="buzzer-banner-official">
-          <div className="buzzer-avatar">M</div>
+
+        <div className="buzzer-timer-row">
+          <div className="buzzer-countdown">{remaining.toFixed(1)}s</div>
+          <div
+            className={`buzzer-timer-track buzzer-phase-${phase} ${remaining <= 1 && phase === "ticking" ? "low" : ""} ${
+              phase === "answered" ? (isCorrect ? "correct" : "incorrect") : ""
+            }`}
+          >
+            <span style={{ width: `${progress}%` }} />
+          </div>
+        </div>
+
+        <div className="buzzer-meta-row">
+          <span className="badge">{currentQuestion.category}</span>
+          <span className="badge neutral">{currentQuestion.difficulty}</span>
+          <span className="badge neutral">Question {questionIndex + 1} of {questions.length}</span>
+        </div>
+
+        <div className="buzzer-hidden-prompt">
+          <h2>Question hidden for participants</h2>
+          <p>The organizer reads the toss-up and choices aloud. Buzz in, then say the answer or choice out loud.</p>
+        </div>
+
+        <div className="buzzer-choice-list" aria-label="Buzzer answer choices">
+          {CHOICE_LETTERS.map((letter) => {
+            const isPicked = picked === letter;
+            const isAnswer = correctLetter === letter;
+            const showResult = phase === "answered" || phase === "timeout";
+            const className = [
+              "buzzer-choice-button",
+              showResult && isAnswer ? "correct" : "",
+              showResult && isPicked && !isAnswer ? "incorrect" : "",
+              showResult && !isPicked && !isAnswer ? "muted" : ""
+            ]
+              .filter(Boolean)
+              .join(" ");
+
+            return (
+              <button className={className} disabled={phase !== "ticking"} key={letter} onClick={() => pickChoice(letter)}>
+                <strong>{letter}</strong>
+                <span>{showResult ? choices[CHOICE_LETTERS.indexOf(letter)] : `Choice ${letter}`}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        <details className="buzzer-organizer-sheet">
+          <summary>Organizer question sheet</summary>
+          <div className="stack">
+            <p>{currentQuestion.prompt}</p>
+            <div className="buzzer-organizer-choices">
+              {choices.map((choice, index) => (
+                <div className={CHOICE_LETTERS[index] === correctLetter ? "feedback good" : "feedback"} key={`${CHOICE_LETTERS[index]}-${choice}`}>
+                  <strong>{CHOICE_LETTERS[index]}</strong> {choice}
+                </div>
+              ))}
+            </div>
+          </div>
+        </details>
+
+        <footer className="buzzer-practice-footer">
           <div>
-            <strong>{bannerLabel}</strong>
-            <span>{getPhaseLabel(state)}</span>
+            {phase === "idle" && <p>Tap start. Beat the buzzer.</p>}
+            {phase === "ticking" && <p>Buzz in before the bar runs out.</p>}
+            {phase === "answered" && isCorrect && <p className="feedback good">Correct - +10 pts ({elapsed}s)</p>}
+            {phase === "answered" && !isCorrect && <p className="feedback bad">Not quite.</p>}
+            {phase === "timeout" && <p className="feedback bad">Out of time. Answer was {correctLetter ? `${correctLetter}: ` : ""}{currentQuestion.correctAnswer}.</p>}
           </div>
-        </div>
-      </section>
-
-      {state.mode === "teams" && <BuzzerScoreboard teamA={state.teamScores.A} teamB={state.teamScores.B} />}
-
-      {state.mode === "teams" ? (
-        <section className="buzzer-roster-grid">
-          <article className={`buzzer-team-card ${state.buzzedTeam === "A" ? "active" : ""}`}>
-            <header>
-              <div>
-                <span className="eyebrow">Team A</span>
-                <h3>Team A</h3>
-              </div>
-              <strong>{state.teamScores.A}</strong>
-            </header>
-            <div className="buzzer-roster">
-              {teamARoster.map((name, index) => (
-                <div className={`buzzer-roster-row ${state.buzzedTeam === "A" && index === 0 ? "buzzed" : ""}`} key={name}>
-                  <div className="buzzer-roster-avatar">{name.slice(0, 1)}</div>
-                  <span>{name}</span>
-                </div>
-              ))}
-            </div>
-          </article>
-
-          <article className={`buzzer-team-card ${state.buzzedTeam === "B" ? "active" : ""}`}>
-            <header>
-              <div>
-                <span className="eyebrow">Team B</span>
-                <h3>Team B</h3>
-              </div>
-              <strong>{state.teamScores.B}</strong>
-            </header>
-            <div className="buzzer-roster">
-              {teamBRoster.map((name, index) => (
-                <div className={`buzzer-roster-row ${state.buzzedTeam === "B" && index === 0 ? "buzzed" : ""}`} key={name}>
-                  <div className="buzzer-roster-avatar">{name.slice(0, 1)}</div>
-                  <span>{name}</span>
-                </div>
-              ))}
-            </div>
-          </article>
-        </section>
-      ) : null}
-
-      <section className="buzzer-stage-grid">
-        <BuzzerQuestionCard
-          question={question}
-          questionNumber={displayIndex + 1}
-          total={questions.length}
-          mode={state.mode}
-          phase={state.phase}
-          soloBuzzed={state.soloBuzzed}
-          soloAnswer={state.soloAnswer}
-          soloResult={state.soloResult}
-          buzzedTeam={state.buzzedTeam}
-          tossupMarked={state.tossupMarked}
-          bonusMarked={state.bonusMarked}
-        />
-
-        <aside className="stack">
-          <div className="card buzzer-status-card">
-            <span className="eyebrow">Timer</span>
-            <BuzzerTimer running={state.timerRunning} elapsedMs={state.elapsedMs} onTick={tick} />
-            <p>{state.started ? `Question clock is ${state.timerRunning ? "running" : "stopped"} at ${formatBuzzerElapsed(state.elapsedMs)}.` : "Start a question to begin."}</p>
-            <div className="badge-list">
-              <span className="badge neutral">{getPhaseLabel(state)}</span>
-              <span className="badge neutral">{state.mode === "solo" ? "Solo" : `Score ${state.teamScores.A}-${state.teamScores.B}`}</span>
-            </div>
-          </div>
-
-          <BuzzerControls
-            mode={state.mode}
-            phase={state.phase}
-            buzzedTeam={state.buzzedTeam}
-            soloBuzzed={state.soloBuzzed}
-            onStart={startQuestion}
-            onSoloBuzz={soloBuzz}
-            onTeamBuzz={teamBuzz}
-            onReset={resetRound}
-          />
-
-          {showTeamJudging && state.buzzedTeam && (
-            <div className="buzzer-judge-stack">
-              <button className="buzzer-judge-button strong" onClick={() => markTossup("correct")}>
-                Interrupt
-              </button>
-              <button className="buzzer-judge-button muted" onClick={() => markTossup("incorrect")}>
-                Not interrupt
-              </button>
-              <button className="buzzer-judge-button alt" onClick={resetRound}>
-                Clear buzzer
-              </button>
-            </div>
-          )}
-
-          {showBonusControls && state.buzzedTeam && (
-            <div className="card stack">
-              <h3>Bonus for Team {state.buzzedTeam}</h3>
-              <div className="actions">
-                <button className="button" onClick={() => markBonus("correct")}>
-                  Bonus Correct +10
-                </button>
-                <button className="ghost-button" onClick={() => markBonus("incorrect")}>
-                  Bonus Incorrect
-                </button>
-              </div>
-            </div>
-          )}
-
-          <div className="buzzer-foot-card">
-            <div className="buzzer-foot-row">
-              <span>Period {displayIndex + 1} of {questions.length}</span>
-              <span>{formatBuzzerElapsed(state.elapsedMs)}</span>
-            </div>
-            <div className="buzzer-progress">
-              <span style={{ width: `${Math.max(8, ((displayIndex + 1) / questions.length) * 100)}%` }} />
-            </div>
-          </div>
-
-          <BuzzerSessionLog entries={activeEntries} />
-        </aside>
-      </section>
-
-      {showSoloAnswerPanel && (
-        <div className="card stack buzzer-solo-answer">
-          <h3>Submit your toss-up answer</h3>
-          <input
-            className="input"
-            value={state.soloAnswer}
-            onChange={(event) => dispatch({ type: "set_solo_answer", answer: event.target.value })}
-            placeholder="Type your answer"
-          />
           <div className="actions">
-            <button className="button" disabled={!state.soloAnswer} onClick={markSoloAnswer}>
-              Submit Answer
-            </button>
+            {phase === "idle" || phase === "ticking" ? (
+              <button className="button" disabled={phase === "ticking"} onClick={start}>
+                Start
+              </button>
+            ) : (
+              <button className="button" onClick={tryAnother}>
+                Try another
+              </button>
+            )}
           </div>
-        </div>
-      )}
+        </footer>
+      </article>
     </div>
   );
 }
-
