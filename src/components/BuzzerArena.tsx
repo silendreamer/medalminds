@@ -1,180 +1,597 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
-import type { PracticeQuestion } from "@/types";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
-type BuzzerPhase = "idle" | "ticking" | "answered" | "timeout";
-type ChoiceLetter = "W" | "X" | "Y" | "Z";
+type Team = "A" | "B";
+type RoomStatus = "WAITING" | "RUNNING" | "BUZZED" | "JUDGED" | "TIMEOUT";
 
-const STARTING_SECONDS = 5.0;
-const CHOICE_LETTERS: ChoiceLetter[] = ["W", "X", "Y", "Z"];
+type Seat = {
+  id: string;
+  team: Team;
+  slot: string;
+  participantName: string | null;
+  buzzedAt: string | null;
+};
 
-function normalize(value: string) {
-  return value.trim().toLowerCase().replace(/^[wxyz]\)\s*/i, "").replace(/\s+/g, " ");
+type RoomEvent = {
+  id: string;
+  type: string;
+  message: string;
+  createdAt: string;
+};
+
+type OrganizerQuestion = {
+  id: string;
+  category: string;
+  difficulty: string;
+  prompt: string;
+  choices?: string[];
+  correctAnswer: string;
+  correctLetter: string | null;
+};
+
+type BuzzerRoom = {
+  code: string;
+  role: "organizer" | "participant";
+  status: RoomStatus;
+  roundNumber: number;
+  teamAScore: number;
+  teamBScore: number;
+  timerDurationMs: number;
+  remainingMs: number;
+  buzzedSeat: Pick<Seat, "id" | "team" | "slot" | "participantName"> | null;
+  seats: Seat[];
+  events: RoomEvent[];
+  question: OrganizerQuestion | null;
+};
+
+type ReadyRoom = {
+  code: string;
+  organizerPassword: string;
+  shareUrl: string;
+  room: BuzzerRoom;
+};
+
+const letters = ["W", "X", "Y", "Z"];
+
+function formatTimer(ms: number) {
+  const seconds = Math.max(0, Math.ceil(ms / 1000));
+  return `0:${String(seconds).padStart(2, "0")}`;
 }
 
-function getCorrectLetter(question: PracticeQuestion, choices: string[]) {
-  const normalizedAnswer = normalize(question.correctAnswer);
-  const directLetter = question.correctAnswer.trim().toUpperCase();
-  if (CHOICE_LETTERS.includes(directLetter as ChoiceLetter)) return directLetter as ChoiceLetter;
-
-  const matchIndex = choices.findIndex((choice) => normalize(choice) === normalizedAnswer);
-  return matchIndex >= 0 ? CHOICE_LETTERS[matchIndex] : null;
+function eventTime(value: string) {
+  return new Date(value).toLocaleTimeString([], { minute: "numeric", second: "2-digit" });
 }
 
-export function BuzzerArena({ questions }: { questions: PracticeQuestion[] }) {
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const [phase, setPhase] = useState<BuzzerPhase>("idle");
-  const [remaining, setRemaining] = useState(STARTING_SECONDS);
-  const [picked, setPicked] = useState<ChoiceLetter | null>(null);
-  const [questionIndex, setQuestionIndex] = useState(0);
+function teamName(team: Team) {
+  return team === "A" ? "Team A" : "Team B";
+}
 
-  const currentQuestion = questions[questionIndex];
-  const choices = useMemo(() => currentQuestion?.choices?.slice(0, 4) ?? [], [currentQuestion]);
-  const correctLetter = currentQuestion ? getCorrectLetter(currentQuestion, choices) : null;
-  const isCorrect = Boolean(picked && correctLetter && picked === correctLetter);
-  const elapsed = (STARTING_SECONDS - remaining).toFixed(1);
-  const progress = (remaining / STARTING_SECONDS) * 100;
+export function BuzzerArena() {
+  const [screen, setScreen] = useState<"start" | "ready" | "join" | "room">("start");
+  const [readyRoom, setReadyRoom] = useState<ReadyRoom | null>(null);
+  const [room, setRoom] = useState<BuzzerRoom | null>(null);
+  const [roomCode, setRoomCode] = useState("");
+  const [participantName, setParticipantName] = useState("");
+  const [organizerPassword, setOrganizerPassword] = useState("");
+  const [selectedSeatId, setSelectedSeatId] = useState<string | null>(null);
+  const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
 
-  function clearClock() {
-    if (!intervalRef.current) return;
-    clearInterval(intervalRef.current);
-    intervalRef.current = null;
+  const isOrganizer = room?.role === "organizer";
+  const seatedSeat = useMemo(
+    () => room?.seats.find((seat) => seat.id === selectedSeatId && seat.participantName === participantName) ?? null,
+    [participantName, room?.seats, selectedSeatId]
+  );
+  const canBuzz = Boolean(room && seatedSeat && room.status === "RUNNING" && !room.buzzedSeat);
+
+  const fetchRoom = useCallback(
+    async (code = roomCode, password = organizerPassword) => {
+      if (!code.trim()) return null;
+      const query = password.trim() ? `?password=${encodeURIComponent(password.trim())}` : "";
+      const response = await fetch(`/api/buzzer/rooms/${encodeURIComponent(code.trim())}${query}`, { cache: "no-store" });
+      const payload = await response.json();
+      if (!response.ok) throw new Error(payload.error ?? "Room not found.");
+      setRoom(payload.room);
+      return payload.room as BuzzerRoom;
+    },
+    [organizerPassword, roomCode]
+  );
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get("room");
+    if (code) {
+      setRoomCode(code.toUpperCase());
+      setScreen("join");
+    }
+  }, []);
+
+  useEffect(() => {
+    if (screen !== "room" || !room?.code) return;
+    const timer = window.setInterval(() => {
+      fetchRoom(room.code).catch(() => undefined);
+    }, 750);
+    return () => window.clearInterval(timer);
+  }, [fetchRoom, room?.code, screen]);
+
+  async function createRoom() {
+    setBusy(true);
+    setError("");
+    try {
+      const response = await fetch("/api/buzzer/rooms", { method: "POST" });
+      const payload = await response.json();
+      if (!response.ok) throw new Error(payload.error ?? "Could not create game.");
+      setReadyRoom(payload);
+      setRoomCode(payload.code);
+      setOrganizerPassword(payload.organizerPassword);
+      setScreen("ready");
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : "Could not create game.");
+    } finally {
+      setBusy(false);
+    }
   }
 
-  function start() {
-    clearClock();
-    setPhase("ticking");
-    setRemaining(STARTING_SECONDS);
-    setPicked(null);
-    intervalRef.current = setInterval(() => {
-      setRemaining((r) => {
-        const next = +(r - 0.1).toFixed(1);
-        if (next <= 0.1) {
-          clearClock();
-          setPhase("timeout");
-          return 0;
-        }
-        return next;
+  async function joinRoom() {
+    setBusy(true);
+    setError("");
+    try {
+      const nextRoom = await fetchRoom(roomCode, organizerPassword);
+      if (!nextRoom) return;
+      if (organizerPassword.trim() && nextRoom.role !== "organizer") {
+        throw new Error("That organizer password did not match this room.");
+      }
+      if (!organizerPassword.trim() && !participantName.trim()) {
+        throw new Error("Enter your name to join as a participant.");
+      }
+      setRoomCode(nextRoom.code);
+      setScreen("room");
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : "Could not join game.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function copy(text: string) {
+    await navigator.clipboard?.writeText(text);
+  }
+
+  async function act(action: Record<string, unknown>) {
+    if (!room) return;
+    setBusy(true);
+    setError("");
+    try {
+      const response = await fetch(`/api/buzzer/rooms/${encodeURIComponent(room.code)}/actions`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(action)
       });
-    }, 100);
+      const payload = await response.json();
+      if (!response.ok) throw new Error(payload.error ?? "Action failed.");
+      setRoom(payload.room);
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : "Action failed.");
+    } finally {
+      setBusy(false);
+    }
   }
 
-  function pickChoice(letter: ChoiceLetter) {
-    if (phase !== "ticking") return;
-    clearClock();
-    setPicked(letter);
-    setPhase("answered");
+  function enterOrganizerRoom() {
+    if (!readyRoom) return;
+    setRoom(readyRoom.room);
+    setScreen("room");
   }
 
-  function tryAnother() {
-    clearClock();
-    setPhase("idle");
-    setRemaining(STARTING_SECONDS);
-    setPicked(null);
-    setQuestionIndex((index) => (questions.length ? (index + 1) % questions.length : 0));
+  if (screen === "ready" && readyRoom) {
+    return (
+      <div className="buzzer-room-shell">
+        <div className="buzzer-room-modal card spacious">
+          <div className="buzzer-room-modal-header">
+            <div>
+              <span className="eyebrow">Organizer setup</span>
+              <h1>Your game is ready</h1>
+            </div>
+            <button className="ghost-button" onClick={() => setScreen("start")} type="button">
+              Close
+            </button>
+          </div>
+          <p className="subtitle">Share this link with your teams. Save the password so you can rejoin if you close the page.</p>
+          <label className="form-field">
+            <span>Share link</span>
+            <div className="buzzer-copy-row">
+              <input readOnly value={readyRoom.shareUrl} />
+              <button className="ghost-button" onClick={() => copy(readyRoom.shareUrl)} type="button">Copy</button>
+            </div>
+          </label>
+          <label className="form-field">
+            <span>Organizer password</span>
+            <div className="buzzer-copy-row">
+              <input readOnly value={readyRoom.organizerPassword} />
+              <button className="ghost-button" onClick={() => copy(readyRoom.organizerPassword)} type="button">Copy</button>
+            </div>
+          </label>
+          <button className="button button-lg" onClick={enterOrganizerRoom} type="button">Enter game room</button>
+        </div>
+      </div>
+    );
   }
 
-  useEffect(() => clearClock, []);
+  if (screen === "join") {
+    return (
+      <div className="buzzer-room-shell">
+        <div className="buzzer-room-modal card spacious">
+          <div>
+            <span className="eyebrow">Join room</span>
+            <h1>Join a game</h1>
+          </div>
+          <label className="form-field">
+            <span>Game code</span>
+            <input value={roomCode} onChange={(event) => setRoomCode(event.target.value.toUpperCase())} placeholder="E.G. 7K2QPM" />
+          </label>
+          <label className="form-field">
+            <span>Your name</span>
+            <input value={participantName} onChange={(event) => setParticipantName(event.target.value)} placeholder="e.g. Priya" />
+          </label>
+          <label className="form-field">
+            <span>Password <em>(optional)</em></span>
+            <input value={organizerPassword} onChange={(event) => setOrganizerPassword(event.target.value)} placeholder="only needed to rejoin as organizer" />
+          </label>
+          {error && <p className="feedback bad">{error}</p>}
+          <div className="buzzer-form-actions">
+            <button className="ghost-button" onClick={() => setScreen("start")} type="button">Back</button>
+            <button className="button" disabled={busy} onClick={joinRoom} type="button">Join game</button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
-  if (!currentQuestion || choices.length < 4) {
-    return <div className="empty">No multiple-choice buzzer questions are available yet.</div>;
+  if (screen === "room" && room) {
+    return isOrganizer ? (
+      <OrganizerConsole
+        busy={busy}
+        error={error}
+        organizerPassword={organizerPassword}
+        room={room}
+        onAction={act}
+      />
+    ) : (
+      <ParticipantRoom
+        busy={busy}
+        canBuzz={canBuzz}
+        error={error}
+        participantName={participantName}
+        room={room}
+        seatedSeat={seatedSeat}
+        selectedSeatId={selectedSeatId}
+        onAction={act}
+        onSeat={(seatId) => setSelectedSeatId(seatId)}
+      />
+    );
   }
 
   return (
-    <div className="buzzer-practice-shell">
-      <div className="simple-heading buzzer-practice-heading">
+    <div className="buzzer-room-shell">
+      <div className="simple-heading buzzer-room-heading">
         <span className="eyebrow">Science Bowl</span>
-        <h1>Buzzer Practice</h1>
-        <p className="subtitle">Science Bowl toss-up format. Beat the clock.</p>
+        <h1>Start a buzzer round</h1>
+        <p className="subtitle">Run quick-recall practice for Science Bowl toss-up format.</p>
+      </div>
+      <div className="buzzer-start-grid">
+        <button className="card buzzer-start-card" disabled={busy} onClick={createRoom} type="button">
+          <span className="buzzer-start-icon">+</span>
+          <strong>Create new game</strong>
+          <span>You will be the organizer. Get a shareable link and recovery password.</span>
+        </button>
+        <button className="card buzzer-start-card" onClick={() => setScreen("join")} type="button">
+          <span className="buzzer-start-icon">-&gt;</span>
+          <strong>Join a game</strong>
+          <span>Enter a game code from your organizer and pick a team seat.</span>
+        </button>
+      </div>
+      {error && <p className="feedback bad">{error}</p>}
+    </div>
+  );
+}
+
+function OrganizerConsole({
+  busy,
+  error,
+  organizerPassword,
+  room,
+  onAction
+}: {
+  busy: boolean;
+  error: string;
+  organizerPassword: string;
+  room: BuzzerRoom;
+  onAction: (action: Record<string, unknown>) => Promise<void>;
+}) {
+  const question = room.question;
+  const remainingPct = Math.max(0, Math.min(100, (room.remainingMs / room.timerDurationMs) * 100));
+
+  return (
+    <div className="buzzer-room-shell">
+      <div className="buzzer-room-topline">
+        <div>
+          <span className="eyebrow">Organizer console</span>
+          <h1>Game room <span>#{room.code}</span></h1>
+        </div>
+        <span className="badge neutral">Recovery password: {organizerPassword}</span>
       </div>
 
-      <article className="card spacious buzzer-practice-card">
-        <div className="buzzer-practice-top">
-          <span className="eyebrow">Live practice round</span>
-          <span className={`badge neutral buzzer-phase-${phase}`}>{phase}</span>
-        </div>
+      {error && <p className="feedback bad">{error}</p>}
 
-        <div className="buzzer-timer-row">
-          <div className="buzzer-countdown">{remaining.toFixed(1)}s</div>
-          <div
-            className={`buzzer-timer-track buzzer-phase-${phase} ${remaining <= 1 && phase === "ticking" ? "low" : ""} ${
-              phase === "answered" ? (isCorrect ? "correct" : "incorrect") : ""
-            }`}
-          >
-            <span style={{ width: `${progress}%` }} />
-          </div>
-        </div>
-
-        <div className="buzzer-meta-row">
-          <span className="badge">{currentQuestion.category}</span>
-          <span className="badge neutral">{currentQuestion.difficulty}</span>
-          <span className="badge neutral">Question {questionIndex + 1} of {questions.length}</span>
-        </div>
-
-        <div className="buzzer-hidden-prompt">
-          <h2>Question hidden for participants</h2>
-          <p>The organizer reads the toss-up and choices aloud. Buzz in, then say the answer or choice out loud.</p>
-        </div>
-
-        <div className="buzzer-choice-list" aria-label="Buzzer answer choices">
-          {CHOICE_LETTERS.map((letter) => {
-            const isPicked = picked === letter;
-            const isAnswer = correctLetter === letter;
-            const showResult = phase === "answered" || phase === "timeout";
-            const className = [
-              "buzzer-choice-button",
-              showResult && isAnswer ? "correct" : "",
-              showResult && isPicked && !isAnswer ? "incorrect" : "",
-              showResult && !isPicked && !isAnswer ? "muted" : ""
-            ]
-              .filter(Boolean)
-              .join(" ");
-
-            return (
-              <button className={className} disabled={phase !== "ticking"} key={letter} onClick={() => pickChoice(letter)}>
-                <strong>{letter}</strong>
-                <span>{showResult ? choices[CHOICE_LETTERS.indexOf(letter)] : `Choice ${letter}`}</span>
-              </button>
-            );
-          })}
-        </div>
-
-        <details className="buzzer-organizer-sheet">
-          <summary>Organizer question sheet</summary>
-          <div className="stack">
-            <p>{currentQuestion.prompt}</p>
-            <div className="buzzer-organizer-choices">
-              {choices.map((choice, index) => (
-                <div className={CHOICE_LETTERS[index] === correctLetter ? "feedback good" : "feedback"} key={`${CHOICE_LETTERS[index]}-${choice}`}>
-                  <strong>{CHOICE_LETTERS[index]}</strong> {choice}
-                </div>
-              ))}
+      <div className="buzzer-console-grid">
+        <main className="buzzer-console-main">
+          <section className="card spacious buzzer-timer-panel">
+            <div>
+              <span className="eyebrow">Timer</span>
+              <div className="buzzer-room-timer">{formatTimer(room.remainingMs)}</div>
+              <div className="buzzer-room-progress"><span style={{ width: `${remainingPct}%` }} /></div>
             </div>
-          </div>
-        </details>
+            <div className="buzzer-buzzed-panel">
+              <span className="eyebrow">Buzzed in</span>
+              {room.buzzedSeat ? (
+                <>
+                  <h2>{room.buzzedSeat.participantName}</h2>
+                  <p>{teamName(room.buzzedSeat.team)} - {room.buzzedSeat.slot.toUpperCase()}</p>
+                  <div className="actions">
+                    <button className="button" disabled={busy || room.status === "JUDGED"} onClick={() => onAction({ type: "judge", organizerPassword, result: "correct" })} type="button">Correct</button>
+                    <button className="ghost-button" disabled={busy || room.status === "JUDGED"} onClick={() => onAction({ type: "judge", organizerPassword, result: "incorrect" })} type="button">Incorrect</button>
+                  </div>
+                </>
+              ) : (
+                <p>No buzz yet.</p>
+              )}
+            </div>
+            <div className="actions">
+              <button className="button" disabled={busy || room.status === "RUNNING"} onClick={() => onAction({ type: "start", organizerPassword })} type="button">Start</button>
+              <button className="ghost-button" disabled={busy} onClick={() => onAction({ type: "reset", organizerPassword })} type="button">Reset</button>
+              <button className="ghost-button" disabled={busy} onClick={() => onAction({ type: "nextQuestion", organizerPassword })} type="button">Next question</button>
+            </div>
+          </section>
 
-        <footer className="buzzer-practice-footer">
-          <div>
-            {phase === "idle" && <p>Tap start. Beat the buzzer.</p>}
-            {phase === "ticking" && <p>Buzz in before the bar runs out.</p>}
-            {phase === "answered" && isCorrect && <p className="feedback good">Correct - +10 pts ({elapsed}s)</p>}
-            {phase === "answered" && !isCorrect && <p className="feedback bad">Not quite.</p>}
-            {phase === "timeout" && <p className="feedback bad">Out of time. Answer was {correctLetter ? `${correctLetter}: ` : ""}{currentQuestion.correctAnswer}.</p>}
-          </div>
-          <div className="actions">
-            {phase === "idle" || phase === "ticking" ? (
-              <button className="button" disabled={phase === "ticking"} onClick={start}>
-                Start
-              </button>
+          <section className="card spacious buzzer-question-console">
+            <div className="buzzer-card-header">
+              <div>
+                <span className="eyebrow">Current question</span>
+                <h2>Round {room.roundNumber}</h2>
+              </div>
+              <div className="badge-list">
+                {question && <span className="badge">{question.category}</span>}
+                {question && <span className="badge neutral">{question.difficulty}</span>}
+              </div>
+            </div>
+            {question ? (
+              <>
+                <p className="buzzer-question-text">{question.prompt}</p>
+                <div className="buzzer-choice-grid">
+                  {question.choices?.map((choice, index) => {
+                    const letter = letters[index];
+                    const correct = letter === question.correctLetter;
+                    return (
+                      <div className={correct ? "feedback good" : "feedback"} key={`${letter}-${choice}`}>
+                        <strong>{letter}</strong> {choice}
+                      </div>
+                    );
+                  })}
+                </div>
+                <p className="feedback good">Correct answer: {question.correctLetter ? `${question.correctLetter} - ` : ""}{question.correctAnswer}</p>
+              </>
             ) : (
-              <button className="button" onClick={tryAnother}>
-                Try another
-              </button>
+              <p className="empty">No multiple-choice question is loaded.</p>
             )}
-          </div>
-        </footer>
-      </article>
+          </section>
+
+          <TeamGrid room={room} />
+        </main>
+
+        <aside className="buzzer-console-side">
+          <RoundLog events={room.events} />
+          <section className="card spacious buzzer-leading-card">
+            <span className="eyebrow">Leading</span>
+            <h2>{room.teamAScore === room.teamBScore ? "Tied" : room.teamAScore > room.teamBScore ? "Team A" : "Team B"}</h2>
+            <p>{room.teamAScore} - {room.teamBScore}</p>
+          </section>
+        </aside>
+      </div>
     </div>
+  );
+}
+
+function ParticipantRoom({
+  busy,
+  canBuzz,
+  error,
+  participantName,
+  room,
+  seatedSeat,
+  selectedSeatId,
+  onAction,
+  onSeat
+}: {
+  busy: boolean;
+  canBuzz: boolean;
+  error: string;
+  participantName: string;
+  room: BuzzerRoom;
+  seatedSeat: Seat | null;
+  selectedSeatId: string | null;
+  onAction: (action: Record<string, unknown>) => Promise<void>;
+  onSeat: (seatId: string | null) => void;
+}) {
+  return (
+    <div className="buzzer-room-shell">
+      <div className="buzzer-participant-header">
+        <div>
+          <span className="eyebrow">Game</span>
+          <strong>#{room.code}</strong>
+        </div>
+        <div>
+          <span className="eyebrow">Timer</span>
+          <strong>{formatTimer(room.remainingMs)}</strong>
+        </div>
+      </div>
+      {error && <p className="feedback bad">{error}</p>}
+      <div className="buzzer-participant-grid">
+        <ParticipantTeamCard
+          room={room}
+          team="A"
+          participantName={participantName}
+          selectedSeatId={selectedSeatId}
+          onAction={onAction}
+          onSeat={onSeat}
+        />
+        <ParticipantTeamCard
+          room={room}
+          team="B"
+          participantName={participantName}
+          selectedSeatId={selectedSeatId}
+          onAction={onAction}
+          onSeat={onSeat}
+        />
+        <section className="card spacious buzzer-buzz-card">
+          <button
+            className="buzzer-big-button"
+            disabled={busy || !canBuzz}
+            onClick={() => seatedSeat && onAction({ type: "buzz", seatId: seatedSeat.id, participantName })}
+            type="button"
+          >
+            Buzz
+          </button>
+          <p>
+            {!seatedSeat && "Sit at a seat first."}
+            {seatedSeat && room.status === "WAITING" && "Wait for the organizer to start the round."}
+            {seatedSeat && room.status === "RUNNING" && !room.buzzedSeat && "Buzz when you know it."}
+            {room.buzzedSeat && `${room.buzzedSeat.participantName} buzzed in for ${teamName(room.buzzedSeat.team)}.`}
+            {room.status === "TIMEOUT" && "Time expired."}
+          </p>
+        </section>
+      </div>
+    </div>
+  );
+}
+
+function TeamGrid({ room }: { room: BuzzerRoom }) {
+  return (
+    <div className="buzzer-roster-grid">
+      <TeamCard room={room} team="A" />
+      <TeamCard room={room} team="B" />
+    </div>
+  );
+}
+
+function TeamCard({ room, team }: { room: BuzzerRoom; team: Team }) {
+  const seats = room.seats.filter((seat) => seat.team === team);
+  const score = team === "A" ? room.teamAScore : room.teamBScore;
+
+  return (
+    <section className={`buzzer-team-card ${team === "B" ? "team-b" : ""}`}>
+      <header>
+        <div>
+          <span className="buzzer-team-letter">{team}</span>
+          <strong>{teamName(team)}</strong>
+        </div>
+        <strong>{score}</strong>
+      </header>
+      <div className="buzzer-roster">
+        {seats.map((seat) => (
+          <div className={`buzzer-roster-row ${seat.id === room.buzzedSeat?.id ? "buzzed" : ""}`} key={seat.id}>
+            <span className="buzzer-roster-avatar">{seat.slot}</span>
+            <span>{seat.participantName ?? "Empty seat"}</span>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function ParticipantTeamCard({
+  room,
+  team,
+  participantName,
+  selectedSeatId,
+  onAction,
+  onSeat
+}: {
+  room: BuzzerRoom;
+  team: Team;
+  participantName: string;
+  selectedSeatId: string | null;
+  onAction: (action: Record<string, unknown>) => Promise<void>;
+  onSeat: (seatId: string | null) => void;
+}) {
+  const seats = room.seats.filter((seat) => seat.team === team);
+  const score = team === "A" ? room.teamAScore : room.teamBScore;
+
+  return (
+    <section className={`buzzer-team-card ${team === "B" ? "team-b" : ""}`}>
+      <header>
+        <div>
+          <span className="buzzer-team-letter">{team}</span>
+          <strong>{teamName(team)}</strong>
+        </div>
+        <strong>{score}</strong>
+      </header>
+      <div className="buzzer-roster">
+        {seats.map((seat) => {
+          const mine = selectedSeatId === seat.id && seat.participantName === participantName;
+          const open = !seat.participantName;
+          return (
+            <div className={`buzzer-roster-row ${seat.id === room.buzzedSeat?.id ? "buzzed" : ""}`} key={seat.id}>
+              <span className="buzzer-roster-avatar">{seat.slot}</span>
+              <span>{seat.participantName ?? "Empty seat"}</span>
+              {open && !selectedSeatId && (
+                <button
+                  className="ghost-button mini-button"
+                  onClick={async () => {
+                    await onAction({ type: "sit", team, slot: seat.slot, participantName });
+                    onSeat(seat.id);
+                  }}
+                  type="button"
+                >
+                  Sit here
+                </button>
+              )}
+              {mine && (
+                <button
+                  className="ghost-button mini-button"
+                  onClick={async () => {
+                    await onAction({ type: "stand", seatId: seat.id, participantName });
+                    onSeat(null);
+                  }}
+                  type="button"
+                >
+                  Get up
+                </button>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
+function RoundLog({ events }: { events: RoomEvent[] }) {
+  return (
+    <section className="card spacious">
+      <h2>Round log</h2>
+      <div className="buzzer-log">
+        {events.length ? (
+          events.map((event) => (
+            <div className="buzzer-log-entry" key={event.id}>
+              <span>{eventTime(event.createdAt)}</span>
+              <strong>{event.message}</strong>
+            </div>
+          ))
+        ) : (
+          <p className="subtitle">No events yet.</p>
+        )}
+      </div>
+    </section>
   );
 }

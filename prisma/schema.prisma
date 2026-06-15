@@ -95,6 +95,7 @@ model Question {
   answerExplanations AnswerExplanation[]
   concepts         QuestionConcept[]
   tests            TestQuestion[]
+  buzzerRooms      BuzzerRoom[]
   createdAt        DateTime       @default(now())
   updatedAt        DateTime       @updatedAt
 
@@ -244,4 +245,54 @@ model BuzzerQuestion {
   updatedAt         DateTime    @updatedAt
 
   @@index([competitionId])
+}
+
+model BuzzerRoom {
+  id                  String            @id
+  code                String            @unique
+  organizerPassword   String
+  status              String            @default("WAITING")
+  teamAScore          Int               @default(0)
+  teamBScore          Int               @default(0)
+  timerStartedAt      DateTime?
+  timerDurationMs     Int               @default(15000)
+  roundNumber         Int               @default(1)
+  currentQuestionId   String?
+  currentQuestion     Question?          @relation(fields: [currentQuestionId], references: [id], onDelete: SetNull)
+  buzzedSeatId        String?
+  expiresAt           DateTime
+  seats               BuzzerSeat[]
+  events              BuzzerRoomEvent[]
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+
+  @@index([code])
+  @@index([expiresAt])
+  @@index([currentQuestionId])
+}
+
+model BuzzerSeat {
+  id              String      @id
+  roomId          String
+  room            BuzzerRoom  @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  team            String
+  slot            String
+  participantName String?
+  buzzedAt        DateTime?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  @@unique([roomId, team, slot])
+  @@index([roomId])
+}
+
+model BuzzerRoomEvent {
+  id        String      @id
+  roomId    String
+  room      BuzzerRoom  @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  type      String
+  message   String
+  createdAt DateTime    @default(now())
+
+  @@index([roomId, createdAt])
 }
