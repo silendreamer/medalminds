@@ -1593,6 +1593,10 @@ p {
   color: var(--gold-soft);
 }
 
+.buzzer-leading-card h2 {
+  color: oklch(0.97 0.03 88);
+}
+
 .buzzer-participant-header {
   display: flex;
   justify-content: space-between;
