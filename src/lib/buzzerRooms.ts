@@ -34,7 +34,28 @@ const SEATS: Array<{ team: BuzzerTeam; slot: string }> = [
   { team: "B", slot: "b4" }
 ];
 
-const passwordWords = ["comet", "juno", "helix", "nova", "orbit", "kepler", "atlas", "quark", "vector", "lunar"];
+const passwordWords = [
+  "comet",
+  "juno",
+  "helix",
+  "nova",
+  "orbit",
+  "kepler",
+  "atlas",
+  "quark",
+  "vector",
+  "lunar",
+  "pioneer",
+  "signal",
+  "rocket",
+  "cinder",
+  "harbor",
+  "mosaic",
+  "summit",
+  "brisk",
+  "ember",
+  "tidal"
+];
 const choiceLetters = ["W", "X", "Y", "Z"];
 
 type RoomWithRelations = Prisma.BuzzerRoomGetPayload<{
@@ -58,7 +79,7 @@ function makeCode() {
 }
 
 function makePassword() {
-  return `${randomItem(passwordWords)}-${randomItem(passwordWords)}-${Math.floor(10 + Math.random() * 90)}`;
+  return randomItem(passwordWords);
 }
 
 function id(prefix: string) {

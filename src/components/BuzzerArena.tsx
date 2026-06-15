@@ -394,6 +394,7 @@ export function BuzzerArena() {
         organizerPassword={organizerPassword}
         room={room}
         onAction={act}
+        onCopyCode={copy}
       />
     ) : (
       <ParticipantRoom
@@ -405,6 +406,7 @@ export function BuzzerArena() {
         seatedSeat={seatedSeat}
         selectedSeatId={selectedSeatId}
         onAction={act}
+        onCopyCode={copy}
         onSeat={(seatId) => setSelectedSeatId(seatId)}
       />
     );
@@ -439,13 +441,15 @@ function OrganizerConsole({
   error,
   organizerPassword,
   room,
-  onAction
+  onAction,
+  onCopyCode
 }: {
   busy: boolean;
   error: string;
   organizerPassword: string;
   room: BuzzerRoom;
   onAction: (action: Record<string, unknown>) => Promise<void>;
+  onCopyCode: (code: string) => Promise<void>;
 }) {
   const question = room.question;
   const remainingPct = Math.max(0, Math.min(100, (room.remainingMs / room.timerDurationMs) * 100));
@@ -455,7 +459,10 @@ function OrganizerConsole({
       <div className="buzzer-room-topline">
         <div>
           <span className="eyebrow">Organizer console</span>
-          <h1>Game room <span>#{room.code}</span></h1>
+          <h1>Game room</h1>
+          <button className="ghost-button buzzer-room-code-button" onClick={() => onCopyCode(room.code)} type="button" title="Copy game code">
+            #{room.code}
+          </button>
         </div>
         <span className="badge neutral">Recovery password: {organizerPassword}</span>
       </div>
@@ -563,7 +570,8 @@ function ParticipantRoom({
   seatedSeat,
   selectedSeatId,
   onAction,
-  onSeat
+  onSeat,
+  onCopyCode
 }: {
   busy: boolean;
   canBuzz: boolean;
@@ -574,13 +582,16 @@ function ParticipantRoom({
   selectedSeatId: string | null;
   onAction: (action: Record<string, unknown>) => Promise<void>;
   onSeat: (seatId: string | null) => void;
+  onCopyCode: (code: string) => Promise<void>;
 }) {
   return (
     <div className="buzzer-room-shell">
       <div className="buzzer-participant-header">
         <div>
           <span className="eyebrow">Game</span>
-          <strong>#{room.code}</strong>
+          <button className="ghost-button buzzer-room-code-button" onClick={() => onCopyCode(room.code)} type="button" title="Copy game code">
+            #{room.code}
+          </button>
         </div>
         <div>
           <span className="eyebrow">Timer</span>
@@ -646,7 +657,6 @@ function TeamCard({ room, team }: { room: BuzzerRoom; team: Team }) {
     <section className={`buzzer-team-card ${team === "B" ? "team-b" : ""}`}>
       <header>
         <div>
-          <span className="buzzer-team-letter">{team}</span>
           <strong>{roomTeamName(room, team)}</strong>
         </div>
         <strong>{score}</strong>
@@ -685,7 +695,6 @@ function ParticipantTeamCard({
     <section className={`buzzer-team-card ${team === "B" ? "team-b" : ""}`}>
       <header>
         <div>
-          <span className="buzzer-team-letter">{team}</span>
           <strong>{roomTeamName(room, team)}</strong>
         </div>
         <strong>{score}</strong>
