@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 type Team = "A" | "B";
-type RoomStatus = "WAITING" | "RUNNING" | "PAUSED" | "BUZZED" | "BONUS" | "JUDGED" | "TIMEOUT";
+type RoomStatus = "WAITING" | "READING" | "RUNNING" | "PAUSED" | "BUZZED" | "BONUS" | "JUDGED" | "TIMEOUT" | "ENDED";
 
 type Seat = {
   id: string;
@@ -44,6 +44,9 @@ type BuzzerRoom = {
   teamBScore: number;
   timerDurationMs: number;
   timerElapsedMs: number;
+  questionClockDurationMs: number;
+  questionClockRemainingMs: number;
+  buzzedIsInterrupt: boolean;
   remainingMs: number;
   buzzedSeat: Pick<Seat, "id" | "team" | "slot" | "participantName"> | null;
   seats: Seat[];
@@ -106,7 +109,13 @@ export function BuzzerArena() {
     () => room?.seats.find((seat) => seat.id === selectedSeatId && seat.participantName === participantName) ?? null,
     [participantName, room?.seats, selectedSeatId]
   );
-  const canBuzz = Boolean(room && seatedSeat && room.status === "RUNNING" && !room.buzzedSeat);
+  const canBuzz = Boolean(
+    room &&
+      seatedSeat &&
+      !room.buzzedSeat &&
+      !["TIMEOUT", "ENDED", "PAUSED", "WAITING", "BONUS"].includes(room.status) &&
+      ["READING", "RUNNING"].includes(room.status)
+  );
 
   const fetchRoom = useCallback(
     async (code = roomCode, password = organizerPassword) => {
@@ -453,6 +462,25 @@ function OrganizerConsole({
 }) {
   const question = room.question;
   const remainingPct = Math.max(0, Math.min(100, (room.remainingMs / room.timerDurationMs) * 100));
+  const [questionClockMs, setQuestionClockMs] = useState(room.questionClockRemainingMs);
+
+  useEffect(() => {
+    setQuestionClockMs(room.questionClockRemainingMs);
+  }, [room.questionClockRemainingMs, room.questionNumber, room.status]);
+
+  useEffect(() => {
+    if (room.questionClockDurationMs <= 0 || !["RUNNING", "BUZZED", "BONUS"].includes(room.status)) return;
+    const timer = window.setInterval(() => {
+      setQuestionClockMs((current) => Math.max(0, current - 100));
+    }, 100);
+    return () => window.clearInterval(timer);
+  }, [room.questionClockDurationMs, room.questionNumber, room.status]);
+
+  const questionClockVisible = room.questionClockDurationMs > 0 || room.status === "TIMEOUT";
+  const questionClockPct = room.questionClockDurationMs > 0 ? Math.max(0, Math.min(100, (questionClockMs / room.questionClockDurationMs) * 100)) : 0;
+  const questionClockLabel = room.status === "TIMEOUT" ? "Time up" : room.questionClockDurationMs > 0 ? (questionClockMs <= 0 ? "Time up" : `${(questionClockMs / 1000).toFixed(1)}s`) : "";
+  const canReadDone = room.questionClockDurationMs === 0 && !["WAITING", "TIMEOUT", "ENDED"].includes(room.status);
+  const gameEnded = room.status === "ENDED";
 
   return (
     <div className="buzzer-room-shell">
@@ -482,12 +510,13 @@ function OrganizerConsole({
               {room.buzzedSeat ? (
                 <>
                   <h2>{room.buzzedSeat.participantName}</h2>
-                  <p>{roomTeamName(room, room.buzzedSeat.team)} - {room.buzzedSeat.slot.toUpperCase()}</p>
+                  <p>{room.buzzedSeat.participantName} has buzzed in for {roomTeamName(room, room.buzzedSeat.team)} - {room.buzzedSeat.slot.toUpperCase()}</p>
+                  {room.buzzedIsInterrupt && <span className="badge neutral">Interrupt</span>}
                   <div className="actions">
-                    <button className="button" disabled={busy || room.status === "JUDGED"} onClick={() => onAction({ type: "judge", organizerPassword, result: "correct" })} type="button">
+                    <button className="button" disabled={busy || room.status === "JUDGED" || gameEnded} onClick={() => onAction({ type: "judge", organizerPassword, result: "correct" })} type="button">
                       Correct +{room.question?.questionKind === "BONUS" ? 10 : 4}
                     </button>
-                    <button className="ghost-button" disabled={busy || room.status === "JUDGED"} onClick={() => onAction({ type: "judge", organizerPassword, result: "incorrect" })} type="button">Incorrect</button>
+                    <button className="ghost-button" disabled={busy || room.status === "JUDGED" || gameEnded} onClick={() => onAction({ type: "judge", organizerPassword, result: "incorrect" })} type="button">Incorrect</button>
                   </div>
                 </>
               ) : (
@@ -495,17 +524,23 @@ function OrganizerConsole({
               )}
             </div>
             <div className="actions">
-              {room.status === "WAITING" ? (
-                <button className="button" disabled={busy} onClick={() => onAction({ type: "start", organizerPassword })} type="button">
+              {["WAITING", "PAUSED"].includes(room.status) ? (
+                <button className="button" disabled={busy || gameEnded} onClick={() => onAction({ type: "start", organizerPassword })} type="button">
                   Start
                 </button>
               ) : (
-                <button className="button" disabled={busy} onClick={() => onAction({ type: "toggleTimer", organizerPassword })} type="button">
+                <button className="button" disabled={busy || gameEnded} onClick={() => onAction({ type: "toggleTimer", organizerPassword })} type="button">
                   {room.status === "PAUSED" ? "Resume" : "Pause"}
                 </button>
               )}
-              <button className="ghost-button" disabled={busy} onClick={() => onAction({ type: "reset", organizerPassword })} type="button">Reset</button>
-              <button className="ghost-button" disabled={busy} onClick={() => onAction({ type: "nextQuestion", organizerPassword })} type="button">Next question</button>
+              {canReadDone && (
+                <button className="button" disabled={busy || gameEnded} onClick={() => onAction({ type: "doneReading", organizerPassword })} type="button">
+                  Done reading
+                </button>
+              )}
+              <button className="ghost-button" disabled={busy || gameEnded} onClick={() => onAction({ type: "reset", organizerPassword })} type="button">Reset</button>
+              <button className="ghost-button" disabled={busy || gameEnded} onClick={() => onAction({ type: "nextQuestion", organizerPassword })} type="button">Next question</button>
+              <button className="ghost-button" disabled={busy || room.status === "ENDED"} onClick={() => onAction({ type: "endGame", organizerPassword })} type="button">End game</button>
             </div>
           </section>
 
@@ -515,6 +550,17 @@ function OrganizerConsole({
                 <span className="eyebrow">Current question</span>
                 <h2>Question {room.questionNumber}</h2>
               </div>
+              {questionClockVisible ? (
+                <div className="buzzer-answer-clock" aria-live="polite">
+                  <div className="buzzer-answer-clock-top">
+                    <span className="eyebrow">Question clock</span>
+                    <strong>{questionClockLabel}</strong>
+                  </div>
+                  <div className="buzzer-answer-clock-bar">
+                    <span style={{ width: `${questionClockPct}%` }} />
+                  </div>
+                </div>
+              ) : null}
             </div>
             {question ? (
               <>
@@ -629,13 +675,19 @@ function ParticipantRoom({
             {!seatedSeat && "Sit at a seat first."}
             {seatedSeat && room.status === "WAITING" && "Wait for the organizer to start the round."}
             {room.status === "PAUSED" && "Timer paused. Wait for the organizer to resume."}
-            {room.status === "BONUS" && "Bonus question in progress. Only the organizer reads it."}
-            {seatedSeat && room.status === "RUNNING" && !room.buzzedSeat && "Buzz when you know it."}
-            {room.buzzedSeat && `${room.buzzedSeat.participantName} buzzed in for ${roomTeamName(room, room.buzzedSeat.team)}.`}
-            {room.status === "TIMEOUT" && "Time expired."}
+            {room.status === "READING" && "Buzz when the organizer finishes reading."}
+            {room.status === "RUNNING" && !room.buzzedSeat && "Answer clock is running."}
+            {room.status === "BONUS" && "Bonus question in progress. No buzzing on bonus."}
+            {room.buzzedSeat && `${room.buzzedSeat.participantName} has buzzed in.`}
+            {room.status === "TIMEOUT" && "Time up. This question is marked dead."}
+            {room.status === "ENDED" && "Game ended."}
           </p>
         </section>
       </div>
+      <section className="card spacious buzzer-participant-log">
+        <h2>Round log</h2>
+        <RoundLog events={room.events} />
+      </section>
     </div>
   );
 }
@@ -742,7 +794,7 @@ function ParticipantTeamCard({
 function RoundLog({ events }: { events: RoomEvent[] }) {
   return (
     <section className="card spacious">
-      <h2>Round log</h2>
+      <h3>Round log</h3>
       <div className="buzzer-log">
         {events.length ? (
           events.map((event) => (

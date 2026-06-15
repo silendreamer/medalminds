@@ -259,6 +259,10 @@ model BuzzerRoom {
   timerStartedAt      DateTime?
   timerDurationMs     Int               @default(15000)
   timerElapsedMs      Int               @default(0)
+  questionClockStartedAt DateTime?
+  questionClockDurationMs Int            @default(0)
+  questionClockElapsedMs Int             @default(0)
+  buzzedIsInterrupt   Boolean           @default(false)
   totalRounds         Int               @default(3)
   roundNumber         Int               @default(1)
   questionNumber      Int               @default(1)
