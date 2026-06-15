@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { StatsCard } from "@/components/StatsCard";
 import { buildStudyBreadcrumbs } from "@/lib/breadcrumbs";
@@ -56,6 +56,9 @@ export default async function CompetitionPage({
   const selectedSchoolLevel =
     selectedLevel === "middle-school" ? "MIDDLE_SCHOOL" : selectedLevel === "high-school" ? "HIGH_SCHOOL" : undefined;
   const selectedAction = action && action in actionLabelMap ? (action as CompetitionAction) : undefined;
+  if (selectedAction === "buzzer") {
+    redirect(buzzerPath());
+  }
   const subjectCounts = await Promise.all(
     competition.categories.map(async (category) => ({
       category,
@@ -66,8 +69,7 @@ export default async function CompetitionPage({
   const buildStageQuery = (...pairs: Array<[string, string | undefined]>) => buildQuery([["level", selectedLevel], ...pairs]);
   const showLevelSelection = isScienceBowl && !selectedLevel;
   const showActionSelection = !showLevelSelection && !selectedAction;
-  const showBuzzerLaunch = selectedAction === "buzzer";
-  const showSubjectSelection = !showLevelSelection && !showActionSelection && !showBuzzerLaunch;
+  const showSubjectSelection = !showLevelSelection && !showActionSelection;
 
   return (
     <section className="section">
@@ -138,30 +140,12 @@ export default async function CompetitionPage({
                 <p>Choose a question set and work through it in test mode.</p>
               </Link>
               {isScienceBowl && (
-                <Link className="card spacious stack" href={`/${competitionSlug}?${buildStageQuery(["action", "buzzer"])}`}>
+                <Link className="card spacious stack" href={buzzerPath()}>
                   <span className="eyebrow">Buzzer</span>
                   <h2>Buzzer Practice</h2>
-                  <p>Practice solo timing or run a two-team local toss-up and bonus round.</p>
+                  <p>Create or join a live room for team buzzer practice.</p>
                 </Link>
               )}
-            </div>
-          </div>
-        ) : showBuzzerLaunch ? (
-          <div>
-            <div className="section-heading selected-context">
-              <div>
-                {selectedLevelLabel && <span className="eyebrow">{selectedLevelLabel}</span>}
-                <h2>{actionLabelMap.buzzer}</h2>
-                <p>Science Bowl buzzer practice does not need a subject filter.</p>
-              </div>
-              <div className="action-row">
-                <Link className="ghost-button" href={`/${competitionSlug}?${buildQuery([["level", selectedLevel]])}`}>
-                  Change action
-                </Link>
-                <Link className="button" href={buzzerPath()}>
-                  Start Buzzer Practice
-                </Link>
-              </div>
             </div>
           </div>
         ) : showSubjectSelection ? (
