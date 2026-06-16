@@ -136,8 +136,11 @@ function isDbEnabled() {
 
 const subjectAliases: Record<string, string[]> = {
   "Biology": ["Biology", "Life Science"],
+  "Life Science": ["Life Science", "Biology"],
   "Chemistry": ["Chemistry"],
+  "Physical Science": ["Physical Science", "Physics", "Chemistry"],
   "Physics": ["Physics", "Physical Science"],
+  "Earth & Space Science": ["Earth & Space Science", "Earth & Space", "Earth Science", "Astronomy"],
   "Earth & Space": ["Earth & Space", "Earth & Space Science", "Earth Science", "Astronomy"],
   "Energy": ["Energy"],
   "Math": ["Math"],

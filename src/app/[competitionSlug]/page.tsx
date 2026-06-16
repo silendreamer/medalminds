@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
+import { scienceBowlMiddleSchoolSubjects } from "@/data/scienceBowlMiddleSchoolCurriculum";
 import { StatsCard } from "@/components/StatsCard";
 import { buildStudyBreadcrumbs } from "@/lib/breadcrumbs";
 import {
@@ -59,8 +60,13 @@ export default async function CompetitionPage({
   if (selectedAction === "buzzer") {
     redirect(buzzerPath());
   }
+  const scienceBowlMiddleSchoolSubjectNames = scienceBowlMiddleSchoolSubjects.map((subject) => subject.name);
+  const displayedSubjects =
+    competitionSlug === "science-bowl" && selectedLevel === "middle-school"
+      ? scienceBowlMiddleSchoolSubjectNames
+      : competition.categories;
   const subjectCounts = await Promise.all(
-    competition.categories.map(async (category) => ({
+    displayedSubjects.map(async (category) => ({
       category,
       counts: await getContentCountsForSubject(competitionSlug, category, selectedSchoolLevel)
     }))
@@ -174,7 +180,7 @@ export default async function CompetitionPage({
               </div>
             </div>
             <div className="grid competition-subject-grid">
-              {competition.categories.map((category) => (
+              {displayedSubjects.map((category) => (
                 <Link
                   className="card spacious stack competition-stage-card competition-subject-card"
                   href={
