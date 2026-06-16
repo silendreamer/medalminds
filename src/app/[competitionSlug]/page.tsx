@@ -10,7 +10,7 @@ import {
   getContentCountsForSubject,
   isCompetitionSlug
 } from "@/lib/data";
-import { buzzerPath, learningPath, practicePath, testsPath } from "@/lib/routes";
+import { buzzerPath, learningPath, practicePath, scienceBowlInfoPath, testsPath } from "@/lib/routes";
 
 type CompetitionAction = "learning" | "practice" | "tests" | "buzzer";
 
@@ -87,6 +87,13 @@ export default async function CompetitionPage({
           <h1>{competition.name}</h1>
           <p className="subtitle">{competition.description}</p>
           {counts && <StatsCard {...counts} />}
+          {isScienceBowl && (
+            <div className="actions">
+              <Link className="ghost-button" href={scienceBowlInfoPath()}>
+                Read the info session guide
+              </Link>
+            </div>
+          )}
         </div>
 
         {showLevelSelection ? (
