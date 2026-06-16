@@ -64,22 +64,59 @@ export default async function HomePage() {
             </div>
           </div>
           <div className="hero-panel" aria-hidden="true">
-            <div className="hero-panel-top">
-              <ShieldCheck size={28} />
-              <span>Focused study path</span>
+            <div className="hero-panel-topline">
+              <div className="hero-panel-top">
+                <ShieldCheck size={20} />
+                <span>Focused study path</span>
+              </div>
+              <div className="hero-panel-dots">
+                <span />
+                <span />
+                <span />
+              </div>
             </div>
-            <div className="hero-panel-list">
-              <div className="hero-panel-row">
-                <strong>Science Bowl</strong>
-                <span>{formatApproximateCount(scienceBowlCounts.questions)} questions</span>
+            <div className="hero-preview-shell">
+              <div className="hero-preview-header">
+                <div>
+                  <span className="eyebrow">Science Bowl</span>
+                  <strong>{formatApproximateCount(scienceBowlCounts.questions)} questions</strong>
+                </div>
+                <div className="hero-preview-badge">Active track</div>
               </div>
-              <div className="hero-panel-row">
-                <strong>Middle School and High School</strong>
-                <span>Level-specific practice flow</span>
+
+              <div className="hero-preview-progress">
+                <div className="hero-preview-progress-bar">
+                  <span />
+                </div>
+                <div className="hero-preview-progress-labels">
+                  <span>Middle School and High School</span>
+                  <span>Level-specific practice flow</span>
+                </div>
               </div>
-              <div className="hero-panel-row">
-                <strong>Lessons, practice, and buzzer prep</strong>
-                <span>One place to study and review</span>
+
+              <div className="hero-panel-list">
+                <div className="hero-panel-row">
+                  <strong>Lessons, practice, and buzzer prep</strong>
+                  <span>One place to study and review</span>
+                </div>
+                <div className="hero-panel-row compact">
+                  <div className="hero-panel-subject">
+                    <span className="hero-panel-subject-dot science" />
+                    <strong>Science Bowl</strong>
+                  </div>
+                  <span>Focused study path</span>
+                </div>
+              </div>
+
+              <div className="hero-preview-stack">
+                <div className="hero-preview-card soft">
+                  <span>Practice path</span>
+                  <strong>Middle School and High School</strong>
+                </div>
+                <div className="hero-preview-card">
+                  <span>Study loop</span>
+                  <strong>Lessons, practice, and buzzer prep</strong>
+                </div>
               </div>
             </div>
           </div>

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Atom, FlaskConical, Sigma } from "lucide-react";
 import type { Competition } from "@/types";
 import { competitionPath } from "@/lib/routes";
 import { formatApproximateCount } from "@/lib/format";
@@ -13,11 +14,26 @@ export function CompetitionCard({
   const isScienceBowl = competition.slug === "science-bowl";
   const questionValue = isScienceBowl ? formatApproximateCount(counts.questions) : "Soon";
   const questionLabel = isScienceBowl ? "Practice questions" : "Question bank";
+  const accentClass =
+    competition.slug === "science-bowl"
+      ? "science-bowl"
+      : competition.slug === "science-olympiad"
+        ? "science-olympiad"
+        : "math-olympiad";
+  const Icon =
+    competition.slug === "science-bowl"
+      ? Atom
+      : competition.slug === "science-olympiad"
+        ? FlaskConical
+        : Sigma;
 
   return (
-    <article className="competition-card">
+    <article className={`competition-card ${accentClass}`}>
       <div className="competition-card-content">
         <div className="stack compact competition-card-header">
+          <span className="competition-card-icon">
+            <Icon size={18} />
+          </span>
           <h2>{competition.name}</h2>
         </div>
         <p className="card-copy">{competition.shortDescription}</p>
