@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
+import { CurriculumTopicExplorer } from "@/components/CurriculumTopicExplorer";
 import { LessonCard } from "@/components/LessonCard";
 import { buildStudyBreadcrumbs } from "@/lib/breadcrumbs";
 import {
@@ -67,6 +68,9 @@ export default async function LearningPage({
               Study the five official National Science Bowl middle-school subject areas in a cleaner grade-by-grade order,
               while keeping your existing concept lessons available underneath.
             </p>
+            <p className="curriculum-value-copy">
+              We focus on the 20% of content that tends to produce 80% of Science Bowl points, so students can build scoring momentum before branching wider.
+            </p>
           </div>
 
           <div className="grid two curriculum-subject-grid">
@@ -126,6 +130,9 @@ export default async function LearningPage({
               <h1>{curriculumSubject.name}</h1>
               <p className="subtitle">{curriculumSubject.shortDescription}</p>
               <p>{curriculumSubject.whyItMatters}</p>
+              <p className="curriculum-value-copy">
+                Medal Minds is organizing this track around the 20% of content that tends to produce 80% of Science Bowl points.
+              </p>
               <div className="badge-list">
                 {curriculumSubject.highYieldTopics.map((topic) => (
                   <span className="badge" key={topic}>
@@ -155,31 +162,7 @@ export default async function LearningPage({
               </div>
             </div>
 
-            <div className="curriculum-grade-stack">
-              {curriculumSubject.grades.map((grade) => (
-                <section className="card spacious curriculum-grade-card" key={grade.key}>
-                  <div className="curriculum-grade-header">
-                    <span className="eyebrow">{curriculumSubject.name}</span>
-                    <h2>{grade.label}</h2>
-                  </div>
-                  <div className="grid two curriculum-unit-grid">
-                    {grade.units.map((unit) => (
-                      <article className="curriculum-unit-card" key={`${grade.key}-${unit.title}`}>
-                        <h3>{unit.title}</h3>
-                        <div className="curriculum-topic-list">
-                          {unit.topics.map((topic) => (
-                            <div className="curriculum-topic-row" key={topic.id}>
-                              <span />
-                              <p>{topic.title}</p>
-                            </div>
-                          ))}
-                        </div>
-                      </article>
-                    ))}
-                  </div>
-                </section>
-              ))}
-            </div>
+            <CurriculumTopicExplorer competitionSlug={competitionSlug} lessons={lessons} subject={curriculumSubject} />
           </section>
 
           <section className="stack">
