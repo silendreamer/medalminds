@@ -560,6 +560,7 @@ function OrganizerConsole({
   onCopyCode: (code: string) => Promise<void>;
 }) {
   const question = room.question;
+  const isMultipleChoice = question?.format === "Multiple Choice";
   const remainingPct = Math.max(0, Math.min(100, (room.remainingMs / room.timerDurationMs) * 100));
   const [questionClockMs, setQuestionClockMs] = useState(room.questionClockRemainingMs);
 
@@ -679,21 +680,25 @@ function OrganizerConsole({
                   <strong>{question.questionKind}</strong> - {question.category} - {question.format}
                 </p>
                 <p className="buzzer-question-text">{question.prompt}</p>
-                <div className="buzzer-choice-label">Choices</div>
-                <div className="buzzer-choice-grid">
-                  {question.choices?.map((choice, index) => {
-                    const letter = letters[index];
-                    const correct = letter === question.correctLetter;
-                    return (
-                      <div className={correct ? "feedback good" : "feedback"} key={`${letter}-${choice}`}>
-                        <strong>{letter}</strong> {choice}
-                      </div>
-                    );
-                  })}
-                </div>
+                {isMultipleChoice ? (
+                  <>
+                    <div className="buzzer-choice-label">Choices</div>
+                    <div className="buzzer-choice-grid">
+                      {question.choices?.map((choice, index) => {
+                        const letter = letters[index];
+                        const correct = letter === question.correctLetter;
+                        return (
+                          <div className={correct ? "feedback good" : "feedback"} key={`${letter}-${choice}`}>
+                            <strong>{letter}</strong> {choice}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </>
+                ) : null}
                 <div className="buzzer-answer-label">Right Answer</div>
                 <p className="feedback good">
-                  {question.correctLetter ? `${question.correctLetter} - ` : ""}
+                  {isMultipleChoice && question.correctLetter ? `${question.correctLetter} - ` : ""}
                   {question.correctAnswer}
                 </p>
               </>
