@@ -194,6 +194,30 @@ export function BuzzerArena() {
       ["READING", "RUNNING"].includes(room.status)
   );
 
+  useEffect(() => {
+    if (screen !== "room" || isOrganizer || !room || !seatedSeat || !canBuzz || busy) return;
+    const seatId = seatedSeat.id;
+
+    function onKeyDown(event: KeyboardEvent) {
+      const target = event.target;
+      if (
+        target instanceof HTMLInputElement ||
+        target instanceof HTMLTextAreaElement ||
+        target instanceof HTMLSelectElement ||
+        (target instanceof HTMLElement && target.isContentEditable)
+      ) {
+        return;
+      }
+
+      if (event.code !== "Space") return;
+      event.preventDefault();
+      act({ type: "buzz", seatId, participantName }).catch(() => undefined);
+    }
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [busy, canBuzz, isOrganizer, participantName, room, screen, seatedSeat]);
+
   const fetchRoom = useCallback(
     async (code = roomCode, password = organizerPassword) => {
       if (!code.trim()) return null;
@@ -667,7 +691,7 @@ function OrganizerConsole({
 
           <section className="card spacious buzzer-question-console">
             <div className="buzzer-card-header">
-              <div>
+              <div className="buzzer-question-heading">
                 <span className="eyebrow">Current question</span>
                 <h2>Question {room.questionNumber}</h2>
               </div>
@@ -684,13 +708,13 @@ function OrganizerConsole({
               ) : null}
             </div>
             {question ? (
-              <>
+              <div className="buzzer-question-stack">
                 <p className="buzzer-question-line">
                   <strong>{question.questionKind}</strong> - {question.category} - {question.format}
                 </p>
                 <p className="buzzer-question-text">{question.prompt}</p>
                 {isMultipleChoice ? (
-                  <>
+                  <div className="buzzer-choice-stack">
                     <div className="buzzer-choice-label">Choices</div>
                     <div className="buzzer-choice-grid">
                       {question.choices?.map((choice, index) => {
@@ -703,14 +727,16 @@ function OrganizerConsole({
                         );
                       })}
                     </div>
-                  </>
+                  </div>
                 ) : null}
-                <div className="buzzer-answer-label">Right Answer</div>
-                <p className="feedback good">
-                  {isMultipleChoice && question.correctLetter ? `${question.correctLetter} - ` : ""}
-                  {question.correctAnswer}
-                </p>
-              </>
+                <div className="buzzer-answer-stack">
+                  <div className="buzzer-answer-label">Right Answer</div>
+                  <p className="feedback good">
+                    {isMultipleChoice && question.correctLetter ? `${question.correctLetter} - ` : ""}
+                    {question.correctAnswer}
+                  </p>
+                </div>
+              </div>
             ) : (
               <p className="empty">No multiple-choice question is loaded.</p>
             )}
@@ -801,6 +827,7 @@ function ParticipantRoom({
           >
             Buzz
           </button>
+          <p className="buzzer-buzz-hint">Press Space to buzz</p>
           <p>
             {!seatedSeat && "Sit at a seat first."}
             {seatedSeat && room.status === "WAITING" && "Wait for the organizer to start the round."}
