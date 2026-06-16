@@ -693,7 +693,9 @@ function OrganizerConsole({
             <div className="buzzer-card-header">
               <div className="buzzer-question-heading">
                 <span className="eyebrow">Current question</span>
-                <h2>Question {room.questionNumber}</h2>
+                <h2>
+                  Question {room.questionNumber} <span>{question?.questionKind ?? "TOSS-UP"}</span>
+                </h2>
               </div>
               {questionClockVisible ? (
                 <div className="buzzer-answer-clock" aria-live="polite">
@@ -710,7 +712,7 @@ function OrganizerConsole({
             {question ? (
               <div className="buzzer-question-stack">
                 <p className="buzzer-question-line">
-                  <strong>{question.questionKind}</strong> - {question.category} - {question.format}
+                  {question.category} - {question.format}
                 </p>
                 <p className="buzzer-question-text">{question.prompt}</p>
                 {isMultipleChoice ? (

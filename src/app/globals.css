@@ -2342,6 +2342,11 @@ p {
   line-height: 1.08;
 }
 
+.buzzer-question-console h2 span {
+  font: inherit;
+  color: inherit;
+}
+
 .buzzer-question-heading {
   display: grid;
   gap: 8px;

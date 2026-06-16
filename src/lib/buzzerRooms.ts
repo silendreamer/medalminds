@@ -627,6 +627,7 @@ export async function applyBuzzerAction(code: string, action: BuzzerRoomAction) 
     const isBonus = currentKind === QuestionKind.BONUS;
     const bonusQuestionId = correct && isTossup ? await pairedBonusQuestionId(room.currentQuestionId ?? "") : null;
     const nextQuestionId = correct && bonusQuestionId ? bonusQuestionId : await randomScienceBowlQuestionId();
+    const advanceToNextTossup = !bonusQuestionId;
     const points = correct ? (isBonus ? 10 : 4) : room.buzzedIsInterrupt ? 4 : 0;
     const pointsTeam = correct
       ? buzzedSeat.team
@@ -641,7 +642,7 @@ export async function applyBuzzerAction(code: string, action: BuzzerRoomAction) 
         status: correct && bonusQuestionId ? "BONUS" : "READING",
         buzzedSeatId: null,
         currentQuestionId: isBonus || !correct || !bonusQuestionId ? nextQuestionId : bonusQuestionId,
-        questionNumber: { increment: 1 },
+        ...(advanceToNextTossup ? { questionNumber: { increment: 1 } } : {}),
         questionClockStartedAt: null,
         questionClockDurationMs: 0,
         questionClockElapsedMs: 0,
