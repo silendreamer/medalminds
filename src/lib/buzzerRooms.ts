@@ -61,6 +61,19 @@ const passwordWords = [
 ];
 const choiceLetters = ["W", "X", "Y", "Z"];
 
+function formatSeatLabel(slot: string) {
+  const value = slot.trim().toLowerCase();
+  if (value === "a1") return "A1";
+  if (value === "a2") return "AC";
+  if (value === "a3") return "A2";
+  if (value === "a4") return "A3";
+  if (value === "b1") return "B1";
+  if (value === "b2") return "BC";
+  if (value === "b3") return "B2";
+  if (value === "b4") return "B3";
+  return slot.toUpperCase();
+}
+
 type RoomWithRelations = Prisma.BuzzerRoomGetPayload<{
   include: {
     seats: { orderBy: [{ team: "asc" }, { slot: "asc" }] };
@@ -463,7 +476,7 @@ export async function applyBuzzerAction(code: string, action: BuzzerRoomAction) 
     });
     if (!result.count) throw new Error("That seat is no longer available.");
     await prisma.buzzerRoomEvent.create({
-      data: { id: id("event"), roomId: room.id, type: "SEAT_TAKEN", message: `${participantName} sat in ${slot.toUpperCase()}.` }
+        data: { id: id("event"), roomId: room.id, type: "SEAT_TAKEN", message: `${participantName} sat in ${formatSeatLabel(slot)}.` }
     });
   }
 
@@ -473,7 +486,7 @@ export async function applyBuzzerAction(code: string, action: BuzzerRoomAction) 
     if (seat && (!participantName || participantName === seat.participantName)) {
       await prisma.buzzerSeat.update({ where: { id: seat.id }, data: { participantName: null, buzzedAt: null } });
       await prisma.buzzerRoomEvent.create({
-        data: { id: id("event"), roomId: room.id, type: "SEAT_LEFT", message: `${seat.slot.toUpperCase()} is now open.` }
+        data: { id: id("event"), roomId: room.id, type: "SEAT_LEFT", message: `${formatSeatLabel(seat.slot)} is now open.` }
       });
     }
   }
@@ -640,11 +653,11 @@ export async function applyBuzzerAction(code: string, action: BuzzerRoomAction) 
         type: correct ? (bonusQuestionId ? "BONUS_QUEUED" : "CORRECT") : room.buzzedIsInterrupt ? "INTERRUPT_INCORRECT" : "INCORRECT",
         message: correct
           ? bonusQuestionId
-            ? `${buzzedSeat.participantName ?? buzzedSeat.slot.toUpperCase()} - Correct (+${points}). Bonus question loaded.`
-            : `${buzzedSeat.participantName ?? buzzedSeat.slot.toUpperCase()} - Correct (+${points}).`
+            ? `${buzzedSeat.participantName ?? formatSeatLabel(buzzedSeat.slot)} - Correct (+${points}). Bonus question loaded.`
+            : `${buzzedSeat.participantName ?? formatSeatLabel(buzzedSeat.slot)} - Correct (+${points}).`
           : room.buzzedIsInterrupt
-          ? `${buzzedSeat.participantName ?? buzzedSeat.slot.toUpperCase()} interrupted incorrectly. +4 to ${buzzedSeat.team === "A" ? room.teamBName : room.teamAName}.`
-          : `${buzzedSeat.participantName ?? buzzedSeat.slot.toUpperCase()} - Incorrect.`
+          ? `${buzzedSeat.participantName ?? formatSeatLabel(buzzedSeat.slot)} interrupted incorrectly. +4 to ${buzzedSeat.team === "A" ? room.teamBName : room.teamAName}.`
+          : `${buzzedSeat.participantName ?? formatSeatLabel(buzzedSeat.slot)} - Incorrect.`
       }
     });
   }

@@ -20,6 +20,19 @@ type RoomEvent = {
   createdAt: string;
 };
 
+function formatSeatLabel(slot: string) {
+  const value = slot.trim().toLowerCase();
+  if (value === "a1") return "A1";
+  if (value === "a2") return "AC";
+  if (value === "a3") return "A2";
+  if (value === "a4") return "A3";
+  if (value === "b1") return "B1";
+  if (value === "b2") return "BC";
+  if (value === "b3") return "B2";
+  if (value === "b4") return "B3";
+  return slot.toUpperCase();
+}
+
 type OrganizerQuestion = {
   id: string;
   category: string;
@@ -602,7 +615,7 @@ function OrganizerConsole({
               {room.buzzedSeat ? (
                 <>
                   <h2>{room.buzzedSeat.participantName}</h2>
-                  <p>{room.buzzedSeat.participantName} has buzzed in for {roomTeamName(room, room.buzzedSeat.team)} - {room.buzzedSeat.slot.toUpperCase()}</p>
+                  <p>{room.buzzedSeat.participantName} has buzzed in for {roomTeamName(room, room.buzzedSeat.team)} - {formatSeatLabel(room.buzzedSeat.slot)}</p>
                   {room.buzzedIsInterrupt && <span className="badge neutral">Interrupt</span>}
                   {pendingBuzzClassification && <span className="badge neutral">Awaiting organizer ruling</span>}
                   <div className="actions">
@@ -819,7 +832,7 @@ function TeamCard({ room, team }: { room: BuzzerRoom; team: Team }) {
       <div className="buzzer-roster">
         {seats.map((seat) => (
           <div className={`buzzer-roster-row ${seat.id === room.buzzedSeat?.id ? "buzzed" : ""}`} key={seat.id}>
-            <span className="buzzer-roster-avatar">{seat.slot}</span>
+            <span className="buzzer-roster-avatar">{formatSeatLabel(seat.slot)}</span>
             <span>{seat.participantName ?? "Empty seat"}</span>
           </div>
         ))}
@@ -860,7 +873,7 @@ function ParticipantTeamCard({
           const open = !seat.participantName;
           return (
             <div className={`buzzer-roster-row ${seat.id === room.buzzedSeat?.id ? "buzzed" : ""}`} key={seat.id}>
-              <span className="buzzer-roster-avatar">{seat.slot}</span>
+              <span className="buzzer-roster-avatar">{formatSeatLabel(seat.slot)}</span>
               <span>{seat.participantName ?? "Empty seat"}</span>
               {open && !selectedSeatId && (
                 <button
