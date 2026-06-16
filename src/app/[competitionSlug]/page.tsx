@@ -101,14 +101,14 @@ export default async function CompetitionPage({
             <div className="section-heading selection-heading">
               <h2>Choose your level</h2>
             </div>
-            <div className="grid two">
-              <Link className="card spacious stack" href={`/${competitionSlug}?level=middle-school`}>
+            <div className="grid two competition-level-grid">
+              <Link className="card spacious stack competition-stage-card competition-level-card" href={`/${competitionSlug}?level=middle-school`}>
                 <span className="eyebrow">Science Bowl</span>
                 <h2>Middle School</h2>
                 <p>Grades 6-8 practice questions, quick tests, and lessons.</p>
                 <StatsCard {...(scienceBowlLevelCounts?.middleSchool ?? { questions: 0, lessons: 0 })} />
               </Link>
-              <Link className="card spacious stack" href={`/${competitionSlug}?level=high-school`}>
+              <Link className="card spacious stack competition-stage-card competition-level-card" href={`/${competitionSlug}?level=high-school`}>
                 <span className="eyebrow">Science Bowl</span>
                 <h2>High School</h2>
                 <p>Grades 9-12 practice questions, quick tests, and lessons.</p>
@@ -130,24 +130,24 @@ export default async function CompetitionPage({
                 </Link>
               )}
             </div>
-            <div className={`grid ${isScienceBowl ? "four" : "three"}`}>
-              <Link className="card spacious stack" href={`/${competitionSlug}?${buildStageQuery(["action", "learning"])}`}>
+            <div className={`grid ${isScienceBowl ? "four" : "three"} competition-action-grid`}>
+              <Link className="card spacious stack competition-stage-card" href={`/${competitionSlug}?${buildStageQuery(["action", "learning"])}`}>
                 <span className="eyebrow">Learning</span>
                 <h2>Learning</h2>
                 <p>Read lessons and study the concept before you try questions.</p>
               </Link>
-              <Link className="card spacious stack" href={`/${competitionSlug}?${buildStageQuery(["action", "practice"])}`}>
+              <Link className="card spacious stack competition-stage-card" href={`/${competitionSlug}?${buildStageQuery(["action", "practice"])}`}>
                 <span className="eyebrow">Practice</span>
                 <h2>Practice Questions</h2>
                 <p>Get one random question, answer it, then review the explanation.</p>
               </Link>
-              <Link className="card spacious stack" href={`/${competitionSlug}?${buildStageQuery(["action", "tests"])}`}>
+              <Link className="card spacious stack competition-stage-card" href={`/${competitionSlug}?${buildStageQuery(["action", "tests"])}`}>
                 <span className="eyebrow">Tests</span>
                 <h2>Quizzes / Tests</h2>
                 <p>Choose a question set and work through it in test mode.</p>
               </Link>
               {isScienceBowl && (
-                <Link className="card spacious stack" href={buzzerPath()}>
+                <Link className="card spacious stack competition-stage-card competition-stage-card-accent" href={buzzerPath()}>
                   <span className="eyebrow">Buzzer</span>
                   <h2>Buzzer Practice</h2>
                   <p>Create or join a live room for team buzzer practice.</p>
@@ -173,10 +173,10 @@ export default async function CompetitionPage({
                 </Link>
               </div>
             </div>
-            <div className="grid">
+            <div className="grid competition-subject-grid">
               {competition.categories.map((category) => (
                 <Link
-                  className="card spacious stack"
+                  className="card spacious stack competition-stage-card competition-subject-card"
                   href={
                     selectedAction === "learning"
                       ? `${learningPath(competitionSlug)}${buildQuery([["level", selectedLevel], ["subject", category]])}`
