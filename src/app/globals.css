@@ -2074,6 +2074,39 @@ p {
   flex-wrap: wrap;
 }
 
+.buzzer-room-topline {
+  align-items: start;
+}
+
+.buzzer-room-topline h1 {
+  font-size: clamp(2.15rem, 4vw, 3rem);
+  line-height: 0.98;
+  margin-top: 6px;
+}
+
+.buzzer-room-code-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.buzzer-room-code-link,
+.buzzer-room-code-copy {
+  min-height: 38px;
+  padding: 8px 12px;
+  font-size: 0.92rem;
+}
+
+.buzzer-room-code-link {
+  font-weight: 700;
+}
+
+.buzzer-room-code-copy {
+  font-weight: 600;
+}
+
 .buzzer-room-topline h1 span {
   color: var(--muted);
   font-family: var(--font-outfit), Arial, Helvetica, sans-serif;
@@ -2145,9 +2178,9 @@ p {
 
 .buzzer-room-timer {
   color: var(--brand-deep);
-  font-size: clamp(4rem, 10vw, 6.8rem);
+  font-size: clamp(3.2rem, 8vw, 5rem);
   font-weight: 800;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.05em;
   line-height: 0.9;
 }
 
@@ -2177,12 +2210,18 @@ p {
 }
 
 .buzzer-buzzed-panel h2 {
-  font-size: clamp(1.6rem, 4vw, 2.3rem);
+  font-size: clamp(1.28rem, 2.5vw, 1.7rem);
   color: var(--brand-deep);
+  line-height: 1.04;
 }
 
 .buzzer-question-console {
   gap: 16px;
+}
+
+.buzzer-question-console h2 {
+  font-size: clamp(1.55rem, 2.8vw, 2rem);
+  line-height: 1.02;
 }
 
 .buzzer-answer-clock {
@@ -2230,7 +2269,7 @@ p {
 }
 
 .buzzer-question-line {
-  font-size: 1rem;
+  font-size: 0.94rem;
   letter-spacing: 0.01em;
 }
 
@@ -2241,8 +2280,8 @@ p {
   background: rgba(255, 255, 255, 0.72);
   padding: 16px;
   color: var(--brand-deep);
-  font-size: clamp(1.05rem, 2vw, 1.25rem);
-  line-height: 1.55;
+  font-size: clamp(0.98rem, 1.5vw, 1.1rem);
+  line-height: 1.58;
 }
 
 .buzzer-question-text *,
@@ -2255,6 +2294,17 @@ p {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 10px;
+}
+
+.buzzer-choice-grid .feedback,
+.buzzer-answer-label + .feedback {
+  font-size: 0.97rem;
+  line-height: 1.45;
+}
+
+.buzzer-choice-grid .feedback strong,
+.buzzer-answer-label + .feedback strong {
+  font-size: 0.95rem;
 }
 
 .buzzer-leading-card {
@@ -2271,6 +2321,8 @@ p {
 
 .buzzer-leading-card h2 {
   color: var(--brand-deep);
+  font-size: clamp(1.45rem, 2.5vw, 1.9rem);
+  line-height: 1;
 }
 
 .buzzer-participant-header {
@@ -2294,7 +2346,7 @@ p {
 
 .buzzer-participant-header strong {
   display: block;
-  font-size: clamp(1.45rem, 5vw, 2.3rem);
+  font-size: clamp(1.2rem, 2.8vw, 1.65rem);
   line-height: 1;
   color: var(--brand-deep);
 }
@@ -2322,6 +2374,8 @@ p {
 .buzzer-team-card header > strong:last-child {
   text-align: right;
   color: var(--brand-deep);
+  font-size: clamp(1.95rem, 4vw, 2.65rem);
+  letter-spacing: -0.06em;
 }
 
 .buzzer-roster-row {
@@ -2333,6 +2387,7 @@ p {
 .buzzer-roster-row span:nth-child(2) {
   flex: 1;
   color: var(--brand-deep);
+  font-size: 0.96rem;
 }
 
 .buzzer-roster-row .mini-button {
@@ -2362,7 +2417,7 @@ p {
 
 .buzzer-buzz-card p {
   color: var(--muted);
-  font-weight: 800;
+  font-weight: 600;
 }
 
 .buzzer-choice-label,
@@ -2375,12 +2430,13 @@ p {
   align-items: start;
   background: rgba(255, 255, 255, 0.72);
   border-color: rgba(148, 163, 184, 0.12);
+  font-size: 0.95rem;
 }
 
 .buzzer-log-entry span {
   color: rgba(148, 163, 184, 0.84);
-  font-size: 0.84rem;
-  font-weight: 800;
+  font-size: 0.8rem;
+  font-weight: 700;
 }
 
 .footer {

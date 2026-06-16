@@ -575,9 +575,14 @@ function OrganizerConsole({
         <div>
           <span className="eyebrow">Organizer console</span>
           <h1>Game room</h1>
-          <button className="ghost-button buzzer-room-code-button" onClick={() => onCopyCode(room.code)} type="button" title="Copy game code">
-            #{room.code}
-          </button>
+          <div className="buzzer-room-code-actions">
+            <a className="ghost-button buzzer-room-code-link" href={`/science-bowl/buzzer?room=${encodeURIComponent(room.code)}`}>
+              #{room.code}
+            </a>
+            <button className="ghost-button buzzer-room-code-copy" onClick={() => onCopyCode(room.code)} type="button" title="Copy game code">
+              Copy
+            </button>
+          </div>
         </div>
         <span className="badge neutral">Recovery password: {organizerPassword}</span>
       </div>
@@ -728,9 +733,14 @@ function ParticipantRoom({
       <div className="buzzer-participant-header">
         <div>
           <span className="eyebrow">Game</span>
-          <button className="ghost-button buzzer-room-code-button" onClick={() => onCopyCode(room.code)} type="button" title="Copy game code">
-            #{room.code}
-          </button>
+          <div className="buzzer-room-code-actions">
+            <a className="ghost-button buzzer-room-code-link" href={`/science-bowl/buzzer?room=${encodeURIComponent(room.code)}`}>
+              #{room.code}
+            </a>
+            <button className="ghost-button buzzer-room-code-copy" onClick={() => onCopyCode(room.code)} type="button" title="Copy game code">
+              Copy
+            </button>
+          </div>
         </div>
         <div>
           <span className="eyebrow">Timer</span>
