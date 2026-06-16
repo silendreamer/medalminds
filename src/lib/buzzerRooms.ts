@@ -150,6 +150,11 @@ function stripInlineMultipleChoiceOptions(prompt: string) {
   return stripped || prompt;
 }
 
+function stripQuestionFormatPrefix(prompt: string) {
+  const stripped = prompt.replace(/^\s*(multiple choice|short answer)\s+/i, "").trim();
+  return stripped || prompt;
+}
+
 function effectiveStatus(room: RoomWithRelations) {
   if (room.status === "ENDED") return "ENDED";
   if (room.questionClockStartedAt && questionClockRemaining(room) <= 0 && room.status !== "PAUSED") return "TIMEOUT";
@@ -206,7 +211,7 @@ function questionForOrganizer(room: RoomWithRelations): (PracticeQuestion & { co
         ? "Advanced"
         : "Intermediate",
     type,
-    prompt: stripInlineMultipleChoiceOptions(question.prompt),
+    prompt: stripQuestionFormatPrefix(stripInlineMultipleChoiceOptions(question.prompt)),
     choices: type === "multiple_choice" ? choices : undefined,
     correctAnswer: correctText,
     alternateAnswers: [],

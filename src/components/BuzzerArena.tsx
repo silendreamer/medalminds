@@ -83,8 +83,8 @@ type SetupState = {
 
 const letters = ["W", "X", "Y", "Z"];
 const DEFAULT_SETUP: SetupState = {
-  teamAName: "Team A",
-  teamBName: "Team B",
+  teamAName: "",
+  teamBName: "",
   totalRounds: 3,
   timerMinutes: 10
 };
@@ -403,13 +403,22 @@ export function BuzzerArena() {
               <label className="card buzzer-setup-card">
                 <span className="buzzer-team-letter">A</span>
                 <span className="eyebrow">Team name</span>
-                <input value={setup.teamAName} onChange={(event) => setSetup((current) => ({ ...current, teamAName: event.target.value }))} />
+                <input
+                  autoFocus
+                  value={setup.teamAName}
+                  onChange={(event) => setSetup((current) => ({ ...current, teamAName: event.target.value }))}
+                  placeholder="Team A"
+                />
                 <p className="subtitle">Pick anything fun. You can rename this later.</p>
               </label>
               <label className="card buzzer-setup-card highlight">
                 <span className="buzzer-team-letter">B</span>
                 <span className="eyebrow">Team name</span>
-                <input value={setup.teamBName} onChange={(event) => setSetup((current) => ({ ...current, teamBName: event.target.value }))} />
+                <input
+                  value={setup.teamBName}
+                  onChange={(event) => setSetup((current) => ({ ...current, teamBName: event.target.value }))}
+                  placeholder="Team B"
+                />
                 <p className="subtitle">Pick anything fun. You can rename this later.</p>
               </label>
             </div>
