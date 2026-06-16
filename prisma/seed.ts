@@ -6,6 +6,7 @@ import { Pool } from "pg";
 import { buzzerQuestions } from "../src/data/buzzerQuestions";
 import { competitions } from "../src/data/competitions";
 import { lessons } from "../src/data/lessons";
+import { scienceBowlMiddleSchoolSubjects } from "../src/data/scienceBowlMiddleSchoolCurriculum";
 import { tests } from "../src/data/tests";
 
 loadDotenv({ path: ".env.local", override: false, quiet: true });
@@ -29,7 +30,15 @@ if (!databaseUrl) {
   throw new Error("DATABASE_URL is required to seed the database.");
 }
 
-const pool = new Pool({ connectionString: databaseUrl });
+const poolConnectionString = new URL(databaseUrl);
+poolConnectionString.searchParams.delete("sslmode");
+const poolOptions: any = { connectionString: poolConnectionString.toString() };
+const isSupabaseHost = /supabase\.com/i.test(databaseUrl) || /supabase\.co/i.test(databaseUrl);
+if (process.env.NODE_TLS_REJECT_UNAUTHORIZED === "0" || isSupabaseHost) {
+  poolOptions.ssl = { rejectUnauthorized: false };
+}
+
+const pool = new Pool(poolOptions);
 const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 
@@ -369,6 +378,15 @@ function scienceBowlSchoolLevelForTitle(title: string) {
   return undefined;
 }
 
+function curriculumId(...parts: string[]) {
+  return parts
+    .join("-")
+    .toLowerCase()
+    .replace(/[^a-z0-9-]+/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/(^-|-$)/g, "");
+}
+
 async function getQuestionIdsForTest(test: (typeof tests)[number]) {
   if (test.competitionSlug !== "science-bowl") {
     const existingQuestionIds = new Set(
@@ -663,9 +681,117 @@ async function main() {
     });
   }
 
+  for (const [subjectIndex, subject] of scienceBowlMiddleSchoolSubjects.entries()) {
+    const subjectId = curriculumId("curriculum", "science-bowl", "middle-school", subject.slug);
+
+    await prisma.curriculumSubject.upsert({
+      where: {
+        competitionId_levelId_slug: {
+          competitionId: "science-bowl",
+          levelId: "science-bowl-middle-school",
+          slug: subject.slug
+        }
+      },
+      update: {
+        id: subjectId,
+        name: subject.name,
+        shortDescription: subject.shortDescription,
+        whyItMatters: subject.whyItMatters,
+        highYieldTopics: subject.highYieldTopics,
+        sources: subject.sources,
+        sortOrder: subjectIndex
+      },
+      create: {
+        id: subjectId,
+        competitionId: "science-bowl",
+        levelId: "science-bowl-middle-school",
+        slug: subject.slug,
+        name: subject.name,
+        shortDescription: subject.shortDescription,
+        whyItMatters: subject.whyItMatters,
+        highYieldTopics: subject.highYieldTopics,
+        sources: subject.sources,
+        sortOrder: subjectIndex
+      }
+    });
+
+    for (const [gradeIndex, grade] of subject.grades.entries()) {
+      const gradeId = curriculumId(subjectId, grade.key);
+
+      await prisma.curriculumGrade.upsert({
+        where: {
+          subjectId_key: {
+            subjectId,
+            key: grade.key
+          }
+        },
+        update: {
+          id: gradeId,
+          label: grade.label,
+          sortOrder: gradeIndex
+        },
+        create: {
+          id: gradeId,
+          subjectId,
+          key: grade.key,
+          label: grade.label,
+          sortOrder: gradeIndex
+        }
+      });
+
+      for (const [unitIndex, unit] of grade.units.entries()) {
+        const unitId = curriculumId(gradeId, unit.title);
+
+        await prisma.curriculumUnit.upsert({
+          where: {
+            gradeId_title: {
+              gradeId,
+              title: unit.title
+            }
+          },
+          update: {
+            id: unitId,
+            sortOrder: unitIndex
+          },
+          create: {
+            id: unitId,
+            gradeId,
+            title: unit.title,
+            sortOrder: unitIndex
+          }
+        });
+
+        for (const [topicIndex, topic] of unit.topics.entries()) {
+          await prisma.curriculumTopic.upsert({
+            where: {
+              unitId_title: {
+                unitId,
+                title: topic
+              }
+            },
+            update: {
+              id: curriculumId(unitId, topic),
+              sortOrder: topicIndex
+            },
+            create: {
+              id: curriculumId(unitId, topic),
+              unitId,
+              title: topic,
+              sortOrder: topicIndex
+            }
+          });
+        }
+      }
+    }
+  }
+
   const counts = await Promise.all([
     prisma.competition.count(),
     prisma.competitionLevel.count(),
+    prisma.curriculumSubject.count(),
+    prisma.curriculumGrade.count(),
+    prisma.curriculumUnit.count(),
+    prisma.curriculumTopic.count(),
     prisma.concept.count(),
     prisma.question.count(),
     prisma.answer.count(),
@@ -675,7 +801,7 @@ async function main() {
   ]);
 
   console.log(
-    `Seed complete: ${counts[0]} competitions, ${counts[1]} competition levels, ${counts[2]} concepts, ${counts[3]} questions, ${counts[4]} answers, ${counts[5]} lessons, ${counts[6]} tests, ${counts[7]} buzzer questions.`
+    `Seed complete: ${counts[0]} competitions, ${counts[1]} competition levels, ${counts[2]} curriculum subjects, ${counts[3]} curriculum grades, ${counts[4]} curriculum units, ${counts[5]} curriculum topics, ${counts[6]} concepts, ${counts[7]} questions, ${counts[8]} answers, ${counts[9]} lessons, ${counts[10]} tests, ${counts[11]} buzzer questions.`
   );
 }
 

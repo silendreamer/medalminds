@@ -39,6 +39,7 @@ model Competition {
   subdomain        String             @unique
   categories       String[]
   concepts         Concept[]
+  curriculumSubjects CurriculumSubject[]
   levels           CompetitionLevel[]
   questions        Question[]
   lessons          Lesson[]
@@ -57,6 +58,7 @@ model CompetitionLevel {
   description   String?
   schoolLevel   SchoolLevel?
   sortOrder     Int          @default(0)
+  curriculumSubjects CurriculumSubject[]
   questions     Question[]
   lessons       Lesson[]
   tests         Test[]
@@ -94,6 +96,7 @@ model Question {
   answers          Answer[]
   answerExplanations AnswerExplanation[]
   concepts         QuestionConcept[]
+  curriculumTopics  CurriculumTopicQuestion[]
   tests            TestQuestion[]
   buzzerRooms      BuzzerRoom[]
   createdAt        DateTime       @default(now())
@@ -188,6 +191,7 @@ model Lesson {
   keyConcepts      String[]
   contentSections  Json
   reviewQuestions  String[]
+  curriculumTopics CurriculumTopicLesson[]
   createdAt        DateTime    @default(now())
   updatedAt        DateTime    @updatedAt
 
@@ -245,6 +249,96 @@ model BuzzerQuestion {
   updatedAt         DateTime    @updatedAt
 
   @@index([competitionId])
+}
+
+model CurriculumSubject {
+  id               String            @id
+  competitionId    String
+  competition      Competition       @relation(fields: [competitionId], references: [id], onDelete: Cascade)
+  levelId          String?
+  competitionLevel CompetitionLevel? @relation(fields: [levelId], references: [id], onDelete: SetNull)
+  slug             String
+  name             String
+  shortDescription String
+  whyItMatters     String
+  highYieldTopics  String[]
+  sources          String[]
+  sortOrder        Int               @default(0)
+  grades           CurriculumGrade[]
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+
+  @@unique([competitionId, levelId, slug])
+  @@index([competitionId])
+  @@index([levelId])
+}
+
+model CurriculumGrade {
+  id          String           @id
+  subjectId   String
+  subject     CurriculumSubject @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  key         String
+  label       String
+  sortOrder   Int              @default(0)
+  units       CurriculumUnit[]
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  @@unique([subjectId, key])
+  @@index([subjectId])
+}
+
+model CurriculumUnit {
+  id         String           @id
+  gradeId    String
+  grade      CurriculumGrade  @relation(fields: [gradeId], references: [id], onDelete: Cascade)
+  title      String
+  sortOrder  Int              @default(0)
+  topics     CurriculumTopic[]
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+
+  @@unique([gradeId, title])
+  @@index([gradeId])
+}
+
+model CurriculumTopic {
+  id         String                  @id
+  unitId     String
+  unit       CurriculumUnit          @relation(fields: [unitId], references: [id], onDelete: Cascade)
+  title      String
+  sortOrder  Int                     @default(0)
+  lessons    CurriculumTopicLesson[]
+  questions  CurriculumTopicQuestion[]
+  createdAt  DateTime                @default(now())
+  updatedAt  DateTime                @updatedAt
+
+  @@unique([unitId, title])
+  @@index([unitId])
+}
+
+model CurriculumTopicLesson {
+  topicId    String
+  lessonId   String
+  position   Int         @default(0)
+  topic      CurriculumTopic @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  lesson     Lesson      @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@id([topicId, lessonId])
+  @@index([lessonId])
+  @@unique([topicId, position])
+}
+
+model CurriculumTopicQuestion {
+  topicId    String
+  questionId String
+  position   Int         @default(0)
+  topic      CurriculumTopic @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  question   Question    @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@id([topicId, questionId])
+  @@index([questionId])
+  @@unique([topicId, position])
 }
 
 model BuzzerRoom {

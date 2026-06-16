@@ -3,8 +3,11 @@ import { buzzerQuestions as localBuzzerQuestions } from "@/data/buzzerQuestions"
 import { competitions as localCompetitions } from "@/data/competitions";
 import { lessons as localLessons } from "@/data/lessons";
 import { practiceQuestions as localPracticeQuestions } from "@/data/practiceQuestions";
+import {
+  scienceBowlMiddleSchoolSubjects as staticScienceBowlMiddleSchoolSubjects
+} from "@/data/scienceBowlMiddleSchoolCurriculum";
 import { tests as localTests } from "@/data/tests";
-import type { CompetitionSlug, Lesson, PracticeQuestion, Test } from "@/types";
+import type { CompetitionSlug, CurriculumSubject, Lesson, PracticeQuestion, Test } from "@/types";
 import { getPrisma, hasDatabaseUrl } from "./db";
 
 export type SchoolLevelFilter = "MIDDLE_SCHOOL" | "HIGH_SCHOOL";
@@ -32,6 +35,21 @@ type DbTestWithQuestions = Prisma.TestGetPayload<{
   };
 }>;
 type DbBuzzerQuestion = Prisma.BuzzerQuestionGetPayload<Record<string, never>>;
+type DbCurriculumSubject = Prisma.CurriculumSubjectGetPayload<{
+  include: {
+    grades: {
+      orderBy: { sortOrder: "asc" };
+      include: {
+        units: {
+          orderBy: { sortOrder: "asc" };
+          include: {
+            topics: { orderBy: { sortOrder: "asc" } };
+          };
+        };
+      };
+    };
+  };
+}>;
 
 function fromDbDifficulty(difficulty: Difficulty | string): PracticeQuestion["difficulty"] {
   if (difficulty === Difficulty.FOUNDATIONAL || difficulty === "FOUNDATIONAL") return "Foundational";
@@ -130,6 +148,37 @@ function toBuzzerQuestion(question: DbBuzzerQuestion) {
   };
 }
 
+function toCurriculumSubject(subject: DbCurriculumSubject): CurriculumSubject {
+  return {
+    id: subject.id,
+    slug: subject.slug,
+    competitionSlug: subject.competitionId as CompetitionSlug,
+    levelId: subject.levelId ?? undefined,
+    name: subject.name,
+    shortDescription: subject.shortDescription,
+    whyItMatters: subject.whyItMatters,
+    highYieldTopics: subject.highYieldTopics,
+    sources: subject.sources,
+    sortOrder: subject.sortOrder,
+    grades: subject.grades.map((grade) => ({
+      id: grade.id,
+      key: grade.key,
+      label: grade.label,
+      sortOrder: grade.sortOrder,
+      units: grade.units.map((unit) => ({
+        id: unit.id,
+        title: unit.title,
+        sortOrder: unit.sortOrder,
+        topics: unit.topics.map((topic) => ({
+          id: topic.id,
+          title: topic.title,
+          sortOrder: topic.sortOrder
+        }))
+      }))
+    }))
+  };
+}
+
 function isDbEnabled() {
   return hasDatabaseUrl;
 }
@@ -215,6 +264,71 @@ export async function getCompetitionBySlug(slug: string) {
 
 export function isCompetitionSlug(slug: string): slug is CompetitionSlug {
   return localCompetitions.some((competition) => competition.slug === slug);
+}
+
+export async function getScienceBowlMiddleSchoolCurriculumSubjects() {
+  if (!isDbEnabled()) {
+    return staticScienceBowlMiddleSchoolSubjects.map((subject, subjectIndex) => ({
+      id: `static-${subject.slug}`,
+      slug: subject.slug,
+      competitionSlug: "science-bowl" as const,
+      levelId: "science-bowl-middle-school",
+      name: subject.name,
+      shortDescription: subject.shortDescription,
+      whyItMatters: subject.whyItMatters,
+      highYieldTopics: subject.highYieldTopics,
+      sources: subject.sources,
+      sortOrder: subjectIndex,
+      grades: subject.grades.map((grade, gradeIndex) => ({
+        id: `static-${subject.slug}-${grade.key}`,
+        key: grade.key,
+        label: grade.label,
+        sortOrder: gradeIndex,
+        units: grade.units.map((unit, unitIndex) => ({
+          id: `static-${subject.slug}-${grade.key}-${unitIndex}`,
+          title: unit.title,
+          sortOrder: unitIndex,
+          topics: unit.topics.map((topic, topicIndex) => ({
+            id: `static-${subject.slug}-${grade.key}-${unitIndex}-${topicIndex}`,
+            title: topic,
+            sortOrder: topicIndex
+          }))
+        }))
+      }))
+    }));
+  }
+
+  const subjects = await getPrisma().curriculumSubject.findMany({
+    where: {
+      competitionId: "science-bowl",
+      levelId: "science-bowl-middle-school"
+    },
+    orderBy: { sortOrder: "asc" },
+    include: {
+      grades: {
+        orderBy: { sortOrder: "asc" },
+        include: {
+          units: {
+            orderBy: { sortOrder: "asc" },
+            include: {
+              topics: { orderBy: { sortOrder: "asc" } }
+            }
+          }
+        }
+      }
+    }
+  });
+
+  return subjects.map(toCurriculumSubject);
+}
+
+export async function getScienceBowlMiddleSchoolCurriculumSubjectByName(name?: string | null) {
+  const subjects = await getScienceBowlMiddleSchoolCurriculumSubjects();
+  if (!name) return undefined;
+  const normalized = name.trim().toLowerCase();
+  return subjects.find(
+    (subject) => subject.name.toLowerCase() === normalized || subject.slug === normalized.replace(/\s+/g, "-")
+  );
 }
 
 export async function getQuestionsByCompetition(slug: CompetitionSlug) {

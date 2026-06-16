@@ -53,3 +53,38 @@ export interface Test {
   description: string;
   questionIds: string[];
 }
+
+export interface CurriculumTopic {
+  id: string;
+  title: string;
+  sortOrder: number;
+}
+
+export interface CurriculumUnit {
+  id: string;
+  title: string;
+  sortOrder: number;
+  topics: CurriculumTopic[];
+}
+
+export interface CurriculumGrade {
+  id: string;
+  key: string;
+  label: string;
+  sortOrder: number;
+  units: CurriculumUnit[];
+}
+
+export interface CurriculumSubject {
+  id: string;
+  slug: string;
+  competitionSlug: CompetitionSlug;
+  levelId?: string;
+  name: string;
+  shortDescription: string;
+  whyItMatters: string;
+  highYieldTopics: string[];
+  sources: string[];
+  sortOrder: number;
+  grades: CurriculumGrade[];
+}

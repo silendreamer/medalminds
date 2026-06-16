@@ -2,12 +2,13 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { LessonCard } from "@/components/LessonCard";
-import { scienceBowlMiddleSchoolSubjects, getScienceBowlMiddleSchoolSubjectByName } from "@/data/scienceBowlMiddleSchoolCurriculum";
 import { buildStudyBreadcrumbs } from "@/lib/breadcrumbs";
 import {
   getCompetitionBySlug,
   getContentCountsForSubject,
   getLessonsByCompetition,
+  getScienceBowlMiddleSchoolCurriculumSubjectByName,
+  getScienceBowlMiddleSchoolCurriculumSubjects,
   isCompetitionSlug,
   type SchoolLevelFilter
 } from "@/lib/data";
@@ -35,12 +36,13 @@ export default async function LearningPage({
         : undefined;
 
   const isScienceBowlMiddleSchool = competitionSlug === "science-bowl" && schoolLevel === "MIDDLE_SCHOOL";
-  const curriculumSubject = isScienceBowlMiddleSchool ? getScienceBowlMiddleSchoolSubjectByName(subject) : undefined;
+  const curriculumSubjects = isScienceBowlMiddleSchool ? await getScienceBowlMiddleSchoolCurriculumSubjects() : [];
+  const curriculumSubject = isScienceBowlMiddleSchool ? await getScienceBowlMiddleSchoolCurriculumSubjectByName(subject) : undefined;
   const lessons = await getLessonsByCompetition(competitionSlug, subject, schoolLevel);
 
   if (isScienceBowlMiddleSchool && !subject) {
     const subjectCounts = await Promise.all(
-      scienceBowlMiddleSchoolSubjects.map(async (item) => ({
+      curriculumSubjects.map(async (item) => ({
         subject: item,
         counts: await getContentCountsForSubject(competitionSlug, item.name, schoolLevel)
       }))
@@ -166,9 +168,9 @@ export default async function LearningPage({
                         <h3>{unit.title}</h3>
                         <div className="curriculum-topic-list">
                           {unit.topics.map((topic) => (
-                            <div className="curriculum-topic-row" key={topic}>
+                            <div className="curriculum-topic-row" key={topic.id}>
                               <span />
-                              <p>{topic}</p>
+                              <p>{topic.title}</p>
                             </div>
                           ))}
                         </div>
