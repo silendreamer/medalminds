@@ -28,9 +28,6 @@ export function Header() {
             </Link>
           ))}
         </nav>
-        <Link className="button nav-cta" href={competitionPath("science-bowl")}>
-          Start Practicing
-        </Link>
       </div>
     </header>
   );

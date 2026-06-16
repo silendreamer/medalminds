@@ -66,17 +66,21 @@ export default async function HomePage() {
           <div className="hero-panel" aria-hidden="true">
             <div className="hero-panel-top">
               <ShieldCheck size={28} />
-              <span>Medal-ready study path</span>
+              <span>Focused study path</span>
             </div>
-            <div className="hero-metric">
-              <strong>{formatApproximateCount(scienceBowlCounts.questions)}</strong>
-              <span>Science Bowl questions indexed by subject and level</span>
-            </div>
-            <div className="hero-panel-grid">
-              <span>Middle School</span>
-              <span>High School</span>
-              <span>Lessons</span>
-              <span>Quick Tests</span>
+            <div className="hero-panel-list">
+              <div className="hero-panel-row">
+                <strong>Science Bowl</strong>
+                <span>{formatApproximateCount(scienceBowlCounts.questions)} questions</span>
+              </div>
+              <div className="hero-panel-row">
+                <strong>Middle School and High School</strong>
+                <span>Level-specific practice flow</span>
+              </div>
+              <div className="hero-panel-row">
+                <strong>Lessons, practice, and buzzer prep</strong>
+                <span>One place to study and review</span>
+              </div>
             </div>
           </div>
         </div>
@@ -124,20 +128,6 @@ export default async function HomePage() {
                 </article>
               );
             })}
-          </div>
-        </div>
-      </section>
-
-      <section className="section">
-        <div className="container">
-          <div className="cta-band">
-            <div>
-              <span className="eyebrow">Start simple</span>
-              <h2>Start with one competition. Build momentum from there.</h2>
-            </div>
-            <Link className="button button-lg" href={competitionPath("science-bowl")}>
-              Start Practicing
-            </Link>
           </div>
         </div>
       </section>

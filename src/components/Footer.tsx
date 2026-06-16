@@ -12,7 +12,6 @@ export function Footer() {
           </span>
           <span className="brand-copy">
             <strong>Medal Minds</strong>
-            <span>Calm, focused academic competition prep</span>
           </span>
         </div>
         <p>

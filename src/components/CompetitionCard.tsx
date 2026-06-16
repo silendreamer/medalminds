@@ -11,20 +11,20 @@ export function CompetitionCard({
   counts: { questions: number; lessons: number };
 }) {
   const isScienceBowl = competition.slug === "science-bowl";
-  const questionStat = isScienceBowl ? `${formatApproximateCount(counts.questions)} practice questions` : "Coming soon";
+  const questionValue = isScienceBowl ? formatApproximateCount(counts.questions) : "Soon";
+  const questionLabel = isScienceBowl ? "Practice questions" : "Question bank";
 
   return (
     <article className="competition-card">
       <div className="competition-card-content">
-        <div className="stack compact">
-          <span className="eyebrow">{competition.subdomain}.medalminds.com</span>
+        <div className="stack compact competition-card-header">
           <h2>{competition.name}</h2>
         </div>
         <p className="card-copy">{competition.shortDescription}</p>
         <div className="mini-stat-list">
           <span>
-            <strong>{questionStat}</strong>
-            <small>Questions</small>
+            <strong>{questionValue}</strong>
+            <small>{questionLabel}</small>
           </span>
           <span>
             <strong>{formatApproximateCount(counts.lessons)}</strong>
