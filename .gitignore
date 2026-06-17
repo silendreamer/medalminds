@@ -6,4 +6,13 @@ dist
 *.tsbuildinfo
 .env*
 !.env.example
-.cache/
+.cache
+.vercel
+.turbo
+coverage/
+reports/
+concept-batch-logs/
+tmp/
+*.sqlite
+*.db
+scripts

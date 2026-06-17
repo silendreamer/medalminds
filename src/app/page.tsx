@@ -5,6 +5,25 @@ import { competitions, getContentCounts } from "@/lib/data";
 import { formatApproximateCount } from "@/lib/format";
 import { competitionPath } from "@/lib/routes";
 
+const heroTrustPills = [
+  "Built from 20,000+ questions",
+  "High-yield topic paths",
+  "Buzzer practice included"
+];
+
+const learningPathItems = [
+  { label: "Cells & Organelles", status: "Mastered" },
+  { label: "Genetics", status: "In Progress" },
+  { label: "Astronomy", status: "Up Next" },
+  { label: "Electricity", status: "Locked" },
+  { label: "Energy", status: "Locked" }
+];
+
+const learningPathStats = [
+  { label: "Questions solved", value: "827" },
+  { label: "Weak topics found", value: "3" }
+];
+
 const features = [
   {
     title: "Focused practice",
@@ -43,31 +62,31 @@ export default async function HomePage() {
       <section className="home-hero">
         <div className="container hero-grid">
           <div className="hero-copy">
-            <span className="eyebrow">Premium competition prep</span>
-            <h1>Train smarter for academic competitions</h1>
+            <span className="eyebrow">High-yield competition prep</span>
+            <h1>Stop studying everything. Study what actually gets asked.</h1>
             <p className="subtitle">
-              Practice Science Bowl, Science Olympiad, and Math Olympiad with focused lessons, question banks, and
-              competition-specific prep paths.
+              Medal Minds turns {formatApproximateCount(scienceBowlCounts.questions)} competition questions into focused
+              lessons, high-yield practice, and buzzer drills for Science Bowl, Science Olympiad, and Math competitions.
             </p>
             <div className="hero-actions">
               <Link className="button button-lg" href={competitionPath("science-bowl")}>
-                Start with Science Bowl
+                Start Science Bowl Prep
               </Link>
               <Link className="ghost-button button-lg" href="#competitions">
-                Explore competitions
+                See How It Works
               </Link>
             </div>
             <div className="trust-strip" aria-label="Platform highlights">
-              <span>{formatApproximateCount(scienceBowlCounts.questions)} practice questions</span>
-              <span>Competition-specific lessons</span>
-              <span>Built for focused prep</span>
+              {heroTrustPills.map((pill) => (
+                <span key={pill}>{pill}</span>
+              ))}
             </div>
           </div>
           <div className="hero-panel" aria-hidden="true">
             <div className="hero-panel-topline">
               <div className="hero-panel-top">
                 <ShieldCheck size={20} />
-                <span>Focused study path</span>
+                <span>Personalized study path</span>
               </div>
               <div className="hero-panel-dots">
                 <span />
@@ -79,43 +98,43 @@ export default async function HomePage() {
               <div className="hero-preview-header">
                 <div>
                   <span className="eyebrow">Science Bowl</span>
-                  <strong>{formatApproximateCount(scienceBowlCounts.questions)} questions</strong>
+                  <strong>Learning Path</strong>
                 </div>
-                <div className="hero-preview-badge">Active track</div>
+                <div className="hero-preview-badge">43% complete</div>
               </div>
 
               <div className="hero-preview-progress">
                 <div className="hero-preview-progress-bar">
-                  <span />
+                  <span style={{ width: "43%" }} />
                 </div>
                 <div className="hero-preview-progress-labels">
-                  <span>Middle School and High School</span>
-                  <span>Level-specific practice flow</span>
+                  <span>Science Bowl Learning Path</span>
+                  <span>43% complete</span>
                 </div>
               </div>
 
               <div className="hero-panel-list">
-                <div className="hero-panel-row">
-                  <strong>Lessons, practice, and buzzer prep</strong>
-                  <span>One place to study and review</span>
-                </div>
-                <div className="hero-panel-row compact">
-                  <div className="hero-panel-subject">
-                    <span className="hero-panel-subject-dot science" />
-                    <strong>Science Bowl</strong>
+                {learningPathItems.map((item) => (
+                  <div className="hero-panel-row compact" key={item.label}>
+                    <div className="hero-panel-subject">
+                      <span className="hero-panel-subject-dot science" />
+                      <strong>{item.label}</strong>
+                    </div>
+                    <span>{item.status}</span>
                   </div>
-                  <span>Focused study path</span>
-                </div>
+                ))}
               </div>
 
               <div className="hero-preview-stack">
                 <div className="hero-preview-card soft">
-                  <span>Practice path</span>
-                  <strong>Middle School and High School</strong>
+                  <span>Questions solved</span>
+                  <strong>827</strong>
+                  <span>Weak topics found</span>
+                  <strong>3</strong>
                 </div>
                 <div className="hero-preview-card">
-                  <span>Study loop</span>
-                  <strong>Lessons, practice, and buzzer prep</strong>
+                  <span>Next drill</span>
+                  <strong>Genetics buzzer set</strong>
                 </div>
               </div>
             </div>

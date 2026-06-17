@@ -179,6 +179,51 @@ Do not run with a very high `--max-new-concepts` unless you intentionally want t
 
 The importer reuses the existing Prisma schema and does not introduce a new ORM.
 
+## Classify Science Bowl topics and subtopics
+
+Use the topic classification pipeline to assign reusable `topic`, `subtopic`, `key_concept`, `difficulty`, and `confidence` fields to questions without modifying the original question content. The results are stored in a separate `QuestionTopicClassification` table.
+
+Dry run a small batch:
+
+```bash
+npm run classify:question-topics -- --dry-run --limit=10
+```
+
+Run one subject only:
+
+```bash
+npm run classify:question-topics -- --write --subject="Life Science" --limit=25
+```
+
+Run a limited test batch:
+
+```bash
+npm run classify:question-topics -- --write --limit=50 --batch-size=5
+```
+
+Run the full classification backfill:
+
+```bash
+npm run classify:question-topics -- --write --limit=50000
+```
+
+Regenerate reports:
+
+```bash
+npm run report:question-topics
+```
+
+Useful flags:
+
+- `--dry-run` prints proposed classifications without writing to the database.
+- `--write` persists results to PostgreSQL.
+- `--limit=NUMBER` caps how many questions are processed.
+- `--batch-size=NUMBER` controls worker batch size.
+- `--subject="Math"` or `--category="Math"` filters by question subject/category.
+- `--overwrite` reprocesses questions that already have classifications.
+
+The report command writes JSON and Markdown summaries into `reports/`, including topic counts by subject, subtopic counts by subject, low-confidence rows, Needs Review rows, and suggested 80/20 curriculum topics based on frequency.
+
 ## Add a new competition
 
 1. Add a competition record to `src/data/competitions.ts`.

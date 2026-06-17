@@ -2794,7 +2794,7 @@ p {
 .footer {
   margin-top: 36px;
   border-top: 1px solid var(--line);
-  padding: 24px 0 28px;
+  padding: 10px 0 10px;
   background: rgba(255, 252, 246, 0.78);
   color: var(--brand-deep);
 }

@@ -18,7 +18,9 @@
     "generate:answer-explanations": "tsx scripts/generate-answer-explanations.ts",
     "generate:question-concepts": "tsx scripts/generate-question-concepts.ts",
     "expand:concept-lessons": "tsx scripts/expand-concept-lessons.ts",
-    "batch:question-concepts": "tsx scripts/run-question-concept-batches.ts"
+    "batch:question-concepts": "tsx scripts/run-question-concept-batches.ts",
+    "classify:question-topics": "tsx scripts/classify-question-topics.ts",
+    "report:question-topics": "tsx scripts/topic-classification-report.ts"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.8.0",
