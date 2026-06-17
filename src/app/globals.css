@@ -654,10 +654,6 @@ p {
   align-items: stretch;
 }
 
-.competition-grid > .competition-card:first-child {
-  grid-column: span 2;
-}
-
 .competition-card {
   position: relative;
   min-height: 100%;
