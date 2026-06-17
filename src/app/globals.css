@@ -2813,10 +2813,15 @@ p {
 
 .footer-brand {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  align-items: start;
+  gap: 10px;
+  max-width: 58rem;
+}
+
+.footer-brand-row {
+  display: inline-flex;
+  align-items: center;
   gap: 12px;
-  font-size: 0.98rem;
+  flex-wrap: wrap;
 }
 
 .footer .brand-mark {
@@ -2825,7 +2830,9 @@ p {
 }
 
 .footer .brand-copy {
-  gap: 4px;
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
 }
 
 .footer p {
@@ -2997,9 +3004,11 @@ p {
   }
 
   .footer-brand {
-    grid-template-columns: auto minmax(0, 1fr);
+    gap: 8px;
+  }
+
+  .footer-brand-row {
     gap: 10px;
-    align-items: start;
   }
 
   .footer .brand-mark {
@@ -3163,8 +3172,7 @@ p {
   }
 
   .footer-brand {
-    grid-template-columns: auto minmax(0, 1fr);
-    gap: 10px;
+    gap: 8px;
   }
 
   .footer .brand-copy strong {
