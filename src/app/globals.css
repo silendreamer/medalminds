@@ -2835,11 +2835,6 @@ p {
   min-height: 40px;
 }
 
-.footer p {
-  max-width: 860px;
-  font-size: 0.94rem;
-}
-
 .disclaimer {
   display: block;
   max-width: 58rem;
