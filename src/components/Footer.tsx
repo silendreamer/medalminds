@@ -13,11 +13,9 @@ export function Footer() {
           <span className="brand-copy">
             <strong>Medal Minds</strong>
           </span>
+          <span className="disclaimer">This is an independent educational practice platform. It is not affiliated with or 
+            endorsed by any official competition organization.</span>
         </div>
-        <p>
-          This is an independent educational practice platform. It is not affiliated with or endorsed by any
-          official competition organization.
-        </p>
       </div>
     </footer>
   );
