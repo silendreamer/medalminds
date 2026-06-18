@@ -1,6 +1,6 @@
 "use client";
 
-import { Medal } from "lucide-react";
+import { MedalMark } from "@/components/MedalMark";
 
 export function Footer() {
   return (
@@ -9,7 +9,7 @@ export function Footer() {
         <div className="footer-brand">
           <div className="footer-brand-row">
             <span aria-hidden="true" className="brand-mark">
-              <Medal size={22} />
+              <MedalMark size={40} />
             </span>
             <span className="brand-copy">
               <strong>Medal Minds</strong>

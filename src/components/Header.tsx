@@ -1,9 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { Medal } from "lucide-react";
 import { competitions } from "@/data/competitions";
 import { competitionPath } from "@/lib/routes";
+import { MedalMark } from "@/components/MedalMark";
 
 export function Header() {
   return (
@@ -11,7 +11,7 @@ export function Header() {
       <div className="nav-inner">
         <Link className="brand" href="/">
           <span aria-hidden="true" className="brand-mark">
-            <Medal size={24} />
+            <MedalMark size={44} />
           </span>
           <span className="brand-copy">
             <strong>Medal Minds</strong>

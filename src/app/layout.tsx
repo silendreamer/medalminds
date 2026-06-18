@@ -6,7 +6,11 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "MedalMinds",
-  description: "Practice, learn, and test across academic competitions with MedalMinds."
+  description: "Practice, learn, and test across academic competitions with MedalMinds.",
+  icons: {
+    icon: "/assets/medalminds-favicon.svg",
+    shortcut: "/assets/medalminds-favicon.svg"
+  }
 };
 
 const headingFont = Space_Grotesk({
