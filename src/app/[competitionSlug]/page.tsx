@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { scienceBowlMiddleSchoolSubjects } from "@/data/scienceBowlMiddleSchoolCurriculum";
@@ -12,6 +13,7 @@ import {
   isCompetitionSlug
 } from "@/lib/data";
 import { buzzerPath, learningPath, practicePath, scienceBowlInfoPath, testsPath } from "@/lib/routes";
+import { buildMetadata, getCompetitionSeo } from "@/lib/seo";
 
 type CompetitionAction = "learning" | "practice" | "tests" | "buzzer";
 
@@ -28,6 +30,27 @@ function buildQuery(params: Array<[string, string | undefined]>) {
     .map(([key, value]) => `${key}=${encodeURIComponent(value ?? "")}`)
     .join("&");
   return query ? `?${query}` : "";
+}
+
+export async function generateMetadata({
+  params
+}: {
+  params: Promise<{ competitionSlug: string }>;
+}): Promise<Metadata> {
+  const { competitionSlug } = await params;
+  if (!isCompetitionSlug(competitionSlug)) {
+    return {};
+  }
+
+  const seo = getCompetitionSeo(competitionSlug);
+  if (!seo) {
+    return {};
+  }
+
+  return buildMetadata({
+    ...seo,
+    path: `/${competitionSlug}`
+  });
 }
 
 export default async function CompetitionPage({

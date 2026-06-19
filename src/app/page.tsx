@@ -1,9 +1,19 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { BookOpen, Brain, ChartNoAxesColumnIncreasing, Route, ShieldCheck } from "lucide-react";
 import { CompetitionCard } from "@/components/CompetitionCard";
 import { competitions, getContentCounts } from "@/lib/data";
 import { formatApproximateCount } from "@/lib/format";
 import { competitionPath } from "@/lib/routes";
+import { buildMetadata } from "@/lib/seo";
+
+export const metadata: Metadata = buildMetadata({
+  title: "Medal Minds | National Science Bowl, Science Bowl & Olympiad Prep",
+  description:
+    "Prepare for the National Science Bowl, Science Bowl, NSB, Science Olympiad, and Math Olympiad with practice questions, lessons, buzzer drills, and high-yield study paths.",
+  path: "/",
+  keywords: ["National Science Bowl practice", "NSB prep", "olympiad practice"]
+});
 
 const heroTrustPills = [
   "Built from 20,000+ questions",

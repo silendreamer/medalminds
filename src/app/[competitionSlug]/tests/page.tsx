@@ -1,12 +1,37 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { QuickTestRunner } from "@/components/QuickTestRunner";
 import { buildStudyBreadcrumbs } from "@/lib/breadcrumbs";
 import { getCompetitionBySlug, getRandomMultipleChoiceQuestions, isCompetitionSlug, type SchoolLevelFilter } from "@/lib/data";
 import { competitionPath } from "@/lib/routes";
+import { buildMetadata } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata({
+  params,
+  searchParams
+}: {
+  params: Promise<{ competitionSlug: string }>;
+  searchParams: Promise<{ subject?: string; level?: string }>;
+}): Promise<Metadata> {
+  const { competitionSlug } = await params;
+  const { subject, level } = await searchParams;
+  if (!isCompetitionSlug(competitionSlug)) return {};
+  const competition = await getCompetitionBySlug(competitionSlug);
+  if (!competition) return {};
+  const levelLabel = competitionSlug === "science-bowl" && level === "middle-school" ? "Middle School " : "";
+  const subjectLabel = subject ? `${subject} ` : "";
+
+  return buildMetadata({
+    title: `${levelLabel}${competition.name} ${subjectLabel}Quizzes & Tests | Medal Minds`,
+    description: `Take quick ${competition.name} ${subjectLabel.toLowerCase()}tests with multiple-choice practice, scoring, and review for academic competition prep.`,
+    path: `/${competitionSlug}/tests`,
+    keywords: [`${competition.name} test`, `${competition.name} quiz`, `${competition.name} multiple choice`, subject ?? ""].filter(Boolean)
+  });
+}
 
 export default async function TestsPage({
   params,

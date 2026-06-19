@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { SimplePracticeQuestion } from "@/components/SimplePracticeQuestion";
@@ -11,8 +12,32 @@ import {
   isCompetitionSlug,
   type SchoolLevelFilter
 } from "@/lib/data";
+import { buildMetadata } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata({
+  params,
+  searchParams
+}: {
+  params: Promise<{ competitionSlug: string }>;
+  searchParams: Promise<{ subject?: string; level?: string }>;
+}): Promise<Metadata> {
+  const { competitionSlug } = await params;
+  const { subject, level } = await searchParams;
+  if (!isCompetitionSlug(competitionSlug)) return {};
+  const competition = await getCompetitionBySlug(competitionSlug);
+  if (!competition) return {};
+  const levelLabel = competitionSlug === "science-bowl" && level === "middle-school" ? "Middle School " : "";
+  const subjectLabel = subject ? `${subject} ` : "";
+
+  return buildMetadata({
+    title: `${levelLabel}${competition.name} ${subjectLabel}Practice Questions | Medal Minds`,
+    description: `Practice ${levelLabel.toLowerCase()}${competition.name} ${subjectLabel.toLowerCase()}questions with instant review, explanations, and competition-focused study links.`,
+    path: `/${competitionSlug}/practice`,
+    keywords: [`${competition.name} practice questions`, `${competition.name} ${subjectLabel}practice`, subject ?? ""].filter(Boolean)
+  });
+}
 
 export default async function PracticePage({
   params,

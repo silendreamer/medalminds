@@ -3,12 +3,15 @@ import type { Metadata } from "next";
 import { BookOpen, CalendarDays, GraduationCap, Microscope, Timer, Trophy, Zap } from "lucide-react";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { competitionPath } from "@/lib/routes";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Science Bowl Team Guide | Medal Minds",
+export const metadata: Metadata = buildMetadata({
+  title: "National Science Bowl Team Guide | Rules, Format & Prep | Medal Minds",
   description:
-    "A practical guide to Science Bowl format, scoring, team roles, preparation, and first steps for students and coaches."
-};
+    "Learn how the National Science Bowl works, including Science Bowl format, scoring, team roles, toss-ups, bonuses, rules, and practical NSB prep steps.",
+  path: "/science-bowl/info-session",
+  keywords: ["National Science Bowl rules", "Science Bowl format", "NSB team guide", "Science Bowl scoring"]
+});
 
 const rulesUrl = "https://science.osti.gov/-/media/wdts/nsb/pdf/NSB-Resources/Rules2026.pdf";
 const doeUrl = "https://www.energy.gov/topics/national-science-bowl";

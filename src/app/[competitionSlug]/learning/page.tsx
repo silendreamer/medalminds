@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { CurriculumTopicExplorer } from "@/components/CurriculumTopicExplorer";
@@ -15,6 +16,30 @@ import {
 } from "@/lib/data";
 import { formatApproximateCount } from "@/lib/format";
 import { learningPath } from "@/lib/routes";
+import { buildMetadata } from "@/lib/seo";
+
+export async function generateMetadata({
+  params,
+  searchParams
+}: {
+  params: Promise<{ competitionSlug: string }>;
+  searchParams: Promise<{ subject?: string; level?: string }>;
+}): Promise<Metadata> {
+  const { competitionSlug } = await params;
+  const { subject, level } = await searchParams;
+  if (!isCompetitionSlug(competitionSlug)) return {};
+  const competition = await getCompetitionBySlug(competitionSlug);
+  if (!competition) return {};
+  const levelLabel = competitionSlug === "science-bowl" && level === "middle-school" ? "Middle School " : "";
+  const subjectLabel = subject ? `${subject} ` : "";
+
+  return buildMetadata({
+    title: `${levelLabel}${competition.name} ${subjectLabel}Lessons & Study Guide | Medal Minds`,
+    description: `Study ${levelLabel.toLowerCase()}${competition.name} ${subjectLabel.toLowerCase()}topics with focused lessons, high-yield concepts, and review paths built for competition prep.`,
+    path: `/${competitionSlug}/learning`,
+    keywords: [`${competition.name} lessons`, `${competition.name} study guide`, subject ?? ""].filter(Boolean)
+  });
+}
 
 export default async function LearningPage({
   params,
