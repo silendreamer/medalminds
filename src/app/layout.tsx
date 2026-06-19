@@ -8,8 +8,12 @@ export const metadata: Metadata = {
   title: "MedalMinds",
   description: "Practice, learn, and test across academic competitions with MedalMinds.",
   icons: {
-    icon: "/assets/medalminds-favicon.svg",
-    shortcut: "/assets/medalminds-favicon.svg"
+    apple: "/assets/favicon-180.png",
+    icon: [
+      { url: "/assets/favicon-32.png", sizes: "32x32", type: "image/png" },
+      { url: "/assets/favicon-192.png", sizes: "192x192", type: "image/png" }
+    ],
+    shortcut: "/assets/favicon-32.png"
   }
 };
 
