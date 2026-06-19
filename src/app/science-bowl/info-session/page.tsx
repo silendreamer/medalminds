@@ -1,81 +1,82 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-import { BookOpen, CalendarDays, Camera, GraduationCap, Mail, Microscope, Timer, Trophy, Zap } from "lucide-react";
+import { BookOpen, CalendarDays, GraduationCap, Microscope, Timer, Trophy, Zap } from "lucide-react";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
-import { competitionPath, scienceBowlInfoPath } from "@/lib/routes";
+import { competitionPath } from "@/lib/routes";
 
 export const metadata: Metadata = {
-  title: "Science Bowl Info Session | Medal Minds",
+  title: "Science Bowl Team Guide | Medal Minds",
   description:
-    "Overview of Science Bowl format, topics, scoring, team setup, preparation, and logistics based on the shared info session presentation."
+    "A practical guide to Science Bowl format, scoring, team roles, preparation, and first steps for students and coaches."
 };
 
-const sourceUrl = "https://drive.google.com/file/d/1kBX9CKPOG5VUI4BdHHsPegqhUrPXAqSt/view";
+const rulesUrl = "https://science.osti.gov/-/media/wdts/nsb/pdf/NSB-Resources/Rules2026.pdf";
+const doeUrl = "https://www.energy.gov/topics/national-science-bowl";
 
-const topics = ["Life Science", "Physical Science", "Earth and Space Science", "Energy", "Mathematics"];
+const topics = ["Biology", "Chemistry", "Earth and Space Science", "Physics", "Energy", "Mathematics"];
 
 const quickFacts = [
   { label: "Sponsor", value: "U.S. Department of Energy", icon: Trophy },
-  { label: "Team size", value: "3 to 5 students", icon: GraduationCap },
-  { label: "Style", value: "Fast-paced buzzer competition", icon: Zap },
-  { label: "Question set", value: "15 toss-up / bonus pairs per round", icon: BookOpen }
+  { label: "Team roster", value: "4 players + 1 alternate", icon: GraduationCap },
+  { label: "Match style", value: "Fast-paced buzzer rounds", icon: Zap },
+  { label: "Question types", value: "Toss-ups and bonuses", icon: BookOpen }
 ];
 
 const sections = [
   {
-    title: "What is Science Bowl?",
+    title: "What Students Compete In",
     body: [
-      "Science Bowl is an academic competition sponsored by the U.S. Department of Energy. It is a fast-paced buzzer-style event built around science and mathematics knowledge.",
-      "Teams typically include 3 to 5 students, and rounds move quickly through toss-up and bonus questions."
+      "Science Bowl is a team competition where students answer science and math questions under time pressure. It rewards knowledge, speed, accuracy, and calm communication.",
+      "A strong team usually blends broad science coverage with a few students who can specialize deeply in areas like biology, physics, chemistry, Earth science, energy, or math."
     ]
   },
   {
-    title: "What topics are covered?",
+    title: "What a Match Feels Like",
     body: [
-      "The presentation lists five core subject areas: Life Science, Physical Science, Earth and Space Science, Energy, and Mathematics.",
-      "That means students need both broad recall and the ability to shift quickly between disciplines."
+      "Matches move quickly. The moderator reads toss-up questions to both teams, students buzz in, and correct toss-up answers unlock bonus questions for that team.",
+      "The best teams do more than memorize facts. They listen carefully, avoid careless buzzes, and know when a teammate is better positioned to answer."
     ]
   },
   {
-    title: "How do questions work?",
+    title: "How Questions Work",
     body: [
-      "There are two question types. Toss-up questions are worth 4 points and, according to the presentation, teams have 7 seconds to answer after recognition. If a toss-up is answered correctly, the team earns a bonus question worth 10 points with 22 seconds to answer.",
-      "For multiple-choice questions, answer options use W, X, Y, and Z instead of A, B, C, and D. Students can answer with either the letter or the full answer choice."
+      "Toss-up questions are worth 4 points. Any active player may buzz in, but the answer must come after recognition by the moderator or judge.",
+      "A correct toss-up earns a bonus question worth 10 points. Bonus questions give the team time to confer and choose one answer."
     ]
   },
   {
-    title: "What are the response rules?",
+    title: "Rules That Matter in Practice",
     body: [
-      "Any of the 4 or 5 team members may answer a toss-up by raising a hand and being recognized by the moderator.",
-      "The deck also notes that team communication is allowed for both toss-ups and bonuses, but a team gets only one opportunity to answer a toss-up. If the toss-up is missed, the bonus is not read and the moderator moves on."
+      "Students should be careful about blurting, answering before recognition, and interrupting a question without being confident. Those mistakes can cost points or remove a team from answering.",
+      "Nonverbal communication is allowed on toss-ups under current DOE rules, while bonuses allow team discussion. Teams should still confirm details with the official rule packet for their event."
     ]
   },
   {
-    title: "What is the competition structure?",
+    title: "How Tournaments Usually Run",
     body: [
-      "The presentation describes at least three preliminary rounds, each using sets of 15 toss-up and bonus questions. The goal in prelims is to score as many points as possible.",
-      "Teams with the highest combined point totals advance to elimination rounds, where sets of 15 questions continue until there is a clear winner."
+      "Most events begin with round-robin or preliminary matches so teams get several games before elimination play. Advancement is usually based on wins, points, or event-specific tiebreakers.",
+      "Regional events feed into the National Science Bowl pathway, so coaches should always check the current rules and regional organizer details before competition day."
     ]
   },
   {
-    title: "How should teams prepare their setup?",
+    title: "What Coaches Handle",
     body: [
-      "The deck recommends two cameras for virtual play: one for Zoom and one showing the workspace, such as a laptop and a phone. A working microphone is also required.",
-      "It explicitly says teams can reach out to sciencebowl@mit.edu if they need technology resources such as headphones, microphones, or webcams."
+      "A teacher coach or advisor helps register the team, organize practice, communicate with families, and make sure students understand event rules and expectations.",
+      "Coaches should build a predictable practice rhythm: content review, toss-up drills, bonus discussion practice, and short scrimmages under real timing."
     ]
   },
   {
-    title: "How do you get started?",
+    title: "How Students Should Train",
     body: [
-      "First, find a teacher willing to serve as coach. The coach handles paperwork, helps the team practice, and accompanies the team to competitions.",
-      "Then select 3 to 5 students in grades 6 through 8 for the team described in the presentation, and complete coach registration through the National Science Bowl website."
+      "Start with high-yield fundamentals: units, formulas, vocabulary, classifications, common lab concepts, and recurring facts from prior question sets.",
+      "Then practice speed. Students should learn to recognize clues early, but also build judgment about when not to buzz."
     ]
   },
   {
-    title: "How should students prepare?",
+    title: "How Medal Minds Fits",
     body: [
-      "The deck points teams to official DOE preparation materials and sample questions from previous rounds.",
-      "That lines up well with Medal Minds: learn the content, practice with real-format questions, and get comfortable with fast recall."
+      "Medal Minds is built for the work between team practices: targeted lessons, real-format practice questions, topic review, and buzzer-style repetition.",
+      "Use this guide to understand the event, then use the Science Bowl prep track to turn weak topics into repeatable points."
     ]
   }
 ];
@@ -88,24 +89,24 @@ export default function ScienceBowlInfoSessionPage() {
           items={[
             { label: "Home", href: "/" },
             { label: "Science Bowl", href: competitionPath("science-bowl") },
-            { label: "Info Session" }
+            { label: "Team Guide" }
           ]}
         />
 
         <section className="info-hero card spacious">
           <div className="info-hero-copy stack">
-            <span className="eyebrow">Science Bowl Guide</span>
-            <h1>Science Bowl info session</h1>
+            <span className="eyebrow">Science Bowl Team Guide</span>
+            <h1>Build a team that can buzz with confidence</h1>
             <p className="subtitle">
-              A clean summary of the shared presentation: what Science Bowl is, how rounds work, what topics are
-              covered, how to register, and how to prepare.
+              Learn how Science Bowl works, what students need to know, how matches are scored, and how to turn
+              practice time into faster, cleaner answers.
             </p>
             <div className="actions">
               <Link className="button button-lg" href={competitionPath("science-bowl")}>
-                Go to Science Bowl
+                Start Science Bowl Prep
               </Link>
-              <a className="ghost-button button-lg" href={sourceUrl} rel="noreferrer" target="_blank">
-                Open source PDF
+              <a className="ghost-button button-lg" href={rulesUrl} rel="noreferrer" target="_blank">
+                View Official Rules
               </a>
             </div>
           </div>
@@ -133,7 +134,7 @@ export default function ScienceBowlInfoSessionPage() {
             <div className="section-heading section-heading-tight">
               <div>
                 <span className="eyebrow">Core topics</span>
-                <h2>What students are expected to know</h2>
+                <h2>What students should be ready to answer</h2>
               </div>
             </div>
             <div className="info-topic-list">
@@ -157,17 +158,17 @@ export default function ScienceBowlInfoSessionPage() {
               <div className="info-timeline-row">
                 <span className="badge">Toss-up</span>
                 <strong>4 points</strong>
-                <p>Presentation says teams have 7 seconds to answer after recognition.</p>
+                <p>Teams buzz in after the question is read. A recognized player must answer promptly.</p>
               </div>
               <div className="info-timeline-row">
                 <span className="badge">Bonus</span>
                 <strong>10 points</strong>
-                <p>Read only after a correct toss-up. Presentation says teams have 22 seconds to answer.</p>
+                <p>Earned after a correct toss-up. Teammates may confer before the captain gives the answer.</p>
               </div>
               <div className="info-timeline-row">
-                <span className="badge">Multiple choice</span>
-                <strong>W / X / Y / Z</strong>
-                <p>Students can answer with the letter or the full wording of the answer choice.</p>
+                <span className="badge">Match clock</span>
+                <strong>Two halves</strong>
+                <p>Regional matches use timed halves, so pacing and clean buzzes matter as much as content.</p>
               </div>
             </div>
           </article>
@@ -176,8 +177,8 @@ export default function ScienceBowlInfoSessionPage() {
         <section className="stack">
           <div className="section-heading">
             <div>
-              <span className="eyebrow">Presentation summary</span>
-              <h2>Everything covered in the deck</h2>
+              <span className="eyebrow">Competition essentials</span>
+              <h2>What teams need to know before they play</h2>
             </div>
           </div>
           <div className="grid two info-section-grid">
@@ -199,25 +200,25 @@ export default function ScienceBowlInfoSessionPage() {
             <div className="section-heading section-heading-tight">
               <div>
                 <span className="eyebrow">Getting started</span>
-                <h2>Suggested first steps</h2>
+                <h2>Suggested first steps for a new team</h2>
               </div>
             </div>
             <div className="info-checklist">
               <div className="info-checklist-item">
                 <span>1</span>
-                <p>Find a teacher who can serve as the team coach.</p>
+                <p>Find a teacher or advisor who can coach, register, and coordinate the team.</p>
               </div>
               <div className="info-checklist-item">
                 <span>2</span>
-                <p>Select 3 to 5 students for the team described in the presentation.</p>
+                <p>Build a roster of four active players plus an alternate, then assign topic strengths.</p>
               </div>
               <div className="info-checklist-item">
                 <span>3</span>
-                <p>Register through the National Science Bowl coach registration process.</p>
+                <p>Review the official DOE rules and your regional event requirements.</p>
               </div>
               <div className="info-checklist-item">
                 <span>4</span>
-                <p>Practice with official prep materials and sample question sets.</p>
+                <p>Run weekly practice: content review, buzzer drills, bonus collaboration, and scrimmages.</p>
               </div>
             </div>
           </article>
@@ -225,22 +226,22 @@ export default function ScienceBowlInfoSessionPage() {
           <article className="card spacious stack">
             <div className="section-heading section-heading-tight">
               <div>
-                <span className="eyebrow">Logistics note</span>
-                <h2>Dates shown in the source deck</h2>
+                <span className="eyebrow">Practice plan</span>
+                <h2>A simple weekly rhythm</h2>
               </div>
             </div>
             <div className="info-alert-list">
               <div className="info-alert-row">
                 <CalendarDays size={18} />
-                <p>The presentation lists a regional competition date of February 19.</p>
+                <p>Pick two focus subjects each week and review the highest-yield facts first.</p>
               </div>
               <div className="info-alert-row">
                 <Timer size={18} />
-                <p>The presentation lists a registration deadline of February 5, with roster changes allowed until then.</p>
+                <p>Drill toss-ups under time pressure so students learn when to buzz and when to wait.</p>
               </div>
               <div className="info-alert-row">
-                <Camera size={18} />
-                <p>For current-year accuracy, teams should verify dates and technical requirements with the organizer.</p>
+                <BookOpen size={18} />
+                <p>Review missed questions immediately and convert them into short study targets.</p>
               </div>
             </div>
           </article>
@@ -248,21 +249,20 @@ export default function ScienceBowlInfoSessionPage() {
 
         <section className="card spacious info-contact-band">
           <div className="stack">
-            <span className="eyebrow">Questions</span>
-            <h2>Need help with Science Bowl?</h2>
+            <span className="eyebrow">Next steps</span>
+            <h2>Ready to start preparing?</h2>
             <p>
-              The presentation repeatedly points students and coaches to the MIT regional contact for questions and
-              technology support.
+              Use the official DOE materials for rules and registration details, then practice inside Medal Minds to
+              build speed, coverage, and confidence before competition day.
             </p>
           </div>
           <div className="actions">
-            <a className="button button-lg" href="mailto:sciencebowl@mit.edu">
-              <Mail size={18} />
-              sciencebowl@mit.edu
-            </a>
-            <Link className="ghost-button button-lg" href={scienceBowlInfoPath()}>
-              Stay on this guide
+            <Link className="button button-lg" href={competitionPath("science-bowl")}>
+              Start Practicing
             </Link>
+            <a className="ghost-button button-lg" href={doeUrl} rel="noreferrer" target="_blank">
+              Official DOE Page
+            </a>
           </div>
         </section>
       </div>
