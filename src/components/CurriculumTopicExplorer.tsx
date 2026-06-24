@@ -96,8 +96,7 @@ export function CurriculumTopicExplorer({
                                   href={lessonPath(competitionSlug, lesson.slug)}
                                   key={lesson.id}
                                 >
-                                  <strong>{lesson.title}</strong>
-                                  <p>{lesson.summary}</p>
+                                  {lesson.title}
                                 </Link>
                               ))}
                             </div>
