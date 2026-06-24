@@ -25,7 +25,6 @@ export type BuzzerRoomSetup = {
 };
 
 const ROOM_TTL_HOURS = 12;
-const TIMER_DURATION_MS = 10 * 60 * 1000;
 const SEATS: Array<{ team: BuzzerTeam; slot: string }> = [
   { team: "A", slot: "a1" },
   { team: "A", slot: "a2" },

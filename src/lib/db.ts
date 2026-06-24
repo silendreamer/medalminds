@@ -1,6 +1,6 @@
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "@prisma/client";
-import { Pool } from "pg";
+import { Pool, type PoolConfig } from "pg";
 
 const globalForPrisma = globalThis as unknown as {
   prisma?: PrismaClient;
@@ -37,11 +37,12 @@ export function getPrisma() {
   if (!globalForPrisma.prismaPool) {
     const poolConnectionString = new URL(databaseUrl);
     poolConnectionString.searchParams.delete("sslmode");
-    const poolOptions: any = { connectionString: poolConnectionString.toString() };
-    // When running against some hosted providers with self-signed certs,
-    // allow disabling strict TLS verification via NODE_TLS_REJECT_UNAUTHORIZED=0
-    const isSupabaseHost = /supabase\.com/i.test(databaseUrl) || /supabase\.co/i.test(databaseUrl);
-    if (process.env.NODE_TLS_REJECT_UNAUTHORIZED === '0' || isSupabaseHost) {
+    const poolOptions: PoolConfig = { connectionString: poolConnectionString.toString() };
+    // Keep full TLS certificate verification by default (MITM protection).
+    // Only disable it when explicitly opted in via NODE_TLS_REJECT_UNAUTHORIZED=0,
+    // e.g. against a local provider with a self-signed cert. Production reads
+    // (Supabase/Vercel) must keep verification enabled.
+    if (process.env.NODE_TLS_REJECT_UNAUTHORIZED === "0") {
       poolOptions.ssl = { rejectUnauthorized: false };
     }
     globalForPrisma.prismaPool = new Pool(poolOptions);

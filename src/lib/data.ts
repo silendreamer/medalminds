@@ -1,3 +1,4 @@
+import { unstable_cache } from "next/cache";
 import { Difficulty, Prisma, QuestionFormat } from "@prisma/client";
 import { buzzerQuestions as localBuzzerQuestions } from "@/data/buzzerQuestions";
 import { competitions as localCompetitions } from "@/data/competitions";
@@ -183,6 +184,22 @@ function isDbEnabled() {
   return hasDatabaseUrl;
 }
 
+const CONTENT_REVALIDATE_SECONDS = 3600;
+
+export function contentTag(slug: string) {
+  return `content:${slug}`;
+}
+
+// Cache deterministic content reads across requests so hot pages stop hitting
+// Postgres on every render. This is a no-op on the local-data path: there is no
+// round-trip to amortize, and the unit tests exercise the readers outside the
+// Next runtime where `unstable_cache` is unavailable. Bust per-competition
+// entries with `revalidateTag(contentTag(slug))` after an admin write.
+function cachedContent<T>(load: () => Promise<T>, keyParts: string[], tags: string[]): Promise<T> {
+  if (!hasDatabaseUrl) return load();
+  return unstable_cache(load, keyParts, { tags, revalidate: CONTENT_REVALIDATE_SECONDS })();
+}
+
 const subjectAliases: Record<string, string[]> = {
   "Biology": ["Biology", "Life Science"],
   "Life Science": ["Life Science", "Biology"],
@@ -245,21 +262,28 @@ function questionWhereForSubject(slug: CompetitionSlug, subject?: string | null,
   };
 }
 
-export async function getCompetitions() {
-  if (!isDbEnabled()) return localCompetitions;
-
-  const prisma = getPrisma();
-  return prisma.competition.findMany({
-    orderBy: { slug: "asc" }
-  });
+export function getCompetitions() {
+  return cachedContent(
+    async () => {
+      if (!isDbEnabled()) return localCompetitions;
+      return getPrisma().competition.findMany({ orderBy: { slug: "asc" } });
+    },
+    ["competitions"],
+    ["content:all"]
+  );
 }
 
-export async function getCompetitionBySlug(slug: string) {
-  if (!isDbEnabled()) {
-    return localCompetitions.find((competition) => competition.slug === slug);
-  }
-
-  return getPrisma().competition.findUnique({ where: { slug } });
+export function getCompetitionBySlug(slug: string) {
+  return cachedContent(
+    async () => {
+      if (!isDbEnabled()) {
+        return localCompetitions.find((competition) => competition.slug === slug);
+      }
+      return getPrisma().competition.findUnique({ where: { slug } });
+    },
+    ["competition", slug],
+    [contentTag(slug)]
+  );
 }
 
 export function isCompetitionSlug(slug: string): slug is CompetitionSlug {
@@ -439,7 +463,7 @@ export async function getRandomMultipleChoiceQuestions(
           SELECT count(*)
           FROM "Answer" a
           WHERE a."questionId" = q.id
-        ) = 4
+        ) >= 2
       ORDER BY random()
       LIMIT ${count}
     `
@@ -460,38 +484,43 @@ export async function getRandomMultipleChoiceQuestions(
     .filter((question): question is NonNullable<typeof question> => Boolean(question));
 }
 
-export async function getLessonsByCompetition(
+export function getLessonsByCompetition(
   slug: CompetitionSlug,
   subject?: string | null,
   schoolLevel?: SchoolLevelFilter | null
 ) {
-  if (!isDbEnabled()) {
-    const aliases = aliasesForSubject(subject);
-    return localLessons.filter(
-      (lesson) =>
-        lesson.competitionSlug === slug &&
-        (!aliases || aliases.includes(lesson.category)) &&
-        levelStringMatchesSchoolLevel(lesson.level, schoolLevel)
-    );
-  }
+  return cachedContent(
+    async () => {
+      const aliases = aliasesForSubject(subject);
+      if (!isDbEnabled()) {
+        return localLessons.filter(
+          (lesson) =>
+            lesson.competitionSlug === slug &&
+            (!aliases || aliases.includes(lesson.category)) &&
+            levelStringMatchesSchoolLevel(lesson.level, schoolLevel)
+        );
+      }
 
-  const aliases = aliasesForSubject(subject);
-  const lessons = await getPrisma().lesson.findMany({
-    where: {
-      competition: { slug },
-      ...(aliases ? { category: { in: aliases } } : {}),
-      ...(schoolLevel
-        ? {
-            competitionLevel: {
-              schoolLevel: { in: [schoolLevel, "MIXED"] }
-            }
-          }
-        : {})
+      const lessons = await getPrisma().lesson.findMany({
+        where: {
+          competition: { slug },
+          ...(aliases ? { category: { in: aliases } } : {}),
+          ...(schoolLevel
+            ? {
+                competitionLevel: {
+                  schoolLevel: { in: [schoolLevel, "MIXED"] }
+                }
+              }
+            : {})
+        },
+        orderBy: { id: "asc" }
+      });
+
+      return lessons.map(toLesson);
     },
-    orderBy: { id: "asc" }
-  });
-
-  return lessons.map(toLesson);
+    ["lessons", slug, subject ?? "", schoolLevel ?? ""],
+    [contentTag(slug)]
+  );
 }
 
 export async function getPrimaryConceptLessonForQuestion(questionId: string) {
@@ -519,30 +548,36 @@ export async function getPrimaryConceptLessonForQuestion(questionId: string) {
   return lesson ? toLesson(lesson) : undefined;
 }
 
-export async function getTestsByCompetition(slug: CompetitionSlug) {
-  if (!isDbEnabled()) {
-    return localTests.filter((test) => test.competitionSlug === slug);
-  }
+export function getTestsByCompetition(slug: CompetitionSlug) {
+  return cachedContent(
+    async () => {
+      if (!isDbEnabled()) {
+        return localTests.filter((test) => test.competitionSlug === slug);
+      }
 
-  const tests = await getPrisma().test.findMany({
-    where: { competition: { slug } },
-    orderBy: { id: "asc" },
-    include: {
-      questions: {
-        orderBy: { position: "asc" },
+      const tests = await getPrisma().test.findMany({
+        where: { competition: { slug } },
+        orderBy: { id: "asc" },
         include: {
-          question: {
+          questions: {
+            orderBy: { position: "asc" },
             include: {
-              answers: { orderBy: { position: "asc" } },
-              answerExplanations: { orderBy: { position: "asc" } }
+              question: {
+                include: {
+                  answers: { orderBy: { position: "asc" } },
+                  answerExplanations: { orderBy: { position: "asc" } }
+                }
+              }
             }
           }
         }
-      }
-    }
-  });
+      });
 
-  return tests.map(toTest);
+      return tests.map(toTest);
+    },
+    ["tests", slug],
+    [contentTag(slug)]
+  );
 }
 
 export async function getLessonBySlug(slug: CompetitionSlug, lessonSlug: string) {
@@ -609,147 +644,171 @@ export async function getQuestionsForTest(questionIds: string[]) {
     .filter((question): question is NonNullable<typeof question> => Boolean(question));
 }
 
-export async function getContentCounts(slug: CompetitionSlug) {
-  if (!isDbEnabled()) {
-    return {
-      questions: localPracticeQuestions.filter((question) => question.competitionSlug === slug).length,
-      lessons: localLessons.filter((lesson) => lesson.competitionSlug === slug).length
-    };
-  }
+export function getContentCounts(slug: CompetitionSlug) {
+  return cachedContent(
+    async () => {
+      if (!isDbEnabled()) {
+        return {
+          questions: localPracticeQuestions.filter((question) => question.competitionSlug === slug).length,
+          lessons: localLessons.filter((lesson) => lesson.competitionSlug === slug).length
+        };
+      }
 
-  const prisma = getPrisma();
-  const competition = await prisma.competition.findUnique({
-    where: { slug },
-    select: { id: true }
-  });
+      const prisma = getPrisma();
+      const competition = await prisma.competition.findUnique({
+        where: { slug },
+        select: { id: true }
+      });
 
-  if (!competition) {
-    return { questions: 0, lessons: 0 };
-  }
+      if (!competition) {
+        return { questions: 0, lessons: 0 };
+      }
 
-  const [questions, lessons] = await Promise.all([
-    prisma.question.count({ where: { competitionId: competition.id } }),
-    prisma.lesson.count({ where: { competitionId: competition.id } })
-  ]);
+      const [questions, lessons] = await Promise.all([
+        prisma.question.count({ where: { competitionId: competition.id } }),
+        prisma.lesson.count({ where: { competitionId: competition.id } })
+      ]);
 
-  return { questions, lessons };
+      return { questions, lessons };
+    },
+    ["content-counts", slug],
+    [contentTag(slug)]
+  );
 }
 
-export async function getContentCountsBySchoolLevel(slug: CompetitionSlug, schoolLevel: SchoolLevelFilter) {
-  if (!isDbEnabled()) {
-    return {
-      questions: localPracticeQuestions.filter(
-        (question) =>
-          question.competitionSlug === slug &&
-          localQuestionMatchesSchoolLevel(question, schoolLevel)
-      ).length,
-      lessons: localLessons.filter(
-        (lesson) =>
-          lesson.competitionSlug === slug &&
-          levelStringMatchesSchoolLevel(lesson.level, schoolLevel)
-      ).length
-    };
-  }
-
-  const prisma = getPrisma();
-  const competition = await prisma.competition.findUnique({
-    where: { slug },
-    select: { id: true }
-  });
-
-  if (!competition) {
-    return { questions: 0, lessons: 0 };
-  }
-
-  const [questions, lessons] = await Promise.all([
-    prisma.question.count({
-      where: {
-        competitionId: competition.id,
-        schoolLevel
+export function getContentCountsBySchoolLevel(slug: CompetitionSlug, schoolLevel: SchoolLevelFilter) {
+  return cachedContent(
+    async () => {
+      if (!isDbEnabled()) {
+        return {
+          questions: localPracticeQuestions.filter(
+            (question) =>
+              question.competitionSlug === slug &&
+              localQuestionMatchesSchoolLevel(question, schoolLevel)
+          ).length,
+          lessons: localLessons.filter(
+            (lesson) =>
+              lesson.competitionSlug === slug &&
+              levelStringMatchesSchoolLevel(lesson.level, schoolLevel)
+          ).length
+        };
       }
-    }),
-    prisma.lesson.count({
-      where: {
-        competitionId: competition.id,
-        competitionLevel: {
-          schoolLevel: { in: [schoolLevel, "MIXED"] }
-        }
-      }
-    })
-  ]);
 
-  return { questions, lessons };
+      const prisma = getPrisma();
+      const competition = await prisma.competition.findUnique({
+        where: { slug },
+        select: { id: true }
+      });
+
+      if (!competition) {
+        return { questions: 0, lessons: 0 };
+      }
+
+      const [questions, lessons] = await Promise.all([
+        prisma.question.count({
+          where: {
+            competitionId: competition.id,
+            schoolLevel
+          }
+        }),
+        prisma.lesson.count({
+          where: {
+            competitionId: competition.id,
+            competitionLevel: {
+              schoolLevel: { in: [schoolLevel, "MIXED"] }
+            }
+          }
+        })
+      ]);
+
+      return { questions, lessons };
+    },
+    ["content-counts-level", slug, schoolLevel],
+    [contentTag(slug)]
+  );
 }
 
-export async function getContentCountsForSubject(
+export function getContentCountsForSubject(
   slug: CompetitionSlug,
   subject: string,
   schoolLevel?: SchoolLevelFilter | null
 ) {
-  const aliases = aliasesForSubject(subject);
+  return cachedContent(
+    async () => {
+      const aliases = aliasesForSubject(subject);
 
-  if (!isDbEnabled()) {
-    return {
-      questions: localPracticeQuestions.filter(
-        (question) =>
-          question.competitionSlug === slug &&
-          localQuestionMatchesSubject(question, subject) &&
-          localQuestionMatchesSchoolLevel(question, schoolLevel)
-      ).length,
-      lessons: localLessons.filter(
-        (lesson) =>
-          lesson.competitionSlug === slug &&
-          (!aliases || aliases.includes(lesson.category)) &&
-          levelStringMatchesSchoolLevel(lesson.level, schoolLevel)
-      ).length
-    };
-  }
-
-  const prisma = getPrisma();
-  const competition = await prisma.competition.findUnique({
-    where: { slug },
-    select: { id: true }
-  });
-
-  if (!competition) {
-    return { questions: 0, lessons: 0 };
-  }
-
-  const [questions, lessons] = await Promise.all([
-    prisma.question.count({
-      where: {
-        competitionId: competition.id,
-        ...(aliases ? { category: { in: aliases } } : {}),
-        ...(schoolLevel ? { schoolLevel } : {})
+      if (!isDbEnabled()) {
+        return {
+          questions: localPracticeQuestions.filter(
+            (question) =>
+              question.competitionSlug === slug &&
+              localQuestionMatchesSubject(question, subject) &&
+              localQuestionMatchesSchoolLevel(question, schoolLevel)
+          ).length,
+          lessons: localLessons.filter(
+            (lesson) =>
+              lesson.competitionSlug === slug &&
+              (!aliases || aliases.includes(lesson.category)) &&
+              levelStringMatchesSchoolLevel(lesson.level, schoolLevel)
+          ).length
+        };
       }
-    }),
-    prisma.lesson.count({
-      where: {
-        competitionId: competition.id,
-        ...(aliases ? { category: { in: aliases } } : {}),
-        ...(schoolLevel
-          ? {
-              competitionLevel: {
-                schoolLevel: { in: [schoolLevel, "MIXED"] }
-              }
-            }
-          : {})
-      }
-    })
-  ]);
 
-  return { questions, lessons };
+      const prisma = getPrisma();
+      const competition = await prisma.competition.findUnique({
+        where: { slug },
+        select: { id: true }
+      });
+
+      if (!competition) {
+        return { questions: 0, lessons: 0 };
+      }
+
+      const [questions, lessons] = await Promise.all([
+        prisma.question.count({
+          where: {
+            competitionId: competition.id,
+            ...(aliases ? { category: { in: aliases } } : {}),
+            ...(schoolLevel ? { schoolLevel } : {})
+          }
+        }),
+        prisma.lesson.count({
+          where: {
+            competitionId: competition.id,
+            ...(aliases ? { category: { in: aliases } } : {}),
+            ...(schoolLevel
+              ? {
+                  competitionLevel: {
+                    schoolLevel: { in: [schoolLevel, "MIXED"] }
+                  }
+                }
+              : {})
+          }
+        })
+      ]);
+
+      return { questions, lessons };
+    },
+    ["content-counts-subject", slug, subject, schoolLevel ?? ""],
+    [contentTag(slug)]
+  );
 }
 
-export async function getBuzzerQuestions() {
-  if (!isDbEnabled()) return localBuzzerQuestions;
+export function getBuzzerQuestions() {
+  return cachedContent(
+    async () => {
+      if (!isDbEnabled()) return localBuzzerQuestions;
 
-  const questions = await getPrisma().buzzerQuestion.findMany({
-    where: { competition: { slug: "science-bowl" } },
-    orderBy: { id: "asc" }
-  });
+      const questions = await getPrisma().buzzerQuestion.findMany({
+        where: { competition: { slug: "science-bowl" } },
+        orderBy: { id: "asc" }
+      });
 
-  return questions.map(toBuzzerQuestion);
+      return questions.map(toBuzzerQuestion);
+    },
+    ["buzzer-questions"],
+    [contentTag("science-bowl")]
+  );
 }
 
 export const competitions = localCompetitions;

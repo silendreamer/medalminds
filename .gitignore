@@ -15,4 +15,4 @@ concept-batch-logs/
 tmp/
 *.sqlite
 *.db
-scripts
+.continue/

@@ -2,7 +2,6 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
-import { scienceBowlMiddleSchoolSubjects } from "@/data/scienceBowlMiddleSchoolCurriculum";
 import { StatsCard } from "@/components/StatsCard";
 import { buildStudyBreadcrumbs } from "@/lib/breadcrumbs";
 import {
@@ -10,6 +9,7 @@ import {
   getContentCounts,
   getContentCountsBySchoolLevel,
   getContentCountsForSubject,
+  getScienceBowlMiddleSchoolCurriculumSubjects,
   isCompetitionSlug
 } from "@/lib/data";
 import { buzzerPath, learningPath, practicePath, scienceBowlInfoPath, testsPath } from "@/lib/routes";
@@ -83,11 +83,10 @@ export default async function CompetitionPage({
   if (selectedAction === "buzzer") {
     redirect(buzzerPath());
   }
-  const scienceBowlMiddleSchoolSubjectNames = scienceBowlMiddleSchoolSubjects.map((subject) => subject.name);
-  const displayedSubjects =
-    competitionSlug === "science-bowl" && selectedLevel === "middle-school"
-      ? scienceBowlMiddleSchoolSubjectNames
-      : competition.categories;
+  const useMiddleSchoolSubjects = competitionSlug === "science-bowl" && selectedLevel === "middle-school";
+  const displayedSubjects = useMiddleSchoolSubjects
+    ? (await getScienceBowlMiddleSchoolCurriculumSubjects()).map((subject) => subject.name)
+    : competition.categories;
   const subjectCounts = await Promise.all(
     displayedSubjects.map(async (category) => ({
       category,
