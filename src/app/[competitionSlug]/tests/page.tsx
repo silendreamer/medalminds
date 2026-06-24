@@ -5,7 +5,7 @@ import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { QuickTestRunner } from "@/components/QuickTestRunner";
 import { buildStudyBreadcrumbs } from "@/lib/breadcrumbs";
 import { getCompetitionBySlug, getRandomMultipleChoiceQuestions, isCompetitionSlug, type SchoolLevelFilter } from "@/lib/data";
-import { competitionPath, testsPath } from "@/lib/routes";
+import { competitionPath } from "@/lib/routes";
 import { buildMetadata } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
@@ -66,7 +66,6 @@ export default async function TestsPage({
             competitionName: competition.name,
             level,
             action: "Tests",
-            actionHref: `${testsPath(competitionSlug)}${level ? `?level=${level}` : ""}`,
             subject,
             current: subject ? undefined : "Tests"
           })}

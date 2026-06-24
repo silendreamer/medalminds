@@ -3,7 +3,6 @@ import { notFound } from "next/navigation";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { SimplePracticeQuestion } from "@/components/SimplePracticeQuestion";
 import { buildStudyBreadcrumbs } from "@/lib/breadcrumbs";
-import { practicePath } from "@/lib/routes";
 import {
   getCompetitionBySlug,
   getLessonsByCompetition,
@@ -74,7 +73,6 @@ export default async function PracticePage({
             competitionName: competition.name,
             level,
             action: "Practice",
-            actionHref: `${practicePath(competitionSlug)}${level ? `?level=${level}` : ""}`,
             subject,
             current: subject ? undefined : "Practice"
           })}
