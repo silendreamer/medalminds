@@ -66,7 +66,7 @@ export default async function LessonDetailPage({
             </section>
           ))}
           <section className="content-section stack">
-            <h2>Mini review</h2>
+            <h2>Review questions</h2>
             {lesson.reviewQuestions.map((question) => (
               <div className="feedback" key={question}>
                 {question}
