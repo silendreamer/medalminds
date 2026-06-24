@@ -18,6 +18,7 @@ export function buildStudyBreadcrumbs({
   competitionName,
   level,
   action,
+  actionHref,
   subject,
   current
 }: {
@@ -25,6 +26,7 @@ export function buildStudyBreadcrumbs({
   competitionName: string;
   level?: string | null;
   action?: string | null;
+  actionHref?: string;
   subject?: string | null;
   current?: string;
 }) {
@@ -43,7 +45,7 @@ export function buildStudyBreadcrumbs({
   }
 
   if (action) {
-    items.push({ label: action });
+    items.push({ label: action, href: actionHref });
   }
 
   if (subject) {

@@ -83,6 +83,7 @@ export default async function LearningPage({
               competitionName: competition.name,
               level,
               action: "Learning",
+              actionHref: `${learningPath(competitionSlug)}${level ? `?level=${level}` : ""}`,
               current: "Learning"
             })}
           />
@@ -145,6 +146,7 @@ export default async function LearningPage({
               competitionName: competition.name,
               level,
               action: "Learning",
+              actionHref: `${learningPath(competitionSlug)}${level ? `?level=${level}` : ""}`,
               subject: curriculumSubject.name
             })}
           />
@@ -222,6 +224,7 @@ export default async function LearningPage({
             competitionName: competition.name,
             level,
             action: "Learning",
+            actionHref: `${learningPath(competitionSlug)}${level ? `?level=${level}` : ""}`,
             subject,
             current: subject ? undefined : "Learning"
           })}

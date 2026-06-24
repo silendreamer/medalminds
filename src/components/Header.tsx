@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { competitions } from "@/data/competitions";
-import { competitionPath, learningPath } from "@/lib/routes"; // Added learningPath import
+import { competitionPath } from "@/lib/routes";
 import { MedalMark } from "@/components/MedalMark";
 
 export function Header() {
@@ -21,15 +21,9 @@ export function Header() {
             Home
           </Link>
           {competitions.map((competition) => (
-            <> {/* Use a React Fragment to group multiple links */}
-              <Link className="nav-link" href={competitionPath(competition.slug)} key={competition.slug}>
-                {competition.name}
-              </Link>
-              {/* Add a Learning link for each competition */}
-              <Link className="nav-link" href={learningPath(competition.slug)} key={`${competition.slug}-learning`}>
-                Learning ({competition.name})
-              </Link>
-            </>
+            <Link className="nav-link" href={competitionPath(competition.slug)} key={competition.slug}>
+              {competition.name}
+            </Link>
           ))}
         </nav>
       </div>
