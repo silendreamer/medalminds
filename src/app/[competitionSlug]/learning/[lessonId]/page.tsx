@@ -14,17 +14,30 @@ export default async function LessonDetailPage({
   const lesson = await getLessonBySlug(competitionSlug, lessonId);
   if (!competition || !lesson) notFound();
 
+  const levelLower = lesson.level.toLowerCase();
+  const levelParam = levelLower.includes("middle")
+    ? "middle-school"
+    : levelLower.includes("high")
+      ? "high-school"
+      : null;
+  const learningBase = learningPath(competitionSlug);
+  const learningWithLevel = levelParam ? `${learningBase}?level=${levelParam}` : learningBase;
+  const subjectHref = levelParam
+    ? `${learningBase}?level=${levelParam}&subject=${encodeURIComponent(lesson.category)}`
+    : null;
+
+  const breadcrumbItems = [
+    { label: "Home", href: "/" },
+    { label: competition.name, href: competitionPath(competitionSlug) },
+    { label: "Learning", href: learningWithLevel },
+    ...(subjectHref ? [{ label: lesson.category, href: subjectHref }] : []),
+    { label: lesson.title }
+  ];
+
   return (
     <section className="section">
       <div className="container">
-        <Breadcrumbs
-          items={[
-            { label: "Home", href: "/" },
-            { label: competition.name, href: competitionPath(competitionSlug) },
-            { label: "Learning", href: learningPath(competitionSlug) },
-            { label: lesson.title }
-          ]}
-        />
+        <Breadcrumbs items={breadcrumbItems} />
         <article className="card spacious stack">
           <div>
             <span className="eyebrow">{competition.name}</span>
