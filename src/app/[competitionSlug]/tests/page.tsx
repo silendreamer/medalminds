@@ -4,7 +4,15 @@ import { notFound } from "next/navigation";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { QuickTestRunner } from "@/components/QuickTestRunner";
 import { buildStudyBreadcrumbs } from "@/lib/breadcrumbs";
-import { getCompetitionBySlug, getRandomMultipleChoiceQuestions, isCompetitionSlug, type SchoolLevelFilter } from "@/lib/data";
+import {
+  getCompetitionBySlug,
+  getContentCountsForSubject,
+  getRandomMultipleChoiceQuestions,
+  getScienceBowlMiddleSchoolCurriculumSubjects,
+  isCompetitionSlug,
+  type SchoolLevelFilter
+} from "@/lib/data";
+import { formatApproximateCount } from "@/lib/format";
 import { competitionPath, testsPath } from "@/lib/routes";
 import { buildMetadata } from "@/lib/seo";
 
@@ -53,9 +61,62 @@ export default async function TestsPage({
       : competitionSlug === "science-bowl" && level === "high-school"
         ? "HIGH_SCHOOL"
         : undefined;
+  const isScienceBowlMiddleSchool = competitionSlug === "science-bowl" && schoolLevel === "MIDDLE_SCHOOL";
+  const curriculumSubjects = isScienceBowlMiddleSchool ? await getScienceBowlMiddleSchoolCurriculumSubjects() : [];
   const questions = testSize ? await getRandomMultipleChoiceQuestions(competitionSlug, subject ?? null, testSize, schoolLevel) : [];
   const levelQuery = level ? `level=${level}` : "";
   const subjectQuery = subject ? `subject=${encodeURIComponent(subject)}` : "";
+
+  if (isScienceBowlMiddleSchool && !subject) {
+    const subjectCounts = await Promise.all(
+      curriculumSubjects.map(async (item) => ({
+        subject: item,
+        counts: await getContentCountsForSubject(competitionSlug, item.name, schoolLevel)
+      }))
+    );
+
+    return (
+      <section className="section">
+        <div className="container stack">
+          <Breadcrumbs
+            items={buildStudyBreadcrumbs({
+              competitionSlug,
+              competitionName: competition.name,
+              level,
+              action: "Tests",
+              current: "Tests"
+            })}
+          />
+          <div className="simple-heading">
+            <span className="eyebrow">{competition.name}</span>
+            <h1>Middle School Tests</h1>
+            <p className="subtitle">Pick a subject to start a multiple-choice quiz.</p>
+          </div>
+          <div className="grid two curriculum-subject-grid">
+            {subjectCounts.map(({ subject: item, counts }) => (
+              <Link
+                className="card spacious stack curriculum-subject-card"
+                href={`${testsPath(competitionSlug)}?level=middle-school&subject=${encodeURIComponent(item.name)}`}
+                key={item.slug}
+              >
+                <div className="stack compact">
+                  <span className="eyebrow">Science Bowl middle school</span>
+                  <h2>{item.name}</h2>
+                  <p>{item.shortDescription}</p>
+                </div>
+                <div className="mini-stat-list">
+                  <span>
+                    <strong>{formatApproximateCount(counts.questions)}</strong>
+                    <small>Questions</small>
+                  </span>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="section">
