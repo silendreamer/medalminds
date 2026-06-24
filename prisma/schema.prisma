@@ -375,6 +375,7 @@ model BuzzerRoom {
   code                String            @unique
   organizerPassword   String
   status              String            @default("WAITING")
+  schoolLevel         SchoolLevel?
   teamAName           String            @default("Team A")
   teamBName           String            @default("Team B")
   teamAScore          Int               @default(0)

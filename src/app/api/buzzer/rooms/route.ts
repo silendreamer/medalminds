@@ -10,7 +10,8 @@ export async function POST(request: Request) {
       teamAName: body?.teamAName,
       teamBName: body?.teamBName,
       totalRounds: body?.totalRounds,
-      timerMinutes: body?.timerMinutes
+      timerMinutes: body?.timerMinutes,
+      schoolLevel: body?.schoolLevel
     });
     const url = new URL(request.url);
     const shareUrl = `${url.origin}/science-bowl/buzzer?room=${room.code}`;

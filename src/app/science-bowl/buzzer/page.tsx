@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { BuzzerArena } from "@/components/BuzzerArena";
-import { getCompetitionBySlug } from "@/lib/data";
 import { competitionPath } from "@/lib/routes";
 import { buildMetadata } from "@/lib/seo";
 
@@ -16,23 +14,14 @@ export const metadata: Metadata = buildMetadata({
   keywords: ["Science Bowl buzzer", "NSB buzzer practice", "Science Bowl team practice"]
 });
 
-export default async function BuzzerPage({ params }: { params: Promise<{ competitionSlug: string }> }) {
-  const { competitionSlug } = await params;
-
-  if (competitionSlug !== "science-bowl") {
-    notFound();
-  }
-
-  const competition = await getCompetitionBySlug(competitionSlug);
-  if (!competition) notFound();
-
+export default function BuzzerPage() {
   return (
     <section className="section buzzer-page">
       <div className="container stack">
         <Breadcrumbs
           items={[
             { label: "Home", href: "/" },
-            { label: competition.name, href: competitionPath("science-bowl") },
+            { label: "Science Bowl", href: competitionPath("science-bowl") },
             { label: "Buzzer Practice" }
           ]}
         />

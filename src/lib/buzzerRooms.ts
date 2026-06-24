@@ -22,6 +22,7 @@ export type BuzzerRoomSetup = {
   teamBName: string;
   totalRounds: number;
   timerMinutes: number;
+  schoolLevel?: string | null;
 };
 
 const ROOM_TTL_HOURS = 12;
@@ -228,6 +229,7 @@ export function serializeBuzzerRoom(room: RoomWithRelations, role: BuzzerRole) {
     code: room.code,
     role,
     status: effectiveStatus(room),
+    schoolLevel: room.schoolLevel ?? null,
     roundNumber: room.roundNumber,
     questionNumber: room.questionNumber,
     totalRounds: room.totalRounds,
@@ -268,8 +270,11 @@ export function serializeBuzzerRoom(room: RoomWithRelations, role: BuzzerRole) {
   };
 }
 
-async function randomScienceBowlQuestionId() {
+async function randomScienceBowlQuestionId(schoolLevel?: string | null) {
   const prisma = getPrisma();
+  const levelFilter = schoolLevel
+    ? Prisma.sql`AND q."schoolLevel"::text = ${schoolLevel}`
+    : Prisma.sql``;
   const rows = await prisma.$queryRaw<Array<{ id: string }>>(
     Prisma.sql`
       SELECT q.id
@@ -277,6 +282,7 @@ async function randomScienceBowlQuestionId() {
       INNER JOIN "Competition" c ON c.id = q."competitionId"
       WHERE c.slug = 'science-bowl'
         AND q."questionKind" = 'TOSSUP'
+        ${levelFilter}
         AND (
           SELECT count(*)
           FROM "Answer" a
@@ -389,7 +395,10 @@ async function includeRoomWithTimeout(code: string) {
 
 export async function createBuzzerRoom(setup?: Partial<BuzzerRoomSetup>) {
   const prisma = getPrisma();
-  const currentQuestionId = await randomScienceBowlQuestionId();
+  const schoolLevel = setup?.schoolLevel === "MIDDLE_SCHOOL" || setup?.schoolLevel === "HIGH_SCHOOL"
+    ? setup.schoolLevel
+    : null;
+  const currentQuestionId = await randomScienceBowlQuestionId(schoolLevel);
   if (!currentQuestionId) throw new Error("No Science Bowl toss-up questions are available.");
   const teamAName = clampText(setup?.teamAName, "Team A");
   const teamBName = clampText(setup?.teamBName, "Team B");
@@ -409,6 +418,7 @@ export async function createBuzzerRoom(setup?: Partial<BuzzerRoomSetup>) {
       id: id("room"),
       code,
       organizerPassword: makePassword(),
+      schoolLevel,
       teamAName,
       teamBName,
       totalRounds,
@@ -625,7 +635,7 @@ export async function applyBuzzerAction(code: string, action: BuzzerRoomAction) 
     const isTossup = currentKind === QuestionKind.TOSSUP;
     const isBonus = currentKind === QuestionKind.BONUS;
     const bonusQuestionId = correct && isTossup ? await pairedBonusQuestionId(room.currentQuestionId ?? "") : null;
-    const nextQuestionId = correct && bonusQuestionId ? bonusQuestionId : await randomScienceBowlQuestionId();
+    const nextQuestionId = correct && bonusQuestionId ? bonusQuestionId : await randomScienceBowlQuestionId(room.schoolLevel);
     const advanceToNextTossup = !bonusQuestionId;
     const points = correct ? (isBonus ? 10 : 4) : room.buzzedIsInterrupt ? 4 : 0;
     const pointsTeam = correct
@@ -669,7 +679,7 @@ export async function applyBuzzerAction(code: string, action: BuzzerRoomAction) 
 
   if (action.type === "nextQuestion") {
     requireOrganizer(room, action.organizerPassword);
-    const nextQuestionId = await randomScienceBowlQuestionId();
+    const nextQuestionId = await randomScienceBowlQuestionId(room.schoolLevel);
     await prisma.buzzerRoom.update({
       where: { id: room.id },
       data: {

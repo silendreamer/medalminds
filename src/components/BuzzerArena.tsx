@@ -48,6 +48,7 @@ type BuzzerRoom = {
   code: string;
   role: "organizer" | "participant";
   status: RoomStatus;
+  schoolLevel: "MIDDLE_SCHOOL" | "HIGH_SCHOOL" | null;
   roundNumber: number;
   questionNumber: number;
   totalRounds: number;
@@ -79,6 +80,7 @@ type SetupState = {
   teamBName: string;
   totalRounds: number;
   timerMinutes: number;
+  schoolLevel: "MIDDLE_SCHOOL" | "HIGH_SCHOOL" | null;
 };
 
 const letters = ["W", "X", "Y", "Z"];
@@ -86,7 +88,8 @@ const DEFAULT_SETUP: SetupState = {
   teamAName: "",
   teamBName: "",
   totalRounds: 3,
-  timerMinutes: 10
+  timerMinutes: 10,
+  schoolLevel: null
 };
 
 function createAudioContext() {
@@ -281,7 +284,8 @@ export function BuzzerArena() {
           teamAName: setup.teamAName,
           teamBName: setup.teamBName,
           totalRounds: setup.totalRounds,
-          timerMinutes: setup.timerMinutes
+          timerMinutes: setup.timerMinutes,
+          schoolLevel: setup.schoolLevel
         })
       });
       const payload = await response.json();
@@ -381,6 +385,9 @@ export function BuzzerArena() {
             <span className="badge neutral">{readyRoom.room.teamBName}</span>
             <span className="badge neutral">{readyRoom.room.totalRounds} rounds</span>
             <span className="badge neutral">{formatTimer(readyRoom.room.timerDurationMs)} round clock</span>
+            <span className="badge neutral">
+              {readyRoom.room.schoolLevel === "MIDDLE_SCHOOL" ? "Middle School" : readyRoom.room.schoolLevel === "HIGH_SCHOOL" ? "High School" : "Mixed levels"}
+            </span>
           </div>
           <label className="form-field">
             <span>Share link</span>
@@ -423,29 +430,50 @@ export function BuzzerArena() {
           </div>
 
           {setupStep === 1 && (
-            <div className="buzzer-setup-grid">
-              <label className="card buzzer-setup-card">
-                <span className="buzzer-team-letter">A</span>
-                <span className="eyebrow">Team name</span>
-                <input
-                  autoFocus
-                  value={setup.teamAName}
-                  onChange={(event) => setSetup((current) => ({ ...current, teamAName: event.target.value }))}
-                  placeholder="Team A"
-                />
-                <p className="subtitle">Pick anything fun. You can rename this later.</p>
-              </label>
-              <label className="card buzzer-setup-card highlight">
-                <span className="buzzer-team-letter">B</span>
-                <span className="eyebrow">Team name</span>
-                <input
-                  value={setup.teamBName}
-                  onChange={(event) => setSetup((current) => ({ ...current, teamBName: event.target.value }))}
-                  placeholder="Team B"
-                />
-                <p className="subtitle">Pick anything fun. You can rename this later.</p>
-              </label>
-            </div>
+            <>
+              <div className="buzzer-setup-grid">
+                <label className="card buzzer-setup-card">
+                  <span className="buzzer-team-letter">A</span>
+                  <span className="eyebrow">Team name</span>
+                  <input
+                    autoFocus
+                    value={setup.teamAName}
+                    onChange={(event) => setSetup((current) => ({ ...current, teamAName: event.target.value }))}
+                    placeholder="Team A"
+                  />
+                  <p className="subtitle">Pick anything fun. You can rename this later.</p>
+                </label>
+                <label className="card buzzer-setup-card highlight">
+                  <span className="buzzer-team-letter">B</span>
+                  <span className="eyebrow">Team name</span>
+                  <input
+                    value={setup.teamBName}
+                    onChange={(event) => setSetup((current) => ({ ...current, teamBName: event.target.value }))}
+                    placeholder="Team B"
+                  />
+                  <p className="subtitle">Pick anything fun. You can rename this later.</p>
+                </label>
+              </div>
+              <div className="buzzer-level-row">
+                <span className="eyebrow">Question level</span>
+                <div className="buzzer-level-buttons">
+                  {([
+                    { value: null, label: "Mixed" },
+                    { value: "MIDDLE_SCHOOL", label: "Middle School" },
+                    { value: "HIGH_SCHOOL", label: "High School" }
+                  ] as const).map(({ value, label }) => (
+                    <button
+                      key={label}
+                      className={`buzzer-level-btn${setup.schoolLevel === value ? " active" : ""}`}
+                      onClick={() => setSetup((current) => ({ ...current, schoolLevel: value }))}
+                      type="button"
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </>
           )}
 
           {setupStep === 2 && (
