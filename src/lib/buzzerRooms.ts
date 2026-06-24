@@ -398,6 +398,7 @@ export async function createBuzzerRoom(setup?: Partial<BuzzerRoomSetup>) {
   const schoolLevel = setup?.schoolLevel === "MIDDLE_SCHOOL" || setup?.schoolLevel === "HIGH_SCHOOL"
     ? setup.schoolLevel
     : null;
+  if (!schoolLevel) throw new Error("A school level (Middle School or High School) is required.");
   const currentQuestionId = await randomScienceBowlQuestionId(schoolLevel);
   if (!currentQuestionId) throw new Error("No Science Bowl toss-up questions are available.");
   const teamAName = clampText(setup?.teamAName, "Team A");

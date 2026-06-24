@@ -2287,6 +2287,15 @@ p {
   gap: 10px;
 }
 
+.buzzer-level-required {
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--muted);
+  text-transform: none;
+  letter-spacing: 0;
+  margin-left: 6px;
+}
+
 .buzzer-level-buttons {
   display: flex;
   gap: 8px;

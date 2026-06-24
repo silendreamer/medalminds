@@ -386,7 +386,7 @@ export function BuzzerArena() {
             <span className="badge neutral">{readyRoom.room.totalRounds} rounds</span>
             <span className="badge neutral">{formatTimer(readyRoom.room.timerDurationMs)} round clock</span>
             <span className="badge neutral">
-              {readyRoom.room.schoolLevel === "MIDDLE_SCHOOL" ? "Middle School" : readyRoom.room.schoolLevel === "HIGH_SCHOOL" ? "High School" : "Mixed levels"}
+              {readyRoom.room.schoolLevel === "MIDDLE_SCHOOL" ? "Middle School" : "High School"}
             </span>
           </div>
           <label className="form-field">
@@ -455,10 +455,9 @@ export function BuzzerArena() {
                 </label>
               </div>
               <div className="buzzer-level-row">
-                <span className="eyebrow">Question level</span>
+                <span className="eyebrow">Question level <span className="buzzer-level-required">required</span></span>
                 <div className="buzzer-level-buttons">
                   {([
-                    { value: null, label: "Mixed" },
                     { value: "MIDDLE_SCHOOL", label: "Middle School" },
                     { value: "HIGH_SCHOOL", label: "High School" }
                   ] as const).map(({ value, label }) => (
@@ -511,7 +510,7 @@ export function BuzzerArena() {
               {setupStep === 1 ? "Back" : "Previous"}
             </button>
             {setupStep === 1 ? (
-              <button className="button" onClick={nextStep} type="button">
+              <button className="button" disabled={!setup.schoolLevel} onClick={nextStep} type="button">
                 Continue
               </button>
             ) : (
