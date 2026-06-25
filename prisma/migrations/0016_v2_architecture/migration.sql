@@ -88,6 +88,9 @@ WHERE q."format" = 'SHORT_ANSWER'
   )
 ON CONFLICT DO NOTHING;
 
+-- Allow level to be empty for BuzzerQuestion rows (column is dropped below)
+ALTER TABLE "Question" ALTER COLUMN "level" SET DEFAULT '';
+
 -- DATA MIGRATION: Migrate BuzzerQuestion tossup rows to Question
 INSERT INTO "Question" ("id", "competitionId", "category", "difficulty", "format", "questionKind", "prompt", "alternateAnswers", "explanation", "createdAt", "updatedAt")
 SELECT
