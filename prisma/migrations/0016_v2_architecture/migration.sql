@@ -1,75 +1,88 @@
--- CreateEnum
-CREATE TYPE "BuzzerRoomStatus" AS ENUM ('WAITING', 'READING', 'RUNNING', 'BUZZED', 'BONUS', 'PAUSED', 'TIMEOUT', 'ENDED');
+-- Migration 0016: v2 architecture
+-- Fully idempotent — safe to re-run if a previous attempt partially completed.
 
--- CreateEnum
-CREATE TYPE "BuzzerRoomEventType" AS ENUM ('ROOM_CREATED', 'SEAT_TAKEN', 'SEAT_LEFT', 'ROUND_STARTED', 'DONE_READING', 'TIMER_PAUSED', 'TIMER_RESUMED', 'BUZZED', 'BUZZED_DURING_READING', 'INTERRUPT_CONFIRMED', 'INTERRUPT_INCORRECT', 'QUESTION_DEAD', 'ROUND_CLOCK_EXPIRED', 'CORRECT', 'INCORRECT', 'BONUS_QUEUED', 'NEXT_QUESTION', 'RESET', 'GAME_ENDED');
+-- ── Enums ──────────────────────────────────────────────────────────────────
 
--- AlterTable: add non-breaking columns
-ALTER TABLE "Question" ADD COLUMN "deletedAt" TIMESTAMP(3);
-ALTER TABLE "BuzzerRoom" ADD COLUMN "version" INTEGER NOT NULL DEFAULT 0;
+DO $$ BEGIN
+  CREATE TYPE "BuzzerRoomStatus" AS ENUM ('WAITING', 'READING', 'RUNNING', 'BUZZED', 'BONUS', 'PAUSED', 'TIMEOUT', 'ENDED');
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
--- CreateTable: BuzzerQuestionPair
-CREATE TABLE "BuzzerQuestionPair" (
-    "id" TEXT NOT NULL,
-    "tossupId" TEXT NOT NULL,
-    "bonusId" TEXT NOT NULL,
+DO $$ BEGIN
+  CREATE TYPE "BuzzerRoomEventType" AS ENUM ('ROOM_CREATED', 'SEAT_TAKEN', 'SEAT_LEFT', 'ROUND_STARTED', 'DONE_READING', 'TIMER_PAUSED', 'TIMER_RESUMED', 'BUZZED', 'BUZZED_DURING_READING', 'INTERRUPT_CONFIRMED', 'INTERRUPT_INCORRECT', 'QUESTION_DEAD', 'ROUND_CLOCK_EXPIRED', 'CORRECT', 'INCORRECT', 'BONUS_QUEUED', 'NEXT_QUESTION', 'RESET', 'GAME_ENDED');
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+
+-- ── New columns ─────────────────────────────────────────────────────────────
+
+ALTER TABLE "Question"   ADD COLUMN IF NOT EXISTS "deletedAt" TIMESTAMP(3);
+ALTER TABLE "BuzzerRoom" ADD COLUMN IF NOT EXISTS "version"   INTEGER NOT NULL DEFAULT 0;
+
+-- Allow level to be empty for BuzzerQuestion rows (column is dropped below)
+ALTER TABLE "Question" ALTER COLUMN "level" SET DEFAULT '';
+
+-- ── New tables ──────────────────────────────────────────────────────────────
+
+CREATE TABLE IF NOT EXISTS "BuzzerQuestionPair" (
+    "id"        TEXT NOT NULL,
+    "tossupId"  TEXT NOT NULL,
+    "bonusId"   TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     CONSTRAINT "BuzzerQuestionPair_pkey" PRIMARY KEY ("id")
 );
-CREATE UNIQUE INDEX "BuzzerQuestionPair_tossupId_key" ON "BuzzerQuestionPair"("tossupId");
-CREATE UNIQUE INDEX "BuzzerQuestionPair_bonusId_key" ON "BuzzerQuestionPair"("bonusId");
+CREATE UNIQUE INDEX IF NOT EXISTS "BuzzerQuestionPair_tossupId_key" ON "BuzzerQuestionPair"("tossupId");
+CREATE UNIQUE INDEX IF NOT EXISTS "BuzzerQuestionPair_bonusId_key"  ON "BuzzerQuestionPair"("bonusId");
 
--- CreateTable: User
-CREATE TABLE "User" (
-    "id" TEXT NOT NULL,
-    "email" TEXT NOT NULL,
+CREATE TABLE IF NOT EXISTS "User" (
+    "id"          TEXT NOT NULL,
+    "email"       TEXT NOT NULL,
     "displayName" TEXT,
-    "avatarUrl" TEXT,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "avatarUrl"   TEXT,
+    "createdAt"   TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt"   TIMESTAMP(3) NOT NULL,
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
 );
-CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
+CREATE UNIQUE INDEX IF NOT EXISTS "User_email_key" ON "User"("email");
 
--- CreateTable: PracticeAttempt
-CREATE TABLE "PracticeAttempt" (
-    "id" TEXT NOT NULL,
-    "userId" TEXT NOT NULL,
-    "questionId" TEXT NOT NULL,
-    "answer" TEXT NOT NULL,
-    "isCorrect" BOOLEAN NOT NULL,
+CREATE TABLE IF NOT EXISTS "PracticeAttempt" (
+    "id"          TEXT        NOT NULL,
+    "userId"      TEXT        NOT NULL,
+    "questionId"  TEXT        NOT NULL,
+    "answer"      TEXT        NOT NULL,
+    "isCorrect"   BOOLEAN     NOT NULL,
     "timeSpentMs" INTEGER,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "createdAt"   TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT "PracticeAttempt_pkey" PRIMARY KEY ("id")
 );
 
--- CreateTable: TestAttempt
-CREATE TABLE "TestAttempt" (
-    "id" TEXT NOT NULL,
-    "userId" TEXT NOT NULL,
-    "testId" TEXT NOT NULL,
-    "startedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "completedAt" TIMESTAMP(3),
-    "timeLimitMinutes" INTEGER NOT NULL,
-    "score" INTEGER,
-    "totalQuestions" INTEGER NOT NULL,
+CREATE TABLE IF NOT EXISTS "TestAttempt" (
+    "id"               TEXT        NOT NULL,
+    "userId"           TEXT        NOT NULL,
+    "testId"           TEXT        NOT NULL,
+    "startedAt"        TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "completedAt"      TIMESTAMP(3),
+    "timeLimitMinutes" INTEGER     NOT NULL,
+    "score"            INTEGER,
+    "totalQuestions"   INTEGER     NOT NULL,
     CONSTRAINT "TestAttempt_pkey" PRIMARY KEY ("id")
 );
 
--- CreateTable: TestAttemptAnswer
-CREATE TABLE "TestAttemptAnswer" (
-    "id" TEXT NOT NULL,
-    "attemptId" TEXT NOT NULL,
-    "questionId" TEXT NOT NULL,
-    "answer" TEXT NOT NULL,
-    "isCorrect" BOOLEAN NOT NULL,
+CREATE TABLE IF NOT EXISTS "TestAttemptAnswer" (
+    "id"          TEXT    NOT NULL,
+    "attemptId"   TEXT    NOT NULL,
+    "questionId"  TEXT    NOT NULL,
+    "answer"      TEXT    NOT NULL,
+    "isCorrect"   BOOLEAN NOT NULL,
     "timeSpentMs" INTEGER,
     CONSTRAINT "TestAttemptAnswer_pkey" PRIMARY KEY ("id")
 );
-CREATE UNIQUE INDEX "TestAttemptAnswer_attemptId_questionId_key" ON "TestAttemptAnswer"("attemptId", "questionId");
+CREATE UNIQUE INDEX IF NOT EXISTS "TestAttemptAnswer_attemptId_questionId_key"
+    ON "TestAttemptAnswer"("attemptId", "questionId");
 
--- DATA MIGRATION: Create Answer rows for SA questions that have correctAnswer but no isCorrect Answer row
+-- ── Data migrations ─────────────────────────────────────────────────────────
+
+-- SA questions: create Answer rows from correctAnswer if not already present
 INSERT INTO "Answer" ("id", "questionId", "text", "isCorrect", "position", "createdAt", "updatedAt")
 SELECT
     'sa-' || q."id",
@@ -88,10 +101,7 @@ WHERE q."format" = 'SHORT_ANSWER'
   )
 ON CONFLICT DO NOTHING;
 
--- Allow level to be empty for BuzzerQuestion rows (column is dropped below)
-ALTER TABLE "Question" ALTER COLUMN "level" SET DEFAULT '';
-
--- DATA MIGRATION: Migrate BuzzerQuestion tossup rows to Question
+-- BuzzerQuestion → Question (tossup)
 INSERT INTO "Question" ("id", "competitionId", "category", "difficulty", "format", "questionKind", "prompt", "alternateAnswers", "explanation", "createdAt", "updatedAt")
 SELECT
     'bq-tossup-' || "id",
@@ -108,7 +118,6 @@ SELECT
 FROM "BuzzerQuestion"
 ON CONFLICT DO NOTHING;
 
--- DATA MIGRATION: Create Answer rows for migrated tossup questions
 INSERT INTO "Answer" ("id", "questionId", "text", "isCorrect", "position", "createdAt", "updatedAt")
 SELECT
     'bq-tossup-ans-' || "id",
@@ -121,7 +130,7 @@ SELECT
 FROM "BuzzerQuestion"
 ON CONFLICT DO NOTHING;
 
--- DATA MIGRATION: Migrate BuzzerQuestion bonus rows to Question
+-- BuzzerQuestion → Question (bonus)
 INSERT INTO "Question" ("id", "competitionId", "category", "difficulty", "format", "questionKind", "prompt", "alternateAnswers", "explanation", "createdAt", "updatedAt")
 SELECT
     'bq-bonus-' || "id",
@@ -138,7 +147,6 @@ SELECT
 FROM "BuzzerQuestion"
 ON CONFLICT DO NOTHING;
 
--- DATA MIGRATION: Create Answer rows for migrated bonus questions
 INSERT INTO "Answer" ("id", "questionId", "text", "isCorrect", "position", "createdAt", "updatedAt")
 SELECT
     'bq-bonus-ans-' || "id",
@@ -151,7 +159,7 @@ SELECT
 FROM "BuzzerQuestion"
 ON CONFLICT DO NOTHING;
 
--- DATA MIGRATION: Create BuzzerQuestionPair rows for migrated BuzzerQuestion data
+-- BuzzerQuestionPair rows for migrated BuzzerQuestion data
 INSERT INTO "BuzzerQuestionPair" ("id", "tossupId", "bonusId", "createdAt", "updatedAt")
 SELECT
     'bqp-' || "id",
@@ -162,7 +170,7 @@ SELECT
 FROM "BuzzerQuestion"
 ON CONFLICT DO NOTHING;
 
--- DATA MIGRATION: Pair existing OSTI TOSSUP+BONUS questions via source metadata
+-- BuzzerQuestionPair rows for existing OSTI TOSSUP+BONUS pairs
 INSERT INTO "BuzzerQuestionPair" ("id", "tossupId", "bonusId", "createdAt", "updatedAt")
 SELECT
     'bqp-osti-' || t."id",
@@ -174,7 +182,7 @@ FROM "Question" t
 JOIN "Question" b ON (
     t."competitionId" = b."competitionId"
     AND (t."sourcePdfUrl" = b."sourcePdfUrl" OR (t."sourcePdfUrl" IS NULL AND b."sourcePdfUrl" IS NULL))
-    AND (t."sourceSet" = b."sourceSet" OR (t."sourceSet" IS NULL AND b."sourceSet" IS NULL))
+    AND (t."sourceSet"   = b."sourceSet"   OR (t."sourceSet"   IS NULL AND b."sourceSet"   IS NULL))
     AND (t."sourceRound" = b."sourceRound" OR (t."sourceRound" IS NULL AND b."sourceRound" IS NULL))
     AND t."sourceQuestionNumber" = b."sourceQuestionNumber"
     AND t."category" = b."category"
@@ -183,63 +191,121 @@ JOIN "Question" b ON (
 WHERE t."questionKind" = 'TOSSUP'
   AND b."questionKind" = 'BONUS'
   AND NOT EXISTS (SELECT 1 FROM "BuzzerQuestionPair" p WHERE p."tossupId" = t."id")
-  AND NOT EXISTS (SELECT 1 FROM "BuzzerQuestionPair" p WHERE p."bonusId" = b."id")
+  AND NOT EXISTS (SELECT 1 FROM "BuzzerQuestionPair" p WHERE p."bonusId"  = b."id")
 ON CONFLICT DO NOTHING;
 
--- AlterTable: Convert BuzzerRoom.status from VARCHAR to BuzzerRoomStatus enum
-ALTER TABLE "BuzzerRoom" ALTER COLUMN "status" TYPE "BuzzerRoomStatus" USING "status"::"BuzzerRoomStatus";
+-- ── Convert BuzzerRoom.status to enum (skip if already converted) ───────────
+
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_name = 'BuzzerRoom' AND column_name = 'status'
+      AND data_type = 'character varying'
+  ) THEN
+    ALTER TABLE "BuzzerRoom" ALTER COLUMN "status" TYPE "BuzzerRoomStatus"
+      USING "status"::"BuzzerRoomStatus";
+  END IF;
+END $$;
 ALTER TABLE "BuzzerRoom" ALTER COLUMN "status" SET DEFAULT 'WAITING'::"BuzzerRoomStatus";
 
--- AlterTable: Convert BuzzerRoomEvent.type from VARCHAR to BuzzerRoomEventType enum
-ALTER TABLE "BuzzerRoomEvent" ALTER COLUMN "type" TYPE "BuzzerRoomEventType" USING "type"::"BuzzerRoomEventType";
+-- ── Convert BuzzerRoomEvent.type to enum (skip if already converted) ────────
 
--- AddForeignKey: BuzzerRoom.buzzedSeatId → BuzzerSeat.id (unique: each seat can be buzzed in at most one room)
-CREATE UNIQUE INDEX "BuzzerRoom_buzzedSeatId_key" ON "BuzzerRoom"("buzzedSeatId");
-ALTER TABLE "BuzzerRoom" ADD CONSTRAINT "BuzzerRoom_buzzedSeatId_fkey" FOREIGN KEY ("buzzedSeatId") REFERENCES "BuzzerSeat"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_name = 'BuzzerRoomEvent' AND column_name = 'type'
+      AND data_type = 'character varying'
+  ) THEN
+    ALTER TABLE "BuzzerRoomEvent" ALTER COLUMN "type" TYPE "BuzzerRoomEventType"
+      USING "type"::"BuzzerRoomEventType";
+  END IF;
+END $$;
 
--- AddForeignKey: BuzzerQuestionPair
-ALTER TABLE "BuzzerQuestionPair" ADD CONSTRAINT "BuzzerQuestionPair_tossupId_fkey" FOREIGN KEY ("tossupId") REFERENCES "Question"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-ALTER TABLE "BuzzerQuestionPair" ADD CONSTRAINT "BuzzerQuestionPair_bonusId_fkey" FOREIGN KEY ("bonusId") REFERENCES "Question"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+-- ── Foreign keys (idempotent) ────────────────────────────────────────────────
 
--- AddForeignKey: PracticeAttempt
-ALTER TABLE "PracticeAttempt" ADD CONSTRAINT "PracticeAttempt_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-ALTER TABLE "PracticeAttempt" ADD CONSTRAINT "PracticeAttempt_questionId_fkey" FOREIGN KEY ("questionId") REFERENCES "Question"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+CREATE UNIQUE INDEX IF NOT EXISTS "BuzzerRoom_buzzedSeatId_key" ON "BuzzerRoom"("buzzedSeatId");
 
--- AddForeignKey: TestAttempt
-ALTER TABLE "TestAttempt" ADD CONSTRAINT "TestAttempt_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-ALTER TABLE "TestAttempt" ADD CONSTRAINT "TestAttempt_testId_fkey" FOREIGN KEY ("testId") REFERENCES "Test"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+DO $$ BEGIN
+  ALTER TABLE "BuzzerRoom" ADD CONSTRAINT "BuzzerRoom_buzzedSeatId_fkey"
+    FOREIGN KEY ("buzzedSeatId") REFERENCES "BuzzerSeat"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
--- AddForeignKey: TestAttemptAnswer
-ALTER TABLE "TestAttemptAnswer" ADD CONSTRAINT "TestAttemptAnswer_attemptId_fkey" FOREIGN KEY ("attemptId") REFERENCES "TestAttempt"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-ALTER TABLE "TestAttemptAnswer" ADD CONSTRAINT "TestAttemptAnswer_questionId_fkey" FOREIGN KEY ("questionId") REFERENCES "Question"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+DO $$ BEGIN
+  ALTER TABLE "BuzzerQuestionPair" ADD CONSTRAINT "BuzzerQuestionPair_tossupId_fkey"
+    FOREIGN KEY ("tossupId") REFERENCES "Question"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
--- DropColumn: redundant denormalized fields (data already migrated above)
-ALTER TABLE "Question" DROP COLUMN "correctAnswer";
-ALTER TABLE "Question" DROP COLUMN "choices";
-ALTER TABLE "Question" DROP COLUMN "level";
-ALTER TABLE "Lesson" DROP COLUMN "level";
-ALTER TABLE "Test" DROP COLUMN "level";
+DO $$ BEGIN
+  ALTER TABLE "BuzzerQuestionPair" ADD CONSTRAINT "BuzzerQuestionPair_bonusId_fkey"
+    FOREIGN KEY ("bonusId") REFERENCES "Question"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
--- DropTable: BuzzerQuestion (data migrated to Question + BuzzerQuestionPair above)
-DROP TABLE "BuzzerQuestion";
+DO $$ BEGIN
+  ALTER TABLE "PracticeAttempt" ADD CONSTRAINT "PracticeAttempt_userId_fkey"
+    FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
--- CreateIndex: missing indexes on Question
-CREATE INDEX "Question_difficulty_idx" ON "Question"("difficulty");
-CREATE INDEX "Question_format_idx" ON "Question"("format");
-CREATE INDEX "Question_questionKind_idx" ON "Question"("questionKind");
-CREATE INDEX "Question_deletedAt_idx" ON "Question"("deletedAt");
+DO $$ BEGIN
+  ALTER TABLE "PracticeAttempt" ADD CONSTRAINT "PracticeAttempt_questionId_fkey"
+    FOREIGN KEY ("questionId") REFERENCES "Question"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
--- CreateIndex: missing index on BuzzerRoom.status
-CREATE INDEX "BuzzerRoom_status_idx" ON "BuzzerRoom"("status");
+DO $$ BEGIN
+  ALTER TABLE "TestAttempt" ADD CONSTRAINT "TestAttempt_userId_fkey"
+    FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
--- CreateIndex: missing index on Lesson.category
-CREATE INDEX "Lesson_category_idx" ON "Lesson"("category");
+DO $$ BEGIN
+  ALTER TABLE "TestAttempt" ADD CONSTRAINT "TestAttempt_testId_fkey"
+    FOREIGN KEY ("testId") REFERENCES "Test"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
--- CreateIndex: indexes on new tables
-CREATE INDEX "PracticeAttempt_userId_idx" ON "PracticeAttempt"("userId");
-CREATE INDEX "PracticeAttempt_questionId_idx" ON "PracticeAttempt"("questionId");
-CREATE INDEX "PracticeAttempt_userId_questionId_idx" ON "PracticeAttempt"("userId", "questionId");
-CREATE INDEX "PracticeAttempt_createdAt_idx" ON "PracticeAttempt"("createdAt");
-CREATE INDEX "TestAttempt_userId_idx" ON "TestAttempt"("userId");
-CREATE INDEX "TestAttempt_testId_idx" ON "TestAttempt"("testId");
-CREATE INDEX "TestAttemptAnswer_attemptId_idx" ON "TestAttemptAnswer"("attemptId");
+DO $$ BEGIN
+  ALTER TABLE "TestAttemptAnswer" ADD CONSTRAINT "TestAttemptAnswer_attemptId_fkey"
+    FOREIGN KEY ("attemptId") REFERENCES "TestAttempt"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+
+DO $$ BEGIN
+  ALTER TABLE "TestAttemptAnswer" ADD CONSTRAINT "TestAttemptAnswer_questionId_fkey"
+    FOREIGN KEY ("questionId") REFERENCES "Question"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+
+-- ── Drop old columns ─────────────────────────────────────────────────────────
+
+ALTER TABLE "Question" DROP COLUMN IF EXISTS "correctAnswer";
+ALTER TABLE "Question" DROP COLUMN IF EXISTS "choices";
+ALTER TABLE "Question" DROP COLUMN IF EXISTS "level";
+ALTER TABLE "Lesson"   DROP COLUMN IF EXISTS "level";
+ALTER TABLE "Test"     DROP COLUMN IF EXISTS "level";
+
+-- ── Drop old table ───────────────────────────────────────────────────────────
+
+DROP TABLE IF EXISTS "BuzzerQuestion";
+
+-- ── Indexes ──────────────────────────────────────────────────────────────────
+
+CREATE INDEX IF NOT EXISTS "Question_difficulty_idx"   ON "Question"("difficulty");
+CREATE INDEX IF NOT EXISTS "Question_format_idx"       ON "Question"("format");
+CREATE INDEX IF NOT EXISTS "Question_questionKind_idx" ON "Question"("questionKind");
+CREATE INDEX IF NOT EXISTS "Question_deletedAt_idx"    ON "Question"("deletedAt");
+CREATE INDEX IF NOT EXISTS "BuzzerRoom_status_idx"     ON "BuzzerRoom"("status");
+CREATE INDEX IF NOT EXISTS "Lesson_category_idx"       ON "Lesson"("category");
+
+CREATE INDEX IF NOT EXISTS "PracticeAttempt_userId_idx"            ON "PracticeAttempt"("userId");
+CREATE INDEX IF NOT EXISTS "PracticeAttempt_questionId_idx"        ON "PracticeAttempt"("questionId");
+CREATE INDEX IF NOT EXISTS "PracticeAttempt_userId_questionId_idx" ON "PracticeAttempt"("userId", "questionId");
+CREATE INDEX IF NOT EXISTS "PracticeAttempt_createdAt_idx"         ON "PracticeAttempt"("createdAt");
+CREATE INDEX IF NOT EXISTS "TestAttempt_userId_idx"                ON "TestAttempt"("userId");
+CREATE INDEX IF NOT EXISTS "TestAttempt_testId_idx"                ON "TestAttempt"("testId");
+CREATE INDEX IF NOT EXISTS "TestAttemptAnswer_attemptId_idx"       ON "TestAttemptAnswer"("attemptId");
