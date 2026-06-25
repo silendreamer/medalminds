@@ -65,13 +65,13 @@ function buildPromptInput(question: QuestionWithRelations) {
 
   return {
     competition: question.competition.name,
-    schoolLevel: question.schoolLevel ?? question.level,
+    schoolLevel: question.schoolLevel,
     category: question.category,
     difficulty: question.difficulty,
     questionKind: question.questionKind,
     prompt: question.prompt,
     choices,
-    correctAnswer: question.correctAnswer
+    correctAnswer: question.answers.find((a) => a.isCorrect)?.text ?? ""
   };
 }
 

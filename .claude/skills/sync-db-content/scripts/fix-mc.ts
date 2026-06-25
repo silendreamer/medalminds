@@ -1,6 +1,9 @@
 /**
  * fix-mc.ts — repair multiple-choice formatting in the DB.
  *
+ * NOTE: Obsolete after migration 0016_v2_architecture. The Question.correctAnswer
+ * and Question.choices columns no longer exist. This script is kept for reference.
+ *
  * Fixes three classes of problems:
  *
  *   A) Answer rows with "Answer: X" labels in their text

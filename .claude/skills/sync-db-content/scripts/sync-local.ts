@@ -81,11 +81,9 @@ async function main() {
       competitionId: q.competitionSlug,
       levelId: levelId ?? null,
       category: q.category,
-      level: q.level,
       difficulty,
       format,
       prompt: q.prompt,
-      correctAnswer: q.correctAnswer,
       alternateAnswers: q.alternateAnswers ?? [],
       explanation: q.explanation
     };
@@ -108,6 +106,12 @@ async function main() {
             });
           }
         }
+        if (format === QuestionFormat.SHORT_ANSWER && q.correctAnswer) {
+          await prisma.answer.deleteMany({ where: { questionId: q.id } });
+          await prisma.answer.create({
+            data: { id: `${q.id}-a0`, questionId: q.id, text: q.correctAnswer, isCorrect: true, position: 0 }
+          });
+        }
       }
       created++;
     } else {
@@ -127,6 +131,12 @@ async function main() {
               data: { id: `${q.id}-a${position}`, questionId: q.id, text, isCorrect, position }
             });
           }
+        }
+        if (format === QuestionFormat.SHORT_ANSWER && q.correctAnswer) {
+          await prisma.answer.deleteMany({ where: { questionId: q.id } });
+          await prisma.answer.create({
+            data: { id: `${q.id}-a0`, questionId: q.id, text: q.correctAnswer, isCorrect: true, position: 0 }
+          });
         }
       }
       updated++;

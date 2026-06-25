@@ -7,7 +7,7 @@
  *   3. MC questions where Answer table has ≠ 4 rows
  *   4. MC questions where an Answer row contains "Answer:" in its text
  *   5. MC questions whose prompt still embeds inline W) X) Y) Z) choices
- *   6. MC questions whose correctAnswer does not match any Answer row marked isCorrect
+ *   6. MC questions with no Answer row marked isCorrect
  *
  * Usage:
  *   npx tsx .claude/skills/sync-db-content/scripts/audit.ts
@@ -103,7 +103,6 @@ async function main() {
       competitionId: true,
       category: true,
       prompt: true,
-      correctAnswer: true,
       answers: { select: { text: true, isCorrect: true } }
     },
     take: LIMIT,
@@ -120,9 +119,8 @@ async function main() {
     if (q.answers.some((a) => /answer\s*:/i.test(a.text))) answerTextContainsLabel.push(q.id);
     if (INLINE_MC_PATTERN.test(q.prompt)) inlineChoicesInPrompt.push(q.id);
 
-    const correctAnswers = q.answers.filter((a) => a.isCorrect).map((a) => a.text.trim().toLowerCase());
-    const expected = q.correctAnswer.trim().toLowerCase();
-    if (correctAnswers.length > 0 && !correctAnswers.includes(expected)) {
+    const hasCorrectRow = q.answers.some((a) => a.isCorrect);
+    if (!hasCorrectRow) {
       correctAnswerMismatch.push(q.id);
     }
   }
@@ -140,7 +138,7 @@ async function main() {
   inlineChoicesInPrompt.slice(0, 5).forEach((id) => console.log(`    - ${id}`));
   if (inlineChoicesInPrompt.length > 5) console.log(`    ... and ${inlineChoicesInPrompt.length - 5} more`);
 
-  console.log(`\n[6] MC questions where correctAnswer doesn't match Answer rows: ${correctAnswerMismatch.length} / ${total}`);
+  console.log(`\n[6] MC questions with no isCorrect Answer row: ${correctAnswerMismatch.length} / ${total}`);
   correctAnswerMismatch.slice(0, 5).forEach((id) => console.log(`    - ${id}`));
   if (correctAnswerMismatch.length > 5) console.log(`    ... and ${correctAnswerMismatch.length - 5} more`);
 
@@ -150,7 +148,7 @@ async function main() {
   console.log(`  MC wrong answer count:       ${wrongAnswerCount.length}`);
   console.log(`  MC label in answer text:     ${answerTextContainsLabel.length}`);
   console.log(`  MC inline choices in prompt: ${inlineChoicesInPrompt.length}`);
-  console.log(`  MC correctAnswer mismatch:   ${correctAnswerMismatch.length}`);
+  console.log(`  MC no isCorrect row:         ${correctAnswerMismatch.length}`);
   console.log(`  (scanned ${total} MC questions, limit=${LIMIT})`);
 
   await prisma.$disconnect();

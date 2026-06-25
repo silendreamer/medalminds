@@ -1,7 +1,7 @@
 import "dotenv/config";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { config as loadDotenv } from "dotenv";
-import { Difficulty, PrismaClient, SchoolLevel } from "@prisma/client";
+import { Difficulty, PrismaClient, QuestionFormat, QuestionKind, SchoolLevel } from "@prisma/client";
 import { Pool } from "pg";
 import { buzzerQuestions } from "../src/data/buzzerQuestions";
 import { competitions } from "../src/data/competitions";
@@ -498,7 +498,6 @@ async function main() {
         levelId: competitionLevelIdFor(lesson.competitionSlug, lesson.level),
         title: lesson.title,
         category: lesson.category,
-        level: lesson.level,
         estimatedMinutes: lesson.estimatedMinutes,
         summary: lesson.summary,
         keyConcepts: lesson.keyConcepts,
@@ -512,7 +511,6 @@ async function main() {
         slug: lesson.slug,
         title: lesson.title,
         category: lesson.category,
-        level: lesson.level,
         estimatedMinutes: lesson.estimatedMinutes,
         summary: lesson.summary,
         keyConcepts: lesson.keyConcepts,
@@ -554,7 +552,6 @@ async function main() {
         conceptId: seed.concept.id,
         title: seed.lesson.title,
         category: seed.lesson.category,
-        level: seed.lesson.level,
         estimatedMinutes: seed.lesson.estimatedMinutes,
         summary: seed.lesson.summary,
         keyConcepts: seed.lesson.keyConcepts,
@@ -569,7 +566,6 @@ async function main() {
         slug: seed.lesson.slug,
         title: seed.lesson.title,
         category: seed.lesson.category,
-        level: seed.lesson.level,
         estimatedMinutes: seed.lesson.estimatedMinutes,
         summary: seed.lesson.summary,
         keyConcepts: seed.lesson.keyConcepts,
@@ -619,7 +615,6 @@ async function main() {
         id: test.id,
         levelId: competitionLevelIdFor(test.competitionSlug, test.level),
         title: test.title,
-        level: test.level,
         categories: test.categories,
         timeLimitMinutes: test.timeLimitMinutes,
         description: test.description
@@ -630,7 +625,6 @@ async function main() {
         levelId: competitionLevelIdFor(test.competitionSlug, test.level),
         slug: test.slug,
         title: test.title,
-        level: test.level,
         categories: test.categories,
         timeLimitMinutes: test.timeLimitMinutes,
         description: test.description
@@ -652,32 +646,66 @@ async function main() {
     }
   }
 
-  for (const question of buzzerQuestions) {
-    await prisma.buzzerQuestion.upsert({
-      where: { id: question.id },
+  for (const bq of buzzerQuestions) {
+    const tossupId = `seed-tossup-${bq.id}`;
+    const bonusId = `seed-bonus-${bq.id}`;
+    const pairId = `seed-pair-${bq.id}`;
+    const difficulty = toDbDifficulty(bq.difficulty);
+
+    await prisma.question.upsert({
+      where: { id: tossupId },
       update: {
-        competitionId: question.competitionSlug,
-        category: question.category,
-        difficulty: toDbDifficulty(question.difficulty),
-        tossupPrompt: question.tossupPrompt,
-        tossupAnswer: question.tossupAnswer,
-        tossupExplanation: question.tossupExplanation,
-        bonusPrompt: question.bonusPrompt,
-        bonusAnswer: question.bonusAnswer,
-        bonusExplanation: question.bonusExplanation
+        category: bq.category,
+        difficulty,
+        prompt: bq.tossupPrompt,
+        explanation: bq.tossupExplanation
       },
       create: {
-        id: question.id,
-        competitionId: question.competitionSlug,
-        category: question.category,
-        difficulty: toDbDifficulty(question.difficulty),
-        tossupPrompt: question.tossupPrompt,
-        tossupAnswer: question.tossupAnswer,
-        tossupExplanation: question.tossupExplanation,
-        bonusPrompt: question.bonusPrompt,
-        bonusAnswer: question.bonusAnswer,
-        bonusExplanation: question.bonusExplanation
+        id: tossupId,
+        competitionId: bq.competitionSlug,
+        category: bq.category,
+        difficulty,
+        format: QuestionFormat.SHORT_ANSWER,
+        questionKind: QuestionKind.TOSSUP,
+        prompt: bq.tossupPrompt,
+        alternateAnswers: [],
+        explanation: bq.tossupExplanation
       }
+    });
+    await prisma.answer.deleteMany({ where: { questionId: tossupId } });
+    await prisma.answer.create({
+      data: { id: `${tossupId}-a0`, questionId: tossupId, text: bq.tossupAnswer, isCorrect: true, position: 0 }
+    });
+
+    await prisma.question.upsert({
+      where: { id: bonusId },
+      update: {
+        category: bq.category,
+        difficulty,
+        prompt: bq.bonusPrompt,
+        explanation: bq.bonusExplanation
+      },
+      create: {
+        id: bonusId,
+        competitionId: bq.competitionSlug,
+        category: bq.category,
+        difficulty,
+        format: QuestionFormat.SHORT_ANSWER,
+        questionKind: QuestionKind.BONUS,
+        prompt: bq.bonusPrompt,
+        alternateAnswers: [],
+        explanation: bq.bonusExplanation
+      }
+    });
+    await prisma.answer.deleteMany({ where: { questionId: bonusId } });
+    await prisma.answer.create({
+      data: { id: `${bonusId}-a0`, questionId: bonusId, text: bq.bonusAnswer, isCorrect: true, position: 0 }
+    });
+
+    await prisma.buzzerQuestionPair.upsert({
+      where: { tossupId },
+      update: {},
+      create: { id: pairId, tossupId, bonusId }
     });
   }
 
@@ -797,11 +825,11 @@ async function main() {
     prisma.answer.count(),
     prisma.lesson.count(),
     prisma.test.count(),
-    prisma.buzzerQuestion.count()
+    prisma.buzzerQuestionPair.count()
   ]);
 
   console.log(
-    `Seed complete: ${counts[0]} competitions, ${counts[1]} competition levels, ${counts[2]} curriculum subjects, ${counts[3]} curriculum grades, ${counts[4]} curriculum units, ${counts[5]} curriculum topics, ${counts[6]} concepts, ${counts[7]} questions, ${counts[8]} answers, ${counts[9]} lessons, ${counts[10]} tests, ${counts[11]} buzzer questions.`
+    `Seed complete: ${counts[0]} competitions, ${counts[1]} competition levels, ${counts[2]} curriculum subjects, ${counts[3]} curriculum grades, ${counts[4]} curriculum units, ${counts[5]} curriculum topics, ${counts[6]} concepts, ${counts[7]} questions, ${counts[8]} answers, ${counts[9]} lessons, ${counts[10]} tests, ${counts[11]} buzzer question pairs.`
   );
 }
 

@@ -97,7 +97,7 @@ function lessonPrompt(concept: ConceptWithQuestions) {
       prompt: question.prompt,
       category: question.category,
       difficulty: question.difficulty,
-      correctAnswer: question.correctAnswer,
+      correctAnswer: question.answers.find((a) => a.isCorrect)?.text ?? "",
       choices
     };
   });
@@ -305,14 +305,13 @@ async function main() {
       const draft = await generateDraft(concept, model);
       const lessonSlug = concept.slug;
       const lessonId = `${concept.id}-lesson`;
-      const level =
+      const levelSlug =
         concept.schoolLevel === "MIDDLE_SCHOOL"
-          ? "Middle School"
+          ? "middle-school"
           : concept.schoolLevel === "HIGH_SCHOOL"
-            ? "High School"
-            : concept.schoolLevel === "MIXED"
-              ? "Mixed"
-              : "Mixed";
+            ? "high-school"
+            : "mixed-bowl-prep";
+      const levelId = `${concept.competitionId}-${levelSlug}`;
       const estimatedMinutes = Math.min(20, Math.max(12, draft.keyConcepts.length * 2 + 8));
 
       if (write) {
@@ -325,9 +324,9 @@ async function main() {
           },
           update: {
             conceptId: concept.id,
+            levelId,
             title: concept.title,
             category: concept.category,
-            level,
             estimatedMinutes,
             summary: draft.summary,
             keyConcepts: draft.keyConcepts,
@@ -338,10 +337,10 @@ async function main() {
             id: lessonId,
             competitionId: concept.competitionId,
             conceptId: concept.id,
+            levelId,
             slug: lessonSlug,
             title: concept.title,
             category: concept.category,
-            level,
             estimatedMinutes,
             summary: draft.summary,
             keyConcepts: draft.keyConcepts,

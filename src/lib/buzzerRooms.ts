@@ -1,4 +1,4 @@
-import { Prisma, QuestionKind } from "@prisma/client";
+import { BuzzerRoomEventType, BuzzerRoomStatus, Prisma, QuestionKind } from "@prisma/client";
 import type { PracticeQuestion } from "@/types";
 import { getPrisma } from "./db";
 
@@ -78,7 +78,12 @@ type RoomWithRelations = Prisma.BuzzerRoomGetPayload<{
   include: {
     seats: { orderBy: [{ team: "asc" }, { slot: "asc" }] };
     events: { orderBy: { createdAt: "desc" }; take: 8 };
-    currentQuestion: { include: { answers: { orderBy: { position: "asc" } } } };
+    currentQuestion: {
+      include: {
+        answers: { orderBy: { position: "asc" } };
+        competitionLevel: { select: { name: true } };
+      };
+    };
   };
 }>;
 
@@ -125,8 +130,9 @@ function questionKindWord(value: QuestionKind | string | null | undefined) {
 
 function startQuestionClockData(room: RoomWithRelations, forceInterrupt: boolean) {
   const questionKind = room.currentQuestion?.questionKind;
+  const status: BuzzerRoomStatus = questionKind === QuestionKind.BONUS ? BuzzerRoomStatus.BONUS : room.buzzedSeatId ? BuzzerRoomStatus.BUZZED : BuzzerRoomStatus.RUNNING;
   return {
-    status: questionKind === QuestionKind.BONUS ? "BONUS" : room.buzzedSeatId ? "BUZZED" : "RUNNING",
+    status,
     questionClockStartedAt: new Date(),
     questionClockDurationMs: questionClockDurationFor(questionKind),
     questionClockElapsedMs: 0,
@@ -196,14 +202,14 @@ function questionForOrganizer(room: RoomWithRelations): (PracticeQuestion & { co
   if (!question) return null;
   const choices = question.answers.slice(0, 4).map((answer) => answer.text);
   const correctIndex = question.answers.slice(0, 4).findIndex((answer) => answer.isCorrect);
-  const correctText = question.answers.slice(0, 4)[correctIndex]?.text ?? question.correctAnswer;
+  const correctText = question.answers.slice(0, 4)[correctIndex]?.text ?? "";
   const type = question.format === "MULTIPLE_CHOICE" ? "multiple_choice" : "short_answer";
 
   return {
     id: question.id,
     competitionSlug: "science-bowl",
     category: question.category,
-    level: question.level,
+    level: question.competitionLevel?.name ?? "",
     difficulty:
       question.difficulty === "FOUNDATIONAL"
         ? "Foundational"
@@ -282,6 +288,7 @@ async function randomScienceBowlQuestionId(schoolLevel?: string | null) {
       INNER JOIN "Competition" c ON c.id = q."competitionId"
       WHERE c.slug = 'science-bowl'
         AND q."questionKind" = 'TOSSUP'
+        AND q."deletedAt" IS NULL
         ${levelFilter}
         AND (
           SELECT count(*)
@@ -296,37 +303,11 @@ async function randomScienceBowlQuestionId(schoolLevel?: string | null) {
 }
 
 async function pairedBonusQuestionId(questionId: string) {
-  const prisma = getPrisma();
-  const current = await prisma.question.findUnique({
-    where: { id: questionId },
-    select: {
-      competitionId: true,
-      sourcePdfUrl: true,
-      sourceSet: true,
-      sourceRound: true,
-      sourceQuestionNumber: true,
-      category: true,
-      schoolLevel: true
-    }
+  const pair = await getPrisma().buzzerQuestionPair.findUnique({
+    where: { tossupId: questionId },
+    select: { bonusId: true }
   });
-
-  if (!current) return null;
-
-  const bonus = await prisma.question.findFirst({
-    where: {
-      competitionId: current.competitionId,
-      questionKind: QuestionKind.BONUS,
-      sourcePdfUrl: current.sourcePdfUrl,
-      sourceSet: current.sourceSet,
-      sourceRound: current.sourceRound,
-      sourceQuestionNumber: current.sourceQuestionNumber,
-      category: current.category,
-      schoolLevel: current.schoolLevel
-    },
-    select: { id: true }
-  });
-
-  return bonus?.id ?? null;
+  return pair?.bonusId ?? null;
 }
 
 async function includeRoom(code: string) {
@@ -335,7 +316,12 @@ async function includeRoom(code: string) {
     include: {
       seats: { orderBy: [{ team: "asc" }, { slot: "asc" }] },
       events: { orderBy: { createdAt: "desc" }, take: 8 },
-      currentQuestion: { include: { answers: { orderBy: { position: "asc" } } } }
+      currentQuestion: {
+        include: {
+          answers: { orderBy: { position: "asc" } },
+          competitionLevel: { select: { name: true } }
+        }
+      }
     }
   });
 }

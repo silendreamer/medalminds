@@ -99,7 +99,7 @@ function normalizeSubjectFilter(value: string | undefined) {
 
 function questionAnswerText(question: QuestionWithRelations) {
   const answers = question.answers.map((answer) => answer.text).filter(Boolean);
-  return [question.correctAnswer, ...answers].join(" ").trim();
+  return answers.join(" ").trim();
 }
 
 function questionInput(question: QuestionWithRelations): QuestionInput {

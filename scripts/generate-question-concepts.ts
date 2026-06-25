@@ -193,8 +193,9 @@ function conceptSearchText(concept: ExistingConcept) {
 
 function scoreExistingConcept(question: QuestionWithRelations, concept: ExistingConcept): ConceptCandidateScore {
   const promptText = normalizeText(question.prompt);
-  const answerText = normalizeText(question.correctAnswer);
-  const promptTokens = new Set(tokenizeConceptText(`${question.prompt} ${question.correctAnswer}`));
+  const correctAnswer = question.answers.find((a) => a.isCorrect)?.text ?? "";
+  const answerText = normalizeText(correctAnswer);
+  const promptTokens = new Set(tokenizeConceptText(`${question.prompt} ${correctAnswer}`));
   const conceptTokens = new Set(tokenizeConceptText(conceptSearchText(concept)));
   const matchedTokens: string[] = [];
   let score = 0;
@@ -287,7 +288,7 @@ function buildVerificationPath(question: QuestionWithRelations) {
 function questionInput(question: QuestionWithRelations) {
   return {
     competition: question.competition.name,
-    schoolLevel: question.schoolLevel ?? question.level,
+    schoolLevel: question.schoolLevel,
     category: question.category,
     difficulty: question.difficulty,
     questionKind: question.questionKind,
@@ -296,7 +297,7 @@ function questionInput(question: QuestionWithRelations) {
       question.format === QuestionFormat.MULTIPLE_CHOICE
         ? question.answers.map((answer) => answer.text)
         : null,
-    correctAnswer: question.correctAnswer
+    correctAnswer: question.answers.find((a) => a.isCorrect)?.text ?? ""
   };
 }
 
@@ -598,7 +599,6 @@ async function writeDecision(question: QuestionWithRelations, decision: ConceptD
         conceptId,
         title: decision.conceptTitle,
         category: question.category,
-        level: question.level,
         estimatedMinutes: 10,
         summary: decision.lessonSummary,
         keyConcepts: decision.lessonKeyConcepts,
@@ -613,7 +613,6 @@ async function writeDecision(question: QuestionWithRelations, decision: ConceptD
         slug: decision.conceptSlug,
         title: decision.conceptTitle,
         category: question.category,
-        level: question.level,
         estimatedMinutes: 10,
         summary: decision.lessonSummary,
         keyConcepts: decision.lessonKeyConcepts,
@@ -644,8 +643,7 @@ async function writeDecision(question: QuestionWithRelations, decision: ConceptD
           conceptId,
           title: decision.conceptTitle,
           category: question.category,
-          level: question.level,
-          estimatedMinutes: 10,
+            estimatedMinutes: 10,
           summary: decision.lessonSummary,
           keyConcepts: decision.lessonKeyConcepts,
           contentSections: decision.lessonSections,
@@ -659,8 +657,7 @@ async function writeDecision(question: QuestionWithRelations, decision: ConceptD
           slug: decision.conceptSlug,
           title: decision.conceptTitle,
           category: question.category,
-          level: question.level,
-          estimatedMinutes: 10,
+            estimatedMinutes: 10,
           summary: decision.lessonSummary,
           keyConcepts: decision.lessonKeyConcepts,
           contentSections: decision.lessonSections,

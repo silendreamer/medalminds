@@ -237,7 +237,6 @@ async function importSqliteFile(prisma: PrismaClient, sqlitePath: string) {
       competitionId: "science-bowl",
       levelId: levelIdFor(question),
       category: requiredText(question.category),
-      level: requiredText(question.level),
       difficulty: question.difficulty,
       format: mapQuestionFormat(question.format),
       questionKind: mapQuestionKind(question.questionKind),
@@ -250,8 +249,6 @@ async function importSqliteFile(prisma: PrismaClient, sqlitePath: string) {
       sourceQuestionNumber: question.sourceQuestionNumber,
       sourceHash: question.sourceHash,
       prompt: requiredText(question.prompt),
-      choices: parseJsonArray(question.choices)?.map(cleanChoiceText).filter(Boolean) ?? Prisma.JsonNull,
-      correctAnswer: requiredText(question.correctAnswer),
       alternateAnswers: parseJsonArray(question.alternateAnswers) ?? [],
       explanation
     });

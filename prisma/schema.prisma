@@ -36,6 +36,39 @@ enum ClassificationDifficulty {
   HARD
 }
 
+enum BuzzerRoomStatus {
+  WAITING
+  READING
+  RUNNING
+  BUZZED
+  BONUS
+  PAUSED
+  TIMEOUT
+  ENDED
+}
+
+enum BuzzerRoomEventType {
+  ROOM_CREATED
+  SEAT_TAKEN
+  SEAT_LEFT
+  ROUND_STARTED
+  DONE_READING
+  TIMER_PAUSED
+  TIMER_RESUMED
+  BUZZED
+  BUZZED_DURING_READING
+  INTERRUPT_CONFIRMED
+  INTERRUPT_INCORRECT
+  QUESTION_DEAD
+  ROUND_CLOCK_EXPIRED
+  CORRECT
+  INCORRECT
+  BONUS_QUEUED
+  NEXT_QUESTION
+  RESET
+  GAME_ENDED
+}
+
 model Competition {
   id               String             @id
   slug             String             @unique
@@ -50,7 +83,6 @@ model Competition {
   questions        Question[]
   lessons          Lesson[]
   tests            Test[]
-  buzzerQuestions  BuzzerQuestion[]
   createdAt        DateTime           @default(now())
   updatedAt        DateTime           @updatedAt
 }
@@ -82,7 +114,6 @@ model Question {
   levelId          String?
   competitionLevel CompetitionLevel? @relation(fields: [levelId], references: [id], onDelete: SetNull)
   category         String
-  level            String
   difficulty       Difficulty
   format           QuestionFormat
   questionKind     QuestionKind   @default(PRACTICE)
@@ -95,10 +126,9 @@ model Question {
   sourceQuestionNumber Int?
   sourceHash       String?        @unique
   prompt           String
-  choices          Json?
-  correctAnswer    String
   alternateAnswers String[]
   explanation      String
+  deletedAt        DateTime?
   answers          Answer[]
   answerExplanations AnswerExplanation[]
   concepts         QuestionConcept[]
@@ -106,6 +136,10 @@ model Question {
   topicClassification QuestionTopicClassification?
   tests            TestQuestion[]
   buzzerRooms      BuzzerRoom[]
+  tossupPair       BuzzerQuestionPair? @relation("TossupPair")
+  bonusPair        BuzzerQuestionPair? @relation("BonusPair")
+  practiceAttempts PracticeAttempt[]
+  testAttemptAnswers TestAttemptAnswer[]
   createdAt        DateTime       @default(now())
   updatedAt        DateTime       @updatedAt
 
@@ -114,6 +148,10 @@ model Question {
   @@index([competitionId, category, difficulty, format])
   @@index([competitionId, schoolLevel])
   @@index([sourceProvider, sourceSet])
+  @@index([difficulty])
+  @@index([format])
+  @@index([questionKind])
+  @@index([deletedAt])
 }
 
 model Concept {
@@ -214,7 +252,6 @@ model Lesson {
   slug             String
   title            String
   category         String
-  level            String
   estimatedMinutes Int
   summary          String
   keyConcepts      String[]
@@ -228,6 +265,7 @@ model Lesson {
   @@index([competitionId])
   @@index([levelId])
   @@index([conceptId])
+  @@index([category])
 }
 
 model Test {
@@ -238,11 +276,11 @@ model Test {
   competitionLevel CompetitionLevel? @relation(fields: [levelId], references: [id], onDelete: SetNull)
   slug             String
   title            String
-  level            String
   categories       String[]
   timeLimitMinutes Int
   description      String
   questions        TestQuestion[]
+  attempts         TestAttempt[]
   createdAt        DateTime       @default(now())
   updatedAt        DateTime       @updatedAt
 
@@ -262,22 +300,14 @@ model TestQuestion {
   @@unique([testId, position])
 }
 
-model BuzzerQuestion {
-  id                String      @id
-  competitionId     String
-  competition       Competition @relation(fields: [competitionId], references: [id], onDelete: Cascade)
-  category          String
-  difficulty        Difficulty
-  tossupPrompt      String
-  tossupAnswer      String
-  tossupExplanation String
-  bonusPrompt       String
-  bonusAnswer       String
-  bonusExplanation  String
-  createdAt         DateTime    @default(now())
-  updatedAt         DateTime    @updatedAt
-
-  @@index([competitionId])
+model BuzzerQuestionPair {
+  id        String   @id
+  tossupId  String   @unique
+  bonusId   String   @unique
+  tossup    Question @relation("TossupPair", fields: [tossupId], references: [id], onDelete: Cascade)
+  bonus     Question @relation("BonusPair", fields: [bonusId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model CurriculumSubject {
@@ -374,7 +404,8 @@ model BuzzerRoom {
   id                  String            @id
   code                String            @unique
   organizerPassword   String
-  status              String            @default("WAITING")
+  status              BuzzerRoomStatus  @default(WAITING)
+  version             Int               @default(0)
   schoolLevel         SchoolLevel?
   teamAName           String            @default("Team A")
   teamBName           String            @default("Team B")
@@ -392,9 +423,10 @@ model BuzzerRoom {
   questionNumber      Int               @default(1)
   currentQuestionId   String?
   currentQuestion     Question?          @relation(fields: [currentQuestionId], references: [id], onDelete: SetNull)
-  buzzedSeatId        String?
+  buzzedSeatId        String?           @unique
+  buzzedSeat          BuzzerSeat?       @relation("BuzzedSeat", fields: [buzzedSeatId], references: [id], onDelete: SetNull)
   expiresAt           DateTime
-  seats               BuzzerSeat[]
+  seats               BuzzerSeat[]      @relation("RoomSeats")
   events              BuzzerRoomEvent[]
   createdAt           DateTime          @default(now())
   updatedAt           DateTime          @updatedAt
@@ -402,12 +434,14 @@ model BuzzerRoom {
   @@index([code])
   @@index([expiresAt])
   @@index([currentQuestionId])
+  @@index([status])
 }
 
 model BuzzerSeat {
   id              String      @id
   roomId          String
-  room            BuzzerRoom  @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  room            BuzzerRoom  @relation("RoomSeats", fields: [roomId], references: [id], onDelete: Cascade)
+  buzzedIn        BuzzerRoom? @relation("BuzzedSeat")
   team            String
   slot            String
   participantName String?
@@ -420,12 +454,71 @@ model BuzzerSeat {
 }
 
 model BuzzerRoomEvent {
-  id        String      @id
+  id        String           @id
   roomId    String
-  room      BuzzerRoom  @relation(fields: [roomId], references: [id], onDelete: Cascade)
-  type      String
+  room      BuzzerRoom       @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  type      BuzzerRoomEventType
   message   String
-  createdAt DateTime    @default(now())
+  createdAt DateTime         @default(now())
 
   @@index([roomId, createdAt])
+}
+
+model User {
+  id               String            @id
+  email            String            @unique
+  displayName      String?
+  avatarUrl        String?
+  practiceAttempts PracticeAttempt[]
+  testAttempts     TestAttempt[]
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+}
+
+model PracticeAttempt {
+  id          String   @id
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  questionId  String
+  question    Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  answer      String
+  isCorrect   Boolean
+  timeSpentMs Int?
+  createdAt   DateTime @default(now())
+
+  @@index([userId])
+  @@index([questionId])
+  @@index([userId, questionId])
+  @@index([createdAt])
+}
+
+model TestAttempt {
+  id               String              @id
+  userId           String
+  user             User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  testId           String
+  test             Test                @relation(fields: [testId], references: [id], onDelete: Cascade)
+  startedAt        DateTime            @default(now())
+  completedAt      DateTime?
+  timeLimitMinutes Int
+  score            Int?
+  totalQuestions   Int
+  answers          TestAttemptAnswer[]
+
+  @@index([userId])
+  @@index([testId])
+}
+
+model TestAttemptAnswer {
+  id          String      @id
+  attemptId   String
+  attempt     TestAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  questionId  String
+  question    Question    @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  answer      String
+  isCorrect   Boolean
+  timeSpentMs Int?
+
+  @@unique([attemptId, questionId])
+  @@index([attemptId])
 }

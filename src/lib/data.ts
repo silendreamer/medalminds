@@ -13,15 +13,21 @@ import { getPrisma, hasDatabaseUrl } from "./db";
 
 export type SchoolLevelFilter = "MIDDLE_SCHOOL" | "HIGH_SCHOOL";
 
-type DbLesson = Prisma.LessonGetPayload<Record<string, never>>;
+type DbLesson = Prisma.LessonGetPayload<{
+  include: {
+    competitionLevel: { select: { name: true } };
+  };
+}>;
 type DbQuestion = Prisma.QuestionGetPayload<{
   include: {
     answers: { orderBy: { position: "asc" } };
     answerExplanations: { orderBy: { position: "asc" } };
+    competitionLevel: { select: { name: true } };
   };
 }>;
 type DbTestWithQuestions = Prisma.TestGetPayload<{
   include: {
+    competitionLevel: { select: { name: true } };
     questions: {
       orderBy: { position: "asc" };
       include: {
@@ -35,7 +41,6 @@ type DbTestWithQuestions = Prisma.TestGetPayload<{
     };
   };
 }>;
-type DbBuzzerQuestion = Prisma.BuzzerQuestionGetPayload<Record<string, never>>;
 type DbCurriculumSubject = Prisma.CurriculumSubjectGetPayload<{
   include: {
     grades: {
@@ -76,7 +81,7 @@ function stripInlineMultipleChoiceOptions(prompt: string, type: PracticeQuestion
 
 function toPracticeQuestion(question: DbQuestion): PracticeQuestion {
   const correctAnswers = question.answers.filter((answer) => answer.isCorrect);
-  const primaryCorrectAnswer = correctAnswers[0]?.text ?? question.correctAnswer;
+  const primaryCorrectAnswer = correctAnswers[0]?.text ?? "";
   const alternateAnswers = correctAnswers.slice(1).map((answer) => answer.text);
   const type = fromDbQuestionFormat(question.format);
   const answerChoices = shuffle(question.answers.map((answer) => answer.text));
@@ -86,18 +91,11 @@ function toPracticeQuestion(question: DbQuestion): PracticeQuestion {
     id: question.id,
     competitionSlug: question.competitionId as CompetitionSlug,
     category: question.category,
-    level: question.level,
+    level: question.competitionLevel?.name ?? "",
     difficulty: fromDbDifficulty(question.difficulty),
     type,
     prompt: stripInlineMultipleChoiceOptions(question.prompt, type),
-    choices:
-      type === "multiple_choice"
-        ? answerChoices.length
-          ? answerChoices
-          : Array.isArray(question.choices)
-            ? question.choices.map(String)
-            : undefined
-        : undefined,
+    choices: type === "multiple_choice" && answerChoices.length ? answerChoices : undefined,
     correctAnswer: primaryCorrectAnswer,
     alternateAnswers: alternateAnswers.length ? alternateAnswers : question.alternateAnswers.length ? question.alternateAnswers : undefined,
     explanation
@@ -111,7 +109,7 @@ function toLesson(lesson: DbLesson): Lesson {
     competitionSlug: lesson.competitionId as CompetitionSlug,
     title: lesson.title,
     category: lesson.category,
-    level: lesson.level,
+    level: lesson.competitionLevel?.name ?? "",
     estimatedMinutes: lesson.estimatedMinutes,
     summary: lesson.summary,
     keyConcepts: lesson.keyConcepts,
@@ -126,26 +124,11 @@ function toTest(test: DbTestWithQuestions): Test {
     slug: test.slug,
     competitionSlug: test.competitionId as CompetitionSlug,
     title: test.title,
-    level: test.level,
+    level: test.competitionLevel?.name ?? "",
     categories: test.categories,
     timeLimitMinutes: test.timeLimitMinutes,
     description: test.description,
     questionIds: test.questions.map((question) => question.questionId)
-  };
-}
-
-function toBuzzerQuestion(question: DbBuzzerQuestion) {
-  return {
-    id: question.id,
-    competitionSlug: question.competitionId as "science-bowl",
-    category: question.category,
-    difficulty: fromDbDifficulty(question.difficulty),
-    tossupPrompt: question.tossupPrompt,
-    tossupAnswer: question.tossupAnswer,
-    tossupExplanation: question.tossupExplanation,
-    bonusPrompt: question.bonusPrompt,
-    bonusAnswer: question.bonusAnswer,
-    bonusExplanation: question.bonusExplanation
   };
 }
 
@@ -257,10 +240,17 @@ function questionWhereForSubject(slug: CompetitionSlug, subject?: string | null,
   const aliases = aliasesForSubject(subject);
   return {
     competition: { slug },
+    deletedAt: null,
     ...(aliases ? { category: { in: aliases } } : {}),
     ...(schoolLevel ? { schoolLevel } : {})
   };
 }
+
+const questionInclude = {
+  answers: { orderBy: { position: "asc" as const } },
+  answerExplanations: { orderBy: { position: "asc" as const } },
+  competitionLevel: { select: { name: true } }
+} as const;
 
 export function getCompetitions() {
   return cachedContent(
@@ -361,12 +351,9 @@ export async function getQuestionsByCompetition(slug: CompetitionSlug) {
   }
 
   const questions = await getPrisma().question.findMany({
-    where: { competition: { slug } },
+    where: { competition: { slug }, deletedAt: null },
     orderBy: { id: "asc" },
-    include: {
-      answers: { orderBy: { position: "asc" } },
-      answerExplanations: { orderBy: { position: "asc" } }
-    }
+    include: questionInclude
   });
 
   return questions.map(toPracticeQuestion);
@@ -391,10 +378,7 @@ export async function getRandomQuestionByCompetition(
     where: questionWhereForSubject(slug, subject, schoolLevel),
     take: 250,
     orderBy: { updatedAt: "desc" },
-    include: {
-      answers: { orderBy: { position: "asc" } },
-      answerExplanations: { orderBy: { position: "asc" } }
-    }
+    include: questionInclude
   });
 
   return shuffle(questions).map(toPracticeQuestion)[0];
@@ -421,10 +405,7 @@ export async function getQuestionById(
       id: questionId,
       ...questionWhereForSubject(slug, subject, schoolLevel)
     },
-    include: {
-      answers: { orderBy: { position: "asc" } },
-      answerExplanations: { orderBy: { position: "asc" } }
-    }
+    include: questionInclude
   });
 
   return question ? toPracticeQuestion(question) : undefined;
@@ -457,6 +438,7 @@ export async function getRandomMultipleChoiceQuestions(
       INNER JOIN "Competition" c ON c.id = q."competitionId"
       WHERE c.slug = ${slug}
         AND q.format = 'MULTIPLE_CHOICE'
+        AND q."deletedAt" IS NULL
         ${aliases ? Prisma.sql`AND q.category IN (${Prisma.join(aliases)})` : Prisma.empty}
         ${schoolLevel ? Prisma.sql`AND q."schoolLevel" = ${schoolLevel}::"SchoolLevel"` : Prisma.empty}
         AND (
@@ -472,10 +454,7 @@ export async function getRandomMultipleChoiceQuestions(
 
   const questions = await prisma.question.findMany({
     where: { id: { in: ids } },
-    include: {
-      answers: { orderBy: { position: "asc" } },
-      answerExplanations: { orderBy: { position: "asc" } }
-    }
+    include: questionInclude
   });
   const byId = new Map(questions.map((question) => [question.id, toPracticeQuestion(question)]));
 
@@ -513,7 +492,8 @@ export function getLessonsByCompetition(
               }
             : {})
         },
-        orderBy: { id: "asc" }
+        orderBy: { id: "asc" },
+        include: { competitionLevel: { select: { name: true } } }
       });
 
       return lessons.map(toLesson);
@@ -545,7 +525,14 @@ export async function getPrimaryConceptLessonForQuestion(questionId: string) {
   });
   const lesson = questionConcept?.concept.lessons[0];
 
-  return lesson ? toLesson(lesson) : undefined;
+  if (!lesson) return undefined;
+
+  const lessonWithLevel = await getPrisma().lesson.findUnique({
+    where: { id: lesson.id },
+    include: { competitionLevel: { select: { name: true } } }
+  });
+
+  return lessonWithLevel ? toLesson(lessonWithLevel) : undefined;
 }
 
 export function getTestsByCompetition(slug: CompetitionSlug) {
@@ -559,6 +546,7 @@ export function getTestsByCompetition(slug: CompetitionSlug) {
         where: { competition: { slug } },
         orderBy: { id: "asc" },
         include: {
+          competitionLevel: { select: { name: true } },
           questions: {
             orderBy: { position: "asc" },
             include: {
@@ -589,7 +577,8 @@ export async function getLessonBySlug(slug: CompetitionSlug, lessonSlug: string)
     where: {
       slug: lessonSlug,
       competition: { slug }
-    }
+    },
+    include: { competitionLevel: { select: { name: true } } }
   });
 
   return lesson ? toLesson(lesson) : undefined;
@@ -606,6 +595,7 @@ export async function getTestBySlug(slug: CompetitionSlug, testSlug: string) {
       competition: { slug }
     },
     include: {
+      competitionLevel: { select: { name: true } },
       questions: {
         orderBy: { position: "asc" },
         include: {
@@ -631,11 +621,8 @@ export async function getQuestionsForTest(questionIds: string[]) {
   }
 
   const questions = await getPrisma().question.findMany({
-    where: { id: { in: questionIds } },
-    include: {
-      answers: { orderBy: { position: "asc" } },
-      answerExplanations: { orderBy: { position: "asc" } }
-    }
+    where: { id: { in: questionIds }, deletedAt: null },
+    include: questionInclude
   });
   const byId = new Map(questions.map((question) => [question.id, toPracticeQuestion(question)]));
 
@@ -665,7 +652,7 @@ export function getContentCounts(slug: CompetitionSlug) {
       }
 
       const [questions, lessons] = await Promise.all([
-        prisma.question.count({ where: { competitionId: competition.id } }),
+        prisma.question.count({ where: { competitionId: competition.id, deletedAt: null } }),
         prisma.lesson.count({ where: { competitionId: competition.id } })
       ]);
 
@@ -708,7 +695,8 @@ export function getContentCountsBySchoolLevel(slug: CompetitionSlug, schoolLevel
         prisma.question.count({
           where: {
             competitionId: competition.id,
-            schoolLevel
+            schoolLevel,
+            deletedAt: null
           }
         }),
         prisma.lesson.count({
@@ -768,6 +756,7 @@ export function getContentCountsForSubject(
         prisma.question.count({
           where: {
             competitionId: competition.id,
+            deletedAt: null,
             ...(aliases ? { category: { in: aliases } } : {}),
             ...(schoolLevel ? { schoolLevel } : {})
           }
@@ -799,12 +788,36 @@ export function getBuzzerQuestions() {
     async () => {
       if (!isDbEnabled()) return localBuzzerQuestions;
 
-      const questions = await getPrisma().buzzerQuestion.findMany({
-        where: { competition: { slug: "science-bowl" } },
-        orderBy: { id: "asc" }
+      const pairs = await getPrisma().buzzerQuestionPair.findMany({
+        orderBy: { id: "asc" },
+        include: {
+          tossup: {
+            include: {
+              answers: { where: { isCorrect: true }, orderBy: { position: "asc" }, take: 1 },
+              answerExplanations: { orderBy: { position: "asc" }, take: 1 }
+            }
+          },
+          bonus: {
+            include: {
+              answers: { where: { isCorrect: true }, orderBy: { position: "asc" }, take: 1 },
+              answerExplanations: { orderBy: { position: "asc" }, take: 1 }
+            }
+          }
+        }
       });
 
-      return questions.map(toBuzzerQuestion);
+      return pairs.map((pair) => ({
+        id: pair.id,
+        competitionSlug: pair.tossup.competitionId as "science-bowl",
+        category: pair.tossup.category,
+        difficulty: fromDbDifficulty(pair.tossup.difficulty),
+        tossupPrompt: pair.tossup.prompt,
+        tossupAnswer: pair.tossup.answers[0]?.text ?? "",
+        tossupExplanation: pair.tossup.answerExplanations[0]?.shortExplanation ?? pair.tossup.explanation,
+        bonusPrompt: pair.bonus.prompt,
+        bonusAnswer: pair.bonus.answers[0]?.text ?? "",
+        bonusExplanation: pair.bonus.answerExplanations[0]?.shortExplanation ?? pair.bonus.explanation
+      }));
     },
     ["buzzer-questions"],
     [contentTag("science-bowl")]
