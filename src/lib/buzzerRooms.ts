@@ -80,7 +80,8 @@ type RoomWithRelations = Prisma.BuzzerRoomGetPayload<{
     events: { orderBy: { createdAt: "desc" }; take: 8 };
     currentQuestion: {
       include: {
-        answers: { orderBy: { position: "asc" } };
+        answers: { include: { mc: true } };
+        multipleChoices: { orderBy: [{ position: "asc" }] };
         competitionLevel: { select: { name: true } };
       };
     };
@@ -200,9 +201,10 @@ function clampInteger(value: unknown, fallback: number, min: number, max: number
 function questionForOrganizer(room: RoomWithRelations): (PracticeQuestion & { correctLetter: string | null; questionKind: string; format: string }) | null {
   const question = room.currentQuestion;
   if (!question) return null;
-  const choices = question.answers.slice(0, 4).map((answer) => answer.text);
-  const correctIndex = question.answers.slice(0, 4).findIndex((answer) => answer.isCorrect);
-  const correctText = question.answers.slice(0, 4)[correctIndex]?.text ?? "";
+  const choices = question.multipleChoices.map((mc) => mc.text);
+  const correctMcId = question.answers[0]?.mcId ?? null;
+  const correctIndex = correctMcId ? question.multipleChoices.findIndex((mc) => mc.id === correctMcId) : -1;
+  const correctText = correctIndex >= 0 ? question.multipleChoices[correctIndex].text : (question.answers[0]?.text ?? "");
   const type = question.format === "MULTIPLE_CHOICE" ? "multiple_choice" : "short_answer";
 
   return {
@@ -290,11 +292,7 @@ async function randomScienceBowlQuestionId(schoolLevel?: string | null) {
         AND q."questionKind" = 'TOSSUP'
         AND q."deletedAt" IS NULL
         ${levelFilter}
-        AND (
-          SELECT count(*)
-          FROM "Answer" a
-          WHERE a."questionId" = q.id
-        ) >= CASE WHEN q.format = 'MULTIPLE_CHOICE' THEN 4 ELSE 1 END
+        AND EXISTS (SELECT 1 FROM "Answer" a WHERE a."questionId" = q.id)
       ORDER BY random()
       LIMIT 1
     `
@@ -318,7 +316,8 @@ async function includeRoom(code: string) {
       events: { orderBy: { createdAt: "desc" }, take: 8 },
       currentQuestion: {
         include: {
-          answers: { orderBy: { position: "asc" } },
+          answers: { include: { mc: true } },
+          multipleChoices: { orderBy: [{ position: "asc" }] },
           competitionLevel: { select: { name: true } }
         }
       }

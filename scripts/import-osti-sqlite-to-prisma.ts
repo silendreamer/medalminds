@@ -225,6 +225,7 @@ async function importSqliteFile(prisma: PrismaClient, sqlitePath: string) {
   const db = new Database(sqlitePath, { readonly: true });
   const questions = db.prepare("select * from question order by id").all() as SqliteQuestion[];
   const questionRows: Prisma.QuestionCreateManyInput[] = [];
+  const mcRows: Prisma.MultipleChoiceCreateManyInput[] = [];
   const answerRows: Prisma.AnswerCreateManyInput[] = [];
   const explanationRows: Prisma.AnswerExplanationCreateManyInput[] = [];
 
@@ -253,18 +254,27 @@ async function importSqliteFile(prisma: PrismaClient, sqlitePath: string) {
       explanation
     });
 
-    answerRows.push(
-      ...answers
-        .map((answer) => ({
-          id: answer.id,
+    const format = mapQuestionFormat(question.format);
+    if (format === "MULTIPLE_CHOICE") {
+      const validAnswers = answers.filter((a) => cleanChoiceText(a.text));
+      for (const answer of validAnswers) {
+        mcRows.push({
+          id: `mc-${answer.id}`,
           questionId: question.id,
-          text: cleanChoiceText(answer.text),
-          isCorrect: Boolean(answer.isCorrect),
-          explanation: cleanText(answer.explanation),
+          text: cleanChoiceText(answer.text)!,
           position: answer.position
-        }))
-        .filter((answer) => answer.text)
-    );
+        });
+      }
+      const correctAnswer = validAnswers.find((a) => Boolean(a.isCorrect));
+      if (correctAnswer) {
+        answerRows.push({ id: `ans-${correctAnswer.id}`, questionId: question.id, mcId: `mc-${correctAnswer.id}` });
+      }
+    } else {
+      const correctAnswer = answers.find((a) => Boolean(a.isCorrect) && cleanChoiceText(a.text));
+      if (correctAnswer) {
+        answerRows.push({ id: `ans-${correctAnswer.id}`, questionId: question.id, text: cleanChoiceText(correctAnswer.text) });
+      }
+    }
 
     explanationRows.push({
         id: `${question.id}-explanation-0`,
@@ -279,6 +289,9 @@ async function importSqliteFile(prisma: PrismaClient, sqlitePath: string) {
   const questionsImported = await createManyInBatches(questionRows, 750, (batch) =>
     prisma.question.createMany({ data: batch, skipDuplicates: true })
   );
+  const mcImported = await createManyInBatches(mcRows, 1500, (batch) =>
+    prisma.multipleChoice.createMany({ data: batch, skipDuplicates: true })
+  );
   const answersImported = await createManyInBatches(answerRows, 1500, (batch) =>
     prisma.answer.createMany({ data: batch, skipDuplicates: true })
   );
@@ -288,6 +301,7 @@ async function importSqliteFile(prisma: PrismaClient, sqlitePath: string) {
 
   return {
     questionsImported,
+    mcImported,
     answersImported,
     explanationsImported
   };

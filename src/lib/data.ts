@@ -20,7 +20,8 @@ type DbLesson = Prisma.LessonGetPayload<{
 }>;
 type DbQuestion = Prisma.QuestionGetPayload<{
   include: {
-    answers: { orderBy: { position: "asc" } };
+    answers: { include: { mc: true } };
+    multipleChoices: { orderBy: { position: "asc" } };
     answerExplanations: { orderBy: { position: "asc" } };
     competitionLevel: { select: { name: true } };
   };
@@ -33,7 +34,8 @@ type DbTestWithQuestions = Prisma.TestGetPayload<{
       include: {
         question: {
           include: {
-            answers: { orderBy: { position: "asc" } };
+            answers: { include: { mc: true } };
+            multipleChoices: { orderBy: { position: "asc" } };
             answerExplanations: { orderBy: { position: "asc" } };
           };
         };
@@ -80,11 +82,11 @@ function stripInlineMultipleChoiceOptions(prompt: string, type: PracticeQuestion
 }
 
 function toPracticeQuestion(question: DbQuestion): PracticeQuestion {
-  const correctAnswers = question.answers.filter((answer) => answer.isCorrect);
-  const primaryCorrectAnswer = correctAnswers[0]?.text ?? "";
-  const alternateAnswers = correctAnswers.slice(1).map((answer) => answer.text);
+  const answer = question.answers[0];
+  const primaryCorrectAnswer = answer?.mc?.text ?? answer?.text ?? "";
+  const alternateAnswers = question.answers.slice(1).map((a) => a.mc?.text ?? a.text ?? "").filter(Boolean);
   const type = fromDbQuestionFormat(question.format);
-  const answerChoices = shuffle(question.answers.map((answer) => answer.text));
+  const answerChoices = shuffle(question.multipleChoices.map((mc) => mc.text));
   const explanation = question.answerExplanations[0]?.shortExplanation ?? question.explanation;
 
   return {
@@ -247,7 +249,8 @@ function questionWhereForSubject(slug: CompetitionSlug, subject?: string | null,
 }
 
 const questionInclude = {
-  answers: { orderBy: { position: "asc" as const } },
+  answers: { include: { mc: true } },
+  multipleChoices: { orderBy: { position: "asc" as const } },
   answerExplanations: { orderBy: { position: "asc" as const } },
   competitionLevel: { select: { name: true } }
 } as const;
@@ -443,8 +446,8 @@ export async function getRandomMultipleChoiceQuestions(
         ${schoolLevel ? Prisma.sql`AND q."schoolLevel" = ${schoolLevel}::"SchoolLevel"` : Prisma.empty}
         AND (
           SELECT count(*)
-          FROM "Answer" a
-          WHERE a."questionId" = q.id
+          FROM "MultipleChoice" mc
+          WHERE mc."questionId" = q.id
         ) >= 2
       ORDER BY random()
       LIMIT ${count}
@@ -552,7 +555,8 @@ export function getTestsByCompetition(slug: CompetitionSlug) {
             include: {
               question: {
                 include: {
-                  answers: { orderBy: { position: "asc" } },
+                  answers: { include: { mc: true } },
+                  multipleChoices: { orderBy: { position: "asc" as const } },
                   answerExplanations: { orderBy: { position: "asc" } }
                 }
               }
@@ -601,7 +605,8 @@ export async function getTestBySlug(slug: CompetitionSlug, testSlug: string) {
         include: {
           question: {
             include: {
-              answers: { orderBy: { position: "asc" } },
+              answers: { include: { mc: true } },
+              multipleChoices: { orderBy: { position: "asc" as const } },
               answerExplanations: { orderBy: { position: "asc" } }
             }
           }
@@ -793,13 +798,13 @@ export function getBuzzerQuestions() {
         include: {
           tossup: {
             include: {
-              answers: { where: { isCorrect: true }, orderBy: { position: "asc" }, take: 1 },
+              answers: { take: 1 },
               answerExplanations: { orderBy: { position: "asc" }, take: 1 }
             }
           },
           bonus: {
             include: {
-              answers: { where: { isCorrect: true }, orderBy: { position: "asc" }, take: 1 },
+              answers: { take: 1 },
               answerExplanations: { orderBy: { position: "asc" }, take: 1 }
             }
           }

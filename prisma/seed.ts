@@ -426,7 +426,7 @@ async function getQuestionIdsForTest(test: (typeof tests)[number]) {
     skip: (testNumber - 1) * take,
     take: take * 4,
     include: {
-      answers: {
+      multipleChoices: {
         orderBy: { position: "asc" },
         select: { text: true }
       }
@@ -437,7 +437,7 @@ async function getQuestionIdsForTest(test: (typeof tests)[number]) {
     .filter(
       (question) =>
         question.format === "SHORT_ANSWER" ||
-        (question.answers.length === 4 && question.answers.every((answer) => !/answer\s*:/i.test(answer.text)))
+        (question.multipleChoices.length === 4 && question.multipleChoices.every((mc) => !/answer\s*:/i.test(mc.text)))
     )
     .slice(0, take)
     .map((question) => question.id);
@@ -674,7 +674,7 @@ async function main() {
     });
     await prisma.answer.deleteMany({ where: { questionId: tossupId } });
     await prisma.answer.create({
-      data: { id: `${tossupId}-a0`, questionId: tossupId, text: bq.tossupAnswer, isCorrect: true, position: 0 }
+      data: { id: `${tossupId}-a0`, questionId: tossupId, text: bq.tossupAnswer }
     });
 
     await prisma.question.upsert({
@@ -699,7 +699,7 @@ async function main() {
     });
     await prisma.answer.deleteMany({ where: { questionId: bonusId } });
     await prisma.answer.create({
-      data: { id: `${bonusId}-a0`, questionId: bonusId, text: bq.bonusAnswer, isCorrect: true, position: 0 }
+      data: { id: `${bonusId}-a0`, questionId: bonusId, text: bq.bonusAnswer }
     });
 
     await prisma.buzzerQuestionPair.upsert({

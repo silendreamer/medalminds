@@ -18,7 +18,8 @@ type GeneratedExplanation = {
 type QuestionWithRelations = Prisma.QuestionGetPayload<{
   include: {
     competition: true;
-    answers: { orderBy: { position: "asc" } };
+    answers: { include: { mc: true } };
+    multipleChoices: { orderBy: { position: "asc" } };
     answerExplanations: { orderBy: { position: "asc" } };
   };
 }>;
@@ -58,10 +59,10 @@ function buildVerificationPath(question: QuestionWithRelations) {
 function buildPromptInput(question: QuestionWithRelations) {
   const choices =
     question.format === QuestionFormat.MULTIPLE_CHOICE
-      ? question.answers
-          .sort((a, b) => a.position - b.position)
-          .map((answer) => answer.text)
+      ? question.multipleChoices.map((mc) => mc.text)
       : null;
+  const answer = question.answers[0];
+  const correctAnswer = answer?.mc?.text ?? answer?.text ?? "";
 
   return {
     competition: question.competition.name,
@@ -71,7 +72,7 @@ function buildPromptInput(question: QuestionWithRelations) {
     questionKind: question.questionKind,
     prompt: question.prompt,
     choices,
-    correctAnswer: question.answers.find((a) => a.isCorrect)?.text ?? ""
+    correctAnswer
   };
 }
 
@@ -246,7 +247,8 @@ async function main() {
     orderBy: [{ updatedAt: "asc" }, { id: "asc" }],
     include: {
       competition: true,
-      answers: { orderBy: { position: "asc" } },
+      answers: { include: { mc: true } },
+      multipleChoices: { orderBy: { position: "asc" } },
       answerExplanations: { orderBy: { position: "asc" } }
     }
   });

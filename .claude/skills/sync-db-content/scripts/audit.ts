@@ -4,10 +4,10 @@
  * Checks:
  *   1. Local practiceQuestions not in DB (by id)
  *   2. Local lessons not in DB (by competitionSlug + slug)
- *   3. MC questions where Answer table has ≠ 4 rows
- *   4. MC questions where an Answer row contains "Answer:" in its text
+ *   3. MC questions where MultipleChoice table has ≠ 4 rows
+ *   4. MC questions where a MultipleChoice row contains "Answer:" in its text
  *   5. MC questions whose prompt still embeds inline W) X) Y) Z) choices
- *   6. MC questions with no Answer row marked isCorrect
+ *   6. MC questions with no Answer row
  *
  * Usage:
  *   npx tsx .claude/skills/sync-db-content/scripts/audit.ts
@@ -103,7 +103,8 @@ async function main() {
       competitionId: true,
       category: true,
       prompt: true,
-      answers: { select: { text: true, isCorrect: true } }
+      multipleChoices: { select: { id: true, text: true } },
+      answers: { select: { id: true } }
     },
     take: LIMIT,
     orderBy: { createdAt: "asc" }
@@ -115,22 +116,21 @@ async function main() {
   const correctAnswerMismatch: string[] = [];
 
   for (const q of mcQuestions) {
-    if (q.answers.length !== 4) wrongAnswerCount.push(q.id);
-    if (q.answers.some((a) => /answer\s*:/i.test(a.text))) answerTextContainsLabel.push(q.id);
+    if (q.multipleChoices.length !== 4) wrongAnswerCount.push(q.id);
+    if (q.multipleChoices.some((mc) => /answer\s*:/i.test(mc.text))) answerTextContainsLabel.push(q.id);
     if (INLINE_MC_PATTERN.test(q.prompt)) inlineChoicesInPrompt.push(q.id);
 
-    const hasCorrectRow = q.answers.some((a) => a.isCorrect);
-    if (!hasCorrectRow) {
+    if (q.answers.length === 0) {
       correctAnswerMismatch.push(q.id);
     }
   }
 
   const total = mcQuestions.length;
-  console.log(`\n[3] MC questions with wrong Answer row count (≠4): ${wrongAnswerCount.length} / ${total}`);
+  console.log(`\n[3] MC questions with wrong MultipleChoice row count (≠4): ${wrongAnswerCount.length} / ${total}`);
   wrongAnswerCount.slice(0, 5).forEach((id) => console.log(`    - ${id}`));
   if (wrongAnswerCount.length > 5) console.log(`    ... and ${wrongAnswerCount.length - 5} more`);
 
-  console.log(`\n[4] MC questions with "Answer:" in answer text: ${answerTextContainsLabel.length} / ${total}`);
+  console.log(`\n[4] MC questions with "Answer:" in MultipleChoice text: ${answerTextContainsLabel.length} / ${total}`);
   answerTextContainsLabel.slice(0, 5).forEach((id) => console.log(`    - ${id}`));
   if (answerTextContainsLabel.length > 5) console.log(`    ... and ${answerTextContainsLabel.length - 5} more`);
 
@@ -138,17 +138,17 @@ async function main() {
   inlineChoicesInPrompt.slice(0, 5).forEach((id) => console.log(`    - ${id}`));
   if (inlineChoicesInPrompt.length > 5) console.log(`    ... and ${inlineChoicesInPrompt.length - 5} more`);
 
-  console.log(`\n[6] MC questions with no isCorrect Answer row: ${correctAnswerMismatch.length} / ${total}`);
+  console.log(`\n[6] MC questions with no Answer row: ${correctAnswerMismatch.length} / ${total}`);
   correctAnswerMismatch.slice(0, 5).forEach((id) => console.log(`    - ${id}`));
   if (correctAnswerMismatch.length > 5) console.log(`    ... and ${correctAnswerMismatch.length - 5} more`);
 
   console.log("\n=== Summary ===");
   console.log(`  Missing local questions:     ${missingQuestions.length}`);
   console.log(`  Missing local lessons:       ${missingLessons.length}`);
-  console.log(`  MC wrong answer count:       ${wrongAnswerCount.length}`);
-  console.log(`  MC label in answer text:     ${answerTextContainsLabel.length}`);
+  console.log(`  MC wrong MultipleChoice count: ${wrongAnswerCount.length}`);
+  console.log(`  MC label in MC text:         ${answerTextContainsLabel.length}`);
   console.log(`  MC inline choices in prompt: ${inlineChoicesInPrompt.length}`);
-  console.log(`  MC no isCorrect row:         ${correctAnswerMismatch.length}`);
+  console.log(`  MC no Answer row:            ${correctAnswerMismatch.length}`);
   console.log(`  (scanned ${total} MC questions, limit=${LIMIT})`);
 
   await prisma.$disconnect();

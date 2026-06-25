@@ -15,7 +15,8 @@ type ConceptWithQuestions = Prisma.ConceptGetPayload<{
       include: {
         question: {
           include: {
-            answers: { orderBy: { position: "asc" } };
+            answers: { include: { mc: true } };
+            multipleChoices: { orderBy: { position: "asc" } };
           };
         };
       };
@@ -91,13 +92,14 @@ function lessonPrompt(concept: ConceptWithQuestions) {
     const question = entry.question;
     const choices =
       question.format === QuestionFormat.MULTIPLE_CHOICE
-        ? question.answers.map((answer) => answer.text)
+        ? question.multipleChoices.map((mc) => mc.text)
         : null;
+    const _ans = question.answers[0];
     return {
       prompt: question.prompt,
       category: question.category,
       difficulty: question.difficulty,
-      correctAnswer: question.answers.find((a) => a.isCorrect)?.text ?? "",
+      correctAnswer: _ans?.mc?.text ?? _ans?.text ?? "",
       choices
     };
   });
@@ -290,7 +292,8 @@ async function main() {
         include: {
           question: {
             include: {
-              answers: { orderBy: { position: "asc" } }
+              answers: { include: { mc: true } },
+              multipleChoices: { orderBy: { position: "asc" } }
             }
           }
         }

@@ -96,20 +96,27 @@ async function main() {
         });
 
         if (format === QuestionFormat.MULTIPLE_CHOICE && q.choices) {
+          await prisma.multipleChoice.deleteMany({ where: { questionId: q.id } });
+          await prisma.answer.deleteMany({ where: { questionId: q.id } });
           const allChoices = [...new Set([...q.choices])];
           for (const [position, text] of allChoices.entries()) {
-            const isCorrect = text.trim().toLowerCase() === q.correctAnswer.trim().toLowerCase();
-            await prisma.answer.upsert({
-              where: { questionId_text: { questionId: q.id, text } },
-              update: { isCorrect, position },
-              create: { id: `${q.id}-a${position}`, questionId: q.id, text, isCorrect, position }
+            await prisma.multipleChoice.create({
+              data: { id: `${q.id}-mc${position}`, questionId: q.id, text, position }
+            });
+          }
+          const correctPos = allChoices.findIndex(
+            (t) => t.trim().toLowerCase() === q.correctAnswer.trim().toLowerCase()
+          );
+          if (correctPos >= 0) {
+            await prisma.answer.create({
+              data: { id: `${q.id}-a0`, questionId: q.id, mcId: `${q.id}-mc${correctPos}` }
             });
           }
         }
         if (format === QuestionFormat.SHORT_ANSWER && q.correctAnswer) {
           await prisma.answer.deleteMany({ where: { questionId: q.id } });
           await prisma.answer.create({
-            data: { id: `${q.id}-a0`, questionId: q.id, text: q.correctAnswer, isCorrect: true, position: 0 }
+            data: { id: `${q.id}-a0`, questionId: q.id, text: q.correctAnswer }
           });
         }
       }
@@ -123,19 +130,27 @@ async function main() {
         });
 
         if (format === QuestionFormat.MULTIPLE_CHOICE && q.choices) {
+          await prisma.multipleChoice.deleteMany({ where: { questionId: q.id } });
           await prisma.answer.deleteMany({ where: { questionId: q.id } });
           const allChoices = [...new Set([...q.choices])];
           for (const [position, text] of allChoices.entries()) {
-            const isCorrect = text.trim().toLowerCase() === q.correctAnswer.trim().toLowerCase();
+            await prisma.multipleChoice.create({
+              data: { id: `${q.id}-mc${position}`, questionId: q.id, text, position }
+            });
+          }
+          const correctPos = allChoices.findIndex(
+            (t) => t.trim().toLowerCase() === q.correctAnswer.trim().toLowerCase()
+          );
+          if (correctPos >= 0) {
             await prisma.answer.create({
-              data: { id: `${q.id}-a${position}`, questionId: q.id, text, isCorrect, position }
+              data: { id: `${q.id}-a0`, questionId: q.id, mcId: `${q.id}-mc${correctPos}` }
             });
           }
         }
         if (format === QuestionFormat.SHORT_ANSWER && q.correctAnswer) {
           await prisma.answer.deleteMany({ where: { questionId: q.id } });
           await prisma.answer.create({
-            data: { id: `${q.id}-a0`, questionId: q.id, text: q.correctAnswer, isCorrect: true, position: 0 }
+            data: { id: `${q.id}-a0`, questionId: q.id, text: q.correctAnswer }
           });
         }
       }

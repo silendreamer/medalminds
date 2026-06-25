@@ -132,6 +132,7 @@ model Question {
   subTopicId       String?
   subTopic         SubTopic?      @relation(fields: [subTopicId], references: [id], onDelete: SetNull)
   deletedAt        DateTime?
+  multipleChoices  MultipleChoice[]
   answers          Answer[]
   answerExplanations AnswerExplanation[]
   concepts         QuestionConcept[]
@@ -207,19 +208,28 @@ model AnswerExplanation {
   @@index([questionId])
 }
 
-model Answer {
-  id          String           @id
-  questionId  String
-  question    Question         @relation(fields: [questionId], references: [id], onDelete: Cascade)
-  text        String
-  isCorrect   Boolean          @default(false)
-  explanation String?
-  position    Int
-  createdAt   DateTime         @default(now())
-  updatedAt   DateTime         @updatedAt
+model MultipleChoice {
+  id         String   @id
+  questionId String
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  text       String
+  position   Int      @default(0)
+  answer     Answer?
+  createdAt  DateTime @default(now())
 
-  @@unique([questionId, text])
   @@unique([questionId, position])
+  @@index([questionId])
+}
+
+model Answer {
+  id         String          @id
+  questionId String
+  question   Question        @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  mcId       String?         @unique
+  mc         MultipleChoice? @relation(fields: [mcId], references: [id], onDelete: Cascade)
+  text       String?
+  createdAt  DateTime        @default(now())
+
   @@index([questionId])
 }
 

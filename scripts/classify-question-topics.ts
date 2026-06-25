@@ -16,7 +16,8 @@ type Confidence = number;
 type QuestionWithRelations = Prisma.QuestionGetPayload<{
   include: {
     competition: true;
-    answers: { orderBy: { position: "asc" } };
+    answers: { include: { mc: true } };
+    multipleChoices: { orderBy: { position: "asc" } };
     topicClassification: true;
   };
 }>;
@@ -98,8 +99,9 @@ function normalizeSubjectFilter(value: string | undefined) {
 }
 
 function questionAnswerText(question: QuestionWithRelations) {
-  const answers = question.answers.map((answer) => answer.text).filter(Boolean);
-  return answers.join(" ").trim();
+  const answer = question.answers[0];
+  const text = answer?.mc?.text ?? answer?.text ?? "";
+  return text.trim();
 }
 
 function questionInput(question: QuestionWithRelations): QuestionInput {
@@ -412,7 +414,8 @@ async function main() {
     where,
     include: {
       competition: true,
-      answers: { orderBy: { position: "asc" } },
+      answers: { include: { mc: true } },
+      multipleChoices: { orderBy: { position: "asc" } },
       topicClassification: true
     },
     orderBy: [{ updatedAt: "asc" }, { id: "asc" }],

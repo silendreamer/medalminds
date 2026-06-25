@@ -10,7 +10,8 @@ const PROMPT_VERSION = "question-concept-v1";
 type QuestionWithRelations = Prisma.QuestionGetPayload<{
   include: {
     competition: true;
-    answers: { orderBy: { position: "asc" } };
+    answers: { include: { mc: true } };
+    multipleChoices: { orderBy: { position: "asc" } };
   };
 }>;
 
@@ -193,7 +194,8 @@ function conceptSearchText(concept: ExistingConcept) {
 
 function scoreExistingConcept(question: QuestionWithRelations, concept: ExistingConcept): ConceptCandidateScore {
   const promptText = normalizeText(question.prompt);
-  const correctAnswer = question.answers.find((a) => a.isCorrect)?.text ?? "";
+  const _ans = question.answers[0];
+  const correctAnswer = _ans?.mc?.text ?? _ans?.text ?? "";
   const answerText = normalizeText(correctAnswer);
   const promptTokens = new Set(tokenizeConceptText(`${question.prompt} ${correctAnswer}`));
   const conceptTokens = new Set(tokenizeConceptText(conceptSearchText(concept)));
@@ -295,9 +297,9 @@ function questionInput(question: QuestionWithRelations) {
     prompt: question.prompt,
     choices:
       question.format === QuestionFormat.MULTIPLE_CHOICE
-        ? question.answers.map((answer) => answer.text)
+        ? question.multipleChoices.map((mc) => mc.text)
         : null,
-    correctAnswer: question.answers.find((a) => a.isCorrect)?.text ?? ""
+    correctAnswer: (() => { const a = question.answers[0]; return a?.mc?.text ?? a?.text ?? ""; })()
   };
 }
 
@@ -716,7 +718,8 @@ async function main() {
     orderBy: [{ updatedAt: "asc" }, { id: "asc" }],
     include: {
       competition: true,
-      answers: { orderBy: { position: "asc" } }
+      answers: { include: { mc: true } },
+      multipleChoices: { orderBy: { position: "asc" } }
     }
   });
 
