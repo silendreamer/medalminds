@@ -1,21 +1,27 @@
 /**
  * fix-mc.ts — repair multiple-choice formatting in the DB.
  *
- * Fixes two classes of problems:
+ * Fixes three classes of problems:
  *
  *   A) Answer rows with "Answer: X" labels in their text
  *      → strip the label, keep only the choice text
  *
- *   B) MC questions whose prompt embeds inline W) X) Y) Z) choices
- *      and has fewer than 4 proper Answer rows
- *      → parse the W/X/Y/Z block out of the prompt, create Answer rows,
- *        strip the inline block from the prompt
+ *   B) Prompt still contains inline W) X) Y) Z) choices
+ *      → strip the inline block from the prompt regardless of answer row state
+ *
+ *   C) correctAnswer is stored as a letter (W/X/Y/Z) instead of full text
+ *      → resolve the letter to the matching choice text using the inline block
+ *        or the existing Answer rows; update correctAnswer and ensure the
+ *        matching Answer row has isCorrect = true
+ *
+ *   D) MC questions with fewer than 4 Answer rows
+ *      → parse choices from the inline block and create the missing rows
  *
  * Usage:
  *   npx tsx .claude/skills/sync-db-content/scripts/fix-mc.ts --dry-run
  *   npx tsx .claude/skills/sync-db-content/scripts/fix-mc.ts --write
- *   npx tsx .claude/skills/sync-db-content/scripts/fix-mc.ts --write --limit=100
- *   npx tsx .claude/skills/sync-db-content/scripts/fix-mc.ts --write --competition=science-bowl
+ *   npx tsx .claude/skills/sync-db-content/scripts/fix-mc.ts --write --limit=500
+ *   npx tsx .claude/skills/sync-db-content/scripts/fix-mc.ts --write --competition=science-bowl --limit=5000
  */
 
 import "dotenv/config";
@@ -36,43 +42,38 @@ function readArg(name: string): string | undefined {
 const dryRun = !process.argv.includes("--write");
 const filterCompetition = readArg("competition");
 const limitArg = readArg("limit");
-const LIMIT = limitArg ? parseInt(limitArg, 10) : 500;
+const LIMIT = limitArg ? parseInt(limitArg, 10) : 5000;
 
-// Parse inline "W) ... X) ... Y) ... Z) ..." block from a prompt.
-// Returns { choices: string[], cleanPrompt: string } or null if pattern not found.
-function parseInlineChoices(prompt: string, correctAnswer: string): {
-  choices: [string, string, string, string];
-  correctLetter: string;
-  cleanPrompt: string;
-} | null {
-  // Match the block starting with W) through end of string
-  const match = prompt.match(/^([\s\S]*?)\s+W\)\s+([\s\S]+?)\s+X\)\s+([\s\S]+?)\s+Y\)\s+([\s\S]+?)\s+Z\)\s+([\s\S]+?)\s*$/i);
-  if (!match) return null;
-
-  const [, stem, w, x, y, z] = match;
-  const choices: [string, string, string, string] = [
-    cleanChoiceText(w),
-    cleanChoiceText(x),
-    cleanChoiceText(y),
-    cleanChoiceText(z)
-  ];
-
-  // Determine which letter is correct based on correctAnswer
-  const answerLetter = correctAnswer.trim().toUpperCase();
-  const letterMap: Record<string, string> = { W: choices[0], X: choices[1], Y: choices[2], Z: choices[3] };
-
-  return {
-    choices,
-    correctLetter: answerLetter in letterMap ? answerLetter : "W",
-    cleanPrompt: stem.replace(/\s+$/, "")
-  };
-}
+const LETTER_ANSWER = /^[WXYZ]$/i;
+const INLINE_MC_PATTERN = /\bW\)\s+.+?\s+X\)\s+.+?\s+Y\)\s+.+?\s+Z\)\s+/is;
 
 function cleanChoiceText(text: string): string {
   return text
     .replace(/\s*ANSWER\s*:\s*.*/i, "")
     .replace(/\s+/g, " ")
     .trim();
+}
+
+// Parse "stem W) w X) x Y) y Z) z" → { stem, letterToText }
+function parseInlineBlock(prompt: string): {
+  stem: string;
+  letterToText: Record<string, string>;
+} | null {
+  const match = prompt.match(
+    /^([\s\S]*?)\s+W\)\s+([\s\S]+?)\s+X\)\s+([\s\S]+?)\s+Y\)\s+([\s\S]+?)\s+Z\)\s+([\s\S]+?)\s*$/i
+  );
+  if (!match) return null;
+
+  const [, stem, w, x, y, z] = match;
+  return {
+    stem: stem.trim(),
+    letterToText: {
+      W: cleanChoiceText(w),
+      X: cleanChoiceText(x),
+      Y: cleanChoiceText(y),
+      Z: cleanChoiceText(z)
+    }
+  };
 }
 
 async function main() {
@@ -92,51 +93,122 @@ async function main() {
     orderBy: { createdAt: "asc" }
   });
 
-  let fixedLabelCount = 0;
-  let fixedInlineCount = 0;
+  console.log(`Loaded ${mcQuestions.length} MC questions (limit=${LIMIT})\n`);
+
+  let fixedLabel = 0;
+  let fixedPrompt = 0;
+  let fixedCorrectAnswer = 0;
+  let fixedAnswerRows = 0;
   let alreadyOk = 0;
+  const skipped: string[] = [];
 
   for (const q of mcQuestions) {
-    // ── Fix A: strip "Answer:" labels from existing Answer rows ──────────────
-    const labelled = q.answers.filter((a) => /answer\s*:/i.test(a.text));
-    if (labelled.length > 0) {
-      for (const answer of labelled) {
+    const changes: string[] = [];
+    try {
+
+    // ── Fix A: strip "Answer:" labels from Answer rows ──────────────────────
+    for (const answer of q.answers) {
+      if (/answer\s*:/i.test(answer.text)) {
         const cleaned = cleanChoiceText(answer.text);
         if (cleaned && cleaned !== answer.text) {
-          console.log(`  FIX-A ${q.id}: "${answer.text.slice(0, 60)}" → "${cleaned}"`);
+          changes.push(`label:"${answer.text.slice(0, 40)}"→"${cleaned.slice(0, 40)}"`);
           if (!dryRun) {
             await prisma.answer.update({
               where: { id: answer.id },
               data: { text: cleaned }
             });
           }
-          fixedLabelCount++;
+          fixedLabel++;
         }
       }
     }
 
-    // ── Fix B: parse inline W/X/Y/Z from prompt ──────────────────────────────
-    const hasInline = /\bW\)\s+.+?\s+X\)\s+.+?\s+Y\)\s+.+?\s+Z\)\s+/is.test(q.prompt);
-    const hasGoodAnswers = q.answers.length === 4 && q.answers.every((a) => !/answer\s*:/i.test(a.text));
+    // ── Parse inline block if present ────────────────────────────────────────
+    const hasInline = INLINE_MC_PATTERN.test(q.prompt);
+    const parsed = hasInline ? parseInlineBlock(q.prompt) : null;
 
-    if (hasInline && !hasGoodAnswers) {
-      const parsed = parseInlineChoices(q.prompt, q.correctAnswer);
-      if (!parsed) {
-        console.log(`  SKIP ${q.id}: inline pattern found but couldn't parse`);
-        continue;
+    // ── Fix B: strip inline block from prompt ────────────────────────────────
+    if (hasInline && parsed) {
+      changes.push(`strip-prompt`);
+      if (!dryRun) {
+        await prisma.question.update({
+          where: { id: q.id },
+          data: { prompt: parsed.stem }
+        });
       }
+      fixedPrompt++;
+    }
 
-      const { choices, correctLetter, cleanPrompt } = parsed;
-      const letterToChoice: Record<string, string> = {
-        W: choices[0], X: choices[1], Y: choices[2], Z: choices[3]
-      };
-      const correctChoiceText = letterToChoice[correctLetter] ?? choices[0];
+    // ── Fix C: strip trailing "ANSWER: ..." garbage from correctAnswer ──────
+    const cleanedCA = cleanChoiceText(q.correctAnswer);
+    if (cleanedCA && cleanedCA !== q.correctAnswer) {
+      changes.push(`clean-ca:"${q.correctAnswer.slice(0, 40)}"→"${cleanedCA.slice(0, 40)}"`);
+      if (!dryRun) {
+        await prisma.question.update({
+          where: { id: q.id },
+          data: { correctAnswer: cleanedCA }
+        });
+      }
+      fixedCorrectAnswer++;
+    }
+    const effectiveCA = cleanedCA || q.correctAnswer;
 
-      console.log(`  FIX-B ${q.id}: extract ${choices.length} choices, correct="${correctChoiceText.slice(0, 40)}"`);
+    // ── Fix D: resolve letter-based correctAnswer → full text ────────────────
+    const correctLetter = effectiveCA.trim().toUpperCase();
+    if (LETTER_ANSWER.test(correctLetter)) {
+      // Source priority:
+      //   1. inline block letter mapping (if block still in prompt)
+      //   2. existing Answer row marked isCorrect = true (if block already stripped)
+      const letterToText = parsed?.letterToText;
+      const resolvedFromBlock = letterToText?.[correctLetter];
+      const existingCorrectRow = q.answers.find((a) => a.isCorrect);
+      const correctText = resolvedFromBlock ?? existingCorrectRow?.text;
+
+      if (correctText) {
+        changes.push(`correctAnswer:"${correctLetter}"→"${correctText.slice(0, 40)}"`);
+        if (!dryRun) {
+          await prisma.question.update({
+            where: { id: q.id },
+            data: { correctAnswer: correctText }
+          });
+
+          // Ensure the matching Answer row is marked isCorrect = true
+          const matchingRow = q.answers.find(
+            (a) => a.text.trim().toLowerCase() === correctText.trim().toLowerCase()
+          );
+          if (matchingRow && !matchingRow.isCorrect) {
+            await prisma.answer.update({
+              where: { id: matchingRow.id },
+              data: { isCorrect: true }
+            });
+          }
+        }
+        fixedCorrectAnswer++;
+      } else {
+        changes.push(`WARN: letter "${correctLetter}" but no text found`);
+      }
+    }
+
+    // ── Fix E: create Answer rows when missing/wrong count ───────────────────
+    if (q.answers.length !== 4 && parsed) {
+      const { letterToText } = parsed;
+      const correctText =
+        LETTER_ANSWER.test(correctLetter)
+          ? letterToText[correctLetter]
+          : effectiveCA.trim();
+
+      changes.push(`rebuild-answers(${q.answers.length}→4)`);
       if (!dryRun) {
         await prisma.answer.deleteMany({ where: { questionId: q.id } });
+        const choices = [
+          letterToText["W"],
+          letterToText["X"],
+          letterToText["Y"],
+          letterToText["Z"]
+        ];
         for (const [position, text] of choices.entries()) {
-          const isCorrect = text.trim().toLowerCase() === correctChoiceText.trim().toLowerCase();
+          if (!text) continue;
+          const isCorrect = text.trim().toLowerCase() === correctText?.trim().toLowerCase();
           await prisma.answer.create({
             data: {
               id: `${q.id}-a${position}`,
@@ -147,22 +219,31 @@ async function main() {
             }
           });
         }
-        await prisma.question.update({
-          where: { id: q.id },
-          data: {
-            prompt: cleanPrompt,
-            correctAnswer: correctChoiceText
-          }
-        });
       }
-      fixedInlineCount++;
-    } else if (!hasInline && q.answers.length === 4) {
+      fixedAnswerRows++;
+    }
+
+    if (changes.length > 0) {
+      console.log(`  ${q.id.slice(0, 16)}…  ${changes.join(" | ")}`);
+    } else {
       alreadyOk++;
+    }
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      console.log(`  SKIP ${q.id.slice(0, 16)}…  error: ${msg.split("\n")[0].slice(0, 80)}`);
+      skipped.push(q.id);
     }
   }
 
-  console.log(`\nDone (${LIMIT} limit): ${fixedLabelCount} label fixes, ${fixedInlineCount} inline parses, ${alreadyOk} already ok`);
-  if (dryRun) console.log("(no changes written — pass --write to apply)");
+  console.log(`\n=== Done ===`);
+  console.log(`  Label fixes:            ${fixedLabel}`);
+  console.log(`  Prompt stripped:        ${fixedPrompt}`);
+  console.log(`  correctAnswer cleaned:  ${fixedCorrectAnswer}`);
+  console.log(`  Answer rows rebuilt:    ${fixedAnswerRows}`);
+  console.log(`  Already ok:             ${alreadyOk}`);
+  console.log(`  Skipped (errors):       ${skipped.length}`);
+  if (skipped.length > 0) skipped.forEach((id) => console.log(`    - ${id}`));
+  if (dryRun) console.log("\n(no changes written — pass --write to apply)");
 
   await prisma.$disconnect();
 }
