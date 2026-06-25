@@ -80,6 +80,7 @@ model Competition {
   concepts         Concept[]
   curriculumSubjects CurriculumSubject[]
   levels           CompetitionLevel[]
+  subjects         Subject[]
   questions        Question[]
   lessons          Lesson[]
   tests            Test[]
@@ -128,6 +129,8 @@ model Question {
   prompt           String
   alternateAnswers String[]
   explanation      String
+  subTopicId       String?
+  subTopic         SubTopic?      @relation(fields: [subTopicId], references: [id], onDelete: SetNull)
   deletedAt        DateTime?
   answers          Answer[]
   answerExplanations AnswerExplanation[]
@@ -148,6 +151,7 @@ model Question {
   @@index([competitionId, category, difficulty, format])
   @@index([competitionId, schoolLevel])
   @@index([sourceProvider, sourceSet])
+  @@index([subTopicId])
   @@index([difficulty])
   @@index([format])
   @@index([questionKind])
@@ -249,6 +253,8 @@ model Lesson {
   competitionLevel CompetitionLevel? @relation(fields: [levelId], references: [id], onDelete: SetNull)
   conceptId        String?
   concept          Concept?    @relation(fields: [conceptId], references: [id], onDelete: SetNull)
+  subTopicId       String?
+  subTopic         SubTopic?   @relation(fields: [subTopicId], references: [id], onDelete: SetNull)
   slug             String
   title            String
   category         String
@@ -265,6 +271,7 @@ model Lesson {
   @@index([competitionId])
   @@index([levelId])
   @@index([conceptId])
+  @@index([subTopicId])
   @@index([category])
 }
 
@@ -308,6 +315,57 @@ model BuzzerQuestionPair {
   bonus     Question @relation("BonusPair", fields: [bonusId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+// ── Content hierarchy ─────────────────────────────────────────────────────
+// Subject → Topic → SubTopic → Lesson (many per sub_topic)
+// Separate from CurriculumSubject/Grade/Unit/Topic which drive the
+// info-session curriculum overview page.
+
+model Subject {
+  id            String      @id
+  competitionId String
+  competition   Competition @relation(fields: [competitionId], references: [id], onDelete: Cascade)
+  name          String
+  slug          String
+  order         Int         @default(0)
+  topics        Topic[]
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@unique([competitionId, slug])
+  @@index([competitionId])
+}
+
+model Topic {
+  id        String     @id
+  subjectId String
+  subject   Subject    @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  name      String
+  slug      String
+  order     Int        @default(0)
+  subTopics SubTopic[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  @@unique([subjectId, slug])
+  @@index([subjectId])
+}
+
+model SubTopic {
+  id        String     @id
+  topicId   String
+  topic     Topic      @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  name      String
+  slug      String
+  order     Int        @default(0)
+  lessons   Lesson[]
+  questions Question[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  @@unique([topicId, slug])
+  @@index([topicId])
 }
 
 model CurriculumSubject {
