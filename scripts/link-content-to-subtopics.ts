@@ -45,6 +45,8 @@ const categoryToSubjectId: Record<string, string> = {
   "Earth & Space":            "subj--earth-space-science",
   "Earth and Space":          "subj--earth-space-science",
   "Earth and Space Science":  "subj--earth-space-science",
+  "Earth Science":            "subj--earth-space-science",
+  "Earth & Space Science":    "subj--earth-space-science",
   "Energy":                   "subj--energy",
   "Math":                     "subj--mathematics",
   "Mathematics":              "subj--mathematics",
@@ -249,7 +251,7 @@ async function main() {
       for (const st of candidates) {
         let score = tokenOverlap(cls.subtopic, st.name);
 
-        // Topic name bonus
+        // Topic name bonus: classification topic matches subtopic's parent topic
         const topicBonus = tokenOverlap(cls.topic, st.topic.name);
         if (topicBonus > 0.3) score += 0.2;
 
@@ -262,24 +264,42 @@ async function main() {
         }
       }
 
-      // Fallback: try keyConcept against subtopic name
-      if ((bestId === null || bestScore < 0.4) && cls.keyConcept) {
-        let fallbackBestId: string | null = null;
-        let fallbackBestScore = 0;
+      // Fallback A: try keyConcept against subtopic name
+      if ((bestId === null || bestScore < 0.35) && cls.keyConcept) {
         for (const st of candidates) {
           const score = tokenOverlap(cls.keyConcept, st.name) * (0.5 + 0.5 * cls.confidence);
-          if (score > fallbackBestScore) {
-            fallbackBestScore = score;
-            fallbackBestId = st.id;
+          if (score > bestScore) {
+            bestScore = score;
+            bestId = st.id;
           }
-        }
-        if (fallbackBestScore >= 0.4) {
-          bestId = fallbackBestId;
-          bestScore = fallbackBestScore;
         }
       }
 
-      if (bestId && bestScore >= 0.4) {
+      // Fallback B: classification subtopic matches a topic NAME exactly →
+      // pick the highest-scoring subtopic within that topic
+      if ((bestId === null || bestScore < 0.35)) {
+        let topicMatchBestId: string | null = null;
+        let topicMatchBestScore = 0;
+        for (const st of candidates) {
+          const topicScore = tokenOverlap(cls.subtopic, st.topic.name);
+          if (topicScore >= 0.5) {
+            // Within this topic, score by keyConcept overlap
+            const stScore = cls.keyConcept
+              ? tokenOverlap(cls.keyConcept, st.name) * (0.5 + 0.5 * cls.confidence)
+              : topicScore * 0.5;
+            if (stScore > topicMatchBestScore) {
+              topicMatchBestScore = stScore;
+              topicMatchBestId = st.id;
+            }
+          }
+        }
+        if (topicMatchBestScore >= 0.35) {
+          bestId = topicMatchBestId;
+          bestScore = topicMatchBestScore;
+        }
+      }
+
+      if (bestId && bestScore >= 0.35) {
         matched++;
         subjectMatched.set(subjectId, (subjectMatched.get(subjectId) ?? 0) + 1);
         pendingUpdates.push({ id: q.id, subTopicId: bestId });
