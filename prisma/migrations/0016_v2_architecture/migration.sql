@@ -18,8 +18,9 @@ END $$;
 ALTER TABLE "Question"   ADD COLUMN IF NOT EXISTS "deletedAt" TIMESTAMP(3);
 ALTER TABLE "BuzzerRoom" ADD COLUMN IF NOT EXISTS "version"   INTEGER NOT NULL DEFAULT 0;
 
--- Allow level to be empty for BuzzerQuestion rows (column is dropped below)
-ALTER TABLE "Question" ALTER COLUMN "level" SET DEFAULT '';
+-- Allow level and correctAnswer to be empty for BuzzerQuestion rows (both dropped below)
+ALTER TABLE "Question" ALTER COLUMN "level"         SET DEFAULT '';
+ALTER TABLE "Question" ALTER COLUMN "correctAnswer" SET DEFAULT '';
 
 -- ── New tables ──────────────────────────────────────────────────────────────
 
