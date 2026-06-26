@@ -11,12 +11,17 @@ import {
   getLessonsByCompetition,
   getScienceBowlMiddleSchoolCurriculumSubjectByName,
   getScienceBowlMiddleSchoolCurriculumSubjects,
+  getSubjectsForCompetition,
   isCompetitionSlug,
   type SchoolLevelFilter
 } from "@/lib/data";
 import { formatApproximateCount } from "@/lib/format";
-import { learningPath } from "@/lib/routes";
+import { learningPath, subjectCoursePath } from "@/lib/routes";
 import { buildMetadata } from "@/lib/seo";
+
+function subjectSlugFromName(name: string) {
+  return name.toLowerCase().replace(/\s+/g, "-");
+}
 
 export async function generateMetadata({
   params,
@@ -64,6 +69,9 @@ export default async function LearningPage({
   const isScienceBowlMiddleSchool = competitionSlug === "science-bowl" && schoolLevel === "MIDDLE_SCHOOL";
   const curriculumSubjects = isScienceBowlMiddleSchool ? await getScienceBowlMiddleSchoolCurriculumSubjects() : [];
   const curriculumSubject = isScienceBowlMiddleSchool ? await getScienceBowlMiddleSchoolCurriculumSubjectByName(subject) : undefined;
+  const dbSubjects = (!isScienceBowlMiddleSchool && !subject && competitionSlug === "science-bowl")
+    ? await getSubjectsForCompetition(competitionSlug)
+    : [];
   const lessons = await getLessonsByCompetition(competitionSlug, subject, schoolLevel);
 
   if (isScienceBowlMiddleSchool && !subject) {
@@ -103,7 +111,7 @@ export default async function LearningPage({
             {subjectCounts.map(({ subject: item, counts }) => (
               <Link
                 className="card spacious stack curriculum-subject-card"
-                href={`${learningPath(competitionSlug)}?level=middle-school&subject=${encodeURIComponent(item.name)}`}
+                href={subjectCoursePath(competitionSlug, subjectSlugFromName(item.name))}
                 key={item.slug}
               >
                 <div className="stack compact">
@@ -210,6 +218,44 @@ export default async function LearningPage({
               <div className="empty">No lessons are available yet for this subject.</div>
             )}
           </section>
+        </div>
+      </section>
+    );
+  }
+
+  if (dbSubjects.length > 0) {
+    return (
+      <section className="section">
+        <div className="container stack">
+          <Breadcrumbs
+            items={buildStudyBreadcrumbs({
+              competitionSlug,
+              competitionName: competition.name,
+              level,
+              action: "Learning",
+              actionHref: `${learningPath(competitionSlug)}${level ? `?level=${level}` : ""}`,
+              current: "Learning"
+            })}
+          />
+          <div className="simple-heading">
+            <span className="eyebrow">{competition.name}</span>
+            <h1>Choose a subject</h1>
+            <p className="subtitle">
+              Select a subject to open the course view — a structured guide through topics, subtopics, and lessons.
+            </p>
+          </div>
+          <div className="grid two">
+            {dbSubjects.map((subj) => (
+              <Link
+                key={subj.id}
+                className="card spacious stack"
+                href={subjectCoursePath(competitionSlug, subj.slug)}
+              >
+                <span className="eyebrow">{competition.name}</span>
+                <h2>{subj.name}</h2>
+              </Link>
+            ))}
+          </div>
         </div>
       </section>
     );

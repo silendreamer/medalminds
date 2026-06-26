@@ -338,6 +338,87 @@ export async function getScienceBowlMiddleSchoolCurriculumSubjects() {
   return subjects.map(toCurriculumSubject);
 }
 
+export type SubjectTree = {
+  id: string;
+  name: string;
+  slug: string;
+  topics: Array<{
+    id: string;
+    name: string;
+    order: number;
+    subTopics: Array<{
+      id: string;
+      name: string;
+      order: number;
+      lessons: Array<{ id: string; slug: string; title: string; estimatedMinutes: number }>;
+    }>;
+  }>;
+};
+
+export type SubjectSummary = { id: string; name: string; slug: string; order: number };
+
+export function getSubjectsForCompetition(competitionSlug: CompetitionSlug) {
+  return cachedContent(
+    async (): Promise<SubjectSummary[]> => {
+      if (!isDbEnabled()) return [];
+      return getPrisma().subject.findMany({
+        where: { competitionId: competitionSlug },
+        orderBy: { order: "asc" },
+        select: { id: true, name: true, slug: true, order: true }
+      });
+    },
+    ["subjects", competitionSlug],
+    [contentTag(competitionSlug)]
+  );
+}
+
+export function getSubjectWithTree(competitionSlug: CompetitionSlug, subjectSlug: string) {
+  return cachedContent(
+    async (): Promise<SubjectTree | null> => {
+      if (!isDbEnabled()) return null;
+      const subject = await getPrisma().subject.findFirst({
+        where: { competitionId: competitionSlug, slug: subjectSlug },
+        include: {
+          topics: {
+            orderBy: { order: "asc" },
+            include: {
+              subTopics: {
+                orderBy: { order: "asc" },
+                include: {
+                  lessons: {
+                    where: { competitionId: competitionSlug },
+                    select: { id: true, slug: true, title: true, estimatedMinutes: true },
+                    orderBy: { title: "asc" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      });
+      if (!subject) return null;
+      return {
+        id: subject.id,
+        name: subject.name,
+        slug: subject.slug,
+        topics: subject.topics.map((t) => ({
+          id: t.id,
+          name: t.name,
+          order: t.order,
+          subTopics: t.subTopics.map((st) => ({
+            id: st.id,
+            name: st.name,
+            order: st.order,
+            lessons: st.lessons
+          }))
+        }))
+      };
+    },
+    ["subject-tree", competitionSlug, subjectSlug],
+    [contentTag(competitionSlug)]
+  );
+}
+
 export async function getScienceBowlMiddleSchoolCurriculumSubjectByName(name?: string | null) {
   const subjects = await getScienceBowlMiddleSchoolCurriculumSubjects();
   if (!name) return undefined;

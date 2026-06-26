@@ -159,17 +159,17 @@ export default async function CompetitionPage({
               )}
             </div>
             <div className={`grid ${isScienceBowl ? "four" : "three"} competition-action-grid`}>
-              <Link className="card spacious stack competition-stage-card" href={`/${competitionSlug}?${buildStageQuery(["action", "learning"])}`}>
+              <Link className="card spacious stack competition-stage-card" href={`${learningPath(competitionSlug)}${selectedLevel ? `?level=${selectedLevel}` : ""}`}>
                 <span className="eyebrow">Learning</span>
                 <h2>Learning</h2>
                 <p>Read lessons and study the concept before you try questions.</p>
               </Link>
-              <Link className="card spacious stack competition-stage-card" href={`/${competitionSlug}?${buildStageQuery(["action", "practice"])}`}>
+              <Link className="card spacious stack competition-stage-card" href={`${practicePath(competitionSlug)}${selectedLevel ? `?level=${selectedLevel}` : ""}`}>
                 <span className="eyebrow">Practice</span>
                 <h2>Practice Questions</h2>
                 <p>Get one random question, answer it, then review the explanation.</p>
               </Link>
-              <Link className="card spacious stack competition-stage-card" href={`/${competitionSlug}?${buildStageQuery(["action", "tests"])}`}>
+              <Link className="card spacious stack competition-stage-card" href={`${testsPath(competitionSlug)}${selectedLevel ? `?level=${selectedLevel}` : ""}`}>
                 <span className="eyebrow">Tests</span>
                 <h2>Quizzes / Tests</h2>
                 <p>Choose a question set and work through it in test mode.</p>
@@ -207,7 +207,7 @@ export default async function CompetitionPage({
                   className="card spacious stack competition-stage-card competition-subject-card"
                   href={
                     selectedAction === "learning"
-                      ? `${learningPath(competitionSlug)}${buildQuery([["level", selectedLevel], ["subject", category]])}`
+                      ? `${learningPath(competitionSlug)}/subject/${category.toLowerCase().replace(/\s+/g, "-")}`
                       : selectedAction === "practice"
                         ? `${practicePath(competitionSlug)}${buildQuery([["level", selectedLevel], ["subject", category]])}`
                         : `${testsPath(competitionSlug)}${buildQuery([["level", selectedLevel], ["subject", category]])}`

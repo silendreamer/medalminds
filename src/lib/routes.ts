@@ -8,5 +8,7 @@ export const lessonPath = (slug: CompetitionSlug, lessonSlug: string) =>
 export const testsPath = (slug: CompetitionSlug) => `/${slug}/tests`;
 export const testPath = (slug: CompetitionSlug, testSlug: string) =>
   `/${slug}/tests/${testSlug}`;
+export const subjectCoursePath = (slug: CompetitionSlug, subjectSlug: string) =>
+  `/${slug}/learning/subject/${subjectSlug}`;
 export const buzzerPath = () => "/science-bowl/buzzer";
 export const scienceBowlInfoPath = () => "/science-bowl/info-session";
