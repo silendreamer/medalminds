@@ -4,13 +4,12 @@ loadDotenv({ path: ".env.local", override: false });
 import { getPrisma } from "../src/lib/db";
 
 const CATEGORY_TO_SUBJECT: Record<string, string> = {
-  "Biology": "Life Science", "Life Science": "Life Science", "Ecology": "Life Science",
+  "Biology": "Life Science", "Life Science": "Life Science",
   "Chemistry": "Physical Science", "Physics": "Physical Science", "Physical Science": "Physical Science",
-  "Earth & Space": "Earth & Space Science", "Earth and Space": "Earth & Space Science",
-  "Earth Science": "Earth & Space Science", "Astronomy": "Earth & Space Science",
-  "Geology": "Earth & Space Science", "Earth & Space Science": "Earth & Space Science",
+  "Earth and Space Science": "Earth and Space Science", "Earth & Space Science": "Earth and Space Science",
   "Energy": "Energy",
-  "Math": "Mathematics", "Mathematics": "Mathematics",
+  "Math": "Math",
+  "General Science": "General Science",
 };
 
 async function main() {

@@ -57,22 +57,15 @@ function sleep(ms: number) {
 // ── Category → subject id ─────────────────────────────────────────────────────
 
 const CATEGORY_TO_SUBJECT: Record<string, string> = {
-  "Biology":                 "subj--life-science",
-  "Life Science":            "subj--life-science",
-  "Chemistry":               "subj--physical-science",
-  "Physics":                 "subj--physical-science",
-  "Physical Science":        "subj--physical-science",
-  "Earth & Space":           "subj--earth-space-science",
-  "Earth and Space":         "subj--earth-space-science",
-  "Earth and Space Science": "subj--earth-space-science",
-  "Earth Science":           "subj--earth-space-science",
-  "Earth & Space Science":   "subj--earth-space-science",
-  "Astronomy":               "subj--earth-space-science",
-  "Geology":                 "subj--earth-space-science",
-  "Ecology":                 "subj--life-science",
-  "Energy":                  "subj--energy",
-  "Math":                    "subj--mathematics",
-  "Mathematics":             "subj--mathematics",
+  "Biology":                  "subj--life-science",
+  "Life Science":             "subj--life-science",
+  "Chemistry":                "subj--physical-science",
+  "Physics":                  "subj--physical-science",
+  "Physical Science":         "subj--physical-science",
+  "Earth and Space Science":  "subj--earth-space-science",
+  "Earth & Space Science":    "subj--earth-space-science",
+  "Energy":                   "subj--energy",
+  "Math":                     "subj--mathematics",
 };
 
 // ── Types ─────────────────────────────────────────────────────────────────────

@@ -42,14 +42,10 @@ const categoryToSubjectId: Record<string, string> = {
   "Chemistry":                "subj--physical-science",
   "Physics":                  "subj--physical-science",
   "Physical Science":         "subj--physical-science",
-  "Earth & Space":            "subj--earth-space-science",
-  "Earth and Space":          "subj--earth-space-science",
   "Earth and Space Science":  "subj--earth-space-science",
-  "Earth Science":            "subj--earth-space-science",
   "Earth & Space Science":    "subj--earth-space-science",
   "Energy":                   "subj--energy",
   "Math":                     "subj--mathematics",
-  "Mathematics":              "subj--mathematics",
 };
 
 // ── Lesson → SubTopic hardcoded map ──────────────────────────────────────────
