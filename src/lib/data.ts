@@ -353,6 +353,8 @@ export type SubjectTree = {
       lessons: Array<{ id: string; slug: string; title: string; estimatedMinutes: number }>;
     }>;
   }>;
+  /** Lessons matched by category but not yet linked to any subtopic — shown as a flat list. */
+  unlinkedLessons: Array<{ id: string; slug: string; title: string; estimatedMinutes: number }>;
 };
 
 export type SubjectSummary = { id: string; name: string; slug: string; order: number };
@@ -397,6 +399,19 @@ export function getSubjectWithTree(competitionSlug: CompetitionSlug, subjectSlug
         }
       });
       if (!subject) return null;
+
+      // Collect slugs of lessons already appearing under a subtopic so we don't double-list them
+      const linkedSlugs = new Set(
+        subject.topics.flatMap((t) => t.subTopics.flatMap((st) => st.lessons.map((l) => l.slug)))
+      );
+      const categoryAliases = subjectAliases[subject.name] ?? [subject.name];
+      const allCategoryLessons = await getPrisma().lesson.findMany({
+        where: { competitionId: competitionSlug, category: { in: categoryAliases } },
+        select: { id: true, slug: true, title: true, estimatedMinutes: true },
+        orderBy: { title: "asc" }
+      });
+      const unlinkedLessons = allCategoryLessons.filter((l) => !linkedSlugs.has(l.slug));
+
       return {
         id: subject.id,
         name: subject.name,
@@ -411,7 +426,8 @@ export function getSubjectWithTree(competitionSlug: CompetitionSlug, subjectSlug
             order: st.order,
             lessons: st.lessons
           }))
-        }))
+        })),
+        unlinkedLessons
       };
     },
     ["subject-tree", competitionSlug, subjectSlug],

@@ -3002,6 +3002,22 @@ p {
   opacity: 1;
 }
 
+.course-nav-unlinked {
+  margin-top: var(--space-3);
+  border-top: 1px solid var(--line);
+  padding-top: var(--space-2);
+}
+
+.course-nav-section-label {
+  display: block;
+  padding: 6px var(--space-3) 4px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
 .course-content {
   padding: 0 var(--space-4);
   max-width: 760px;

@@ -141,6 +141,28 @@ export function CourseLayout({ tree, activeLesson, activeLessonSlug, competition
               </li>
             );
           })}
+
+          {tree.unlinkedLessons.length > 0 && (
+            <li className="course-nav-unlinked">
+              <span className="course-nav-section-label">All lessons</span>
+              <ul className="course-nav-lesson-list">
+                {tree.unlinkedLessons.map((lesson) => {
+                  const isActive = lesson.slug === activeLessonSlug;
+                  return (
+                    <li key={lesson.id}>
+                      <Link
+                        href={lessonHref(lesson.slug)}
+                        className={`course-nav-lesson${isActive ? " active" : ""}`}
+                      >
+                        <span className="course-nav-dot" aria-hidden />
+                        <span>{lesson.title}</span>
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
+            </li>
+          )}
         </ul>
       </nav>
 
