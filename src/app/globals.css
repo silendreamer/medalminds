@@ -1072,22 +1072,38 @@ p {
   justify-content: space-between;
   gap: 24px;
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: calc(var(--radius) * 1.6);
-  background: var(--gradient-glass-light);
-  padding: clamp(24px, 5vw, 42px);
-  box-shadow: var(--glass-shadow-md);
-  backdrop-filter: var(--glass-backdrop);
-  position: relative;
+  border-radius: var(--radius);
+  background: linear-gradient(135deg, var(--navy) 0%, oklch(0.18 0.05 275) 100%);
+  padding: var(--space-xl) var(--space-lg);
 }
 
 .cta-band h2 {
   max-width: 720px;
-  color: var(--brand-deep);
+  color: white;
 }
 
 .cta-band .eyebrow {
-  color: var(--primary);
+  color: var(--gold);
+}
+
+.cta-description {
+  color: rgba(255, 255, 255, 0.85);
+  max-width: 500px;
+  margin: 0 auto;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.cta-band .button {
+  background: var(--gold);
+  color: var(--navy);
+  border-color: var(--gold);
+}
+
+.cta-band .button:hover {
+  background: oklch(0.65 0.1 88);
+  border-color: oklch(0.65 0.1 88);
+  box-shadow: var(--shadow-md);
 }
 
 .card {

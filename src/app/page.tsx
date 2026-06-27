@@ -184,7 +184,10 @@ export default async function HomePage() {
       <section className="section cta-band">
         <div className="container stack" style={{ textAlign: "center", alignItems: "center" }}>
           <span className="eyebrow">Ready to compete?</span>
-          <h2>Start preparing today — it&apos;s free.</h2>
+          <h2>Ready to compete at your best?</h2>
+          <p className="cta-description">
+            No sign-up required to start. Sign in anytime to save your progress and unlock personalized recommendations.
+          </p>
           <Link className="button button-lg" href={competitionPath("science-bowl")}>
             Start Learning Free
           </Link>
