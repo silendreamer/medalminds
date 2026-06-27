@@ -71,7 +71,7 @@ export function Header() {
             display: "flex",
             gap: "26px",
             alignItems: "center",
-            flex: 1
+            marginLeft: "auto"
           }}
         >
           {competitions.map((competition) => {
