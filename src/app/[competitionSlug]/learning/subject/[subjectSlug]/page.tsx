@@ -62,24 +62,29 @@ export default async function SubjectCoursePage({
     : null;
 
   return (
-    <section className="section" style={{ paddingTop: "24px", paddingBottom: "44px" }}>
-      <div className="container" style={{ paddingLeft: "24px", paddingRight: "24px" }}>
-        <div style={{ marginBottom: "24px" }}>
-          <span className="crumb" style={{ fontSize: "13px", color: "#667085", fontWeight: "600", display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }}>
-            <a style={{ color: "#667085", textDecoration: "none" }}>Science Bowl</a>
+    <>
+      <div style={{ paddingLeft: "24px", paddingRight: "24px", paddingTop: "18px" }}>
+        <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
+          <span style={{ fontSize: "13px", color: "#667085", fontWeight: "600", display: "flex", alignItems: "center", gap: "8px" }}>
+            <a style={{ color: "#667085", textDecoration: "none", cursor: "pointer" }}>Science Bowl</a>
             <span style={{ color: "#c2c7d0" }}>/</span>
-            <a style={{ color: "#667085", textDecoration: "none" }}>Learn</a>
+            <a style={{ color: "#667085", textDecoration: "none", cursor: "pointer" }}>Learn</a>
             <span style={{ color: "#c2c7d0" }}>/</span>
             <span style={{ color: "#1a2745" }}>{tree.name}</span>
           </span>
         </div>
-        <CourseLayout
-          tree={tree}
-          activeLesson={activeLesson ?? null}
-          activeLessonSlug={lessonSlug ?? null}
-          competitionSlug={competitionSlug}
-        />
       </div>
-    </section>
+
+      <div style={{ paddingLeft: "24px", paddingRight: "24px", paddingTop: "18px", paddingBottom: "44px" }}>
+        <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
+          <CourseLayout
+            tree={tree}
+            activeLesson={activeLesson ?? null}
+            activeLessonSlug={lessonSlug ?? null}
+            competitionSlug={competitionSlug}
+          />
+        </div>
+      </div>
+    </>
   );
 }
