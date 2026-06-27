@@ -45,3 +45,47 @@ export async function getNsbLessons() {
     return [];
   }
 }
+
+export async function getNsbLessonContent(contentPath: string): Promise<Array<{ heading: string; body: string }>> {
+  try {
+    // contentPath is like "content/nsb/hs/biology/scientific-inquiry/scientific-method-observation-to-conclusion.md"
+    // We need to load it from docs/
+    const fs = await import("fs/promises");
+    const path = await import("path");
+
+    const fullPath = path.join(process.cwd(), "docs", contentPath);
+    const markdown = await fs.readFile(fullPath, "utf-8");
+
+    // Simple markdown parsing: split by h2 headers
+    const sections: Array<{ heading: string; body: string }> = [];
+    const lines = markdown.split("\n");
+
+    let currentSection: { heading: string; body: string } | null = null;
+
+    for (const line of lines) {
+      if (line.startsWith("## ")) {
+        // Save previous section if it exists
+        if (currentSection) {
+          currentSection.body = currentSection.body.trim();
+          sections.push(currentSection);
+        }
+        // Start new section
+        const heading = line.replace(/^## /, "").trim();
+        currentSection = { heading, body: "" };
+      } else if (currentSection) {
+        currentSection.body += line + "\n";
+      }
+    }
+
+    // Don't forget the last section
+    if (currentSection) {
+      currentSection.body = currentSection.body.trim();
+      sections.push(currentSection);
+    }
+
+    return sections;
+  } catch (error) {
+    console.warn(`Failed to load NSB lesson content from ${contentPath}:`, error);
+    return [];
+  }
+}

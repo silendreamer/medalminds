@@ -8,7 +8,7 @@ import {
   scienceBowlMiddleSchoolSubjects as staticScienceBowlMiddleSchoolSubjects
 } from "@/data/scienceBowlMiddleSchoolCurriculum";
 import { tests as localTests } from "@/data/tests";
-import { getNsbQuestions, getNsbLessons } from "@/data/nsbQuestions";
+import { getNsbQuestions, getNsbLessons, getNsbLessonContent } from "@/data/nsbQuestions";
 import type { CompetitionSlug, CurriculumSubject, Lesson, PracticeQuestion, Test } from "@/types";
 import { getPrisma, hasDatabaseUrl } from "./db";
 
@@ -783,6 +783,8 @@ export async function getLessonBySlug(slug: CompetitionSlug, lessonSlug: string)
     const lesson = lessons.find((l) => l.slug === lessonSlug);
     if (!lesson) return undefined;
 
+    const contentSections = await getNsbLessonContent(lesson.contentPath);
+
     return {
       id: lesson.id,
       competitionSlug: slug,
@@ -793,7 +795,7 @@ export async function getLessonBySlug(slug: CompetitionSlug, lessonSlug: string)
       summary: lesson.summary ?? "",
       keyConcepts: lesson.keyConcepts,
       estimatedMinutes: lesson.estimatedMinutes ?? 0,
-      contentSections: [], // TODO: parse markdown from contentPath
+      contentSections,
       reviewQuestions: [] // TODO: link related questions
     };
   }
