@@ -4075,34 +4075,70 @@ p {
 .cta-band {
   background: linear-gradient(135deg, #1a2745 0%, #243856 100%) !important;
   border: none !important;
-  border-radius: 12px !important;
+  border-radius: 0 !important;
   backdrop-filter: none !important;
   box-shadow: none !important;
-  padding: var(--space-xl) var(--space-lg) !important;
+  padding: 64px 32px !important;
 }
 
 .cta-band h2 {
   color: white !important;
+  font-size: 36px !important;
+  margin-bottom: 16px !important;
 }
 
 .cta-band p {
-  color: rgba(255,255,255,0.85) !important;
+  color: rgba(255,255,255,0.9) !important;
+  max-width: 600px !important;
+  margin: 0 auto 32px !important;
+  font-size: 15px !important;
 }
 
 .cta-band .eyebrow {
   color: var(--gold) !important;
 }
 
-.cta-band .button {
-  background: var(--gold) !important;
-  color: var(--navy) !important;
-  border-color: var(--gold) !important;
+.cta-band .button,
+.cta-band .button-lg {
+  background: #b8860b !important;
+  color: #1a2745 !important;
+  border-color: #b8860b !important;
   box-shadow: none !important;
+  padding: 12px 40px !important;
+  font-size: 15px !important;
+  width: auto !important;
+  display: inline-flex !important;
+  min-height: 44px !important;
 }
 
-.cta-band .button:hover {
+.cta-band .button:hover,
+.cta-band .button-lg:hover {
   background: #d4a017 !important;
   border-color: #d4a017 !important;
+}
+
+/* --- Footer --- */
+.site-footer {
+  background: white !important;
+  border-top: 1px solid var(--border-color) !important;
+  padding: 32px 0 !important;
+  text-align: center !important;
+}
+
+.footer-copy {
+  color: #666666 !important;
+  font-size: 14px !important;
+  margin: 0 !important;
+}
+
+.footer-inner {
+  display: none !important;
+}
+
+.footer-brand,
+.footer-brand-row,
+.footer-links {
+  display: none !important;
 }
 
 /* --- Generic card --- */

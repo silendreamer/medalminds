@@ -177,9 +177,11 @@ export default async function HomePage() {
           <p className="cta-description">
             No sign-up required to start. Sign in anytime to save your progress and unlock personalized recommendations.
           </p>
-          <Link className="button button-lg" href={competitionPath("science-bowl")}>
-            Start Learning Free
-          </Link>
+          <div style={{ display: "flex", justifyContent: "center" }}>
+            <Link className="button button-lg" href={competitionPath("science-bowl")}>
+              Start Learning Free
+            </Link>
+          </div>
         </div>
       </section>
     </>
