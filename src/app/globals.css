@@ -164,7 +164,7 @@ textarea::placeholder {
 .screen {
   background: #fff;
   border-radius: 12px;
-  border: 1px solid #e7e9ee;
+  border: 1px solid #dfe3ea;
   overflow: hidden;
   box-shadow: 0 8px 30px rgba(15, 23, 42, 0.1);
   margin: 0 auto;
