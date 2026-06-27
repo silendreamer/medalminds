@@ -2,16 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { FlaskConical, Atom, Sigma } from "lucide-react";
 import { competitions } from "@/data/competitions";
 import { competitionPath } from "@/lib/routes";
-import { MedalMark } from "@/components/MedalMark";
-
-const NAV_ICONS: Record<string, React.ElementType> = {
-  "science-bowl": FlaskConical,
-  "science-olympiad": Atom,
-  "math-olympiad": Sigma
-};
 
 const NAV_EMOJIS: Record<string, string> = {
   "science-bowl": "🧪",
@@ -27,34 +19,127 @@ export function Header() {
   };
 
   return (
-    <header className="site-header">
-      <div className="nav-inner">
-        <Link className="brand" href="/">
-          <span aria-hidden="true" className="brand-mark">
-            <MedalMark size={44} />
-          </span>
-          <strong className="brand-name">Medal Minds</strong>
+    <header
+      style={{
+        background: "#fff",
+        borderBottom: "1px solid #e7e9ee",
+        padding: "0",
+        position: "sticky",
+        top: 0,
+        zIndex: 10
+      }}
+    >
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "32px", maxWidth: "1200px", margin: "0 auto", padding: "16px 24px", height: "auto" }}>
+        {/* Brand */}
+        <Link
+          href="/"
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "11px",
+            fontWeight: 700,
+            fontSize: "16px",
+            color: "#1a2745",
+            textDecoration: "none",
+            flexShrink: 0
+          }}
+        >
+          <div
+            style={{
+              width: "38px",
+              height: "38px",
+              background: "#1a2745",
+              borderRadius: "9px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: "#fff",
+              fontFamily: "Poppins, system-ui, sans-serif",
+              fontWeight: 700,
+              fontSize: "18px",
+              flexShrink: 0
+            }}
+          >
+            M
+          </div>
+          <span>Medal Minds</span>
         </Link>
-        <nav className="nav-links" aria-label="Main navigation">
+
+        {/* Navigation */}
+        <nav
+          style={{
+            display: "flex",
+            gap: "26px",
+            alignItems: "center",
+            flex: 1
+          }}
+        >
           {competitions.map((competition) => {
-            const Icon = NAV_ICONS[competition.slug];
             const emoji = NAV_EMOJIS[competition.slug];
             const isActive = isActiveCompetition(competition.slug);
 
             return (
               <Link
-                className={`nav-link ${isActive ? "active" : ""}`}
-                href={competitionPath(competition.slug)}
                 key={competition.slug}
+                href={competitionPath(competition.slug)}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                  fontSize: "14px",
+                  fontWeight: 600,
+                  color: isActive ? "#5a92f0" : "#1a2745",
+                  textDecoration: "none",
+                  paddingBottom: "3px",
+                  borderBottom: isActive ? "2px solid #5a92f0" : "2px solid transparent",
+                  transition: "border-color 150ms ease, color 150ms ease"
+                }}
               >
-                {emoji && <span className="nav-link-emoji" aria-hidden="true">{emoji}</span>}
+                <div
+                  style={{
+                    width: "26px",
+                    height: "26px",
+                    borderRadius: "7px",
+                    background: "#1a2745",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    color: "#fff",
+                    fontSize: "15px",
+                    lineHeight: 1
+                  }}
+                >
+                  {emoji}
+                </div>
                 {competition.name}
-                {isActive && <span className="nav-link-indicator" aria-label="current page" />}
               </Link>
             );
           })}
         </nav>
-        <Link className="button nav-cta" href="/api/auth/signin">
+
+        {/* Sign In Button */}
+        <Link
+          href="/api/auth/signin"
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "8px",
+            padding: "12px 22px",
+            minHeight: "44px",
+            borderRadius: "8px",
+            background: "#1a2745",
+            color: "#fff",
+            border: "1px solid #1a2745",
+            fontSize: "14px",
+            fontWeight: 600,
+            fontFamily: "Open Sans, sans-serif",
+            cursor: "pointer",
+            textDecoration: "none",
+            transition: "all 150ms ease",
+            flexShrink: 0
+          }}
+        >
           Sign In
         </Link>
       </div>

@@ -4689,6 +4689,29 @@ p {
 }
 
 /* ============================================================
+   PAGE OUTLINE BORDER (decorative)
+   ============================================================ */
+
+html {
+  position: relative;
+}
+
+html::before {
+  content: "";
+  position: fixed;
+  inset: 20px;
+  border: 2px solid #1a2745;
+  border-radius: 16px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.page-shell {
+  position: relative;
+  z-index: 1;
+}
+
+/* ============================================================
    LESSON DETAIL PAGE (Screen 04)
    Sidebar navigation + content layout
    ============================================================ */
