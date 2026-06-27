@@ -777,6 +777,27 @@ export function getTestsByCompetition(slug: CompetitionSlug) {
 }
 
 export async function getLessonBySlug(slug: CompetitionSlug, lessonSlug: string) {
+  // Science Bowl reads from NSB JSON
+  if (slug === "science-bowl") {
+    const lessons = await getNsbLessons();
+    const lesson = lessons.find((l) => l.slug === lessonSlug);
+    if (!lesson) return undefined;
+
+    return {
+      id: lesson.id,
+      competitionSlug: slug,
+      title: lesson.title,
+      slug: lesson.slug,
+      category: lesson.subject,
+      level: lesson.level === "ms" ? "Middle School" : "High School",
+      summary: lesson.summary ?? "",
+      keyConcepts: lesson.keyConcepts,
+      estimatedMinutes: lesson.estimatedMinutes ?? 0,
+      contentSections: [], // TODO: parse markdown from contentPath
+      reviewQuestions: [] // TODO: link related questions
+    };
+  }
+
   if (!isDbEnabled()) {
     return localLessons.find((lesson) => lesson.competitionSlug === slug && lesson.slug === lessonSlug);
   }
