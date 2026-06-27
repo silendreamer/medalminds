@@ -18,15 +18,19 @@ function isCorrect(question: PracticeQuestion, answer: string) {
 
 export function SimplePracticeQuestion({
   question,
-  lesson
+  lesson,
+  linkedLessons
 }: {
   question: PracticeQuestion;
   lesson?: Lesson;
+  linkedLessons?: Lesson[];
 }) {
   const [answer, setAnswer] = useState("");
   const [checked, setChecked] = useState(false);
   const [lessonOpen, setLessonOpen] = useState(false);
+  const [selectedLesson, setSelectedLesson] = useState<Lesson | undefined>(lesson ?? linkedLessons?.[0]);
   const correct = isCorrect(question, answer);
+  const hasLessons = !!selectedLesson || (linkedLessons && linkedLessons.length > 0);
 
   return (
     <>
@@ -83,45 +87,73 @@ export function SimplePracticeQuestion({
               Correct answer: <strong>{question.correctAnswer}</strong>
             </p>
             <p>{question.explanation}</p>
-            {lesson && (
-              <button className="ghost-button" onClick={() => setLessonOpen(true)}>
-                Learn this topic
-              </button>
+            {hasLessons ? (
+              <>
+                {linkedLessons && linkedLessons.length > 1 && (
+                  <div className="stack compact" style={{ marginTop: "1rem" }}>
+                    <label htmlFor="lesson-select" style={{ fontSize: "0.875rem", fontWeight: 500 }}>
+                      Related topics:
+                    </label>
+                    <select
+                      id="lesson-select"
+                      value={selectedLesson?.id ?? ""}
+                      onChange={(e) => {
+                        const selected = linkedLessons.find((l) => l.id === e.target.value);
+                        setSelectedLesson(selected);
+                      }}
+                      style={{ padding: "0.5rem", borderRadius: "4px" }}
+                    >
+                      {linkedLessons.map((l) => (
+                        <option key={l.id} value={l.id}>
+                          {l.title}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+                <button className="ghost-button" onClick={() => setLessonOpen(true)}>
+                  Learn this topic
+                </button>
+              </>
+            ) : (
+              <p style={{ fontSize: "0.875rem", color: "var(--color-muted-foreground)", marginTop: "1rem" }}>
+                No lessons available for this topic yet.
+              </p>
             )}
           </div>
         )}
       </article>
 
-      {lessonOpen && lesson && (
-        <div className="modal-backdrop" role="dialog" aria-modal="true" aria-label={lesson.title}>
+      {lessonOpen && selectedLesson && (
+        <div className="modal-backdrop" role="dialog" aria-modal="true" aria-label={selectedLesson.title}>
           <div className="modal-card stack">
             <div className="card-header">
               <div>
-                <span className="eyebrow">{lesson.category}</span>
-                <h2>{lesson.title}</h2>
+                <span className="eyebrow">{selectedLesson.category}</span>
+                <h2>{selectedLesson.title}</h2>
               </div>
               <button className="ghost-button" onClick={() => setLessonOpen(false)}>
                 Close
               </button>
             </div>
-            <p className="card-copy">{lesson.summary}</p>
+            <p className="card-copy">{selectedLesson.summary}</p>
             <div className="content-section stack">
               <h3>Key concepts</h3>
               <div className="badge-list">
-                {lesson.keyConcepts.map((concept) => (
+                {selectedLesson.keyConcepts.map((concept) => (
                   <span className="badge neutral" key={concept}>
                     {concept}
                   </span>
                 ))}
               </div>
             </div>
-            {lesson.contentSections.slice(0, 1).map((section) => (
+            {selectedLesson.contentSections.slice(0, 1).map((section) => (
               <div className="content-section" key={section.heading}>
                 <h3>{section.heading}</h3>
                 <p>{section.body}</p>
               </div>
             ))}
-            <Link className="button" href={lessonPath(lesson.competitionSlug, lesson.slug)}>
+            <Link className="button" href={lessonPath(selectedLesson.competitionSlug, selectedLesson.slug)}>
               Open full lesson
             </Link>
           </div>

@@ -8,6 +8,7 @@ import {
   scienceBowlMiddleSchoolSubjects as staticScienceBowlMiddleSchoolSubjects
 } from "@/data/scienceBowlMiddleSchoolCurriculum";
 import { tests as localTests } from "@/data/tests";
+import { getNsbQuestions, getNsbLessons } from "@/data/nsbQuestions";
 import type { CompetitionSlug, CurriculumSubject, Lesson, PracticeQuestion, Test } from "@/types";
 import { getPrisma, hasDatabaseUrl } from "./db";
 
@@ -463,24 +464,27 @@ export async function getRandomQuestionByCompetition(
   subject?: string | null,
   schoolLevel?: SchoolLevelFilter | null
 ) {
-  if (!isDbEnabled()) {
-    const questions = localPracticeQuestions.filter(
-      (question) =>
-        question.competitionSlug === slug &&
-        localQuestionMatchesSubject(question, subject) &&
-        localQuestionMatchesSchoolLevel(question, schoolLevel)
-    );
-    return shuffle(questions)[0];
+  // Always use NSB questions for science-bowl (local JSON with lesson links)
+  if (slug === "science-bowl") {
+    const nsbQuestions = await getNsbQuestions();
+    if (nsbQuestions.length > 0) {
+      const questions = nsbQuestions.filter(
+        (question) =>
+          localQuestionMatchesSubject(question, subject) &&
+          localQuestionMatchesSchoolLevel(question, schoolLevel)
+      );
+      return shuffle(questions)[0];
+    }
   }
 
-  const questions = await getPrisma().question.findMany({
-    where: questionWhereForSubject(slug, subject, schoolLevel),
-    take: 250,
-    orderBy: { updatedAt: "desc" },
-    include: questionInclude
-  });
-
-  return shuffle(questions).map(toPracticeQuestion)[0];
+  // Fall back to local TypeScript data for other competitions
+  const questions = localPracticeQuestions.filter(
+    (question) =>
+      question.competitionSlug === slug &&
+      localQuestionMatchesSubject(question, subject) &&
+      localQuestionMatchesSchoolLevel(question, schoolLevel)
+  );
+  return shuffle(questions)[0];
 }
 
 export async function getQuestionById(
@@ -489,25 +493,26 @@ export async function getQuestionById(
   subject?: string | null,
   schoolLevel?: SchoolLevelFilter | null
 ) {
-  if (!isDbEnabled()) {
-    return localPracticeQuestions.find(
-      (question) =>
-        question.id === questionId &&
-        question.competitionSlug === slug &&
-        localQuestionMatchesSubject(question, subject) &&
-        localQuestionMatchesSchoolLevel(question, schoolLevel)
+  // Always use NSB questions for science-bowl (local JSON with lesson links)
+  if (slug === "science-bowl") {
+    const nsbQuestions = await getNsbQuestions();
+    const question = nsbQuestions.find(
+      (q) =>
+        q.id === questionId &&
+        localQuestionMatchesSubject(q, subject) &&
+        localQuestionMatchesSchoolLevel(q, schoolLevel)
     );
+    if (question) return question;
   }
 
-  const question = await getPrisma().question.findFirst({
-    where: {
-      id: questionId,
-      ...questionWhereForSubject(slug, subject, schoolLevel)
-    },
-    include: questionInclude
-  });
-
-  return question ? toPracticeQuestion(question) : undefined;
+  // Fall back to local TypeScript data for other competitions
+  return localPracticeQuestions.find(
+    (question) =>
+      question.id === questionId &&
+      question.competitionSlug === slug &&
+      localQuestionMatchesSubject(question, subject) &&
+      localQuestionMatchesSchoolLevel(question, schoolLevel)
+  );
 }
 
 export async function getRandomMultipleChoiceQuestions(
@@ -570,36 +575,72 @@ export function getLessonsByCompetition(
   return cachedContent(
     async () => {
       const aliases = aliasesForSubject(subject);
-      if (!isDbEnabled()) {
-        return localLessons.filter(
-          (lesson) =>
-            lesson.competitionSlug === slug &&
-            (!aliases || aliases.includes(lesson.category)) &&
-            levelStringMatchesSchoolLevel(lesson.level, schoolLevel)
-        );
+
+      // Always use NSB lessons for science-bowl (local JSON with links)
+      if (slug === "science-bowl") {
+        const nsbLessons = await getNsbLessons();
+        return nsbLessons
+          .filter((lesson: any) => {
+            const levelMatch = lesson.level === "ms"
+              ? schoolLevel === "MIDDLE_SCHOOL" || !schoolLevel
+              : schoolLevel === "HIGH_SCHOOL" || !schoolLevel;
+            const subjectMatch = !aliases || aliases.includes(lesson.subject);
+            return levelMatch && subjectMatch;
+          })
+          .map((lesson: any) => ({
+            id: lesson.id,
+            slug: lesson.slug,
+            competitionSlug: "science-bowl" as const,
+            title: lesson.title,
+            category: lesson.subject,
+            level: lesson.level === "ms" ? "Middle School" : "High School",
+            estimatedMinutes: lesson.estimatedMinutes || 10,
+            summary: lesson.summary || "",
+            keyConcepts: lesson.keyConcepts || [],
+            contentSections: [],
+            reviewQuestions: []
+          }));
       }
 
-      const lessons = await getPrisma().lesson.findMany({
-        where: {
-          competition: { slug },
-          ...(aliases ? { category: { in: aliases } } : {}),
-          ...(schoolLevel
-            ? {
-                competitionLevel: {
-                  schoolLevel: { in: [schoolLevel, "MIXED"] }
-                }
-              }
-            : {})
-        },
-        orderBy: { id: "asc" },
-        include: { competitionLevel: { select: { name: true } } }
-      });
-
-      return lessons.map(toLesson);
+      // Fall back to local TypeScript data for other competitions
+      return localLessons.filter(
+        (lesson) =>
+          lesson.competitionSlug === slug &&
+          (!aliases || aliases.includes(lesson.category)) &&
+          levelStringMatchesSchoolLevel(lesson.level, schoolLevel)
+      );
     },
     ["lessons", slug, subject ?? "", schoolLevel ?? ""],
     [contentTag(slug)]
   );
+}
+
+export async function getLessonsByIds(lessonIds: string[], competitionSlug: CompetitionSlug): Promise<Lesson[]> {
+  if (!lessonIds.length) return [];
+
+  // Always use NSB lessons for science-bowl (local JSON with links)
+  if (competitionSlug === "science-bowl") {
+    const nsbLessons = await getNsbLessons();
+    const idSet = new Set(lessonIds);
+    return nsbLessons
+      .filter((lesson: any) => idSet.has(lesson.id))
+      .map((lesson: any) => ({
+        id: lesson.id,
+        slug: lesson.slug,
+        competitionSlug: "science-bowl" as const,
+        title: lesson.title,
+        category: lesson.subject,
+        level: lesson.level === "ms" ? "Middle School" : "High School",
+        estimatedMinutes: lesson.estimatedMinutes || 10,
+        summary: lesson.summary || "",
+        keyConcepts: lesson.keyConcepts || [],
+        contentSections: [],
+        reviewQuestions: []
+      }));
+  }
+
+  // Fall back to local TypeScript data for other competitions
+  return localLessons.filter((lesson) => lessonIds.includes(lesson.id) && lesson.competitionSlug === competitionSlug);
 }
 
 export async function getPrimaryConceptLessonForQuestion(questionId: string) {

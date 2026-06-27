@@ -9,7 +9,7 @@ import {
   getCompetitionBySlug,
   getContentCountsForSubject,
   getLessonsByCompetition,
-  getPrimaryConceptLessonForQuestion,
+  getLessonsByIds,
   getQuestionById,
   getRandomQuestionByCompetition,
   getScienceBowlMiddleSchoolCurriculumSubjects,
@@ -120,8 +120,15 @@ export default async function PracticePage({
     ? await getQuestionById(competitionSlug, q, subject, schoolLevel)
     : await getRandomQuestionByCompetition(competitionSlug, subject, schoolLevel);
   const lessons = await getLessonsByCompetition(competitionSlug, subject, schoolLevel);
-  const conceptLesson = question ? await getPrimaryConceptLessonForQuestion(question.id) : undefined;
-  const learnMoreLesson = conceptLesson ?? lessons[0];
+
+  // Get linked lessons from question.lessonIds
+  let linkedLessons: typeof lessons = [];
+
+  if (question?.lessonIds && question.lessonIds.length > 0) {
+    linkedLessons = await getLessonsByIds(question.lessonIds, competitionSlug);
+  }
+
+  const learnMoreLesson = linkedLessons[0] ?? lessons[0];
 
   return (
     <section className="section">
@@ -143,7 +150,15 @@ export default async function PracticePage({
             <h1>{subject ?? "Practice"} Questions</h1>
           </div>
         </div>
-        {question ? <SimplePracticeQuestion question={question} lesson={learnMoreLesson} /> : <div className="empty">No questions are available yet.</div>}
+        {question ? (
+          <SimplePracticeQuestion
+            question={question}
+            lesson={learnMoreLesson}
+            linkedLessons={linkedLessons.length > 0 ? linkedLessons : undefined}
+          />
+        ) : (
+          <div className="empty">No questions are available yet.</div>
+        )}
       </div>
     </section>
   );
