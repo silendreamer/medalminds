@@ -1,6 +1,5 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-import { BookOpen, Brain, Target } from "lucide-react";
 import { CompetitionCard } from "@/components/CompetitionCard";
 import { competitions, getContentCounts } from "@/lib/data";
 import { formatApproximateCount } from "@/lib/format";
@@ -26,17 +25,17 @@ const features = [
   {
     title: "Real Questions",
     description: "Every question comes from past competitions. Learn exactly what gets asked.",
-    icon: BookOpen
+    emoji: "📚"
   },
   {
     title: "Instant Feedback",
     description: "Get explanations for every answer. Understand the \"why\" behind each concept.",
-    icon: Brain
+    emoji: "💡"
   },
   {
     title: "Personalized Path",
     description: "Track weak areas. Practice what matters most. Focus your study time.",
-    icon: Target
+    emoji: "🎯"
   }
 ];
 
@@ -159,18 +158,15 @@ export default async function HomePage() {
             </div>
           </div>
           <div className="grid three">
-            {features.map((feature) => {
-              const Icon = feature.icon;
-              return (
-                <article className="feature-card" key={feature.title}>
-                  <span className="feature-icon">
-                    <Icon size={22} />
-                  </span>
-                  <h3>{feature.title}</h3>
-                  <p>{feature.description}</p>
-                </article>
-              );
-            })}
+            {features.map((feature) => (
+              <article className="feature-card" key={feature.title}>
+                <span className="feature-icon">
+                  {feature.emoji}
+                </span>
+                <h3>{feature.title}</h3>
+                <p>{feature.description}</p>
+              </article>
+            ))}
           </div>
         </div>
       </section>

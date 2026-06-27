@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { Atom, FlaskConical, Sigma } from "lucide-react";
 import type { Competition } from "@/types";
 import { competitionPath } from "@/lib/routes";
 import { formatApproximateCount } from "@/lib/format";
@@ -19,18 +18,18 @@ export function CompetitionCard({
       : competition.slug === "science-olympiad"
         ? "science-olympiad"
         : "math-olympiad";
-  const Icon =
+  const emojiIcon =
     competition.slug === "science-bowl"
-      ? Atom
+      ? "🧪"
       : competition.slug === "science-olympiad"
-        ? FlaskConical
-        : Sigma;
+        ? "🔬"
+        : "∑";
 
   return (
     <article className={`competition-card ${accentClass}`}>
       <div className="competition-card-content">
         <div className="competition-card-icon">
-          <Icon size={20} />
+          {emojiIcon}
         </div>
         <h3>{competition.name}</h3>
         <p className="card-copy">{competition.shortDescription}</p>
