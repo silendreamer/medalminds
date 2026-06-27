@@ -124,9 +124,9 @@ html,
 body {
   margin: 0;
   min-height: 100%;
-  background: var(--bg);
-  color: var(--ink);
-  font-family: var(--font-open-sans), Arial, Helvetica, sans-serif;
+  background: #fff;
+  color: #1a2745;
+  font-family: 'Open Sans', Arial, Helvetica, sans-serif;
   text-rendering: optimizeLegibility;
 }
 
@@ -158,15 +158,6 @@ textarea::placeholder {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-}
-
-.site-header {
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-  background: var(--gradient-glass-frosted);
-  backdrop-filter: var(--glass-backdrop);
 }
 
 .nav-inner,
@@ -3817,65 +3808,6 @@ p {
   --foreground: var(--navy);
 }
 
-/* --- Header --- */
-.site-header {
-  background: var(--bg-white) !important;
-  border-bottom: 1px solid var(--border-color) !important;
-  backdrop-filter: none !important;
-}
-
-/* --- Nav links --- */
-.nav-link,
-.pill-link {
-  border-radius: 0 !important;
-  border: none !important;
-  border-bottom: 2px solid transparent !important;
-  background: none !important;
-  padding: 4px 0 !important;
-  min-height: unset !important;
-  font-size: 14px !important;
-  font-weight: 600 !important;
-  color: var(--navy) !important;
-  backdrop-filter: none !important;
-  position: relative !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  gap: 6px !important;
-  transition: color 150ms ease, border-color 150ms ease !important;
-}
-
-.nav-link-emoji {
-  display: inline-block !important;
-  font-size: 16px !important;
-}
-
-.nav-link-indicator {
-  position: absolute !important;
-  bottom: -2px !important;
-  left: 0 !important;
-  right: 0 !important;
-  height: 3px !important;
-  border-radius: 2px !important;
-  background: var(--sky-blue) !important;
-  opacity: 0 !important;
-  transition: opacity 200ms ease !important;
-}
-
-.nav-link.active .nav-link-indicator {
-  opacity: 1 !important;
-}
-
-.nav-link:hover,
-.pill-link:hover {
-  border-bottom-color: var(--sky-blue) !important;
-  color: var(--sky-blue) !important;
-  background: none !important;
-}
-
-.nav-link:active,
-.pill-link:active {
-  background: none !important;
-}
 
 /* --- Buttons --- */
 .button {
@@ -4692,18 +4624,19 @@ p {
    PAGE OUTLINE BORDER (decorative)
    ============================================================ */
 
-html {
+body {
+  background: #fff !important;
   position: relative;
 }
 
-html::before {
+body::before {
   content: "";
   position: fixed;
   inset: 20px;
   border: 2px solid #1a2745;
   border-radius: 16px;
   pointer-events: none;
-  z-index: 0;
+  z-index: 9999;
 }
 
 .page-shell {
