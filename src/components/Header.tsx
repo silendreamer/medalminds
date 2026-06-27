@@ -11,21 +11,18 @@ export function Header() {
           <span aria-hidden="true" className="brand-mark">
             <MedalMark size={44} />
           </span>
-          <span className="brand-copy">
-            <strong>Medal Minds</strong>
-            <span>Competition prep platform</span>
-          </span>
+          <strong className="brand-name">Medal Minds</strong>
         </Link>
         <nav className="nav-links" aria-label="Main navigation">
-          <Link className="nav-link" href="/">
-            Home
-          </Link>
           {competitions.map((competition) => (
             <Link className="nav-link" href={competitionPath(competition.slug)} key={competition.slug}>
               {competition.name}
             </Link>
           ))}
         </nav>
+        <Link className="button nav-cta" href="/science-bowl">
+          Start Prep
+        </Link>
       </div>
     </header>
   );

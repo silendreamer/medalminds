@@ -13,7 +13,6 @@ export function CompetitionCard({
 }) {
   const isScienceBowl = competition.slug === "science-bowl";
   const questionValue = isScienceBowl ? formatApproximateCount(counts.questions) : "Soon";
-  const questionLabel = isScienceBowl ? "Practice questions" : "Question bank";
   const accentClass =
     competition.slug === "science-bowl"
       ? "science-bowl"
@@ -30,25 +29,17 @@ export function CompetitionCard({
   return (
     <article className={`competition-card ${accentClass}`}>
       <div className="competition-card-content">
-        <div className="stack compact competition-card-header">
-          <span className="competition-card-icon">
-            <Icon size={18} />
-          </span>
-          <h2>{competition.name}</h2>
+        <div className="competition-card-icon">
+          <Icon size={20} />
         </div>
+        <h3>{competition.name}</h3>
         <p className="card-copy">{competition.shortDescription}</p>
-        <div className="mini-stat-list">
-          <span>
-            <strong>{questionValue}</strong>
-            <small>{questionLabel}</small>
-          </span>
-          <span>
-            <strong>{formatApproximateCount(counts.lessons)}</strong>
-            <small>Lessons</small>
-          </span>
+        <div className="competition-card-stats">
+          <span>{questionValue}+ Questions</span>
+          <span>{formatApproximateCount(counts.lessons)}+ Lessons</span>
         </div>
         <Link className="button" href={competitionPath(competition.slug)}>
-          Enter {competition.name}
+          Start Practicing
         </Link>
       </div>
     </article>
