@@ -68,10 +68,10 @@ export default async function HomePage() {
             </p>
             <div className="hero-actions">
               <Link className="button button-lg" href={competitionPath("science-bowl")}>
-                Start Learning Free
+                Start Free Trial
               </Link>
-              <Link className="ghost-button button-lg" href="/api/auth/signin">
-                Sign In to Save Progress
+              <Link className="ghost-button button-lg" href="#competitions">
+                See How It Works
               </Link>
             </div>
             <p className="hero-note">No sign-up required. Sign in anytime to save your progress.</p>
