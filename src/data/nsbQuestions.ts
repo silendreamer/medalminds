@@ -56,29 +56,47 @@ export async function getNsbLessonContent(contentPath: string): Promise<Array<{ 
     const fullPath = path.join(process.cwd(), "docs", contentPath);
     const markdown = await fs.readFile(fullPath, "utf-8");
 
-    // Simple markdown parsing: split by h2 headers
+    // Remove frontmatter (YAML between --- markers)
+    let content = markdown;
+    if (content.startsWith("---")) {
+      const endIndex = content.indexOf("---", 3);
+      if (endIndex !== -1) {
+        content = content.substring(endIndex + 3);
+      }
+    }
+
+    // Parse by h4 headers (#### ) and h3 headers (### )
     const sections: Array<{ heading: string; body: string }> = [];
-    const lines = markdown.split("\n");
+    const lines = content.split("\n");
 
     let currentSection: { heading: string; body: string } | null = null;
 
     for (const line of lines) {
-      if (line.startsWith("## ")) {
+      // Match #### or ### headers
+      const h4Match = line.match(/^#### (.+)/);
+      const h3Match = line.match(/^### (.+)/);
+
+      if (h4Match || h3Match) {
         // Save previous section if it exists
         if (currentSection) {
           currentSection.body = currentSection.body.trim();
-          sections.push(currentSection);
+          if (currentSection.body) {
+            sections.push(currentSection);
+          }
         }
         // Start new section
-        const heading = line.replace(/^## /, "").trim();
+        const heading = (h4Match || h3Match)?.[1]?.trim() || "";
         currentSection = { heading, body: "" };
-      } else if (currentSection) {
-        currentSection.body += line + "\n";
+      } else if (currentSection && line.trim()) {
+        // Skip empty lines at the start of a section
+        if (currentSection.body || line.trim()) {
+          currentSection.body += line + "\n";
+        }
       }
     }
 
     // Don't forget the last section
-    if (currentSection) {
+    if (currentSection && currentSection.body.trim()) {
       currentSection.body = currentSection.body.trim();
       sections.push(currentSection);
     }
