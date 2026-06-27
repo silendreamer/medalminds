@@ -61,6 +61,20 @@ export default async function SubjectCoursePage({
     ? await getLessonBySlug(competitionSlug, lessonSlug)
     : null;
 
+  // Find topic/subtopic for active lesson to show in breadcrumb
+  let activeTopic = undefined;
+  if (activeLesson) {
+    for (const topic of tree.topics) {
+      for (const subTopic of topic.subTopics) {
+        if (subTopic.lessons.some((l) => l.slug === lessonSlug)) {
+          activeTopic = { topicName: topic.name, subTopicName: subTopic.name };
+          break;
+        }
+      }
+      if (activeTopic) break;
+    }
+  }
+
   return (
     <>
       <div style={{ paddingLeft: "24px", paddingRight: "24px", paddingTop: "18px" }}>
@@ -82,6 +96,7 @@ export default async function SubjectCoursePage({
             activeLesson={activeLesson ?? null}
             activeLessonSlug={lessonSlug ?? null}
             competitionSlug={competitionSlug}
+            activeTopic={activeTopic}
           />
         </div>
       </div>

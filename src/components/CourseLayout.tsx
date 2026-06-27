@@ -11,27 +11,41 @@ type Props = {
   activeLesson: Lesson | null;
   activeLessonSlug: string | null;
   competitionSlug: CompetitionSlug;
+  activeTopic?: { topicName: string; subTopicName: string };
 };
 
-export function CourseLayout({ tree, activeLesson, activeLessonSlug, competitionSlug }: Props) {
+export function CourseLayout({ tree, activeLesson, activeLessonSlug, competitionSlug, activeTopic }: Props) {
   const pathname = usePathname();
 
-  const [openTopics, setOpenTopics] = useState<Set<string>>(() => new Set());
-  const [openSubTopics, setOpenSubTopics] = useState<Set<string>>(() => new Set());
-
-  // Auto-expand the topic/subtopic containing the active lesson
-  useEffect(() => {
-    if (!activeLessonSlug) return;
-    for (const topic of tree.topics) {
-      for (const subTopic of topic.subTopics) {
-        if (subTopic.lessons.some((l) => l.slug === activeLessonSlug)) {
-          setOpenTopics((prev) => new Set([...prev, topic.id]));
-          setOpenSubTopics((prev) => new Set([...prev, subTopic.id]));
-          return;
+  const [openTopics, setOpenTopics] = useState<Set<string>>(() => {
+    if (activeLessonSlug) {
+      const topics = new Set<string>();
+      for (const topic of tree.topics) {
+        for (const subTopic of topic.subTopics) {
+          if (subTopic.lessons.some((l) => l.slug === activeLessonSlug)) {
+            topics.add(topic.id);
+          }
         }
       }
+      return topics;
     }
-  }, [activeLessonSlug, tree]);
+    return new Set();
+  });
+
+  const [openSubTopics, setOpenSubTopics] = useState<Set<string>>(() => {
+    if (activeLessonSlug) {
+      const subTopics = new Set<string>();
+      for (const topic of tree.topics) {
+        for (const subTopic of topic.subTopics) {
+          if (subTopic.lessons.some((l) => l.slug === activeLessonSlug)) {
+            subTopics.add(subTopic.id);
+          }
+        }
+      }
+      return subTopics;
+    }
+    return new Set();
+  });
 
   function toggleTopic(id: string) {
     setOpenTopics((prev) => {
@@ -70,17 +84,6 @@ export function CourseLayout({ tree, activeLesson, activeLessonSlug, competition
     "Math": "#1a2745"
   };
   const subjectColor = subjectColorMap[tree.name] || "#1a2745";
-
-  const getTileColor = (color: string) => {
-    const colorClass: Record<string, string> = {
-      "#1f8a5b": "bg-green-600",
-      "#0066cc": "bg-blue-600",
-      "#4b5ba8": "bg-indigo-600",
-      "#c97c1c": "bg-amber-600",
-      "#1a2745": "bg-slate-900"
-    };
-    return colorClass[color] || "bg-slate-900";
-  };
 
   const lessonCounts = tree.topics.reduce((sum, t) => sum + t.subTopics.reduce((sum2, st) => sum2 + st.lessons.length, 0), 0);
   const topicCount = tree.topics.length;
@@ -145,7 +148,7 @@ export function CourseLayout({ tree, activeLesson, activeLessonSlug, competition
                   }}
                 >
                   <span style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                    <span style={{ transform: isOpen ? "rotate(90deg)" : "rotate(0deg)", transition: "transform 160ms ease", display: "inline-block" }}>▶</span>
+                    <span style={{ transform: isOpen ? "rotate(90deg)" : "rotate(0deg)", transition: "transform 160ms ease", display: "inline-block" }}>▼</span>
                     {topic.name}
                   </span>
                   <span
@@ -192,7 +195,7 @@ export function CourseLayout({ tree, activeLesson, activeLessonSlug, competition
                           >
                             <span style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                               {hasSubLessons && (
-                                <span style={{ transform: stOpen ? "rotate(90deg)" : "rotate(0deg)", transition: "transform 160ms ease", display: "inline-block", fontSize: "12px" }}>▶</span>
+                                <span style={{ transform: stOpen ? "rotate(90deg)" : "rotate(0deg)", transition: "transform 160ms ease", display: "inline-block", fontSize: "12px" }}>▼</span>
                               )}
                               {subTopic.name}
                             </span>
@@ -271,7 +274,7 @@ export function CourseLayout({ tree, activeLesson, activeLessonSlug, competition
                   color: subjectColor
                 }}
               >
-                {activeLesson.category}
+                {activeTopic?.subTopicName || activeLesson.category}
               </span>
               <span style={{ fontSize: "13px", color: "#667085" }}>Lesson 1 of 3</span>
             </div>
@@ -296,10 +299,9 @@ export function CourseLayout({ tree, activeLesson, activeLessonSlug, competition
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
                   {activeLesson.keyConcepts.map((concept) => (
                     <div key={concept} style={{ display: "flex", gap: "10px" }}>
-                      <span style={{ color: subjectColor }}>▸</span>
+                      <span style={{ color: subjectColor, flexShrink: 0 }}>▸</span>
                       <p style={{ margin: 0, fontSize: "13px", color: "#667085", lineHeight: 1.6 }}>
-                        <b>{concept.split(" — ")[0]}</b>
-                        {concept.includes(" — ") && ` — ${concept.split(" — ")[1]}`}
+                        {concept}
                       </p>
                     </div>
                   ))}
@@ -308,8 +310,10 @@ export function CourseLayout({ tree, activeLesson, activeLessonSlug, competition
             )}
 
             {activeLesson.contentSections.map((section, idx) => (
-              <div key={idx} style={{ display: "flex", flexDirection: "column", gap: "14px", marginBottom: "24px" }}>
-                {idx === 0 && <h2 style={{ margin: 0, fontSize: "24px", fontWeight: 600, color: "#1a2745", marginBottom: "12px" }}>{section.heading}</h2>}
+              <div key={idx} style={{ marginBottom: "24px" }}>
+                {idx === 0 && (
+                  <h2 style={{ margin: "0 0 14px 0", fontSize: "24px", fontWeight: 600, color: "#1a2745" }}>{section.heading}</h2>
+                )}
                 <p style={{ margin: 0, color: "#667085", lineHeight: 1.6 }}>{section.body}</p>
               </div>
             ))}
@@ -332,7 +336,7 @@ export function CourseLayout({ tree, activeLesson, activeLessonSlug, competition
 
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "26px", paddingTop: "20px", borderTop: "1px solid #eef0f3" }}>
               <Link
-                href={`${pathname.replace(/\/[^/]*$/, "")}`}
+                href={pathname.split("?")[0]}
                 style={{
                   display: "inline-flex",
                   alignItems: "center",
