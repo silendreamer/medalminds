@@ -68,144 +68,179 @@ export function CourseLayout({ tree, activeLesson, activeLessonSlug, competition
     return `${pathname}?lesson=${encodeURIComponent(lessonSlug)}`;
   }
 
+  const subjectEmojiMap: Record<string, string> = {
+    "Life Science": "🧬",
+    "Physical Science": "⚛️",
+    "Earth & Space": "🌍",
+    "Energy": "⚡",
+    "Math": "∑"
+  };
+  const emoji = subjectEmojiMap[tree.name] || "📚";
+
+  const subjectColorMap: Record<string, string> = {
+    "Life Science": "#1f8a5b",
+    "Physical Science": "#0066cc",
+    "Earth & Space": "#4b5ba8",
+    "Energy": "#c97c1c",
+    "Math": "#1a2745"
+  };
+  const subjectColor = subjectColorMap[tree.name] || "#1a2745";
+
   return (
-    <div className="course-layout">
-      {/* Left nav */}
-      <nav className="course-nav" aria-label="Course topics">
-        <div className="course-nav-subject">
-          <span className="eyebrow">{competitionSlug === "science-bowl" ? "Science Bowl" : competitionSlug}</span>
-          <strong>{tree.name}</strong>
+    <div className="lesson-detail-layout">
+      {/* Sticky left sidebar */}
+      <aside className="lesson-sidebar" style={{ borderTop: `3px solid ${subjectColor}` }}>
+        <div className="lesson-sidebar-header">
+          <div className="lesson-sidebar-subject-icon" style={{ background: subjectColor }}>
+            <span className="em">{emoji}</span>
+          </div>
+          <div>
+            <h4>{tree.name}</h4>
+            <span className="small muted">{tree.topics.reduce((sum, t) => sum + t.subTopics.reduce((sum2, st) => sum2 + st.lessons.length, 0), 0)} lessons · {tree.topics.length} topics</span>
+          </div>
         </div>
 
-        <ul className="course-nav-list">
+        <nav className="lesson-sidebar-nav">
           {tree.topics.map((topic) => {
             const isOpen = openTopics.has(topic.id);
             const hasLessons = topic.subTopics.some((st) => st.lessons.length > 0);
 
             return (
-              <li key={topic.id}>
+              <div key={topic.id}>
                 <button
-                  className={`course-nav-topic${!hasLessons ? " dimmed" : ""}`}
+                  className={`lesson-topic-btn${!hasLessons ? " dimmed" : ""}${isOpen ? " open" : ""}`}
                   onClick={() => hasLessons && toggleTopic(topic.id)}
-                  aria-expanded={isOpen}
                   disabled={!hasLessons}
+                  style={{ color: isOpen && hasLessons ? subjectColor : undefined }}
                 >
                   <ChevronRight open={isOpen} />
                   <span>{topic.name}</span>
                 </button>
 
                 {isOpen && (
-                  <ul className="course-nav-subtopic-list">
+                  <div className="lesson-subtopic-list">
                     {topic.subTopics.map((subTopic) => {
                       const stOpen = openSubTopics.has(subTopic.id);
                       const hasSubLessons = subTopic.lessons.length > 0;
 
                       return (
-                        <li key={subTopic.id}>
+                        <div key={subTopic.id}>
                           <button
-                            className={`course-nav-subtopic${!hasSubLessons ? " dimmed" : ""}`}
+                            className={`lesson-subtopic-btn${!hasSubLessons ? " dimmed" : ""}${stOpen ? " open" : ""}`}
                             onClick={() => hasSubLessons && toggleSubTopic(subTopic.id)}
-                            aria-expanded={stOpen}
                             disabled={!hasSubLessons}
+                            style={{ background: stOpen && hasSubLessons ? `${subjectColor}15` : undefined, color: stOpen && hasSubLessons ? subjectColor : undefined }}
                           >
                             <ChevronRight open={stOpen} />
                             <span>{subTopic.name}</span>
                             {hasSubLessons && (
-                              <span className="course-nav-count">{subTopic.lessons.length}</span>
+                              <span className="lesson-chip" style={{ background: `${subjectColor}20`, color: subjectColor }}>{subTopic.lessons.length}</span>
                             )}
                           </button>
 
                           {stOpen && hasSubLessons && (
-                            <ul className="course-nav-lesson-list">
+                            <div className="lesson-list">
                               {subTopic.lessons.map((lesson) => {
                                 const isActive = lesson.slug === activeLessonSlug;
                                 return (
-                                  <li key={lesson.id}>
-                                    <Link
-                                      href={lessonHref(lesson.slug)}
-                                      className={`course-nav-lesson${isActive ? " active" : ""}`}
-                                    >
-                                      <span className="course-nav-dot" aria-hidden />
-                                      <span>{lesson.title}</span>
-                                    </Link>
-                                  </li>
+                                  <Link
+                                    key={lesson.id}
+                                    href={lessonHref(lesson.slug)}
+                                    className={`lesson-item${isActive ? " active" : ""}`}
+                                    style={{
+                                      background: isActive ? `${subjectColor}15` : undefined,
+                                      borderLeft: isActive ? `3px solid ${subjectColor}` : undefined,
+                                      paddingLeft: isActive ? "12px" : "15px"
+                                    }}
+                                  >
+                                    <span style={{ color: isActive ? subjectColor : "#c2c7d0" }}>●</span>
+                                    <span style={{ color: isActive ? subjectColor : "#667085" }}>{lesson.title}</span>
+                                  </Link>
                                 );
                               })}
-                            </ul>
+                            </div>
                           )}
-                        </li>
+                        </div>
                       );
                     })}
-                  </ul>
+                  </div>
                 )}
-              </li>
+              </div>
             );
           })}
 
           {tree.unlinkedLessons.length > 0 && (
-            <li className="course-nav-unlinked">
-              <span className="course-nav-section-label">All lessons</span>
-              <ul className="course-nav-lesson-list">
+            <div className="lesson-unlinked">
+              <div className="lesson-list">
                 {tree.unlinkedLessons.map((lesson) => {
                   const isActive = lesson.slug === activeLessonSlug;
                   return (
-                    <li key={lesson.id}>
-                      <Link
-                        href={lessonHref(lesson.slug)}
-                        className={`course-nav-lesson${isActive ? " active" : ""}`}
-                      >
-                        <span className="course-nav-dot" aria-hidden />
-                        <span>{lesson.title}</span>
-                      </Link>
-                    </li>
+                    <Link
+                      key={lesson.id}
+                      href={lessonHref(lesson.slug)}
+                      className={`lesson-item${isActive ? " active" : ""}`}
+                      style={{
+                        background: isActive ? `${subjectColor}15` : undefined,
+                        borderLeft: isActive ? `3px solid ${subjectColor}` : undefined,
+                        paddingLeft: isActive ? "12px" : "15px"
+                      }}
+                    >
+                      <span style={{ color: isActive ? subjectColor : "#c2c7d0" }}>●</span>
+                      <span style={{ color: isActive ? subjectColor : "#667085" }}>{lesson.title}</span>
+                    </Link>
                   );
                 })}
-              </ul>
-            </li>
+              </div>
+            </div>
           )}
-        </ul>
-      </nav>
+        </nav>
+      </aside>
 
-      {/* Right pane */}
-      <main className="course-content">
+      {/* Right pane — lesson content */}
+      <main className="lesson-content">
         {activeLesson ? (
-          <article className="stack">
-            <div>
-              <span className="eyebrow">{activeLesson.category}</span>
-              <h1>{activeLesson.title}</h1>
-              <p className="subtitle">{activeLesson.summary}</p>
+          <article className="lesson-article">
+            <div className="lesson-article-header">
+              <span className="chip" style={{ background: `${subjectColor}15`, color: subjectColor }}>
+                {activeLesson.category}
+              </span>
+              <span className="small muted">Lesson 1 of 3</span>
             </div>
-            <div className="badge-list">
-              <span className="badge neutral">{activeLesson.level}</span>
-              <span className="badge neutral">{activeLesson.estimatedMinutes} min</span>
-            </div>
+
+            <h1 style={{ marginBottom: "10px" }}>{activeLesson.title}</h1>
+            <p className="muted" style={{ marginBottom: "24px" }}>{activeLesson.summary}</p>
 
             {activeLesson.keyConcepts.length > 0 && (
-              <section className="content-section stack">
-                <h2>Key concepts</h2>
-                <div className="badge-list">
+              <div className="card" style={{ display: "flex", flexDirection: "column", gap: "14px", marginBottom: "20px" }}>
+                <h3>Key concepts</h3>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
                   {activeLesson.keyConcepts.map((concept) => (
-                    <span className="badge neutral" key={concept}>{concept}</span>
+                    <div key={concept} style={{ display: "flex", gap: "10px" }}>
+                      <span style={{ color: subjectColor }}>▸</span>
+                      <p className="small"><b>{concept}</b></p>
+                    </div>
                   ))}
                 </div>
-              </section>
+              </div>
             )}
 
-            {activeLesson.contentSections.map((section) => (
-              <section className="content-section stack" key={section.heading}>
-                <h2>{section.heading}</h2>
+            {activeLesson.contentSections.map((section, idx) => (
+              <div key={idx} style={{ display: "flex", flexDirection: "column", gap: "14px", marginBottom: "24px" }}>
                 <p>{section.body}</p>
-              </section>
+              </div>
             ))}
 
             {activeLesson.reviewQuestions.length > 0 && (
-              <section className="content-section stack">
-                <h2>Review questions</h2>
-                {activeLesson.reviewQuestions.map((q) => (
-                  <div className="feedback" key={q}>{q}</div>
-                ))}
-              </section>
+              <div className="card" style={{ background: "#f8f9fc", borderLeft: `3px solid ${subjectColor}` }}>
+                <h4 style={{ marginBottom: "8px", color: subjectColor }}>⚡ Buzz-worthy fact</h4>
+                <p className="small">{activeLesson.reviewQuestions[0]}</p>
+              </div>
             )}
+
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "26px", paddingTop: "20px", borderTop: "1px solid #eef0f3" }}>
+              <span className="btn btn-outline btn-sm">← Subject overview</span>
+              <span className="btn btn-primary">Next: Mendelian inheritance →</span>
+            </div>
           </article>
         ) : (
           <div className="course-content-empty">

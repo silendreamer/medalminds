@@ -62,8 +62,17 @@ export default async function SubjectCoursePage({
     : null;
 
   return (
-    <section className="section">
-      <div className="container">
+    <section className="section" style={{ paddingTop: "24px", paddingBottom: "44px" }}>
+      <div className="container" style={{ paddingLeft: "24px", paddingRight: "24px" }}>
+        <div style={{ marginBottom: "24px" }}>
+          <span className="crumb" style={{ fontSize: "13px", color: "#667085", fontWeight: "600", display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }}>
+            <a style={{ color: "#667085", textDecoration: "none" }}>Science Bowl</a>
+            <span style={{ color: "#c2c7d0" }}>/</span>
+            <a style={{ color: "#667085", textDecoration: "none" }}>Learn</a>
+            <span style={{ color: "#c2c7d0" }}>/</span>
+            <span style={{ color: "#1a2745" }}>{tree.name}</span>
+          </span>
+        </div>
         <CourseLayout
           tree={tree}
           activeLesson={activeLesson ?? null}
