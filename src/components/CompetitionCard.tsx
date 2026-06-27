@@ -45,7 +45,7 @@ export function CompetitionCard({
           </div>
         </div>
         <Link className="button" href={competitionPath(competition.slug)}>
-          Start Practicing
+          Start Free
         </Link>
       </div>
     </article>

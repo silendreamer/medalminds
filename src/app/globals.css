@@ -3917,13 +3917,26 @@ h1, h2, h3 {
 
 /* --- Body paragraphs --- */
 p {
-  color: oklch(0.40 0.03 220) !important;
+  color: oklch(0.40 0.03 220);
 }
 
-/* --- Hero headline — prevent mid-sentence wrapping --- */
+.competition-card p,
+.competition-card span,
+.feature-card p,
+.feature-card span,
+.card-copy {
+  color: #666666 !important;
+}
+
+.competition-card-stat-label {
+  color: #666666 !important;
+}
+
+/* --- Hero headline — match mockup size --- */
 .home-hero h1 {
   max-width: 32ch !important;
   line-height: 1.2 !important;
+  font-size: clamp(28px, 4vw, 48px) !important;
 }
 
 /* --- Nav link icon alignment --- */
@@ -4192,7 +4205,7 @@ p {
 
 /* --- Features section: light background --- */
 .features-section {
-  background: var(--bg-light) !important;
+  background: #f9f9f9 !important;
 }
 
 @media (max-width: 640px) {
