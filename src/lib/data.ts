@@ -634,7 +634,7 @@ export async function getLessonsByIds(lessonIds: string[], competitionSlug: Comp
         estimatedMinutes: lesson.estimatedMinutes || 10,
         summary: lesson.summary || "",
         keyConcepts: lesson.keyConcepts || [],
-        contentSections: [],
+        contentSections: [], // TODO: Load from contentPath markdown files
         reviewQuestions: []
       }));
   }
