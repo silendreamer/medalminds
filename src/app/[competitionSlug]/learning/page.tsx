@@ -59,22 +59,28 @@ export default async function LearningPage({
   const competition = await getCompetitionBySlug(competitionSlug);
   if (!competition) notFound();
 
+  const isScienceBowl = competitionSlug === "science-bowl";
+  const selectedLevel = isScienceBowl && (level === "middle-school" || level === "high-school")
+    ? level
+    : isScienceBowl ? "middle-school" : undefined;
+
   const schoolLevel: SchoolLevelFilter | undefined =
-    competitionSlug === "science-bowl" && level === "middle-school"
+    selectedLevel === "middle-school"
       ? "MIDDLE_SCHOOL"
-      : competitionSlug === "science-bowl" && level === "high-school"
+      : selectedLevel === "high-school"
         ? "HIGH_SCHOOL"
         : undefined;
 
-  const isScienceBowlMiddleSchool = competitionSlug === "science-bowl" && schoolLevel === "MIDDLE_SCHOOL";
-  const curriculumSubjects = isScienceBowlMiddleSchool ? await getScienceBowlMiddleSchoolCurriculumSubjects() : [];
-  const curriculumSubject = isScienceBowlMiddleSchool ? await getScienceBowlMiddleSchoolCurriculumSubjectByName(subject) : undefined;
-  const dbSubjects = (!isScienceBowlMiddleSchool && !subject && competitionSlug === "science-bowl")
+  const isScienceBowlWithLevel = isScienceBowl && schoolLevel;
+  const curriculumSubjects = isScienceBowlWithLevel ? await getScienceBowlMiddleSchoolCurriculumSubjects() : [];
+  const curriculumSubject = isScienceBowlWithLevel ? await getScienceBowlMiddleSchoolCurriculumSubjectByName(subject) : undefined;
+  const dbSubjects = (!isScienceBowlWithLevel && !subject && isScienceBowl)
     ? await getSubjectsForCompetition(competitionSlug)
     : [];
   const lessons = await getLessonsByCompetition(competitionSlug, subject, schoolLevel);
 
-  if (isScienceBowlMiddleSchool && !subject) {
+  // Show subject grid for Science Bowl when no subject is selected
+  if (isScienceBowlWithLevel && !subject) {
     const subjectCounts = await Promise.all(
       curriculumSubjects.map(async (item) => ({
         subject: item,
@@ -82,81 +88,90 @@ export default async function LearningPage({
       }))
     );
 
+    const emojiMap: Record<string, string> = {
+      "Life Science": "🧬",
+      "Physical Science": "⚛️",
+      "Earth & Space": "🌍",
+      "Energy": "⚡",
+      "Math": "∑"
+    };
+
     return (
-      <section className="section">
+      <section className="section science-bowl-learning">
         <div className="container stack">
           <Breadcrumbs
-            items={buildStudyBreadcrumbs({
-              competitionSlug,
-              competitionName: competition.name,
-              level,
-              action: "Learning",
-              actionHref: `${learningPath(competitionSlug)}${level ? `?level=${level}` : ""}`,
-              current: "Learning"
-            })}
+            items={[
+              { label: "Science Bowl", href: `/${competitionSlug}?level=${selectedLevel}` },
+              { label: "Learn", href: `${learningPath(competitionSlug)}?level=${selectedLevel}` }
+            ]}
           />
-          <div className="simple-heading">
-            <span className="eyebrow">{competition.name}</span>
-            <h1>Middle School learning paths</h1>
-            <p className="subtitle">
-              Study the five official National Science Bowl middle-school subject areas in a cleaner grade-by-grade order,
-              while keeping your existing concept lessons available underneath.
-            </p>
-            <p className="curriculum-value-copy">
-              We focus on the 20% of content that tends to produce 80% of Science Bowl points, so students can build scoring momentum before branching wider.
-            </p>
+
+          <div className="hub-header">
+            <div>
+              <span className="eyebrow">Science Bowl</span>
+              <h1>{selectedLevel === "middle-school" ? "Middle School" : "High School"} Learning Paths</h1>
+              <p className="subtitle">
+                Study the five official National Science Bowl {selectedLevel === "middle-school" ? "middle-school" : "high school"} subject areas in a cleaner grade-by-grade order.
+              </p>
+            </div>
+            {isScienceBowl && (
+              <div className="level-toggle-wrapper">
+                <span className="level-toggle-label">Division</span>
+                <div className="level-toggle">
+                  <Link
+                    href={`${learningPath(competitionSlug)}?level=middle-school`}
+                    className={`level-toggle-btn ${selectedLevel === "middle-school" ? "active" : ""}`}
+                  >
+                    Middle School
+                  </Link>
+                  <Link
+                    href={`${learningPath(competitionSlug)}?level=high-school`}
+                    className={`level-toggle-btn ${selectedLevel === "high-school" ? "active" : ""}`}
+                  >
+                    High School
+                  </Link>
+                </div>
+              </div>
+            )}
           </div>
 
-          <div className="grid two curriculum-subject-grid">
-            {subjectCounts.map(({ subject: item, counts }) => (
-              <Link
-                className="card spacious stack curriculum-subject-card"
-                href={subjectCoursePath(competitionSlug, subjectSlugFromName(item.name))}
-                key={item.slug}
-              >
-                <div className="stack compact">
-                  <span className="eyebrow">Science Bowl middle school</span>
-                  <h2>{item.name}</h2>
-                  <p>{item.shortDescription}</p>
-                </div>
-                <div className="badge-list">
-                  {item.highYieldTopics.slice(0, 3).map((topic) => (
-                    <span className="badge neutral" key={topic}>
-                      {topic}
-                    </span>
-                  ))}
-                </div>
-                <div className="mini-stat-list">
-                  <span>
-                    <strong>{formatApproximateCount(counts.questions)}</strong>
-                    <small>Questions</small>
-                  </span>
-                  <span>
-                    <strong>{formatApproximateCount(counts.lessons)}</strong>
-                    <small>Lessons</small>
-                  </span>
-                </div>
-              </Link>
-            ))}
+          <div className="subjects-grid">
+            {subjectCounts.map(({ subject: item }) => {
+              const emoji = emojiMap[item.name] || "📚";
+              const counts = subjectCounts.find(sc => sc.subject.name === item.name)?.counts ?? { questions: 0, lessons: 0 };
+              return (
+                <Link
+                  key={item.slug}
+                  className="subject-card"
+                  href={`${learningPath(competitionSlug)}/subject/${subjectSlugFromName(item.name)}?level=${selectedLevel}`}
+                >
+                  <div className="subject-card-icon">{emoji}</div>
+                  <h4>{item.name}</h4>
+                  <span className="subject-card-count">{counts.lessons} {counts.lessons === 1 ? "lesson" : "lessons"}</span>
+                </Link>
+              );
+            })}
+            <div className="subject-card subject-card-coming-soon">
+              <div className="subject-card-icon">🔜</div>
+              <h4>Coming Soon</h4>
+              <span className="subject-card-count">General Science</span>
+            </div>
           </div>
         </div>
       </section>
     );
   }
 
-  if (isScienceBowlMiddleSchool && curriculumSubject) {
+  if (isScienceBowlWithLevel && curriculumSubject) {
     return (
       <section className="section">
         <div className="container stack">
           <Breadcrumbs
-            items={buildStudyBreadcrumbs({
-              competitionSlug,
-              competitionName: competition.name,
-              level,
-              action: "Learning",
-              actionHref: `${learningPath(competitionSlug)}${level ? `?level=${level}` : ""}`,
-              subject: curriculumSubject.name
-            })}
+            items={[
+              { label: "Science Bowl", href: `/${competitionSlug}?level=${selectedLevel}` },
+              { label: "Learn", href: `${learningPath(competitionSlug)}?level=${selectedLevel}` },
+              { label: curriculumSubject.name, href: `${learningPath(competitionSlug)}/subject/${subjectSlugFromName(curriculumSubject.name)}?level=${selectedLevel}` }
+            ]}
           />
 
           <section className="card spacious curriculum-hero">

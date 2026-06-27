@@ -1209,7 +1209,7 @@ p {
   flex-wrap: wrap;
   gap: 2px;
   align-items: center;
-  color: var(--muted);
+  color: #667085;
   font-size: 0.875rem;
   margin: var(--space-3) 0 var(--space-3);
 }
@@ -1221,17 +1221,17 @@ p {
 }
 
 .breadcrumb-item:last-child {
-  color: var(--ink);
+  color: #1a2745;
   font-weight: 600;
 }
 
 .breadcrumb-chevron {
-  color: oklch(0.75 0.02 170);
+  color: #c2c7d0;
   flex-shrink: 0;
 }
 
 .breadcrumbs a {
-  color: var(--sky-blue);
+  color: #5a92f0;
   font-weight: 500;
   padding: 2px 5px;
   border-radius: 6px;
@@ -1239,8 +1239,8 @@ p {
 }
 
 .breadcrumbs a:hover {
-  color: var(--navy);
-  background: rgba(3, 105, 161, 0.1);
+  color: #1a2745;
+  background: rgba(90, 146, 240, 0.1);
 }
 
 .select,
@@ -3837,6 +3837,32 @@ p {
   font-weight: 600 !important;
   color: var(--navy) !important;
   backdrop-filter: none !important;
+  position: relative !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  transition: color 150ms ease, border-color 150ms ease !important;
+}
+
+.nav-link-emoji {
+  display: inline-block !important;
+  font-size: 16px !important;
+}
+
+.nav-link-indicator {
+  position: absolute !important;
+  bottom: -2px !important;
+  left: 0 !important;
+  right: 0 !important;
+  height: 3px !important;
+  border-radius: 2px !important;
+  background: var(--sky-blue) !important;
+  opacity: 0 !important;
+  transition: opacity 200ms ease !important;
+}
+
+.nav-link.active .nav-link-indicator {
+  opacity: 1 !important;
 }
 
 .nav-link:hover,
@@ -3944,6 +3970,11 @@ p {
   display: inline-flex !important;
   align-items: center !important;
   gap: 6px !important;
+  position: relative !important;
+}
+
+.nav-link.active {
+  color: var(--sky-blue) !important;
 }
 
 /* --- Home hero background --- */
@@ -4119,27 +4150,36 @@ p {
 }
 
 /* --- Footer --- */
-.site-footer {
+.footer {
   background: white !important;
-  border-top: 1px solid var(--border-color) !important;
-  padding: 32px 0 !important;
-  text-align: center !important;
-}
-
-.footer-copy {
-  color: #666666 !important;
-  font-size: 14px !important;
-  margin: 0 !important;
+  border-top: 1px solid #e0e0e0 !important;
+  padding: 24px 0 !important;
+  margin-top: auto !important;
+  backdrop-filter: none !important;
 }
 
 .footer-inner {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 12px !important;
+  text-align: center !important;
+}
+
+.footer-brand {
   display: none !important;
 }
 
-.footer-brand,
-.footer-brand-row,
-.footer-links {
+.footer-brand-row {
   display: none !important;
+}
+
+.footer p,
+.footer a {
+  color: #666666 !important;
+  font-size: 13px !important;
+  margin: 0 !important;
 }
 
 /* --- Generic card --- */
@@ -4521,6 +4561,56 @@ p {
   color: #fff !important;
 }
 
+/* Subject card colors */
+.subject-card {
+  position: relative !important;
+}
+
+/* Life Science - green tint */
+.subject-card:nth-child(1) {
+  background: linear-gradient(135deg, #ffffff 0%, #f0fdf4 100%) !important;
+}
+
+.subject-card:nth-child(1) .subject-card-icon {
+  background: linear-gradient(135deg, #1a2745 0%, #064e3b 100%) !important;
+}
+
+/* Physical Science - blue */
+.subject-card:nth-child(2) {
+  background: linear-gradient(135deg, #ffffff 0%, #eff6ff 100%) !important;
+}
+
+.subject-card:nth-child(2) .subject-card-icon {
+  background: linear-gradient(135deg, #1a2745 0%, #1e3a8a 100%) !important;
+}
+
+/* Earth & Space - teal */
+.subject-card:nth-child(3) {
+  background: linear-gradient(135deg, #ffffff 0%, #f0fdfa 100%) !important;
+}
+
+.subject-card:nth-child(3) .subject-card-icon {
+  background: linear-gradient(135deg, #1a2745 0%, #134e4a 100%) !important;
+}
+
+/* Energy - amber/gold */
+.subject-card:nth-child(4) {
+  background: linear-gradient(135deg, #ffffff 0%, #fffbeb 100%) !important;
+}
+
+.subject-card:nth-child(4) .subject-card-icon {
+  background: linear-gradient(135deg, #1a2745 0%, #92400e 100%) !important;
+}
+
+/* Math - navy */
+.subject-card:nth-child(5) {
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%) !important;
+}
+
+.subject-card:nth-child(5) .subject-card-icon {
+  background: linear-gradient(135deg, #1a2745 0%, #0c1e3c 100%) !important;
+}
+
 .subject-card h4 {
   margin: 0 !important;
   font-size: 16px !important;
@@ -4530,6 +4620,23 @@ p {
 .subject-card-count {
   font-size: 13px !important;
   color: #667085 !important;
+}
+
+.subject-card-coming-soon {
+  border: 2px dashed #e7e9ee !important;
+  background: #f9f9f9 !important;
+  opacity: 0.6 !important;
+  cursor: not-allowed !important;
+}
+
+.subject-card-coming-soon:hover {
+  transform: none !important;
+  box-shadow: none !important;
+  border-color: #e7e9ee !important;
+}
+
+.science-bowl-learning {
+  background: linear-gradient(135deg, #ffffff 0%, #f5f7fb 100%) !important;
 }
 
 @media (max-width: 640px) {

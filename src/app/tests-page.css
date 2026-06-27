@@ -1,0 +1,353 @@
+/* Tests Page Styles */
+
+.tests-page-section {
+  padding: var(--space-4) 0;
+}
+
+/* Hero section with level toggle */
+.tests-page-hero {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: flex-start !important;
+  gap: 32px !important;
+  margin-bottom: 28px !important;
+}
+
+.tests-page-hero > div {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 10px !important;
+}
+
+.tests-page-hero h1 {
+  margin: 0 !important;
+}
+
+/* Tests layout with sidebar */
+.tests-layout {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) 280px !important;
+  gap: 24px !important;
+  align-items: start !important;
+}
+
+.tests-main {
+  display: grid !important;
+  gap: 24px !important;
+}
+
+/* Tests section styling */
+.tests-section {
+  background: white !important;
+  border: 1px solid #e7e9ee !important;
+  border-radius: 12px !important;
+  padding: 24px !important;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05) !important;
+}
+
+.section-title {
+  margin: 0 0 16px 0 !important;
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  color: #1a2745 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+}
+
+.section-number {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 24px !important;
+  height: 24px !important;
+  background: #f1f3f7 !important;
+  border-radius: 6px !important;
+  font-weight: 600 !important;
+  color: #667085 !important;
+  font-size: 14px !important;
+}
+
+/* Subject grid */
+.subject-grid {
+  display: grid !important;
+  grid-template-columns: repeat(3, 1fr) !important;
+  gap: 10px !important;
+}
+
+/* Size grid for questions */
+.size-grid {
+  display: grid !important;
+  grid-template-columns: repeat(2, 1fr) !important;
+  gap: 10px !important;
+}
+
+.size-chip {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 16px 14px !important;
+  border-radius: 8px !important;
+  border: 1px solid #e5e7eb !important;
+  background: #f1f3f7 !important;
+  color: #1a2745 !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  text-decoration: none !important;
+  cursor: pointer !important;
+  transition: all 150ms ease !important;
+  text-align: center !important;
+  gap: 4px !important;
+}
+
+.size-chip:hover {
+  border-color: #d1d5db !important;
+  background: #e5e7eb !important;
+}
+
+.size-chip.selected {
+  background: #1a2745 !important;
+  color: white !important;
+  border-color: #1a2745 !important;
+}
+
+.size-label {
+  display: block !important;
+  font-weight: 600 !important;
+  font-size: 15px !important;
+}
+
+.size-unit {
+  display: block !important;
+  font-size: 12px !important;
+  font-weight: 400 !important;
+  opacity: 0.8 !important;
+}
+
+.size-chip.selected .size-unit {
+  opacity: 0.9 !important;
+}
+
+/* Options list */
+.options-list {
+  display: grid !important;
+  gap: 14px !important;
+}
+
+.option-item {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  cursor: pointer !important;
+  user-select: none !important;
+}
+
+.option-checkbox {
+  width: 18px !important;
+  height: 18px !important;
+  cursor: pointer !important;
+  accent-color: #0369a1 !important;
+  border-radius: 4px !important;
+}
+
+.option-label {
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  color: #1a2745 !important;
+}
+
+/* Sidebar styles */
+.tests-sidebar {
+  position: sticky !important;
+  top: 88px !important;
+}
+
+/* Your test card */
+.your-test-card {
+  background: white !important;
+  border: 1px solid #e7e9ee !important;
+  border-radius: 12px !important;
+  padding: 20px !important;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05) !important;
+  display: grid !important;
+  gap: 16px !important;
+  align-content: start !important;
+}
+
+.your-test-card h3 {
+  margin: 0 !important;
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  color: #1a2745 !important;
+}
+
+.test-summary {
+  display: grid !important;
+  gap: 12px !important;
+  padding-bottom: 12px !important;
+  border-bottom: 1px solid #e5e7eb !important;
+}
+
+.summary-row {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  gap: 10px !important;
+}
+
+.summary-label {
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  color: #667085 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+}
+
+.summary-value {
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  color: #1a2745 !important;
+  text-align: right !important;
+}
+
+.button-start-test {
+  width: 100% !important;
+  min-height: 44px !important;
+  padding: 12px 14px !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  margin: 0 !important;
+}
+
+.test-disclaimer {
+  margin: 0 !important;
+  font-size: 12px !important;
+  color: #667085 !important;
+  text-align: center !important;
+  line-height: 1.4 !important;
+}
+
+/* Responsive design */
+@media (max-width: 1024px) {
+  .tests-page-hero {
+    flex-direction: column !important;
+    gap: 20px !important;
+  }
+
+  .tests-layout {
+    grid-template-columns: minmax(0, 1fr) 240px !important;
+    gap: 20px !important;
+  }
+
+  .tests-sidebar {
+    top: 80px !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .tests-page-hero {
+    flex-direction: column !important;
+    gap: 16px !important;
+  }
+
+  .tests-layout {
+    grid-template-columns: 1fr !important;
+    gap: 20px !important;
+  }
+
+  .tests-sidebar {
+    position: static !important;
+  }
+
+  .subject-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px !important;
+  }
+
+  .size-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  .tests-section {
+    padding: 20px !important;
+  }
+
+  .section-title {
+    font-size: 15px !important;
+    margin-bottom: 14px !important;
+  }
+}
+
+@media (max-width: 560px) {
+  .tests-page-hero {
+    gap: 14px !important;
+  }
+
+  .tests-page-hero h1 {
+    font-size: 1.8rem !important;
+  }
+
+  .subject-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px !important;
+  }
+
+  .subject-chip {
+    font-size: 12px !important;
+    padding: 6px 10px !important;
+  }
+
+  .size-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .size-chip {
+    padding: 14px 12px !important;
+    font-size: 13px !important;
+  }
+
+  .your-test-card {
+    padding: 18px !important;
+    gap: 14px !important;
+  }
+
+  .tests-section {
+    padding: 16px !important;
+  }
+
+  .section-title {
+    font-size: 14px !important;
+    margin-bottom: 12px !important;
+  }
+
+  .option-item {
+    gap: 10px !important;
+  }
+
+  .option-checkbox {
+    width: 16px !important;
+    height: 16px !important;
+  }
+
+  .option-label {
+    font-size: 13px !important;
+  }
+
+  .summary-label {
+    font-size: 12px !important;
+  }
+
+  .summary-value {
+    font-size: 13px !important;
+  }
+
+  .button-start-test {
+    min-height: 40px !important;
+    font-size: 13px !important;
+  }
+
+  .test-disclaimer {
+    font-size: 11px !important;
+  }
+}

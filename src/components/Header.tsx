@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { FlaskConical, Atom, Sigma } from "lucide-react";
 import { competitions } from "@/data/competitions";
 import { competitionPath } from "@/lib/routes";
@@ -10,7 +13,19 @@ const NAV_ICONS: Record<string, React.ElementType> = {
   "math-olympiad": Sigma
 };
 
+const NAV_EMOJIS: Record<string, string> = {
+  "science-bowl": "🧪",
+  "science-olympiad": "🔬",
+  "math-olympiad": "∑"
+};
+
 export function Header() {
+  const pathname = usePathname();
+
+  const isActiveCompetition = (slug: string): boolean => {
+    return pathname.startsWith(`/${slug}`);
+  };
+
   return (
     <header className="site-header">
       <div className="nav-inner">
@@ -23,10 +38,18 @@ export function Header() {
         <nav className="nav-links" aria-label="Main navigation">
           {competitions.map((competition) => {
             const Icon = NAV_ICONS[competition.slug];
+            const emoji = NAV_EMOJIS[competition.slug];
+            const isActive = isActiveCompetition(competition.slug);
+
             return (
-              <Link className="nav-link" href={competitionPath(competition.slug)} key={competition.slug}>
-                {Icon && <Icon size={16} aria-hidden="true" />}
+              <Link
+                className={`nav-link ${isActive ? "active" : ""}`}
+                href={competitionPath(competition.slug)}
+                key={competition.slug}
+              >
+                {emoji && <span className="nav-link-emoji" aria-hidden="true">{emoji}</span>}
                 {competition.name}
+                {isActive && <span className="nav-link-indicator" aria-label="current page" />}
               </Link>
             );
           })}

@@ -18,6 +18,7 @@ import {
 } from "@/lib/data";
 import { formatApproximateCount } from "@/lib/format";
 import { buildMetadata } from "@/lib/seo";
+import "@/app/practice-page.css";
 
 export const dynamic = "force-dynamic";
 
@@ -116,6 +117,12 @@ export default async function PracticePage({
     );
   }
 
+  // Get all available subjects for the filter
+  const allSubjects = isScienceBowlMiddleSchool
+    ? await getScienceBowlMiddleSchoolCurriculumSubjects()
+    : [];
+  const subjectNames = allSubjects.map((s) => s.name);
+
   const question = q
     ? await getQuestionById(competitionSlug, q, subject, schoolLevel)
     : await getRandomQuestionByCompetition(competitionSlug, subject, schoolLevel);
@@ -131,7 +138,7 @@ export default async function PracticePage({
   const learnMoreLesson = linkedLessons[0] ?? lessons[0];
 
   return (
-    <section className="section">
+    <section className="section practice-page-section">
       <div className="container stack">
         <Breadcrumbs
           items={buildStudyBreadcrumbs({
@@ -144,21 +151,110 @@ export default async function PracticePage({
             current: subject ? undefined : "Practice"
           })}
         />
-        <div className="section-heading">
-          <div>
-            <span className="eyebrow">{competition.name}</span>
-            <h1>{subject ?? "Practice"} Questions</h1>
+
+        {/* Practice page hero with level toggle */}
+        {isScienceBowlMiddleSchool && (
+          <div className="practice-page-hero">
+            <div>
+              <span className="eyebrow">{competition.name}</span>
+              <h1>{subject ?? "Practice"} Questions</h1>
+            </div>
+            <div className="level-toggle-wrapper">
+              <span className="level-toggle-label">Division</span>
+              <div className="level-toggle">
+                <Link
+                  href={`${practicePath(competitionSlug)}?level=middle-school${subject ? `&subject=${encodeURIComponent(subject)}` : ""}`}
+                  className={`level-toggle-btn ${level === "middle-school" ? "active" : ""}`}
+                >
+                  Middle School
+                </Link>
+                <Link
+                  href={`${practicePath(competitionSlug)}?level=high-school${subject ? `&subject=${encodeURIComponent(subject)}` : ""}`}
+                  className={`level-toggle-btn ${level === "high-school" ? "active" : ""}`}
+                >
+                  High School
+                </Link>
+              </div>
+            </div>
           </div>
-        </div>
-        {question ? (
-          <SimplePracticeQuestion
-            question={question}
-            lesson={learnMoreLesson}
-            linkedLessons={linkedLessons.length > 0 ? linkedLessons : undefined}
-          />
-        ) : (
-          <div className="empty">No questions are available yet.</div>
         )}
+
+        {/* Subject filter bar - only show for Science Bowl middle school */}
+        {isScienceBowlMiddleSchool && subjectNames.length > 0 && (
+          <div className="subject-filter-bar">
+            <span className="filter-label">Practice:</span>
+            <div className="subject-chips">
+              {subjectNames.map((subj) => (
+                <Link
+                  key={subj}
+                  href={`${practicePath(competitionSlug)}?level=${level || "middle-school"}&subject=${encodeURIComponent(subj)}`}
+                  className={`subject-chip ${subject === subj ? "selected" : ""}`}
+                >
+                  {subj}
+                </Link>
+              ))}
+              <Link
+                href={`${practicePath(competitionSlug)}?level=${level || "middle-school"}`}
+                className={`subject-chip ${!subject ? "selected" : ""}`}
+              >
+                All subjects
+              </Link>
+            </div>
+          </div>
+        )}
+
+        {/* Main content area with sidebar */}
+        <div className="practice-layout">
+          {/* Sidebar with session stats and buzzer mode */}
+          <aside className="practice-sidebar">
+            <div className="session-stats-card">
+              <h3>Session Stats</h3>
+              <div className="stat-row">
+                <div className="stat-box">
+                  <span className="stat-label">Correct</span>
+                  <strong>0</strong>
+                </div>
+                <div className="stat-box">
+                  <span className="stat-label">Incorrect</span>
+                  <strong>0</strong>
+                </div>
+              </div>
+              <div className="stat-row">
+                <div className="stat-box">
+                  <span className="stat-label">Streak</span>
+                  <strong>0</strong>
+                </div>
+              </div>
+              <div className="progress-section">
+                <span className="progress-label">Progress</span>
+                <div className="progress-bar">
+                  <div className="progress-fill" style={{ width: "0%" }}></div>
+                </div>
+              </div>
+            </div>
+
+            <div className="buzzer-mode-card card">
+              <h4>Buzzer Mode</h4>
+              <p>Train your reaction time head-to-head in real-time.</p>
+              <Link href={`/${competitionSlug}/buzzer`} className="button">
+                Enter Arena
+              </Link>
+            </div>
+          </aside>
+
+          {/* Main question display area */}
+          <main className="practice-main">
+            {question ? (
+              <SimplePracticeQuestion
+                question={question}
+                lesson={learnMoreLesson}
+                linkedLessons={linkedLessons.length > 0 ? linkedLessons : undefined}
+              />
+            ) : (
+              <div className="empty">No questions are available yet.</div>
+            )}
+          </main>
+        </div>
       </div>
     </section>
   );
