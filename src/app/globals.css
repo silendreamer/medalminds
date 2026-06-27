@@ -3886,7 +3886,7 @@ p {
 .ghost-button {
   background: var(--bg-white) !important;
   color: var(--navy) !important;
-  border: 1px solid var(--border-color) !important;
+  border: 2px solid var(--navy) !important;
   border-radius: 8px !important;
   backdrop-filter: none !important;
   padding: 12px 20px !important;
@@ -3918,6 +3918,19 @@ h1, h2, h3 {
 /* --- Body paragraphs --- */
 p {
   color: oklch(0.40 0.03 220) !important;
+}
+
+/* --- Hero headline — prevent mid-sentence wrapping --- */
+.home-hero h1 {
+  max-width: 32ch !important;
+  line-height: 1.2 !important;
+}
+
+/* --- Nav link icon alignment --- */
+.nav-link {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
 }
 
 /* --- Home hero background --- */
