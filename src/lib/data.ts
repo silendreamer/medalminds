@@ -358,6 +358,20 @@ export type SubjectTree = {
   unlinkedLessons: Array<{ id: string; slug: string; title: string; estimatedMinutes: number }>;
 };
 
+function subjectSlugToName(slug: string): string {
+  return slug
+    .split("-")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+}
+
+function topicSlugToName(slug: string): string {
+  return slug
+    .split("-")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+}
+
 export type SubjectSummary = { id: string; name: string; slug: string; order: number };
 
 export function getSubjectsForCompetition(competitionSlug: CompetitionSlug) {
@@ -378,6 +392,59 @@ export function getSubjectsForCompetition(competitionSlug: CompetitionSlug) {
 export function getSubjectWithTree(competitionSlug: CompetitionSlug, subjectSlug: string) {
   return cachedContent(
     async (): Promise<SubjectTree | null> => {
+      // Science Bowl reads from NSB JSON
+      if (competitionSlug === "science-bowl") {
+        const lessons = await getNsbLessons();
+        // NSB subjects are stored as-is from the slug (e.g., "life-science", "biology")
+        const subjectLessons = lessons.filter((l) => l.subject === subjectSlug);
+
+        if (subjectLessons.length === 0) return null;
+
+        // Build topic → subtopic → lessons hierarchy from NSB data
+        const topicMap = new Map<
+          string,
+          Map<string, Array<{ id: string; slug: string; title: string; estimatedMinutes: number }>>
+        >();
+
+        subjectLessons.forEach((lesson) => {
+          if (!topicMap.has(lesson.topicSlug)) {
+            topicMap.set(lesson.topicSlug, new Map());
+          }
+          const subtopicMap = topicMap.get(lesson.topicSlug)!;
+          if (!subtopicMap.has(lesson.subtopic)) {
+            subtopicMap.set(lesson.subtopic, []);
+          }
+          subtopicMap.get(lesson.subtopic)!.push({
+            id: lesson.id,
+            slug: lesson.slug,
+            title: lesson.title,
+            estimatedMinutes: lesson.estimatedMinutes ?? 0
+          });
+        });
+
+        const topics: SubjectTree["topics"] = Array.from(topicMap.entries()).map(
+          ([topicSlug, subtopicMap], topicIndex) => ({
+            id: `nsb-topic-${topicSlug}`,
+            name: topicSlugToName(topicSlug),
+            order: topicIndex,
+            subTopics: Array.from(subtopicMap.entries()).map(([subtopic, lessonList], subtopicIndex) => ({
+              id: `nsb-subtopic-${topicSlug}-${subtopic}`,
+              name: subtopic,
+              order: subtopicIndex,
+              lessons: lessonList
+            }))
+          })
+        );
+
+        return {
+          id: `nsb-subject-${subjectSlug}`,
+          name: subjectSlugToName(subjectSlug),
+          slug: subjectSlug,
+          topics,
+          unlinkedLessons: []
+        };
+      }
+
       if (!isDbEnabled()) return null;
       const subject = await getPrisma().subject.findFirst({
         where: { competitionId: competitionSlug, slug: subjectSlug },
