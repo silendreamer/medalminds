@@ -1,24 +1,27 @@
-"use client";
-
+import Link from "next/link";
 import { MedalMark } from "@/components/MedalMark";
 
 export function Footer() {
   return (
-    <footer className="footer">
-      <div className="container footer-inner">
-        <div className="footer-brand">
-          <div className="footer-brand-row">
-            <span aria-hidden="true" className="brand-mark">
-              <MedalMark size={40} />
-            </span>
-            <span className="brand-copy">
-              <strong>Medal Minds</strong>
-            </span>
+    <footer className="site-footer">
+      <div className="container">
+        <div className="footer-inner">
+          <div className="footer-brand">
+            <Link href="/" className="brand">
+              <span className="brand-mark" aria-hidden="true">
+                <MedalMark size={32} />
+              </span>
+              <strong className="brand-name">Medal Minds</strong>
+            </Link>
+            <p className="footer-copy">© 2024 Medal Minds. Free for students.</p>
           </div>
-          <p className="disclaimer">
-            This is an independent educational practice platform. It is not affiliated with or endorsed by any official
-            competition organization.
-          </p>
+          <nav className="footer-links" aria-label="Footer navigation">
+            <Link href="/">Home</Link>
+            <Link href="/science-bowl">Science Bowl</Link>
+            <Link href="/science-olympiad">Science Olympiad</Link>
+            <Link href="/math-olympiad">Math</Link>
+            <Link href="/science-bowl/buzzer">Buzzer Arena</Link>
+          </nav>
         </div>
       </div>
     </footer>

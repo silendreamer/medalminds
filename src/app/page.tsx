@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-import { BookOpen, Brain, ChartNoAxesColumnIncreasing, Route, ShieldCheck } from "lucide-react";
+import { BookOpen, Brain, ChartNoAxesColumnIncreasing, Route } from "lucide-react";
 import { CompetitionCard } from "@/components/CompetitionCard";
 import { competitions, getContentCounts } from "@/lib/data";
 import { formatApproximateCount } from "@/lib/format";
@@ -21,18 +21,6 @@ const heroTrustPills = [
   "Buzzer practice included"
 ];
 
-const learningPathItems = [
-  { label: "Cells & Organelles", status: "Mastered" },
-  { label: "Genetics", status: "In Progress" },
-  { label: "Astronomy", status: "Up Next" },
-  { label: "Electricity", status: "Locked" },
-  { label: "Energy", status: "Locked" }
-];
-
-const learningPathStats = [
-  { label: "Questions solved", value: "827" },
-  { label: "Weak topics found", value: "3" }
-];
 
 const features = [
   {
@@ -80,71 +68,66 @@ export default async function HomePage() {
             </p>
             <div className="hero-actions">
               <Link className="button button-lg" href={competitionPath("science-bowl")}>
-                Start Science Bowl Prep
+                Start Learning Free
               </Link>
-              <Link className="ghost-button button-lg" href="#competitions">
-                See How It Works
+              <Link className="ghost-button button-lg" href="/api/auth/signin">
+                Sign In to Save Progress
               </Link>
             </div>
+            <p className="hero-note">No sign-up required. Sign in anytime to save your progress.</p>
             <div className="trust-strip" aria-label="Platform highlights">
               {heroTrustPills.map((pill) => (
                 <span key={pill}>{pill}</span>
               ))}
             </div>
           </div>
-          <div className="hero-panel" aria-hidden="true">
-            <div className="hero-panel-topline">
-              <div className="hero-panel-top">
-                <ShieldCheck size={20} />
-                <span>Personalized study path</span>
+          <div className="hero-panel-wrapper" aria-hidden="true">
+            <div className="dashboard-mockup">
+              <div className="dashboard-mockup-header">
+                <span className="dashboard-mockup-title">Your Learning Dashboard</span>
+                <span className="dashboard-mockup-badge">Free</span>
               </div>
-              <div className="hero-panel-dots">
-                <span />
-                <span />
-                <span />
-              </div>
-            </div>
-            <div className="hero-preview-shell">
-              <div className="hero-preview-header">
-                <div>
-                  <span className="eyebrow">Science Bowl</span>
-                  <strong>Learning Path</strong>
-                </div>
-                <div className="hero-preview-badge">43% complete</div>
-              </div>
-
-              <div className="hero-preview-progress">
-                <div className="hero-preview-progress-bar">
-                  <span style={{ width: "43%" }} />
-                </div>
-                <div className="hero-preview-progress-labels">
-                  <span>Science Bowl Learning Path</span>
-                  <span>43% complete</span>
-                </div>
-              </div>
-
-              <div className="hero-panel-list">
-                {learningPathItems.map((item) => (
-                  <div className="hero-panel-row compact" key={item.label}>
-                    <div className="hero-panel-subject">
-                      <span className="hero-panel-subject-dot science" />
-                      <strong>{item.label}</strong>
-                    </div>
-                    <span>{item.status}</span>
+              <div className="dashboard-progress-cards">
+                <div className="dashboard-progress-card">
+                  <div className="dashboard-progress-card-top">
+                    <span className="dashboard-progress-label">Science Bowl</span>
+                    <span className="dashboard-progress-pct">68%</span>
                   </div>
-                ))}
-              </div>
-
-              <div className="hero-preview-stack">
-                <div className="hero-preview-card soft">
-                  <span>Questions solved</span>
-                  <strong>827</strong>
-                  <span>Weak topics found</span>
-                  <strong>3</strong>
+                  <div className="dashboard-progress-bar">
+                    <div className="dashboard-progress-fill" style={{ width: "68%" }} />
+                  </div>
                 </div>
-                <div className="hero-preview-card">
-                  <span>Next drill</span>
-                  <strong>Genetics buzzer set</strong>
+                <div className="dashboard-progress-card">
+                  <div className="dashboard-progress-card-top">
+                    <span className="dashboard-progress-label">Science Olympiad</span>
+                    <span className="dashboard-progress-pct">34%</span>
+                  </div>
+                  <div className="dashboard-progress-bar">
+                    <div className="dashboard-progress-fill" style={{ width: "34%" }} />
+                  </div>
+                </div>
+                <div className="dashboard-progress-card">
+                  <div className="dashboard-progress-card-top">
+                    <span className="dashboard-progress-label">Math Olympiad</span>
+                    <span className="dashboard-progress-pct">12%</span>
+                  </div>
+                  <div className="dashboard-progress-bar">
+                    <div className="dashboard-progress-fill" style={{ width: "12%" }} />
+                  </div>
+                </div>
+              </div>
+              <div className="dashboard-stats-row">
+                <div className="dashboard-stat">
+                  <strong>1,240</strong>
+                  <span>Questions Answered</span>
+                </div>
+                <div className="dashboard-stat">
+                  <strong>82%</strong>
+                  <span>Accuracy</span>
+                </div>
+                <div className="dashboard-stat">
+                  <strong>14</strong>
+                  <span>Day Streak</span>
                 </div>
               </div>
             </div>
@@ -195,6 +178,19 @@ export default async function HomePage() {
               );
             })}
           </div>
+        </div>
+      </section>
+
+      <section className="section cta-band">
+        <div className="container stack" style={{ textAlign: "center", alignItems: "center" }}>
+          <span className="eyebrow">Ready to compete?</span>
+          <h2>Ready to compete at your best?</h2>
+          <p className="cta-description">
+            No sign-up required to start. Sign in anytime to save your progress and unlock personalized recommendations.
+          </p>
+          <Link className="button button-lg" href={competitionPath("science-bowl")}>
+            Start Learning Free
+          </Link>
         </div>
       </section>
     </>
