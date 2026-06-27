@@ -1,7 +1,14 @@
 import Link from "next/link";
+import { FlaskConical, Atom, Sigma } from "lucide-react";
 import { competitions } from "@/data/competitions";
 import { competitionPath } from "@/lib/routes";
 import { MedalMark } from "@/components/MedalMark";
+
+const NAV_ICONS: Record<string, React.ElementType> = {
+  "science-bowl": FlaskConical,
+  "science-olympiad": Atom,
+  "math-olympiad": Sigma
+};
 
 export function Header() {
   return (
@@ -14,11 +21,15 @@ export function Header() {
           <strong className="brand-name">Medal Minds</strong>
         </Link>
         <nav className="nav-links" aria-label="Main navigation">
-          {competitions.map((competition) => (
-            <Link className="nav-link" href={competitionPath(competition.slug)} key={competition.slug}>
-              {competition.name}
-            </Link>
-          ))}
+          {competitions.map((competition) => {
+            const Icon = NAV_ICONS[competition.slug];
+            return (
+              <Link className="nav-link" href={competitionPath(competition.slug)} key={competition.slug}>
+                {Icon && <Icon size={16} aria-hidden="true" />}
+                {competition.name}
+              </Link>
+            );
+          })}
         </nav>
         <Link className="button nav-cta" href="/science-bowl">
           Start Prep

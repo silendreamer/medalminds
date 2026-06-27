@@ -1,8 +1,9 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-import { BookOpen, Zap, Clock, Users } from "lucide-react";
+import { BookOpen, Brain, ChartNoAxesColumnIncreasing, Route } from "lucide-react";
 import { CompetitionCard } from "@/components/CompetitionCard";
 import { competitions, getContentCounts } from "@/lib/data";
+import { formatApproximateCount } from "@/lib/format";
 import { competitionPath } from "@/lib/routes";
 import { buildMetadata } from "@/lib/seo";
 
@@ -14,32 +15,33 @@ export const metadata: Metadata = buildMetadata({
   keywords: ["National Science Bowl practice", "NSB prep", "olympiad practice"]
 });
 
-const heroStats = [
-  { value: "20K+", label: "Questions" },
-  { value: "3", label: "Competitions" },
-  { value: "Free", label: "Practice" }
+const heroTrustPills = [
+  "Built from 20,000+ questions",
+  "High-yield topic paths",
+  "Buzzer practice included"
 ];
+
 
 const features = [
   {
-    title: "Focused Lessons",
-    description: "Lessons built from real competition questions, not textbook chapters.",
+    title: "Focused practice",
+    description: "Move quickly from topic selection to questions that match the competition format.",
+    icon: Brain
+  },
+  {
+    title: "Competition-specific prep",
+    description: "Science Bowl, Science Olympiad, and Math Olympiad each keep their own training path.",
+    icon: Route
+  },
+  {
+    title: "Lessons + questions together",
+    description: "Review the concept behind a missed question without leaving the page.",
     icon: BookOpen
   },
   {
-    title: "High-Yield Practice",
-    description: "Filter by subject, difficulty, and topic. Practice what you need.",
-    icon: Zap
-  },
-  {
-    title: "Timed Tests",
-    description: "Simulate real competition conditions with time pressure.",
-    icon: Clock
-  },
-  {
-    title: "Buzzer Arena",
-    description: "Live multiplayer buzzer rounds for Science Bowl teams.",
-    icon: Users
+    title: "Built for steady improvement",
+    description: "Short sessions, quick tests, and clear review loops make progress easier to sustain.",
+    icon: ChartNoAxesColumnIncreasing
   }
 ];
 
@@ -51,6 +53,7 @@ export default async function HomePage() {
     }))
   );
   const countsBySlug = new Map(competitionCounts.map((item) => [item.slug, item.counts]));
+  const scienceBowlCounts = countsBySlug.get("science-bowl") ?? { questions: 20000, lessons: 10 };
 
   return (
     <>
@@ -60,26 +63,73 @@ export default async function HomePage() {
             <span className="eyebrow">High-yield competition prep</span>
             <h1>Stop studying everything. Study what actually gets asked.</h1>
             <p className="subtitle">
-              Medal Minds turns 20,000+ competition questions into focused lessons, practice sets, and buzzer drills for
-              Science Bowl, Science Olympiad, and Math competitions.
+              Medal Minds turns {formatApproximateCount(scienceBowlCounts.questions)} competition questions into focused
+              lessons, high-yield practice, and buzzer drills for Science Bowl, Science Olympiad, and Math competitions.
             </p>
             <div className="hero-actions">
               <Link className="button button-lg" href={competitionPath("science-bowl")}>
-                Start Science Bowl Prep
+                Start Learning Free
               </Link>
-              <Link className="ghost-button button-lg" href="#competitions">
-                See How It Works
+              <Link className="ghost-button button-lg" href="/api/auth/signin">
+                Sign In to Save Progress
               </Link>
+            </div>
+            <p className="hero-note">No sign-up required. Sign in anytime to save your progress.</p>
+            <div className="trust-strip" aria-label="Platform highlights">
+              {heroTrustPills.map((pill) => (
+                <span key={pill}>{pill}</span>
+              ))}
             </div>
           </div>
           <div className="hero-panel-wrapper" aria-hidden="true">
-            <div className="hero-stat-panel">
-              {heroStats.map((stat) => (
-                <div className="hero-stat-item" key={stat.label}>
-                  <strong className="hero-stat-value">{stat.value}</strong>
-                  <span className="hero-stat-label">{stat.label}</span>
+            <div className="dashboard-mockup">
+              <div className="dashboard-mockup-header">
+                <span className="dashboard-mockup-title">Your Learning Dashboard</span>
+                <span className="dashboard-mockup-badge">Free</span>
+              </div>
+              <div className="dashboard-progress-cards">
+                <div className="dashboard-progress-card">
+                  <div className="dashboard-progress-card-top">
+                    <span className="dashboard-progress-label">Science Bowl</span>
+                    <span className="dashboard-progress-pct">68%</span>
+                  </div>
+                  <div className="dashboard-progress-bar">
+                    <div className="dashboard-progress-fill" style={{ width: "68%" }} />
+                  </div>
                 </div>
-              ))}
+                <div className="dashboard-progress-card">
+                  <div className="dashboard-progress-card-top">
+                    <span className="dashboard-progress-label">Science Olympiad</span>
+                    <span className="dashboard-progress-pct">34%</span>
+                  </div>
+                  <div className="dashboard-progress-bar">
+                    <div className="dashboard-progress-fill" style={{ width: "34%" }} />
+                  </div>
+                </div>
+                <div className="dashboard-progress-card">
+                  <div className="dashboard-progress-card-top">
+                    <span className="dashboard-progress-label">Math Olympiad</span>
+                    <span className="dashboard-progress-pct">12%</span>
+                  </div>
+                  <div className="dashboard-progress-bar">
+                    <div className="dashboard-progress-fill" style={{ width: "12%" }} />
+                  </div>
+                </div>
+              </div>
+              <div className="dashboard-stats-row">
+                <div className="dashboard-stat">
+                  <strong>1,240</strong>
+                  <span>Questions Answered</span>
+                </div>
+                <div className="dashboard-stat">
+                  <strong>82%</strong>
+                  <span>Accuracy</span>
+                </div>
+                <div className="dashboard-stat">
+                  <strong>14</strong>
+                  <span>Day Streak</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -89,8 +139,9 @@ export default async function HomePage() {
         <div className="container stack">
           <div className="section-heading">
             <div>
-              <span className="eyebrow">Choose Your Path</span>
-              <h2>Pick your competition</h2>
+              <span className="eyebrow">Prep tracks</span>
+              <h2>Choose your competition</h2>
+              <p>Pick a track and start training with the right questions, lessons, and review flow.</p>
             </div>
           </div>
           <div className="grid competition-grid">
@@ -109,7 +160,8 @@ export default async function HomePage() {
         <div className="container stack">
           <div className="section-heading">
             <div>
-              <h2>Why Medal Minds</h2>
+              <span className="eyebrow">Why Medal Minds</span>
+              <h2>Designed for serious prep</h2>
             </div>
           </div>
           <div className="grid four">
@@ -133,8 +185,8 @@ export default async function HomePage() {
         <div className="container stack" style={{ textAlign: "center", alignItems: "center" }}>
           <span className="eyebrow">Ready to compete?</span>
           <h2>Start preparing today — it&apos;s free.</h2>
-          <Link className="button button-lg" href="/science-bowl">
-            Get Started
+          <Link className="button button-lg" href={competitionPath("science-bowl")}>
+            Start Learning Free
           </Link>
         </div>
       </section>
