@@ -69,20 +69,25 @@ export default async function CompetitionPage({
 
   const isScienceBowl = competitionSlug === "science-bowl";
   const counts = isScienceBowl ? undefined : await getContentCounts(competitionSlug);
+
+  // For Science Bowl, default to middle-school if no level specified
+  const selectedLevel = isScienceBowl && (level === "middle-school" || level === "high-school")
+    ? level
+    : isScienceBowl ? "middle-school" : undefined;
+
+  const selectedLevelLabel = selectedLevel === "middle-school" ? "Middle School" : selectedLevel === "high-school" ? "High School" : undefined;
+  const selectedSchoolLevel =
+    selectedLevel === "middle-school" ? "MIDDLE_SCHOOL" : selectedLevel === "high-school" ? "HIGH_SCHOOL" : undefined;
+
+  // Get counts for both levels
   const scienceBowlLevelCounts = isScienceBowl
     ? {
         middleSchool: await getContentCountsBySchoolLevel(competitionSlug, "MIDDLE_SCHOOL"),
         highSchool: await getContentCountsBySchoolLevel(competitionSlug, "HIGH_SCHOOL")
       }
     : undefined;
-  const selectedLevel = isScienceBowl && (level === "middle-school" || level === "high-school") ? level : undefined;
-  const selectedLevelLabel = selectedLevel === "middle-school" ? "Middle School" : selectedLevel === "high-school" ? "High School" : undefined;
-  const selectedSchoolLevel =
-    selectedLevel === "middle-school" ? "MIDDLE_SCHOOL" : selectedLevel === "high-school" ? "HIGH_SCHOOL" : undefined;
-  const selectedAction = action && action in actionLabelMap ? (action as CompetitionAction) : undefined;
-  if (selectedAction === "buzzer") {
-    redirect(buzzerPath());
-  }
+
+  // Get subjects for the hub display
   const useMiddleSchoolSubjects = competitionSlug === "science-bowl" && selectedLevel === "middle-school";
   const displayedSubjects = useMiddleSchoolSubjects
     ? (await getScienceBowlMiddleSchoolCurriculumSubjects()).map((subject) => subject.name)
@@ -94,11 +99,132 @@ export default async function CompetitionPage({
     }))
   );
   const countsBySubject = new Map(subjectCounts.map((item) => [item.category, item.counts]));
-  const buildStageQuery = (...pairs: Array<[string, string | undefined]>) => buildQuery([["level", selectedLevel], ...pairs]);
-  const showLevelSelection = isScienceBowl && !selectedLevel;
-  const showActionSelection = !showLevelSelection && !selectedAction;
-  const showSubjectSelection = !showLevelSelection && !showActionSelection;
 
+  // For non-Science Bowl competitions, show legacy multi-step flow
+  const showLegacyFlow = !isScienceBowl;
+  const selectedAction = action && action in actionLabelMap ? (action as CompetitionAction) : undefined;
+  if (selectedAction === "buzzer") {
+    redirect(buzzerPath());
+  }
+  const buildStageQuery = (...pairs: Array<[string, string | undefined]>) => buildQuery([["level", selectedLevel], ...pairs]);
+  const showLevelSelection = false; // Never show level selection for Science Bowl, always use toggle
+  const showActionSelection = showLegacyFlow && !selectedAction;
+  const showSubjectSelection = showLegacyFlow && !showActionSelection;
+
+  // Science Bowl hub: show directly with level toggle (no multi-step)
+  if (isScienceBowl && !showLegacyFlow) {
+    return (
+      <section className="section science-bowl-hub">
+        <div className="container stack">
+          <div className="hub-header">
+            <div>
+              <span className="eyebrow">National Science Bowl</span>
+              <h1>Science Bowl prep, built around real toss-ups.</h1>
+              <p className="subtitle">Learn the science, drill 2,540 authentic questions, and sharpen your buzz time across all five subjects — middle and high school divisions.</p>
+            </div>
+            <div className="level-toggle-wrapper">
+              <span className="level-toggle-label">Division</span>
+              <div className="level-toggle">
+                <Link
+                  href={`/${competitionSlug}?level=middle-school`}
+                  className={`level-toggle-btn ${selectedLevel === "middle-school" ? "active" : ""}`}
+                >
+                  Middle School
+                </Link>
+                <Link
+                  href={`/${competitionSlug}?level=high-school`}
+                  className={`level-toggle-btn ${selectedLevel === "high-school" ? "active" : ""}`}
+                >
+                  High School
+                </Link>
+              </div>
+            </div>
+          </div>
+
+          {/* Hub cards: Learn, Practice, Tests */}
+          <div className="grid hub-card-grid">
+            <Link className="hub-card" href={`${learningPath(competitionSlug)}?level=${selectedLevel}`}>
+              <div className="hub-card-icon">📚</div>
+              <h3>Learn</h3>
+              <p>Structured lessons across all five subjects, written to the questions that actually get asked.</p>
+              <div className="hub-card-footer">
+                <span className="hub-card-chip">42 lessons</span>
+                <span className="hub-card-arrow">Browse →</span>
+              </div>
+            </Link>
+            <Link className="hub-card" href={`${practicePath(competitionSlug)}?level=${selectedLevel}`}>
+              <div className="hub-card-icon">🎯</div>
+              <h3>Practice</h3>
+              <p>Drill real toss-up and bonus questions by subject with instant explanations.</p>
+              <div className="hub-card-footer">
+                <span className="hub-card-chip">2,540 questions</span>
+                <span className="hub-card-arrow">Start →</span>
+              </div>
+            </Link>
+            <Link className="hub-card" href={`${testsPath(competitionSlug)}?level=${selectedLevel}`}>
+              <div className="hub-card-icon">⏱️</div>
+              <h3>Tests</h3>
+              <p>Timed mock rounds that mirror the real format, scored like a live match.</p>
+              <div className="hub-card-footer">
+                <span className="hub-card-chip">Timed rounds</span>
+                <span className="hub-card-arrow">Take →</span>
+              </div>
+            </Link>
+          </div>
+
+          {/* Buzzer section */}
+          <div className="buzzer-band">
+            <div className="buzzer-band-content">
+              <div className="buzzer-band-left">
+                <div className="buzzer-icon">⚡</div>
+                <div>
+                  <h3>Buzzer Arena</h3>
+                  <p>Train reaction time head-to-head. Buzz in before the question finishes.</p>
+                </div>
+              </div>
+              <Link className="buzzer-btn" href={buzzerPath()}>
+                Enter the Arena
+              </Link>
+            </div>
+          </div>
+
+          {/* Subjects section */}
+          <div className="subjects-section">
+            <div className="section-heading">
+              <span className="eyebrow">Five subjects</span>
+              <h2>Pick where to focus</h2>
+            </div>
+            <div className="grid subjects-grid">
+              {displayedSubjects.map((category, idx) => {
+                const emojiMap: Record<string, string> = {
+                  "Life Science": "🧬",
+                  "Physical Science": "⚛️",
+                  "Earth & Space": "🌍",
+                  "Energy": "⚡",
+                  "Math": "∑"
+                };
+                const emoji = emojiMap[category] || "📚";
+                const counts = countsBySubject.get(category) ?? { questions: 0, lessons: 0 };
+                return (
+                  <Link
+                    key={category}
+                    className="subject-card"
+                    href={`${practicePath(competitionSlug)}?level=${selectedLevel}&subject=${category}`}
+                  >
+                    <div className="subject-card-icon">{emoji}</div>
+                    <h4>{category}</h4>
+                    <span className="subject-card-count">{countsBySubject.get(category)?.questions ?? 0} questions</span>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  // Non-Science Bowl or legacy flow
   return (
     <section className="section">
       <div className="container stack">
@@ -124,27 +250,7 @@ export default async function CompetitionPage({
           )}
         </div>
 
-        {showLevelSelection ? (
-          <div>
-            <div className="section-heading selection-heading">
-              <h2>Choose your level</h2>
-            </div>
-            <div className="grid two competition-level-grid">
-              <Link className="card spacious stack competition-stage-card competition-level-card" href={`/${competitionSlug}?level=middle-school`}>
-                <span className="eyebrow">Science Bowl</span>
-                <h2>Middle School</h2>
-                <p>Grades 6-8 practice questions, quick tests, and lessons.</p>
-                <StatsCard {...(scienceBowlLevelCounts?.middleSchool ?? { questions: 0, lessons: 0 })} />
-              </Link>
-              <Link className="card spacious stack competition-stage-card competition-level-card" href={`/${competitionSlug}?level=high-school`}>
-                <span className="eyebrow">Science Bowl</span>
-                <h2>High School</h2>
-                <p>Grades 9-12 practice questions, quick tests, and lessons.</p>
-                <StatsCard {...(scienceBowlLevelCounts?.highSchool ?? { questions: 0, lessons: 0 })} />
-              </Link>
-            </div>
-          </div>
-        ) : showActionSelection ? (
+        {showActionSelection ? (
           <div>
             <div className="section-heading selection-heading">
               <div>
