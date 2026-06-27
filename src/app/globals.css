@@ -3797,13 +3797,13 @@ p {
 
 /* --- Core color semantics (override old teal-based vars) --- */
 :root {
-  --navy: oklch(0.12 0.04 275);
-  --sky-blue: oklch(0.55 0.18 253);
-  --gold: oklch(0.72 0.1 88);
+  --navy: #1a2745;
+  --sky-blue: #5a92f0;
+  --gold: #b8860b;
   --text-primary: var(--navy);
-  --bg-white: oklch(0.99 0.01 92);
-  --bg-light: oklch(0.97 0.005 170);
-  --border-color: oklch(0.92 0.01 170);
+  --bg-white: #ffffff;
+  --bg-light: #f9f9f9;
+  --border-color: #e0e0e0;
   --shadow-sm: 0 2px 8px rgba(15, 23, 42, 0.08);
   --shadow-md: 0 4px 16px rgba(15, 23, 42, 0.12);
   --shadow-lg: 0 8px 24px rgba(15, 23, 42, 0.16);
@@ -3811,7 +3811,7 @@ p {
   --panel: var(--bg-white);
   --bg: var(--bg-white);
   --ink: var(--navy);
-  --muted: oklch(0.45 0.03 220);
+  --muted: #666666;
   --primary: var(--gold);
   --background: var(--bg-white);
   --foreground: var(--navy);
@@ -3867,7 +3867,7 @@ p {
 }
 
 .button:hover {
-  background: oklch(0.17 0.05 275) !important;
+  background: #142040 !important;
   box-shadow: var(--shadow-md) !important;
   transform: none !important;
 }
@@ -4006,7 +4006,7 @@ p {
 .competition-card:hover {
   transform: translateY(-2px) !important;
   box-shadow: var(--shadow-md) !important;
-  border-color: oklch(0.80 0.03 220) !important;
+  border-color: #cccccc !important;
 }
 
 .competition-card-content {
@@ -4073,7 +4073,7 @@ p {
 
 /* --- CTA band --- */
 .cta-band {
-  background: linear-gradient(135deg, var(--navy) 0%, oklch(0.18 0.05 275) 100%) !important;
+  background: linear-gradient(135deg, #1a2745 0%, #243856 100%) !important;
   border: none !important;
   border-radius: 12px !important;
   backdrop-filter: none !important;
@@ -4101,8 +4101,8 @@ p {
 }
 
 .cta-band .button:hover {
-  background: oklch(0.65 0.1 88) !important;
-  border-color: oklch(0.65 0.1 88) !important;
+  background: #d4a017 !important;
+  border-color: #d4a017 !important;
 }
 
 /* --- Generic card --- */
@@ -4172,7 +4172,7 @@ p {
 
 .competition-card-stat-label {
   font-size: 11px !important;
-  color: oklch(0.45 0.03 220) !important;
+  color: #666666 !important;
   text-transform: uppercase !important;
   letter-spacing: 0.5px !important;
   font-weight: 600 !important;
@@ -4182,25 +4182,27 @@ p {
 .competition-card-icon {
   width: 48px !important;
   height: 48px !important;
-  background: var(--navy) !important;
+  background: #1a2745 !important;
   color: white !important;
   border-radius: 8px !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
   border: none !important;
+  font-size: 24px !important;
 }
 
 .feature-icon {
   width: 48px !important;
   height: 48px !important;
-  background: var(--navy) !important;
+  background: #1a2745 !important;
   color: white !important;
   border-radius: 8px !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
   border: none !important;
+  font-size: 24px !important;
 }
 
 /* --- Features section: light background --- */
