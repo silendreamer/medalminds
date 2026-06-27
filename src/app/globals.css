@@ -124,7 +124,7 @@ html,
 body {
   margin: 0;
   min-height: 100%;
-  background: #fff;
+  background: #eef0f3;
   color: #1a2745;
   font-family: 'Open Sans', Arial, Helvetica, sans-serif;
   text-rendering: optimizeLegibility;
@@ -4620,24 +4620,6 @@ p {
   }
 }
 
-/* ============================================================
-   PAGE OUTLINE BORDER (decorative)
-   ============================================================ */
-
-body {
-  background: #fff !important;
-  position: relative;
-}
-
-body::before {
-  content: "";
-  position: fixed;
-  inset: 20px;
-  border: 2px solid #1a2745;
-  border-radius: 16px;
-  pointer-events: none;
-  z-index: 9999;
-}
 
 .page-shell {
   position: relative;
