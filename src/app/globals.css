@@ -172,7 +172,7 @@ textarea::placeholder {
 
 .nav-inner,
 .container {
-  width: min(1200px, calc(100% - 24px));
+  width: min(1280px, calc(100% - 16px));
   margin: 0 auto;
 }
 
