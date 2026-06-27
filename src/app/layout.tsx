@@ -56,10 +56,12 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData()) }}
           type="application/ld+json"
         />
-        <div className="page-shell">
-          <Header />
-          <main>{children}</main>
-          <Footer />
+        <div className="page-shell" style={{ padding: "24px" }}>
+          <div className="screen" style={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
+            <Header />
+            <main style={{ flex: 1 }}>{children}</main>
+            <Footer />
+          </div>
         </div>
       </body>
     </html>

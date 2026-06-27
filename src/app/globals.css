@@ -160,6 +160,16 @@ textarea::placeholder {
   flex-direction: column;
 }
 
+/* Screen container — wraps page content with rounded corners and border */
+.screen {
+  background: #fff;
+  border-radius: 12px;
+  border: 1px solid #e7e9ee;
+  overflow: hidden;
+  box-shadow: 0 8px 30px rgba(15, 23, 42, 0.1);
+  margin: 0 auto;
+}
+
 .nav-inner,
 .container {
   width: min(1120px, calc(100% - 32px));
