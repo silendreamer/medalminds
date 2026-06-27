@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-import { BookOpen, Brain, ChartNoAxesColumnIncreasing, Route } from "lucide-react";
+import { BookOpen, Brain, Target } from "lucide-react";
 import { CompetitionCard } from "@/components/CompetitionCard";
 import { competitions, getContentCounts } from "@/lib/data";
 import { formatApproximateCount } from "@/lib/format";
@@ -24,24 +24,19 @@ const heroTrustPills = [
 
 const features = [
   {
-    title: "Focused practice",
-    description: "Move quickly from topic selection to questions that match the competition format.",
-    icon: Brain
-  },
-  {
-    title: "Competition-specific prep",
-    description: "Science Bowl, Science Olympiad, and Math Olympiad each keep their own training path.",
-    icon: Route
-  },
-  {
-    title: "Lessons + questions together",
-    description: "Review the concept behind a missed question without leaving the page.",
+    title: "Real Questions",
+    description: "Every question comes from past competitions. Learn exactly what gets asked.",
     icon: BookOpen
   },
   {
-    title: "Built for steady improvement",
-    description: "Short sessions, quick tests, and clear review loops make progress easier to sustain.",
-    icon: ChartNoAxesColumnIncreasing
+    title: "Instant Feedback",
+    description: "Get explanations for every answer. Understand the \"why\" behind each concept.",
+    icon: Brain
+  },
+  {
+    title: "Personalized Path",
+    description: "Track weak areas. Practice what matters most. Focus your study time.",
+    icon: Target
   }
 ];
 
@@ -156,15 +151,15 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="section">
+      <section className="section features-section">
         <div className="container stack">
           <div className="section-heading">
             <div>
               <span className="eyebrow">Why Medal Minds</span>
-              <h2>Designed for serious prep</h2>
+              <h2>Built for competitive success</h2>
             </div>
           </div>
-          <div className="grid four">
+          <div className="grid three">
             {features.map((feature) => {
               const Icon = feature.icon;
               return (
@@ -183,7 +178,6 @@ export default async function HomePage() {
 
       <section className="section cta-band">
         <div className="container stack" style={{ textAlign: "center", alignItems: "center" }}>
-          <span className="eyebrow">Ready to compete?</span>
           <h2>Ready to compete at your best?</h2>
           <p className="cta-description">
             No sign-up required to start. Sign in anytime to save your progress and unlock personalized recommendations.

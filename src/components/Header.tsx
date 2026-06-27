@@ -31,8 +31,8 @@ export function Header() {
             );
           })}
         </nav>
-        <Link className="button nav-cta" href="/science-bowl">
-          Start Prep
+        <Link className="button nav-cta" href="/api/auth/signin">
+          Sign In
         </Link>
       </div>
     </header>

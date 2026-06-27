@@ -4122,9 +4122,83 @@ p {
   }
 }
 
+/* --- 3-column grid --- */
+.grid.three {
+  grid-template-columns: repeat(3, 1fr) !important;
+}
+
+@media (max-width: 820px) {
+  .grid.three {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+/* --- Competition card stat block (mockup style) --- */
+.competition-card-stats {
+  display: flex !important;
+  gap: 32px !important;
+  margin: 16px 0 !important;
+  padding: 16px 0 !important;
+  border-top: 1px solid var(--border-color) !important;
+  border-bottom: 1px solid var(--border-color) !important;
+  background: none !important;
+}
+
+.competition-card-stat {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 4px !important;
+}
+
+.competition-card-stat-value {
+  font-size: 18px !important;
+  font-weight: 700 !important;
+  color: var(--navy) !important;
+  font-family: var(--font-poppins), system-ui, sans-serif !important;
+}
+
+.competition-card-stat-label {
+  font-size: 11px !important;
+  color: oklch(0.45 0.03 220) !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+  font-weight: 600 !important;
+}
+
+/* --- Card + feature icons: navy filled square (mockup style) --- */
+.competition-card-icon {
+  width: 48px !important;
+  height: 48px !important;
+  background: var(--navy) !important;
+  color: white !important;
+  border-radius: 8px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border: none !important;
+}
+
+.feature-icon {
+  width: 48px !important;
+  height: 48px !important;
+  background: var(--navy) !important;
+  color: white !important;
+  border-radius: 8px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border: none !important;
+}
+
+/* --- Features section: light background --- */
+.features-section {
+  background: var(--bg-light) !important;
+}
+
 @media (max-width: 640px) {
   .grid,
-  .grid.four {
+  .grid.four,
+  .grid.three {
     grid-template-columns: 1fr !important;
   }
 
