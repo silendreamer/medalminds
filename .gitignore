@@ -12,9 +12,3 @@ tmp/
 !.env.example
 *.sqlite
 *.db
-# Ignore all docs except NSB data and content
-docs
-!docs/nsb/
-!docs/nsb/*.json
-!docs/content/
-!docs/content/**
