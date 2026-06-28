@@ -8,9 +8,9 @@
   <!-- Navy blue inner circle background -->
   <circle cx="120" cy="120" r="100" fill="#0f172a"/>
 
-  <!-- Larger M (gold) -->
-  <text x="120" y="162" font-family="Arial, sans-serif" font-size="160" font-weight="bold" fill="#b8860b" text-anchor="middle">M</text>
+  <!-- Larger M (gold) - fills circle top to bottom -->
+  <text x="120" y="120" font-family="Arial, sans-serif" font-size="200" font-weight="bold" fill="#b8860b" text-anchor="middle" dominant-baseline="central">M</text>
 
   <!-- Smaller M (white) inside -->
-  <text x="120" y="148" font-family="Arial, sans-serif" font-size="100" font-weight="bold" fill="white" text-anchor="middle">M</text>
+  <text x="120" y="120" font-family="Arial, sans-serif" font-size="120" font-weight="bold" fill="white" text-anchor="middle" dominant-baseline="central">M</text>
 </svg>
