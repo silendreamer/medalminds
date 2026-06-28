@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { Poppins, Open_Sans } from "next/font/google";
 import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
+import { AutoBreadcrumbs } from "@/components/AutoBreadcrumbs";
 import { buildMetadata, siteUrl, structuredData } from "@/lib/seo";
 import "./globals.css";
 
@@ -59,6 +61,9 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <div className="page-shell" style={{ padding: "24px" }}>
           <div className="screen" style={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
             <Header />
+            <Suspense fallback={null}>
+              <AutoBreadcrumbs />
+            </Suspense>
             <main style={{ flex: 1 }}>{children}</main>
             <Footer />
           </div>

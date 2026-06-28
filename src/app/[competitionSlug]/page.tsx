@@ -1,15 +1,12 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
-import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { StatsCard } from "@/components/StatsCard";
-import { buildStudyBreadcrumbs } from "@/lib/breadcrumbs";
 import {
   getCompetitionBySlug,
   getContentCounts,
   getContentCountsBySchoolLevel,
   getContentCountsForSubject,
-  getScienceBowlMiddleSchoolCurriculumSubjects,
   isCompetitionSlug
 } from "@/lib/data";
 import { buzzerPath, learningPath, practicePath, scienceBowlInfoPath, testsPath } from "@/lib/routes";
@@ -87,11 +84,8 @@ export default async function CompetitionPage({
       }
     : undefined;
 
-  // Get subjects for the hub display
-  const useMiddleSchoolSubjects = competitionSlug === "science-bowl" && selectedLevel === "middle-school";
-  const displayedSubjects = useMiddleSchoolSubjects
-    ? (await getScienceBowlMiddleSchoolCurriculumSubjects()).map((subject) => subject.name)
-    : competition.categories;
+  // Get subjects for the hub display — always use competition.categories (now unified across MS and HS)
+  const displayedSubjects = competition.categories;
   const subjectCounts = await Promise.all(
     displayedSubjects.map(async (category) => ({
       category,
@@ -120,7 +114,7 @@ export default async function CompetitionPage({
             <div>
               <span className="eyebrow">National Science Bowl</span>
               <h1>Science Bowl prep, built around real toss-ups.</h1>
-              <p className="subtitle">Learn the science, drill 2,540 authentic questions, and sharpen your buzz time across all five subjects — middle and high school divisions.</p>
+              <p className="subtitle">Learn the science, answer authentic questions, and sharpen your buzz time across all five subjects — middle and high school divisions.</p>
             </div>
             <div className="level-toggle-wrapper">
               <span className="level-toggle-label">Division</span>
@@ -143,25 +137,29 @@ export default async function CompetitionPage({
 
           {/* Hub cards: Learn, Practice, Tests */}
           <div className="grid hub-card-grid">
-            <Link className="hub-card" href={`${learningPath(competitionSlug)}?level=${selectedLevel}`}>
+            <Link className="hub-card" href={learningPath(competitionSlug, selectedLevel ?? "middle-school")}>
               <div className="hub-card-icon">📚</div>
               <h3>Learn</h3>
               <p>Structured lessons across all five subjects, written to the questions that actually get asked.</p>
               <div className="hub-card-footer">
-                <span className="hub-card-chip">42 lessons</span>
+                <span className="hub-card-chip">
+                  {Math.round((scienceBowlLevelCounts?.[selectedLevel === "high-school" ? "highSchool" : "middleSchool"].lessons ?? 0) / 10) * 10}+ lessons
+                </span>
                 <span className="hub-card-arrow">Browse →</span>
               </div>
             </Link>
-            <Link className="hub-card" href={`${practicePath(competitionSlug)}?level=${selectedLevel}`}>
+            <Link className="hub-card" href={practicePath(competitionSlug, selectedLevel ?? "middle-school")}>
               <div className="hub-card-icon">🎯</div>
               <h3>Practice</h3>
               <p>Drill real toss-up and bonus questions by subject with instant explanations.</p>
               <div className="hub-card-footer">
-                <span className="hub-card-chip">2,540 questions</span>
+                <span className="hub-card-chip">
+                  {Math.round((scienceBowlLevelCounts?.[selectedLevel === "high-school" ? "highSchool" : "middleSchool"].questions ?? 0) / 100) * 100}+ questions
+                </span>
                 <span className="hub-card-arrow">Start →</span>
               </div>
             </Link>
-            <Link className="hub-card" href={`${testsPath(competitionSlug)}?level=${selectedLevel}`}>
+            <Link className="hub-card" href={testsPath(competitionSlug, selectedLevel ?? "middle-school")}>
               <div className="hub-card-icon">⏱️</div>
               <h3>Tests</h3>
               <p>Timed mock rounds that mirror the real format, scored like a live match.</p>
@@ -191,14 +189,15 @@ export default async function CompetitionPage({
           {/* Subjects section */}
           <div className="subjects-section">
             <div className="section-heading">
-              <span className="eyebrow">Five subjects</span>
+              <span className="eyebrow">{displayedSubjects.length} subjects</span>
               <h2>Pick where to focus</h2>
             </div>
             <div className="grid subjects-grid">
               {displayedSubjects.map((category, idx) => {
                 const emojiMap: Record<string, string> = {
-                  "Life Science": "🧬",
-                  "Physical Science": "⚛️",
+                  "Biology": "🧬",
+                  "Chemistry": "⚗️",
+                  "Physics": "⚛️",
                   "Earth & Space": "🌍",
                   "Energy": "⚡",
                   "Math": "∑"
@@ -209,7 +208,7 @@ export default async function CompetitionPage({
                   <Link
                     key={category}
                     className="subject-card"
-                    href={`${practicePath(competitionSlug)}?level=${selectedLevel}&subject=${category}`}
+                    href={`${practicePath(competitionSlug, selectedLevel ?? "middle-school")}?subject=${encodeURIComponent(category)}`}
                   >
                     <div className="subject-card-icon">{emoji}</div>
                     <h4>{category}</h4>
@@ -228,14 +227,6 @@ export default async function CompetitionPage({
   return (
     <section className="section">
       <div className="container stack">
-        <Breadcrumbs
-          items={buildStudyBreadcrumbs({
-            competitionSlug,
-            competitionName: competition.name,
-            level: selectedLevel,
-            action: selectedAction ? actionLabelMap[selectedAction] : undefined
-          })}
-        />
         <div className="simple-heading competition-intro">
           <span className="eyebrow">{competition.subdomain}.medalminds.com</span>
           <h1>{competition.name}</h1>
@@ -265,17 +256,17 @@ export default async function CompetitionPage({
               )}
             </div>
             <div className={`grid ${isScienceBowl ? "four" : "three"} competition-action-grid`}>
-              <Link className="card spacious stack competition-stage-card" href={`${learningPath(competitionSlug)}${selectedLevel ? `?level=${selectedLevel}` : ""}`}>
+              <Link className="card spacious stack competition-stage-card" href={selectedLevel ? learningPath(competitionSlug, selectedLevel) : `/${competitionSlug}/learning`}>
                 <span className="eyebrow">Learning</span>
                 <h2>Learning</h2>
                 <p>Read lessons and study the concept before you try questions.</p>
               </Link>
-              <Link className="card spacious stack competition-stage-card" href={`${practicePath(competitionSlug)}${selectedLevel ? `?level=${selectedLevel}` : ""}`}>
+              <Link className="card spacious stack competition-stage-card" href={selectedLevel ? practicePath(competitionSlug, selectedLevel) : `/${competitionSlug}/practice`}>
                 <span className="eyebrow">Practice</span>
                 <h2>Practice Questions</h2>
                 <p>Get one random question, answer it, then review the explanation.</p>
               </Link>
-              <Link className="card spacious stack competition-stage-card" href={`${testsPath(competitionSlug)}${selectedLevel ? `?level=${selectedLevel}` : ""}`}>
+              <Link className="card spacious stack competition-stage-card" href={selectedLevel ? testsPath(competitionSlug, selectedLevel) : `/${competitionSlug}/tests`}>
                 <span className="eyebrow">Tests</span>
                 <h2>Quizzes / Tests</h2>
                 <p>Choose a question set and work through it in test mode.</p>
@@ -313,10 +304,10 @@ export default async function CompetitionPage({
                   className="card spacious stack competition-stage-card competition-subject-card"
                   href={
                     selectedAction === "learning"
-                      ? `${learningPath(competitionSlug)}/subject/${category.toLowerCase().replace(/\s+/g, "-")}`
+                      ? `${selectedLevel ? learningPath(competitionSlug, selectedLevel) : `/${competitionSlug}/learning`}/subject/${category.toLowerCase().replace(/\s+/g, "-")}`
                       : selectedAction === "practice"
-                        ? `${practicePath(competitionSlug)}${buildQuery([["level", selectedLevel], ["subject", category]])}`
-                        : `${testsPath(competitionSlug)}${buildQuery([["level", selectedLevel], ["subject", category]])}`
+                        ? `${selectedLevel ? practicePath(competitionSlug, selectedLevel) : `/${competitionSlug}/practice`}${buildQuery([["subject", category]])}`
+                        : `${selectedLevel ? testsPath(competitionSlug, selectedLevel) : `/${competitionSlug}/tests`}${buildQuery([["subject", category]])}`
                   }
                   key={category}
                 >

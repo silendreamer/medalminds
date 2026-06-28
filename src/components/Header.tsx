@@ -65,34 +65,31 @@ export function Header() {
           <span>Medal Minds</span>
         </Link>
 
-        {/* Navigation */}
-        <nav
-          style={{
-            display: "flex",
-            gap: "26px",
-            alignItems: "center",
-            marginLeft: "auto"
-          }}
-        >
+        {/* Navigation — hidden on mobile */}
+        <nav className="header-nav">
           {competitions.map((competition) => {
             const emoji = NAV_EMOJIS[competition.slug];
             const isActive = isActiveCompetition(competition.slug);
+            const isComingSoon = competition.slug !== "science-bowl";
 
             return (
               <Link
                 key={competition.slug}
-                href={competitionPath(competition.slug)}
+                href={isComingSoon ? "#" : competitionPath(competition.slug)}
+                aria-disabled={isComingSoon}
                 style={{
                   display: "flex",
                   alignItems: "center",
                   gap: "8px",
                   fontSize: "14px",
                   fontWeight: 600,
-                  color: isActive ? "#5a92f0" : "#1a2745",
+                  color: isComingSoon ? "#c0c7d4" : isActive ? "#5a92f0" : "#1a2745",
                   textDecoration: "none",
                   paddingBottom: "3px",
                   borderBottom: isActive ? "2px solid #5a92f0" : "2px solid transparent",
-                  transition: "border-color 150ms ease, color 150ms ease"
+                  transition: "border-color 150ms ease, color 150ms ease",
+                  pointerEvents: isComingSoon ? "none" : undefined,
+                  cursor: isComingSoon ? "default" : "pointer"
                 }}
               >
                 <div
@@ -100,11 +97,11 @@ export function Header() {
                     width: "26px",
                     height: "26px",
                     borderRadius: "7px",
-                    background: "#1a2745",
+                    background: isComingSoon ? "#e5e7eb" : "#1a2745",
                     display: "inline-flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    color: "#fff",
+                    color: isComingSoon ? "#9ca3af" : "#fff",
                     fontSize: "15px",
                     lineHeight: 1
                   }}

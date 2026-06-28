@@ -1,7 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { BookOpen, CalendarDays, GraduationCap, Microscope, Timer, Trophy, Zap } from "lucide-react";
-import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { competitionPath } from "@/lib/routes";
 import { buildMetadata } from "@/lib/seo";
 
@@ -88,14 +87,6 @@ export default function ScienceBowlInfoSessionPage() {
   return (
     <section className="section">
       <div className="container stack">
-        <Breadcrumbs
-          items={[
-            { label: "Home", href: "/" },
-            { label: "Science Bowl", href: competitionPath("science-bowl") },
-            { label: "Team Guide" }
-          ]}
-        />
-
         <section className="info-hero card spacious">
           <div className="info-hero-copy stack">
             <span className="eyebrow">Science Bowl Team Guide</span>

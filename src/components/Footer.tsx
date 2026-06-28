@@ -21,7 +21,7 @@ export function Footer() {
           flexWrap: "wrap"
         }}
       >
-        <span>© 2024 Medal Minds</span>
+        <span>© 2026 Medal Minds</span>
         <div style={{ display: "flex", gap: "22px" }}>
           <a
             href="#"

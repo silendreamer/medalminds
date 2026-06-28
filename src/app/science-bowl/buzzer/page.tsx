@@ -1,7 +1,5 @@
 import type { Metadata } from "next";
-import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { BuzzerArena } from "@/components/BuzzerArena";
-import { competitionPath } from "@/lib/routes";
 import { buildMetadata } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
@@ -18,13 +16,6 @@ export default function BuzzerPage() {
   return (
     <section className="section buzzer-page">
       <div className="container stack">
-        <Breadcrumbs
-          items={[
-            { label: "Home", href: "/" },
-            { label: "Science Bowl", href: competitionPath("science-bowl") },
-            { label: "Buzzer Practice" }
-          ]}
-        />
         <BuzzerArena />
       </div>
     </section>

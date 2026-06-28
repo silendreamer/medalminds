@@ -2,6 +2,13 @@ import Link from "next/link";
 import type { Lesson } from "@/types";
 import { lessonPath } from "@/lib/routes";
 
+function normalizeLevel(level: string): string {
+  const l = level.toLowerCase();
+  if (l.includes("middle")) return "middle-school";
+  if (l.includes("high")) return "high-school";
+  return l.replace(/\s+/g, "-");
+}
+
 export function LessonCard({ lesson }: { lesson: Lesson }) {
   return (
     <article className="card stack lesson-card">
@@ -16,7 +23,7 @@ export function LessonCard({ lesson }: { lesson: Lesson }) {
         <span className="badge neutral">{lesson.category}</span>
         <span className="badge neutral">{lesson.level}</span>
       </div>
-      <Link className="button" href={lessonPath(lesson.competitionSlug, lesson.slug)}>
+      <Link className="button" href={lessonPath(lesson.competitionSlug, normalizeLevel(lesson.level), lesson.slug)}>
         Open lesson
       </Link>
     </article>

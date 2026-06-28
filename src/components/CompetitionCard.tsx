@@ -35,11 +35,11 @@ export function CompetitionCard({
         {isScienceBowl ? (
           <div className="competition-card-stats">
             <div className="competition-card-stat">
-              <span className="competition-card-stat-value">{formatApproximateCount(counts.questions)}+</span>
+              <span className="competition-card-stat-value">{formatApproximateCount(counts.questions)}</span>
               <span className="competition-card-stat-label">Questions</span>
             </div>
             <div className="competition-card-stat">
-              <span className="competition-card-stat-value">{formatApproximateCount(counts.lessons)}+</span>
+              <span className="competition-card-stat-value">{formatApproximateCount(counts.lessons)}</span>
               <span className="competition-card-stat-label">Lessons</span>
             </div>
           </div>

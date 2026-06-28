@@ -24,7 +24,7 @@ export async function getNsbQuestions(): Promise<PracticeQuestion[]> {
       type: q.format === "multiple_choice" ? "multiple_choice" : "short_answer",
       prompt: q.text,
       choices: q.choices && q.choices.length > 0 ? q.choices : undefined,
-      correctAnswer: q.answer,
+      correctAnswer: (q.choices && q.answerIndex != null) ? q.choices[q.answerIndex] : q.answer,
       explanation: "", // NSB JSON doesn't have explanations; we could add them separately
       lessonIds: q.lessonIds || []
     }));

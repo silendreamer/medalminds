@@ -19,10 +19,10 @@ export type ScienceBowlCurriculumSubject = {
 
 export const scienceBowlMiddleSchoolSubjects: ScienceBowlCurriculumSubject[] = [
   {
-    slug: "life-science",
-    name: "Life Science",
+    slug: "biology",
+    name: "Biology",
     shortDescription: "Cells, genetics, physiology, ecology, and the living systems students see most often in middle-school rounds.",
-    whyItMatters: "Life Science tends to provide a large share of accessible middle-school Science Bowl points, especially for teams building confidence early.",
+    whyItMatters: "Biology tends to provide a large share of accessible middle-school Science Bowl points, especially for teams building confidence early.",
     highYieldTopics: ["Cells", "Photosynthesis", "Genetics", "Immune system", "Human physiology"],
     sources: ["Focus on Life Science", "Glencoe Biology", "Campbell Biology", "Raven Biology", "Sadava Life"],
     grades: [
@@ -59,83 +59,88 @@ export const scienceBowlMiddleSchoolSubjects: ScienceBowlCurriculumSubject[] = [
     ]
   },
   {
-    slug: "physical-science",
-    name: "Physical Science",
-    shortDescription: "A combined Physics and Chemistry track for the official middle-school Science Bowl subject structure.",
-    whyItMatters: "Physical Science is a broad point source: teams that master the core mechanics, electricity, matter, and reactions can pick up fast recall points in many rounds.",
-    highYieldTopics: ["Forces", "Energy", "Waves", "Atoms", "Chemical reactions"],
+    slug: "chemistry",
+    name: "Chemistry",
+    shortDescription: "Matter, atomic structure, periodic trends, reactions, and the chemical concepts that appear most in middle-school Science Bowl.",
+    whyItMatters: "Chemistry questions reward teams that can quickly recall periodic table facts, reaction types, and acid-base concepts under buzzer pressure.",
+    highYieldTopics: ["Atoms and elements", "Periodic table", "Chemical reactions", "Acids and bases", "States of matter"],
     sources: [
+      "Zumdahl Chemistry",
       "Physical Science (McGraw-Hill)",
-      "Hewitt Conceptual Physical Science",
-      "Giancoli Physics",
-      "Zumdahl Chemistry"
+      "Modern Chemistry (Holt)",
+      "CK-12 Chemistry"
     ],
     grades: [
       {
         key: "grade-6",
         label: "6th Grade Foundation",
         units: [
-          { title: "Physics Foundations", topics: ["Motion", "Speed and velocity", "Forces", "Newton's Laws", "Energy", "Work and power", "Simple machines"] },
-          { title: "Chemistry Foundations", topics: ["Matter", "States of matter", "Physical vs chemical changes", "Density", "Mixtures and solutions"] }
+          { title: "Matter and Its Properties", topics: ["States of matter", "Physical vs chemical changes", "Density", "Mixtures and solutions"] },
+          { title: "Elements and Atoms", topics: ["Atoms", "Elements", "Periodic table basics"] }
         ]
       },
       {
         key: "grade-7",
         label: "7th Grade Intermediate",
         units: [
-          { title: "Waves and Fields", topics: ["Waves", "Sound", "Light", "Electricity", "Magnetism", "Circuits"] },
-          { title: "Atomic and Molecular Basics", topics: ["Atoms", "Elements", "Periodic table", "Molecules", "Compounds", "Chemical reactions"] }
+          { title: "Bonding and Compounds", topics: ["Molecules", "Compounds", "Ionic vs covalent bonds"] },
+          { title: "Chemical Reactions", topics: ["Reaction types", "Balancing equations", "Conservation of mass"] }
         ]
       },
       {
         key: "grade-8",
         label: "8th Grade Advanced",
         units: [
-          { title: "Advanced Physics", topics: ["Momentum", "Gravity", "Electromagnetic spectrum", "Advanced electricity", "Energy conservation"] },
-          { title: "Advanced Chemistry", topics: ["Atomic structure", "Periodic trends", "Acids and bases", "Balancing equations", "Reaction types"] }
+          { title: "Atomic Structure and Trends", topics: ["Atomic structure", "Periodic trends", "Electron configuration basics"] },
+          { title: "Advanced Reactions", topics: ["Acids and bases", "pH scale", "Reaction rates", "Catalysts"] }
         ]
       }
     ]
   },
   {
-    slug: "math",
-    name: "Math",
-    shortDescription: "Middle-school competition math built around the computation, algebra, geometry, and interpretation skills that show up most often in Science Bowl.",
-    whyItMatters: "Math questions reward teams that are fast, calm, and fluent with scientific notation, algebra, geometry, and unit-based reasoning.",
-    highYieldTopics: ["Scientific notation", "Unit conversions", "Linear equations", "Geometry", "Advanced problem solving"],
-    sources: ["Algebra 1", "Geometry", "Algebra 2"],
+    slug: "physics",
+    name: "Physics",
+    shortDescription: "Motion, forces, waves, electricity, and the core mechanics and fields concepts that dominate middle-school Physics questions.",
+    whyItMatters: "Physics is a high-frequency subject in Science Bowl. Teams that master Newton's Laws, energy, and wave properties can reliably score across rounds.",
+    highYieldTopics: ["Forces and Newton's Laws", "Energy and work", "Waves and sound", "Electricity and circuits", "Simple machines"],
+    sources: [
+      "Hewitt Conceptual Physical Science",
+      "Giancoli Physics",
+      "Physical Science (McGraw-Hill)",
+      "CK-12 Physics"
+    ],
     grades: [
       {
         key: "grade-6",
         label: "6th Grade Foundation",
         units: [
-          { title: "Number Skills", topics: ["Fractions", "Decimals", "Percentages", "Ratios"] },
-          { title: "Science Bowl Math Tools", topics: ["Scientific notation", "Unit conversions"] }
+          { title: "Motion and Forces", topics: ["Motion", "Speed and velocity", "Forces", "Newton's Laws"] },
+          { title: "Energy and Work", topics: ["Energy", "Work and power", "Simple machines"] }
         ]
       },
       {
         key: "grade-7",
         label: "7th Grade Intermediate",
         units: [
-          { title: "Algebra Foundations", topics: ["Linear equations", "Exponents", "Square roots"] },
-          { title: "Data and Chance", topics: ["Graph interpretation", "Basic probability"] }
+          { title: "Waves and Light", topics: ["Waves", "Sound", "Light", "Electromagnetic spectrum"] },
+          { title: "Electricity and Magnetism", topics: ["Electricity", "Magnetism", "Circuits"] }
         ]
       },
       {
         key: "grade-8",
         label: "8th Grade Advanced",
         units: [
-          { title: "Algebra and Geometry", topics: ["Algebra I mastery", "Geometry fundamentals", "Coordinate geometry"] },
-          { title: "Advanced Problem Solving", topics: ["Statistics", "Advanced problem solving"] }
+          { title: "Advanced Mechanics", topics: ["Momentum", "Gravity", "Energy conservation", "Projectile motion"] },
+          { title: "Advanced Electricity", topics: ["Advanced electricity", "Electromagnetic induction", "Nuclear physics basics"] }
         ]
       }
     ]
   },
   {
-    slug: "earth-and-space-science",
-    name: "Earth and Space Science",
-    shortDescription: "A combined Earth and Space Science track covering systems, geology, atmosphere, astronomy, and the standard middle-school survey topics.",
-    whyItMatters: "Earth and Space Science is one of the easiest areas for teams to turn broad school knowledge into real Science Bowl points quickly.",
+    slug: "earth-and-space",
+    name: "Earth & Space",
+    shortDescription: "Earth systems, geology, atmosphere, and astronomy — the standard middle-school survey topics that show up across Science Bowl rounds.",
+    whyItMatters: "Earth & Space is one of the easiest areas for teams to turn broad school knowledge into real Science Bowl points quickly.",
     highYieldTopics: ["Plate tectonics", "Weather vs climate", "Solar system", "Stars", "Geologic time scale"],
     sources: ["Heath Earth Science", "Glencoe Earth Science", "Tarbuck & Lutgens", "SEEDS Foundations of Astronomy"],
     grades: [
@@ -195,6 +200,40 @@ export const scienceBowlMiddleSchoolSubjects: ScienceBowlCurriculumSubject[] = [
         ]
       }
     ]
+  },
+  {
+    slug: "math",
+    name: "Math",
+    shortDescription: "Middle-school competition math built around the computation, algebra, geometry, and interpretation skills that show up most often in Science Bowl.",
+    whyItMatters: "Math questions reward teams that are fast, calm, and fluent with scientific notation, algebra, geometry, and unit-based reasoning.",
+    highYieldTopics: ["Scientific notation", "Unit conversions", "Linear equations", "Geometry", "Advanced problem solving"],
+    sources: ["Algebra 1", "Geometry", "Algebra 2"],
+    grades: [
+      {
+        key: "grade-6",
+        label: "6th Grade Foundation",
+        units: [
+          { title: "Number Skills", topics: ["Fractions", "Decimals", "Percentages", "Ratios"] },
+          { title: "Science Bowl Math Tools", topics: ["Scientific notation", "Unit conversions"] }
+        ]
+      },
+      {
+        key: "grade-7",
+        label: "7th Grade Intermediate",
+        units: [
+          { title: "Algebra Foundations", topics: ["Linear equations", "Exponents", "Square roots"] },
+          { title: "Data and Chance", topics: ["Graph interpretation", "Basic probability"] }
+        ]
+      },
+      {
+        key: "grade-8",
+        label: "8th Grade Advanced",
+        units: [
+          { title: "Algebra and Geometry", topics: ["Algebra I mastery", "Geometry fundamentals", "Coordinate geometry"] },
+          { title: "Advanced Problem Solving", topics: ["Statistics", "Advanced problem solving"] }
+        ]
+      }
+    ]
   }
 ];
 
@@ -202,6 +241,13 @@ export function getScienceBowlMiddleSchoolSubjectByName(name?: string | null) {
   if (!name) return undefined;
   const normalized = name.trim().toLowerCase();
   return scienceBowlMiddleSchoolSubjects.find(
-    (subject) => subject.name.toLowerCase() === normalized || subject.slug === normalized.replace(/\s+/g, "-")
+    (subject) =>
+      subject.name.toLowerCase() === normalized ||
+      subject.slug === normalized.replace(/\s+/g, "-") ||
+      // backward compat: old PDF names
+      (subject.slug === "biology" && normalized === "life science") ||
+      (subject.slug === "chemistry" && normalized === "physical science") ||
+      (subject.slug === "physics" && normalized === "physical science") ||
+      (subject.slug === "earth-and-space" && (normalized === "earth and space science" || normalized === "earth & space science"))
   );
 }

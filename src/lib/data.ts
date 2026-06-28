@@ -186,14 +186,16 @@ function cachedContent<T>(load: () => Promise<T>, keyParts: string[], tags: stri
   return unstable_cache(load, keyParts, { tags, revalidate: CONTENT_REVALIDATE_SECONDS })();
 }
 
+// Question category aliases (for DB/JSON question matching — categories are display names)
 const subjectAliases: Record<string, string[]> = {
   "Biology": ["Biology", "Life Science"],
   "Life Science": ["Life Science", "Biology"],
-  "Chemistry": ["Chemistry"],
+  "Chemistry": ["Chemistry", "Physical Science"],
   "Physical Science": ["Physical Science", "Physics", "Chemistry"],
   "Physics": ["Physics", "Physical Science"],
-  "Earth and Space Science": ["Earth and Space Science", "Earth & Space Science"],
-  "Earth & Space Science": ["Earth & Space Science", "Earth and Space Science"],
+  "Earth and Space Science": ["Earth and Space Science", "Earth & Space Science", "Earth & Space"],
+  "Earth & Space Science": ["Earth & Space Science", "Earth and Space Science", "Earth & Space"],
+  "Earth & Space": ["Earth & Space", "Earth & Space Science", "Earth and Space Science"],
   "Energy": ["Energy"],
   "Math": ["Math"],
   "Anatomy": ["Anatomy"],
@@ -256,27 +258,11 @@ const questionInclude = {
 } as const;
 
 export function getCompetitions() {
-  return cachedContent(
-    async () => {
-      if (!isDbEnabled()) return localCompetitions;
-      return getPrisma().competition.findMany({ orderBy: { slug: "asc" } });
-    },
-    ["competitions"],
-    ["content:all"]
-  );
+  return Promise.resolve(localCompetitions);
 }
 
 export function getCompetitionBySlug(slug: string) {
-  return cachedContent(
-    async () => {
-      if (!isDbEnabled()) {
-        return localCompetitions.find((competition) => competition.slug === slug);
-      }
-      return getPrisma().competition.findUnique({ where: { slug } });
-    },
-    ["competition", slug],
-    [contentTag(slug)]
-  );
+  return Promise.resolve(localCompetitions.find((competition) => competition.slug === slug));
 }
 
 export function isCompetitionSlug(slug: string): slug is CompetitionSlug {
@@ -284,59 +270,34 @@ export function isCompetitionSlug(slug: string): slug is CompetitionSlug {
 }
 
 export async function getScienceBowlMiddleSchoolCurriculumSubjects() {
-  if (!isDbEnabled()) {
-    return staticScienceBowlMiddleSchoolSubjects.map((subject, subjectIndex) => ({
-      id: `static-${subject.slug}`,
-      slug: subject.slug,
-      competitionSlug: "science-bowl" as const,
-      levelId: "science-bowl-middle-school",
-      name: subject.name,
-      shortDescription: subject.shortDescription,
-      whyItMatters: subject.whyItMatters,
-      highYieldTopics: subject.highYieldTopics,
-      sources: subject.sources,
-      sortOrder: subjectIndex,
-      grades: subject.grades.map((grade, gradeIndex) => ({
-        id: `static-${subject.slug}-${grade.key}`,
-        key: grade.key,
-        label: grade.label,
-        sortOrder: gradeIndex,
-        units: grade.units.map((unit, unitIndex) => ({
-          id: `static-${subject.slug}-${grade.key}-${unitIndex}`,
-          title: unit.title,
-          sortOrder: unitIndex,
-          topics: unit.topics.map((topic, topicIndex) => ({
-            id: `static-${subject.slug}-${grade.key}-${unitIndex}-${topicIndex}`,
-            title: topic,
-            sortOrder: topicIndex
-          }))
+  return staticScienceBowlMiddleSchoolSubjects.map((subject, subjectIndex) => ({
+    id: `static-${subject.slug}`,
+    slug: subject.slug,
+    competitionSlug: "science-bowl" as const,
+    levelId: "science-bowl-middle-school",
+    name: subject.name,
+    shortDescription: subject.shortDescription,
+    whyItMatters: subject.whyItMatters,
+    highYieldTopics: subject.highYieldTopics,
+    sources: subject.sources,
+    sortOrder: subjectIndex,
+    grades: subject.grades.map((grade, gradeIndex) => ({
+      id: `static-${subject.slug}-${grade.key}`,
+      key: grade.key,
+      label: grade.label,
+      sortOrder: gradeIndex,
+      units: grade.units.map((unit, unitIndex) => ({
+        id: `static-${subject.slug}-${grade.key}-${unitIndex}`,
+        title: unit.title,
+        sortOrder: unitIndex,
+        topics: unit.topics.map((topic, topicIndex) => ({
+          id: `static-${subject.slug}-${grade.key}-${unitIndex}-${topicIndex}`,
+          title: topic,
+          sortOrder: topicIndex
         }))
       }))
-    }));
-  }
-
-  const subjects = await getPrisma().curriculumSubject.findMany({
-    where: {
-      competitionId: "science-bowl",
-      levelId: "science-bowl-middle-school"
-    },
-    orderBy: { sortOrder: "asc" },
-    include: {
-      grades: {
-        orderBy: { sortOrder: "asc" },
-        include: {
-          units: {
-            orderBy: { sortOrder: "asc" },
-            include: {
-              topics: { orderBy: { sortOrder: "asc" } }
-            }
-          }
-        }
-      }
-    }
-  });
-
-  return subjects.map(toCurriculumSubject);
+    }))
+  }));
 }
 
 export type SubjectTree = {
@@ -374,18 +335,16 @@ function topicSlugToName(slug: string): string {
 
 export type SubjectSummary = { id: string; name: string; slug: string; order: number };
 
-export function getSubjectsForCompetition(competitionSlug: CompetitionSlug) {
-  return cachedContent(
-    async (): Promise<SubjectSummary[]> => {
-      if (!isDbEnabled()) return [];
-      return getPrisma().subject.findMany({
-        where: { competitionId: competitionSlug },
-        orderBy: { order: "asc" },
-        select: { id: true, name: true, slug: true, order: true }
-      });
-    },
-    ["subjects", competitionSlug],
-    [contentTag(competitionSlug)]
+export function getSubjectsForCompetition(competitionSlug: CompetitionSlug): Promise<SubjectSummary[]> {
+  const competition = localCompetitions.find((c) => c.slug === competitionSlug);
+  const categories = competition?.categories ?? [];
+  return Promise.resolve(
+    categories.map((name, order) => ({
+      id: `static-subject-${competitionSlug}-${order}`,
+      name,
+      slug: name.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
+      order
+    }))
   );
 }
 
@@ -395,8 +354,12 @@ export function getSubjectWithTree(competitionSlug: CompetitionSlug, subjectSlug
       // Science Bowl reads from NSB JSON
       if (competitionSlug === "science-bowl") {
         const lessons = await getNsbLessons();
-        // NSB subjects are stored as-is from the slug (e.g., "life-science", "biology")
-        const subjectLessons = lessons.filter((l) => l.subject === subjectSlug);
+        // Resolve display-name slug (e.g. "earth-space") to NSB lesson subject slugs
+        const displayName = Object.keys(nsbLessonSubjectSlugs).find(
+          (k) => k.toLowerCase().replace(/[^a-z0-9]+/g, "-") === subjectSlug
+        ) ?? subjectSlug;
+        const validSlugs = nsbLessonSubjectSlugs[displayName] ?? [subjectSlug];
+        const subjectLessons = lessons.filter((l) => validSlugs.includes(l.subject));
 
         if (subjectLessons.length === 0) return null;
 
@@ -445,58 +408,7 @@ export function getSubjectWithTree(competitionSlug: CompetitionSlug, subjectSlug
         };
       }
 
-      if (!isDbEnabled()) return null;
-      const subject = await getPrisma().subject.findFirst({
-        where: { competitionId: competitionSlug, slug: subjectSlug },
-        include: {
-          topics: {
-            orderBy: { order: "asc" },
-            include: {
-              subTopics: {
-                orderBy: { order: "asc" },
-                include: {
-                  lessons: {
-                    where: { competitionId: competitionSlug },
-                    select: { id: true, slug: true, title: true, estimatedMinutes: true },
-                    orderBy: { title: "asc" }
-                  }
-                }
-              }
-            }
-          }
-        }
-      });
-      if (!subject) return null;
-
-      // Collect slugs of lessons already appearing under a subtopic so we don't double-list them
-      const linkedSlugs = new Set(
-        subject.topics.flatMap((t) => t.subTopics.flatMap((st) => st.lessons.map((l) => l.slug)))
-      );
-      const categoryAliases = subjectAliases[subject.name] ?? [subject.name];
-      const allCategoryLessons = await getPrisma().lesson.findMany({
-        where: { competitionId: competitionSlug, category: { in: categoryAliases } },
-        select: { id: true, slug: true, title: true, estimatedMinutes: true },
-        orderBy: { title: "asc" }
-      });
-      const unlinkedLessons = allCategoryLessons.filter((l) => !linkedSlugs.has(l.slug));
-
-      return {
-        id: subject.id,
-        name: subject.name,
-        slug: subject.slug,
-        topics: subject.topics.map((t) => ({
-          id: t.id,
-          name: t.name,
-          order: t.order,
-          subTopics: t.subTopics.map((st) => ({
-            id: st.id,
-            name: st.name,
-            order: st.order,
-            lessons: st.lessons
-          }))
-        })),
-        unlinkedLessons
-      };
+      return null;
     },
     ["subject-tree", competitionSlug, subjectSlug],
     [contentTag(competitionSlug)]
@@ -513,17 +425,10 @@ export async function getScienceBowlMiddleSchoolCurriculumSubjectByName(name?: s
 }
 
 export async function getQuestionsByCompetition(slug: CompetitionSlug) {
-  if (!isDbEnabled()) {
-    return localPracticeQuestions.filter((question) => question.competitionSlug === slug);
+  if (slug === "science-bowl") {
+    return getNsbQuestions();
   }
-
-  const questions = await getPrisma().question.findMany({
-    where: { competition: { slug }, deletedAt: null },
-    orderBy: { id: "asc" },
-    include: questionInclude
-  });
-
-  return questions.map(toPracticeQuestion);
+  return localPracticeQuestions.filter((question) => question.competitionSlug === slug);
 }
 
 export async function getRandomQuestionByCompetition(
@@ -537,6 +442,7 @@ export async function getRandomQuestionByCompetition(
     if (nsbQuestions.length > 0) {
       const questions = nsbQuestions.filter(
         (question) =>
+          question.type === "multiple_choice" &&
           localQuestionMatchesSubject(question, subject) &&
           localQuestionMatchesSchoolLevel(question, schoolLevel)
       );
@@ -547,6 +453,7 @@ export async function getRandomQuestionByCompetition(
   // Fall back to local TypeScript data for other competitions
   const questions = localPracticeQuestions.filter(
     (question) =>
+      question.type === "multiple_choice" &&
       question.competitionSlug === slug &&
       localQuestionMatchesSubject(question, subject) &&
       localQuestionMatchesSchoolLevel(question, schoolLevel)
@@ -565,6 +472,7 @@ export async function getQuestionById(
     const nsbQuestions = await getNsbQuestions();
     const question = nsbQuestions.find(
       (q) =>
+        q.type === "multiple_choice" &&
         q.id === questionId &&
         localQuestionMatchesSubject(q, subject) &&
         localQuestionMatchesSchoolLevel(q, schoolLevel)
@@ -575,6 +483,7 @@ export async function getQuestionById(
   // Fall back to local TypeScript data for other competitions
   return localPracticeQuestions.find(
     (question) =>
+      question.type === "multiple_choice" &&
       question.id === questionId &&
       question.competitionSlug === slug &&
       localQuestionMatchesSubject(question, subject) &&
@@ -588,50 +497,18 @@ export async function getRandomMultipleChoiceQuestions(
   count: number,
   schoolLevel?: SchoolLevelFilter | null
 ) {
-  if (!isDbEnabled()) {
-    return shuffle(
-      localPracticeQuestions.filter(
-        (question) =>
-          question.competitionSlug === slug &&
-          question.type === "multiple_choice" &&
-          localQuestionMatchesSubject(question, subject) &&
-          localQuestionMatchesSchoolLevel(question, schoolLevel)
-      )
-    ).slice(0, count);
-  }
+  const pool = slug === "science-bowl"
+    ? await getNsbQuestions()
+    : localPracticeQuestions.filter((q) => q.competitionSlug === slug);
 
-  const aliases = aliasesForSubject(subject);
-  const prisma = getPrisma();
-  const randomQuestionIds = await prisma.$queryRaw<Array<{ id: string }>>(
-    Prisma.sql`
-      SELECT q.id
-      FROM "Question" q
-      INNER JOIN "Competition" c ON c.id = q."competitionId"
-      WHERE c.slug = ${slug}
-        AND q.format = 'MULTIPLE_CHOICE'
-        AND q."deletedAt" IS NULL
-        ${aliases ? Prisma.sql`AND q.category IN (${Prisma.join(aliases)})` : Prisma.empty}
-        ${schoolLevel ? Prisma.sql`AND q."schoolLevel" = ${schoolLevel}::"SchoolLevel"` : Prisma.empty}
-        AND (
-          SELECT count(*)
-          FROM "MultipleChoice" mc
-          WHERE mc."questionId" = q.id
-        ) >= 2
-      ORDER BY random()
-      LIMIT ${count}
-    `
-  );
-  const ids = randomQuestionIds.map((question) => question.id);
-
-  const questions = await prisma.question.findMany({
-    where: { id: { in: ids } },
-    include: questionInclude
-  });
-  const byId = new Map(questions.map((question) => [question.id, toPracticeQuestion(question)]));
-
-  return ids
-    .map((id) => byId.get(id))
-    .filter((question): question is NonNullable<typeof question> => Boolean(question));
+  return shuffle(
+    pool.filter(
+      (question) =>
+        question.type === "multiple_choice" &&
+        localQuestionMatchesSubject(question, subject) &&
+        localQuestionMatchesSchoolLevel(question, schoolLevel)
+    )
+  ).slice(0, count);
 }
 
 export function getLessonsByCompetition(
@@ -646,12 +523,13 @@ export function getLessonsByCompetition(
       // Always use NSB lessons for science-bowl (local JSON with links)
       if (slug === "science-bowl") {
         const nsbLessons = await getNsbLessons();
+        const lessonSlugs = subject ? (nsbLessonSubjectSlugs[subject] ?? [subject.toLowerCase().replace(/[^a-z0-9]+/g, "-")]) : null;
         return nsbLessons
           .filter((lesson: any) => {
             const levelMatch = lesson.level === "ms"
               ? schoolLevel === "MIDDLE_SCHOOL" || !schoolLevel
               : schoolLevel === "HIGH_SCHOOL" || !schoolLevel;
-            const subjectMatch = !aliases || aliases.includes(lesson.subject);
+            const subjectMatch = !lessonSlugs || lessonSlugs.includes(lesson.subject);
             return levelMatch && subjectMatch;
           })
           .map((lesson: any) => ({
@@ -710,77 +588,18 @@ export async function getLessonsByIds(lessonIds: string[], competitionSlug: Comp
   return localLessons.filter((lesson) => lessonIds.includes(lesson.id) && lesson.competitionSlug === competitionSlug);
 }
 
-export async function getPrimaryConceptLessonForQuestion(questionId: string) {
-  if (!isDbEnabled()) return undefined;
-
-  const questionConcept = await getPrisma().questionConcept.findFirst({
-    where: {
-      questionId,
-      isPrimary: true
-    },
-    orderBy: { position: "asc" },
-    include: {
-      concept: {
-        include: {
-          lessons: {
-            orderBy: { id: "asc" },
-            take: 1
-          }
-        }
-      }
-    }
-  });
-  const lesson = questionConcept?.concept.lessons[0];
-
-  if (!lesson) return undefined;
-
-  const lessonWithLevel = await getPrisma().lesson.findUnique({
-    where: { id: lesson.id },
-    include: { competitionLevel: { select: { name: true } } }
-  });
-
-  return lessonWithLevel ? toLesson(lessonWithLevel) : undefined;
+export async function getPrimaryConceptLessonForQuestion(_questionId: string) {
+  return undefined;
 }
 
 export function getTestsByCompetition(slug: CompetitionSlug) {
-  return cachedContent(
-    async () => {
-      if (!isDbEnabled()) {
-        return localTests.filter((test) => test.competitionSlug === slug);
-      }
-
-      const tests = await getPrisma().test.findMany({
-        where: { competition: { slug } },
-        orderBy: { id: "asc" },
-        include: {
-          competitionLevel: { select: { name: true } },
-          questions: {
-            orderBy: { position: "asc" },
-            include: {
-              question: {
-                include: {
-                  answers: { include: { mc: true } },
-                  multipleChoices: { orderBy: { position: "asc" as const } },
-                  answerExplanations: { orderBy: { position: "asc" } }
-                }
-              }
-            }
-          }
-        }
-      });
-
-      return tests.map(toTest);
-    },
-    ["tests", slug],
-    [contentTag(slug)]
-  );
+  return Promise.resolve(localTests.filter((test) => test.competitionSlug === slug));
 }
 
 export async function getLessonBySlug(slug: CompetitionSlug, lessonSlug: string) {
-  // Science Bowl reads from NSB JSON
   if (slug === "science-bowl") {
     const lessons = await getNsbLessons();
-    const lesson = lessons.find((l) => l.slug === lessonSlug);
+    const lesson = lessons.find((l: any) => l.slug === lessonSlug);
     if (!lesson) return undefined;
 
     const contentSections = await getNsbLessonContent(lesson.contentPath);
@@ -796,223 +615,100 @@ export async function getLessonBySlug(slug: CompetitionSlug, lessonSlug: string)
       keyConcepts: lesson.keyConcepts,
       estimatedMinutes: lesson.estimatedMinutes ?? 0,
       contentSections,
-      reviewQuestions: [] // TODO: link related questions
+      reviewQuestions: []
     };
   }
 
-  if (!isDbEnabled()) {
-    return localLessons.find((lesson) => lesson.competitionSlug === slug && lesson.slug === lessonSlug);
-  }
-
-  const lesson = await getPrisma().lesson.findFirst({
-    where: {
-      slug: lessonSlug,
-      competition: { slug }
-    },
-    include: { competitionLevel: { select: { name: true } } }
-  });
-
-  return lesson ? toLesson(lesson) : undefined;
+  return localLessons.find((lesson) => lesson.competitionSlug === slug && lesson.slug === lessonSlug);
 }
 
 export async function getTestBySlug(slug: CompetitionSlug, testSlug: string) {
-  if (!isDbEnabled()) {
-    return localTests.find((test) => test.competitionSlug === slug && test.slug === testSlug);
-  }
-
-  const test = await getPrisma().test.findFirst({
-    where: {
-      slug: testSlug,
-      competition: { slug }
-    },
-    include: {
-      competitionLevel: { select: { name: true } },
-      questions: {
-        orderBy: { position: "asc" },
-        include: {
-          question: {
-            include: {
-              answers: { include: { mc: true } },
-              multipleChoices: { orderBy: { position: "asc" as const } },
-              answerExplanations: { orderBy: { position: "asc" } }
-            }
-          }
-        }
-      }
-    }
-  });
-
-  return test ? toTest(test) : undefined;
+  return localTests.find((test) => test.competitionSlug === slug && test.slug === testSlug);
 }
 
 export async function getQuestionsForTest(questionIds: string[]) {
-  if (!isDbEnabled()) {
-    return questionIds
-      .map((id) => localPracticeQuestions.find((question) => question.id === id))
-      .filter((question): question is NonNullable<typeof question> => Boolean(question));
-  }
-
-  const questions = await getPrisma().question.findMany({
-    where: { id: { in: questionIds }, deletedAt: null },
-    include: questionInclude
-  });
-  const byId = new Map(questions.map((question) => [question.id, toPracticeQuestion(question)]));
-
   return questionIds
-    .map((id) => byId.get(id))
+    .map((id) => localPracticeQuestions.find((question) => question.id === id))
     .filter((question): question is NonNullable<typeof question> => Boolean(question));
 }
 
-export function getContentCounts(slug: CompetitionSlug) {
-  return cachedContent(
-    async () => {
-      if (!isDbEnabled()) {
-        return {
-          questions: localPracticeQuestions.filter((question) => question.competitionSlug === slug).length,
-          lessons: localLessons.filter((lesson) => lesson.competitionSlug === slug).length
-        };
-      }
-
-      const prisma = getPrisma();
-      const competition = await prisma.competition.findUnique({
-        where: { slug },
-        select: { id: true }
-      });
-
-      if (!competition) {
-        return { questions: 0, lessons: 0 };
-      }
-
-      const [questions, lessons] = await Promise.all([
-        prisma.question.count({ where: { competitionId: competition.id, deletedAt: null } }),
-        prisma.lesson.count({ where: { competitionId: competition.id } })
-      ]);
-
-      return { questions, lessons };
-    },
-    ["content-counts", slug],
-    [contentTag(slug)]
-  );
+export async function getContentCounts(slug: CompetitionSlug) {
+  if (slug === "science-bowl") {
+    const [questions, lessons] = await Promise.all([getNsbQuestions(), getNsbLessons()]);
+    return { questions: questions.length, lessons: (lessons as any[]).length };
+  }
+  return {
+    questions: localPracticeQuestions.filter((q) => q.competitionSlug === slug).length,
+    lessons: localLessons.filter((l) => l.competitionSlug === slug).length
+  };
 }
 
-export function getContentCountsBySchoolLevel(slug: CompetitionSlug, schoolLevel: SchoolLevelFilter) {
-  return cachedContent(
-    async () => {
-      if (!isDbEnabled()) {
-        return {
-          questions: localPracticeQuestions.filter(
-            (question) =>
-              question.competitionSlug === slug &&
-              localQuestionMatchesSchoolLevel(question, schoolLevel)
-          ).length,
-          lessons: localLessons.filter(
-            (lesson) =>
-              lesson.competitionSlug === slug &&
-              levelStringMatchesSchoolLevel(lesson.level, schoolLevel)
-          ).length
-        };
-      }
-
-      const prisma = getPrisma();
-      const competition = await prisma.competition.findUnique({
-        where: { slug },
-        select: { id: true }
-      });
-
-      if (!competition) {
-        return { questions: 0, lessons: 0 };
-      }
-
-      const [questions, lessons] = await Promise.all([
-        prisma.question.count({
-          where: {
-            competitionId: competition.id,
-            schoolLevel,
-            deletedAt: null
-          }
-        }),
-        prisma.lesson.count({
-          where: {
-            competitionId: competition.id,
-            competitionLevel: {
-              schoolLevel: { in: [schoolLevel, "MIXED"] }
-            }
-          }
-        })
-      ]);
-
-      return { questions, lessons };
-    },
-    ["content-counts-level", slug, schoolLevel],
-    [contentTag(slug)]
-  );
+export async function getContentCountsBySchoolLevel(slug: CompetitionSlug, schoolLevel: SchoolLevelFilter) {
+  if (slug === "science-bowl") {
+    const [questions, lessons] = await Promise.all([getNsbQuestions(), getNsbLessons()]);
+    const levelKey = schoolLevel === "MIDDLE_SCHOOL" ? "ms" : "hs";
+    return {
+      questions: questions.filter((q) => localQuestionMatchesSchoolLevel(q, schoolLevel)).length,
+      lessons: (lessons as any[]).filter((l) => l.level === levelKey).length
+    };
+  }
+  return {
+    questions: localPracticeQuestions.filter(
+      (q) => q.competitionSlug === slug && localQuestionMatchesSchoolLevel(q, schoolLevel)
+    ).length,
+    lessons: localLessons.filter(
+      (l) => l.competitionSlug === slug && levelStringMatchesSchoolLevel(l.level, schoolLevel)
+    ).length
+  };
 }
 
-export function getContentCountsForSubject(
+// NSB lessons.json uses lowercase slugs for subject; map display names to those slugs
+const nsbLessonSubjectSlugs: Record<string, string[]> = {
+  "Biology": ["biology", "life-science"],
+  "Chemistry": ["chemistry", "physical-science"],
+  "Physics": ["physics", "physical-science"],
+  "Earth & Space": ["earth-space-science"],
+  "Earth & Space Science": ["earth-space-science"],
+  "Earth and Space Science": ["earth-space-science"],
+  "Energy": ["energy"],
+  "Math": ["math"]
+};
+
+export async function getContentCountsForSubject(
   slug: CompetitionSlug,
   subject: string,
   schoolLevel?: SchoolLevelFilter | null
 ) {
-  return cachedContent(
-    async () => {
-      const aliases = aliasesForSubject(subject);
+  const aliases = aliasesForSubject(subject);
 
-      if (!isDbEnabled()) {
-        return {
-          questions: localPracticeQuestions.filter(
-            (question) =>
-              question.competitionSlug === slug &&
-              localQuestionMatchesSubject(question, subject) &&
-              localQuestionMatchesSchoolLevel(question, schoolLevel)
-          ).length,
-          lessons: localLessons.filter(
-            (lesson) =>
-              lesson.competitionSlug === slug &&
-              (!aliases || aliases.includes(lesson.category)) &&
-              levelStringMatchesSchoolLevel(lesson.level, schoolLevel)
-          ).length
-        };
-      }
+  if (slug === "science-bowl") {
+    const [questions, lessons] = await Promise.all([getNsbQuestions(), getNsbLessons()]);
+    const levelKey = schoolLevel === "MIDDLE_SCHOOL" ? "ms" : schoolLevel === "HIGH_SCHOOL" ? "hs" : null;
+    const lessonSlugs = nsbLessonSubjectSlugs[subject] ?? [subject.toLowerCase().replace(/[^a-z0-9]+/g, "-")];
+    return {
+      questions: questions.filter(
+        (q) => localQuestionMatchesSubject(q, subject) && localQuestionMatchesSchoolLevel(q, schoolLevel)
+      ).length,
+      lessons: (lessons as any[]).filter(
+        (l) => lessonSlugs.includes(l.subject) && (!levelKey || l.level === levelKey)
+      ).length
+    };
+  }
 
-      const prisma = getPrisma();
-      const competition = await prisma.competition.findUnique({
-        where: { slug },
-        select: { id: true }
-      });
-
-      if (!competition) {
-        return { questions: 0, lessons: 0 };
-      }
-
-      const [questions, lessons] = await Promise.all([
-        prisma.question.count({
-          where: {
-            competitionId: competition.id,
-            deletedAt: null,
-            ...(aliases ? { category: { in: aliases } } : {}),
-            ...(schoolLevel ? { schoolLevel } : {})
-          }
-        }),
-        prisma.lesson.count({
-          where: {
-            competitionId: competition.id,
-            ...(aliases ? { category: { in: aliases } } : {}),
-            ...(schoolLevel
-              ? {
-                  competitionLevel: {
-                    schoolLevel: { in: [schoolLevel, "MIXED"] }
-                  }
-                }
-              : {})
-          }
-        })
-      ]);
-
-      return { questions, lessons };
-    },
-    ["content-counts-subject", slug, subject, schoolLevel ?? ""],
-    [contentTag(slug)]
-  );
+  return {
+    questions: localPracticeQuestions.filter(
+      (q) =>
+        q.competitionSlug === slug &&
+        localQuestionMatchesSubject(q, subject) &&
+        localQuestionMatchesSchoolLevel(q, schoolLevel)
+    ).length,
+    lessons: localLessons.filter(
+      (l) =>
+        l.competitionSlug === slug &&
+        (!aliases || aliases.includes(l.category)) &&
+        levelStringMatchesSchoolLevel(l.level, schoolLevel)
+    ).length
+  };
 }
 
 export function getBuzzerQuestions() {

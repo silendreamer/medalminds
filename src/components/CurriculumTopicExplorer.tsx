@@ -2,6 +2,13 @@ import Link from "next/link";
 import type { CompetitionSlug, CurriculumSubject, Lesson } from "@/types";
 import { lessonPath } from "@/lib/routes";
 
+function normalizeLevel(level: string): string {
+  const l = level.toLowerCase();
+  if (l.includes("middle")) return "middle-school";
+  if (l.includes("high")) return "high-school";
+  return l.replace(/\s+/g, "-");
+}
+
 const stopWords = new Set([
   "and",
   "the",
@@ -93,7 +100,7 @@ export function CurriculumTopicExplorer({
                               {matchedLessons.map((lesson) => (
                                 <Link
                                   className="curriculum-topic-lesson-link"
-                                  href={lessonPath(competitionSlug, lesson.slug)}
+                                  href={lessonPath(competitionSlug, normalizeLevel(lesson.level), lesson.slug)}
                                   key={lesson.id}
                                 >
                                   {lesson.title}

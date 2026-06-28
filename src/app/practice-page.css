@@ -4,6 +4,359 @@
   padding: var(--space-4) 0;
 }
 
+/* ── Question card ── */
+.pq-card {
+  background: #fff;
+  border: 1px solid #e7e9ee;
+  border-radius: 14px;
+  padding: 28px;
+  display: grid;
+  gap: 20px;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05);
+}
+
+.pq-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.pq-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0;
+  background: #eef2ff;
+  color: #3730a3;
+  border-radius: 999px;
+  padding: 5px 12px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.pq-format {
+  color: #6366f1;
+  font-weight: 500;
+}
+
+.pq-counter {
+  font-size: 13px;
+  color: #667085;
+  font-weight: 500;
+}
+
+/* ── Choices ── */
+.pq-choices {
+  display: grid;
+  gap: 10px;
+}
+
+.pq-choice {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding: 14px 16px;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 10px;
+  background: #fff;
+  color: #1a2745;
+  font-size: 15px;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  transition: all 150ms ease;
+}
+
+.pq-choice:not(:disabled):hover {
+  border-color: #a5b4fc;
+  background: #f5f3ff;
+}
+
+.pq-choice-label {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1.5px solid #d1d5db;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  flex-shrink: 0;
+  background: #f9fafb;
+  color: #667085;
+  transition: all 150ms ease;
+}
+
+.pq-choice-text {
+  flex: 1;
+}
+
+/* Selected (before reveal) */
+.pq-choice--selected {
+  border-color: #6366f1;
+  background: #eef2ff;
+}
+.pq-choice--selected .pq-choice-label {
+  border-color: #6366f1;
+  background: #6366f1;
+  color: #fff;
+}
+
+/* Correct answer */
+.pq-choice--correct {
+  border-color: #16a34a;
+  background: #f0fdf4;
+}
+.pq-choice--correct .pq-choice-label {
+  border-color: #16a34a;
+  background: #16a34a;
+  color: #fff;
+}
+
+/* The one the user got wrong */
+.pq-choice--incorrect {
+  border-color: #dc2626;
+  background: #fef2f2;
+}
+.pq-choice--incorrect .pq-choice-label {
+  border-color: #dc2626;
+  background: #dc2626;
+  color: #fff;
+}
+
+/* Other choices dimmed after reveal */
+.pq-choice--missed {
+  opacity: 0.45;
+  cursor: default;
+}
+
+/* ── Text input row ── */
+.pq-text-input-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+.pq-text-input-row .input {
+  flex: 1;
+}
+
+/* ── Feedback ── */
+.pq-feedback {
+  border-radius: 10px;
+  padding: 16px 18px;
+  display: grid;
+  gap: 6px;
+}
+
+.pq-feedback--correct {
+  background: #f0fdf4;
+  border: 1px solid #86efac;
+}
+
+.pq-feedback--incorrect {
+  background: #fef2f2;
+  border: 1px solid #fca5a5;
+}
+
+.pq-feedback-verdict {
+  font-size: 14px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.pq-feedback--correct .pq-feedback-verdict {
+  color: #15803d;
+}
+
+.pq-feedback--incorrect .pq-feedback-verdict {
+  color: #b91c1c;
+}
+
+.pq-feedback-verdict span {
+  font-weight: 500;
+}
+
+.pq-feedback-explanation {
+  font-size: 13.5px;
+  color: #4b5563;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.pq-learn-link {
+  background: none;
+  border: none;
+  padding: 0;
+  margin-top: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #4f46e5;
+  cursor: pointer;
+  text-align: left;
+}
+
+.pq-learn-link:hover {
+  text-decoration: underline;
+}
+
+/* ── Footer actions ── */
+.pq-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: 4px;
+}
+
+/* ── Sidebar stats card ── */
+.pq-stats-card {
+  background: #fff;
+  border: 1px solid #e7e9ee;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05);
+}
+
+.pq-stats-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.pq-stats-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #1a2745;
+  margin: 0;
+}
+
+.pq-stats-reset {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 12px;
+  font-weight: 500;
+  color: #9ca3af;
+  cursor: pointer;
+}
+
+.pq-stats-reset:hover {
+  color: #667085;
+  text-decoration: underline;
+}
+
+.pq-stats-rows {
+  display: grid;
+  gap: 0;
+}
+
+.pq-stats-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.pq-stats-row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.pq-stats-row--progress {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+}
+
+.pq-stats-progress-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.pq-stats-label {
+  font-size: 13px;
+  color: #667085;
+  font-weight: 500;
+}
+
+.pq-stats-value {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1a2745;
+}
+
+.pq-stats-value--correct {
+  color: #16a34a;
+}
+
+.pq-stats-value--incorrect {
+  color: #dc2626;
+}
+
+.pq-stats-streak {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1a2745;
+}
+
+.pq-stats-progress-count {
+  font-size: 12px;
+  color: #9ca3af;
+  font-weight: 500;
+}
+
+.pq-progress-bar {
+  height: 5px;
+  background: #e5e7eb;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.pq-progress-fill {
+  height: 100%;
+  background: #16a34a;
+  border-radius: 999px;
+  transition: width 400ms ease;
+  min-width: 0;
+}
+
+/* ── Buzzer card ── */
+.pq-buzzer-card {
+  background: #1a2745;
+  border-radius: 12px;
+  padding: 20px;
+  display: grid;
+  gap: 10px;
+}
+
+.pq-buzzer-card h4 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.pq-buzzer-card p {
+  margin: 0;
+  font-size: 13px;
+  color: #94a3b8;
+  line-height: 1.5;
+}
+
+.pq-buzzer-btn {
+  background: #ca8a04 !important;
+  border-color: #ca8a04 !important;
+  color: #fff !important;
+  font-size: 13px !important;
+  min-height: 38px !important;
+  padding: 9px 14px !important;
+}
+
 /* Hero section with level toggle */
 .practice-page-hero {
   display: flex !important;
@@ -81,7 +434,7 @@
 /* Practice layout with sidebar */
 .practice-layout {
   display: grid !important;
-  grid-template-columns: 280px minmax(0, 1fr) !important;
+  grid-template-columns: minmax(0, 1fr) 260px !important;
   gap: 24px !important;
   align-items: start !important;
 }
@@ -218,7 +571,7 @@
   }
 
   .practice-layout {
-    grid-template-columns: 240px minmax(0, 1fr) !important;
+    grid-template-columns: minmax(0, 1fr) 220px !important;
     gap: 20px !important;
   }
 

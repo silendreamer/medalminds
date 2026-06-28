@@ -21,7 +21,7 @@ export function TestCard({ test }: { test: Test }) {
           </span>
         ))}
       </div>
-      <Link className="button" href={testPath(test.competitionSlug, test.slug)}>
+      <Link className="button" href={testPath(test.competitionSlug, test.level?.toLowerCase().includes("high") ? "high-school" : "middle-school", test.slug)}>
         Start test
       </Link>
     </article>
