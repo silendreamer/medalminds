@@ -69,6 +69,13 @@ export default async function HomePage() {
               </Link>
             </div>
             <p className="hero-note">No sign-up required. Sign in anytime to save your progress.</p>
+            <div className="mobile-hero-stats" aria-hidden="true">
+              <span><strong>{formatApproximateCount(scienceBowlCounts.questions)}+</strong> questions</span>
+              <span>·</span>
+              <span><strong>6</strong> subjects</span>
+              <span>·</span>
+              <span><strong>Free</strong> to start</span>
+            </div>
             <div className="trust-strip" aria-label="Platform highlights">
               {heroTrustPills.map((pill) => (
                 <span key={pill}>{pill}</span>

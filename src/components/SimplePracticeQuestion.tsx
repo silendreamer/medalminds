@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useState } from "react";
 import type { Lesson, PracticeQuestion } from "@/types";
 import { lessonPath } from "@/lib/routes";
+import { QuestionText } from "@/components/QuestionText";
+import { getDisplayText, getDisplayChoice, getDisplayCorrectAnswer } from "@/lib/formatQuestionText";
 
 function normalizeLevel(level: string): string {
   const l = level.toLowerCase();
@@ -92,7 +94,7 @@ export function SimplePracticeQuestion({
         </div>
 
         {/* Question */}
-        <p className="question-prompt">{question.prompt}</p>
+        <p className="question-prompt"><QuestionText html={getDisplayText(question)} /></p>
 
         {/* Choices or text input */}
         {question.type === "multiple_choice" ? (
@@ -120,7 +122,7 @@ export function SimplePracticeQuestion({
                   disabled={checked}
                 >
                   <span className="pq-choice-label">{label}</span>
-                  <span className="pq-choice-text">{choice}</span>
+                  <span className="pq-choice-text"><QuestionText html={getDisplayChoice(question, index)} /></span>
                 </button>
               );
             })}
@@ -148,10 +150,10 @@ export function SimplePracticeQuestion({
           <div className={`pq-feedback ${correct ? "pq-feedback--correct" : "pq-feedback--incorrect"}`}>
             <p className="pq-feedback-verdict">
               {correct ? "✓ Correct" : "✗ Incorrect"}{" "}
-              <span>— {question.correctAnswer}</span>
+              <span>— <QuestionText html={getDisplayCorrectAnswer(question)} /></span>
             </p>
             {question.explanation && (
-              <p className="pq-feedback-explanation">{question.explanation}</p>
+              <p className="pq-feedback-explanation"><QuestionText html={question.explanation} /></p>
             )}
             {(linkedLessons && linkedLessons.length > 1) && (
               <div style={{ marginTop: "10px" }}>

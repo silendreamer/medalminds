@@ -24,6 +24,8 @@ export interface PracticeQuestion {
   alternateAnswers?: string[];
   explanation: string;
   lessonIds?: string[];
+  displayText?: string;
+  displayChoices?: string[];
 }
 
 export interface Lesson {

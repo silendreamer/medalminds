@@ -26,7 +26,9 @@ export async function getNsbQuestions(): Promise<PracticeQuestion[]> {
       choices: q.choices && q.choices.length > 0 ? q.choices : undefined,
       correctAnswer: (q.choices && q.answerIndex != null) ? q.choices[q.answerIndex] : q.answer,
       explanation: "", // NSB JSON doesn't have explanations; we could add them separately
-      lessonIds: q.lessonIds || []
+      lessonIds: q.lessonIds || [],
+      displayText: q.displayText ?? undefined,
+      displayChoices: q.displayChoices && q.displayChoices.length > 0 ? q.displayChoices : undefined
     }));
 
     return nsbQuestionsCache;

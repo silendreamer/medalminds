@@ -21,6 +21,7 @@ export function PracticeQuestionCard({ questions }: { questions: PracticeQuestio
   const [index, setIndex] = useState(0);
   const [answer, setAnswer] = useState("");
   const [checked, setChecked] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const categories = useMemo(() => ["All", ...Array.from(new Set(questions.map((q) => q.category)))], [questions]);
   const difficulties = useMemo(() => ["All", ...Array.from(new Set(questions.map((q) => q.difficulty)))], [questions]);
@@ -54,8 +55,23 @@ export function PracticeQuestionCard({ questions }: { questions: PracticeQuestio
 
   return (
     <div className="practice-layout">
-      <aside className="card side-panel stack">
-        <h3>Filters</h3>
+      {/* Mobile filter toggle */}
+      <button className="practice-filters-toggle" style={{ display: "none" }} onClick={() => setSidebarOpen(true)}>
+        ⚙ Filters
+      </button>
+
+      {/* Mobile scrim */}
+      <div className={`practice-sidebar-scrim${sidebarOpen ? " open" : ""}`} onClick={() => setSidebarOpen(false)} />
+
+      <aside className={`card side-panel stack practice-sidebar${sidebarOpen ? " sidebar-open" : ""}`}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <h3 style={{ margin: 0 }}>Filters</h3>
+          <button
+            onClick={() => setSidebarOpen(false)}
+            style={{ background: "none", border: "none", fontSize: "20px", cursor: "pointer", color: "#667085", padding: "4px", lineHeight: 1 }}
+            aria-label="Close filters"
+          >×</button>
+        </div>
         <select className="select" value={category} onChange={(event) => updateFilter(setCategory, event.target.value)}>
           {categories.map((item) => (
             <option key={item}>{item}</option>
