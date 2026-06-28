@@ -29,12 +29,8 @@ export const metadata: Metadata = {
     }
   },
   icons: {
-    apple: "/assets/favicon-180.png",
-    icon: [
-      { url: "/assets/favicon-32.png", sizes: "32x32", type: "image/png" },
-      { url: "/assets/favicon-192.png", sizes: "192x192", type: "image/png" }
-    ],
-    shortcut: "/assets/favicon-32.png"
+    icon: "/logo-mm.svg",
+    apple: "/logo-mm.svg"
   }
 };
 

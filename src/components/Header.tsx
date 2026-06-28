@@ -44,24 +44,15 @@ export function Header() {
             flexShrink: 0
           }}
         >
-          <div
+          <img
+            src="/logo-mm.svg"
+            alt="MedalMinds"
             style={{
               width: "38px",
               height: "38px",
-              background: "#1a2745",
-              borderRadius: "9px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              color: "#fff",
-              fontFamily: "Poppins, system-ui, sans-serif",
-              fontWeight: 700,
-              fontSize: "18px",
               flexShrink: 0
             }}
-          >
-            M
-          </div>
+          />
           <span>Medal Minds</span>
         </Link>
 

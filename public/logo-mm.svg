@@ -1,0 +1,16 @@
+<svg viewBox="0 0 240 240" xmlns="http://www.w3.org/2000/svg">
+  <!-- Outer navy circle -->
+  <circle cx="120" cy="120" r="115" fill="#0f172a"/>
+
+  <!-- Gold accent ring -->
+  <circle cx="120" cy="120" r="105" fill="none" stroke="#b8860b" stroke-width="8"/>
+
+  <!-- Navy blue inner circle background -->
+  <circle cx="120" cy="120" r="100" fill="#0f172a"/>
+
+  <!-- Larger M (gold) -->
+  <text x="120" y="162" font-family="Arial, sans-serif" font-size="160" font-weight="bold" fill="#b8860b" text-anchor="middle">M</text>
+
+  <!-- Smaller M (white) inside -->
+  <text x="120" y="148" font-family="Arial, sans-serif" font-size="100" font-weight="bold" fill="white" text-anchor="middle">M</text>
+</svg>
