@@ -133,13 +133,16 @@ export function getSubjectsForCompetition(competitionSlug: CompetitionSlug): Pro
   );
 }
 
-export async function getSubjectWithTree(competitionSlug: CompetitionSlug, subjectSlug: string): Promise<SubjectTree | null> {
+export async function getSubjectWithTree(competitionSlug: CompetitionSlug, subjectSlug: string, schoolLevel?: SchoolLevelFilter | null): Promise<SubjectTree | null> {
   if (competitionSlug === "science-bowl") {
     const lessons = await getNsbLessons();
     const subjectDisplay = (lessons as any[]).map((l) => l.subject as string).find(
       (s) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-") === subjectSlug
     ) ?? subjectSlug;
-    const subjectLessons = lessons.filter((l) => l.subject === subjectDisplay);
+    const levelDisplay = schoolLevel ? schoolLevelToDisplay(schoolLevel) : null;
+    const subjectLessons = lessons.filter(
+      (l) => l.subject === subjectDisplay && (!levelDisplay || l.level === levelDisplay)
+    );
 
     if (subjectLessons.length === 0) return null;
 
