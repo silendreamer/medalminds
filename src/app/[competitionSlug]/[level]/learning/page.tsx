@@ -88,10 +88,12 @@ export default async function LearningPage({
       "Biology": "🧬",
       "Chemistry": "⚗️",
       "Physics": "⚛️",
-      "Earth & Space": "🌍",
+      "Earth and Space Science": "🌍",
       "Energy": "⚡",
       "Math": "∑"
     };
+
+    const visibleSubjects = subjectCounts.filter(({ counts }) => counts.lessons > 0);
 
     return (
       <section className="section science-bowl-learning">
@@ -107,9 +109,8 @@ export default async function LearningPage({
           </div>
 
           <div className="subjects-grid">
-            {subjectCounts.map(({ subject: item }) => {
+            {visibleSubjects.map(({ subject: item, counts }) => {
               const emoji = emojiMap[item.name] || "📚";
-              const counts = subjectCounts.find(sc => sc.subject.name === item.name)?.counts ?? { questions: 0, lessons: 0 };
               return (
                 <Link
                   key={item.slug}
