@@ -1,3 +1,0 @@
--- AlterTable
-ALTER TABLE "BuzzerRoom"
-ADD COLUMN IF NOT EXISTS "questionNumber" INTEGER NOT NULL DEFAULT 1;

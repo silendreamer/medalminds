@@ -5,7 +5,8 @@ import {
   getCompetitionBySlug,
   getLessonBySlug,
   getSubjectWithTree,
-  isCompetitionSlug
+  isCompetitionSlug,
+  type SchoolLevelFilter
 } from "@/lib/data";
 import { buildMetadata } from "@/lib/seo";
 
@@ -39,7 +40,10 @@ export default async function SubjectCoursePage({
   const competition = await getCompetitionBySlug(competitionSlug);
   if (!competition) notFound();
 
-  const tree = await getSubjectWithTree(competitionSlug, subjectSlug);
+  const schoolLevel: SchoolLevelFilter | undefined =
+    level === "middle-school" ? "MIDDLE_SCHOOL" : level === "high-school" ? "HIGH_SCHOOL" : undefined;
+
+  const tree = await getSubjectWithTree(competitionSlug, subjectSlug, schoolLevel);
   if (!tree) {
     return (
       <section className="section">

@@ -1,3 +1,0 @@
--- AlterTable
-ALTER TABLE "BuzzerRoom"
-ADD COLUMN IF NOT EXISTS "timerElapsedMs" INTEGER NOT NULL DEFAULT 0;

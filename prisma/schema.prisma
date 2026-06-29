@@ -6,34 +6,10 @@ datasource db {
   provider = "postgresql"
 }
 
-enum Difficulty {
-  FOUNDATIONAL
-  INTERMEDIATE
-  ADVANCED
-}
-
-enum QuestionFormat {
-  MULTIPLE_CHOICE
-  SHORT_ANSWER
-}
-
-enum QuestionKind {
-  PRACTICE
-  TOSSUP
-  BONUS
-  REVIEW
-}
-
 enum SchoolLevel {
   MIDDLE_SCHOOL
   HIGH_SCHOOL
   MIXED
-}
-
-enum ClassificationDifficulty {
-  EASY
-  MEDIUM
-  HARD
 }
 
 enum BuzzerRoomStatus {
@@ -69,439 +45,38 @@ enum BuzzerRoomEventType {
   GAME_ENDED
 }
 
-model Competition {
-  id               String             @id
-  slug             String             @unique
-  name             String
-  description      String
-  shortDescription String
-  subdomain        String             @unique
-  categories       String[]
-  concepts         Concept[]
-  curriculumSubjects CurriculumSubject[]
-  levels           CompetitionLevel[]
-  subjects         Subject[]
-  questions        Question[]
-  lessons          Lesson[]
-  tests            Test[]
-  createdAt        DateTime           @default(now())
-  updatedAt        DateTime           @updatedAt
-}
-
-model CompetitionLevel {
-  id            String       @id
-  competitionId String
-  competition   Competition  @relation(fields: [competitionId], references: [id], onDelete: Cascade)
-  slug          String
-  name          String
-  description   String?
-  schoolLevel   SchoolLevel?
-  sortOrder     Int          @default(0)
-  curriculumSubjects CurriculumSubject[]
-  questions     Question[]
-  lessons       Lesson[]
-  tests         Test[]
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
-
-  @@unique([competitionId, slug])
-  @@index([competitionId])
-}
-
-model Question {
-  id               String         @id
-  competitionId    String
-  competition      Competition    @relation(fields: [competitionId], references: [id], onDelete: Cascade)
-  levelId          String?
-  competitionLevel CompetitionLevel? @relation(fields: [levelId], references: [id], onDelete: SetNull)
-  category         String
-  difficulty       Difficulty
-  format           QuestionFormat
-  questionKind     QuestionKind   @default(PRACTICE)
-  schoolLevel      SchoolLevel?
-  sourceProvider   String?
-  sourcePageUrl    String?
-  sourcePdfUrl     String?
-  sourceSet        String?
-  sourceRound      String?
-  sourceQuestionNumber Int?
-  sourceHash       String?        @unique
-  prompt           String
-  alternateAnswers String[]
-  explanation      String
-  subTopicId       String?
-  subTopic         SubTopic?      @relation(fields: [subTopicId], references: [id], onDelete: SetNull)
-  deletedAt        DateTime?
-  multipleChoices  MultipleChoice[]
-  answers          Answer[]
-  answerExplanations AnswerExplanation[]
-  concepts         QuestionConcept[]
-  curriculumTopics  CurriculumTopicQuestion[]
-  topicClassification QuestionTopicClassification?
-  tests            TestQuestion[]
-  buzzerRooms      BuzzerRoom[]
-  tossupPair       BuzzerQuestionPair? @relation("TossupPair")
-  bonusPair        BuzzerQuestionPair? @relation("BonusPair")
-  practiceAttempts PracticeAttempt[]
-  testAttemptAnswers TestAttemptAnswer[]
-  createdAt        DateTime       @default(now())
-  updatedAt        DateTime       @updatedAt
-
-  @@index([competitionId])
-  @@index([levelId])
-  @@index([competitionId, category, difficulty, format])
-  @@index([competitionId, schoolLevel])
-  @@index([sourceProvider, sourceSet])
-  @@index([subTopicId])
-  @@index([difficulty])
-  @@index([format])
-  @@index([questionKind])
-  @@index([deletedAt])
-}
-
-model Concept {
-  id               String            @id
-  competitionId    String
-  competition      Competition       @relation(fields: [competitionId], references: [id], onDelete: Cascade)
-  slug             String
-  title            String
-  category         String
-  schoolLevel      SchoolLevel?
-  shortDescription String
-  aliases          String[]
-  lessons          Lesson[]
-  questions        QuestionConcept[]
-  createdAt        DateTime          @default(now())
-  updatedAt        DateTime          @updatedAt
-
-  @@unique([competitionId, slug, category, schoolLevel])
-  @@index([competitionId])
-  @@index([competitionId, category, schoolLevel])
-}
-
-model QuestionConcept {
-  questionId String
-  conceptId  String
-  isPrimary  Boolean  @default(false)
-  position   Int      @default(0)
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
-  concept    Concept  @relation(fields: [conceptId], references: [id], onDelete: Cascade)
-
-  @@id([questionId, conceptId])
-  @@index([conceptId])
-  @@index([questionId, isPrimary])
-}
-
-model AnswerExplanation {
-  id                  String   @id
-  questionId          String
-  question            Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
-  shortExplanation    String
-  detailedExplanation String?
-  position            Int      @default(0)
-  createdAt           DateTime @default(now())
-  updatedAt           DateTime @updatedAt
-
-  @@unique([questionId, position])
-  @@index([questionId])
-}
-
-model MultipleChoice {
-  id         String   @id
-  questionId String
-  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
-  text       String
-  position   Int      @default(0)
-  answer     Answer?
-  createdAt  DateTime @default(now())
-
-  @@unique([questionId, position])
-  @@index([questionId])
-}
-
-model Answer {
-  id         String          @id
-  questionId String
-  question   Question        @relation(fields: [questionId], references: [id], onDelete: Cascade)
-  mcId       String?         @unique
-  mc         MultipleChoice? @relation(fields: [mcId], references: [id], onDelete: Cascade)
-  text       String?
-  createdAt  DateTime        @default(now())
-
-  @@index([questionId])
-}
-
-model QuestionTopicClassification {
-  id            String                    @id
-  questionId    String                    @unique
-  question      Question                  @relation(fields: [questionId], references: [id], onDelete: Cascade)
-  topic         String
-  subtopic      String
-  keyConcept    String
-  difficulty    ClassificationDifficulty
-  confidence    Float
-  needsReview   Boolean                   @default(false)
-  model         String?
-  promptVersion String?
-  notes         String?
-  createdAt     DateTime                  @default(now())
-  updatedAt     DateTime                  @updatedAt
-
-  @@index([topic])
-  @@index([subtopic])
-  @@index([confidence])
-  @@index([needsReview])
-}
-
-model Lesson {
-  id               String      @id
-  competitionId    String
-  competition      Competition @relation(fields: [competitionId], references: [id], onDelete: Cascade)
-  levelId          String?
-  competitionLevel CompetitionLevel? @relation(fields: [levelId], references: [id], onDelete: SetNull)
-  conceptId        String?
-  concept          Concept?    @relation(fields: [conceptId], references: [id], onDelete: SetNull)
-  subTopicId       String?
-  subTopic         SubTopic?   @relation(fields: [subTopicId], references: [id], onDelete: SetNull)
-  slug             String
-  title            String
-  category         String
-  estimatedMinutes Int
-  summary          String
-  keyConcepts      String[]
-  contentSections  Json
-  reviewQuestions  String[]
-  curriculumTopics CurriculumTopicLesson[]
-  createdAt        DateTime    @default(now())
-  updatedAt        DateTime    @updatedAt
-
-  @@unique([competitionId, slug])
-  @@index([competitionId])
-  @@index([levelId])
-  @@index([conceptId])
-  @@index([subTopicId])
-  @@index([category])
-}
-
-model Test {
-  id               String         @id
-  competitionId    String
-  competition      Competition    @relation(fields: [competitionId], references: [id], onDelete: Cascade)
-  levelId          String?
-  competitionLevel CompetitionLevel? @relation(fields: [levelId], references: [id], onDelete: SetNull)
-  slug             String
-  title            String
-  categories       String[]
-  timeLimitMinutes Int
-  description      String
-  questions        TestQuestion[]
-  attempts         TestAttempt[]
-  createdAt        DateTime       @default(now())
-  updatedAt        DateTime       @updatedAt
-
-  @@unique([competitionId, slug])
-  @@index([competitionId])
-  @@index([levelId])
-}
-
-model TestQuestion {
-  testId     String
-  questionId String
-  position   Int
-  test       Test             @relation(fields: [testId], references: [id], onDelete: Cascade)
-  question   Question         @relation(fields: [questionId], references: [id], onDelete: Cascade)
-
-  @@id([testId, questionId])
-  @@unique([testId, position])
-}
-
-model BuzzerQuestionPair {
-  id        String   @id
-  tossupId  String   @unique
-  bonusId   String   @unique
-  tossup    Question @relation("TossupPair", fields: [tossupId], references: [id], onDelete: Cascade)
-  bonus     Question @relation("BonusPair", fields: [bonusId], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-// ── Content hierarchy ─────────────────────────────────────────────────────
-// Subject → Topic → SubTopic → Lesson (many per sub_topic)
-// Separate from CurriculumSubject/Grade/Unit/Topic which drive the
-// info-session curriculum overview page.
-
-model Subject {
-  id            String      @id
-  competitionId String
-  competition   Competition @relation(fields: [competitionId], references: [id], onDelete: Cascade)
-  name          String
-  slug          String
-  order         Int         @default(0)
-  topics        Topic[]
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
-
-  @@unique([competitionId, slug])
-  @@index([competitionId])
-}
-
-model Topic {
-  id        String     @id
-  subjectId String
-  subject   Subject    @relation(fields: [subjectId], references: [id], onDelete: Cascade)
-  name      String
-  slug      String
-  order     Int        @default(0)
-  subTopics SubTopic[]
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-
-  @@unique([subjectId, slug])
-  @@index([subjectId])
-}
-
-model SubTopic {
-  id        String     @id
-  topicId   String
-  topic     Topic      @relation(fields: [topicId], references: [id], onDelete: Cascade)
-  name      String
-  slug      String
-  order     Int        @default(0)
-  lessons   Lesson[]
-  questions Question[]
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-
-  @@unique([topicId, slug])
-  @@index([topicId])
-}
-
-model CurriculumSubject {
-  id               String            @id
-  competitionId    String
-  competition      Competition       @relation(fields: [competitionId], references: [id], onDelete: Cascade)
-  levelId          String?
-  competitionLevel CompetitionLevel? @relation(fields: [levelId], references: [id], onDelete: SetNull)
-  slug             String
-  name             String
-  shortDescription String
-  whyItMatters     String
-  highYieldTopics  String[]
-  sources          String[]
-  sortOrder        Int               @default(0)
-  grades           CurriculumGrade[]
-  createdAt        DateTime          @default(now())
-  updatedAt        DateTime          @updatedAt
-
-  @@unique([competitionId, levelId, slug])
-  @@index([competitionId])
-  @@index([levelId])
-}
-
-model CurriculumGrade {
-  id          String           @id
-  subjectId   String
-  subject     CurriculumSubject @relation(fields: [subjectId], references: [id], onDelete: Cascade)
-  key         String
-  label       String
-  sortOrder   Int              @default(0)
-  units       CurriculumUnit[]
-  createdAt   DateTime         @default(now())
-  updatedAt   DateTime         @updatedAt
-
-  @@unique([subjectId, key])
-  @@index([subjectId])
-}
-
-model CurriculumUnit {
-  id         String           @id
-  gradeId    String
-  grade      CurriculumGrade  @relation(fields: [gradeId], references: [id], onDelete: Cascade)
-  title      String
-  sortOrder  Int              @default(0)
-  topics     CurriculumTopic[]
-  createdAt  DateTime         @default(now())
-  updatedAt  DateTime         @updatedAt
-
-  @@unique([gradeId, title])
-  @@index([gradeId])
-}
-
-model CurriculumTopic {
-  id         String                  @id
-  unitId     String
-  unit       CurriculumUnit          @relation(fields: [unitId], references: [id], onDelete: Cascade)
-  title      String
-  sortOrder  Int                     @default(0)
-  lessons    CurriculumTopicLesson[]
-  questions  CurriculumTopicQuestion[]
-  createdAt  DateTime                @default(now())
-  updatedAt  DateTime                @updatedAt
-
-  @@unique([unitId, title])
-  @@index([unitId])
-}
-
-model CurriculumTopicLesson {
-  topicId    String
-  lessonId   String
-  position   Int         @default(0)
-  topic      CurriculumTopic @relation(fields: [topicId], references: [id], onDelete: Cascade)
-  lesson     Lesson      @relation(fields: [lessonId], references: [id], onDelete: Cascade)
-
-  @@id([topicId, lessonId])
-  @@index([lessonId])
-  @@unique([topicId, position])
-}
-
-model CurriculumTopicQuestion {
-  topicId    String
-  questionId String
-  position   Int         @default(0)
-  topic      CurriculumTopic @relation(fields: [topicId], references: [id], onDelete: Cascade)
-  question   Question    @relation(fields: [questionId], references: [id], onDelete: Cascade)
-
-  @@id([topicId, questionId])
-  @@index([questionId])
-  @@unique([topicId, position])
-}
-
 model BuzzerRoom {
-  id                  String            @id
-  code                String            @unique
-  organizerPassword   String
-  status              BuzzerRoomStatus  @default(WAITING)
-  version             Int               @default(0)
-  schoolLevel         SchoolLevel?
-  teamAName           String            @default("Team A")
-  teamBName           String            @default("Team B")
-  teamAScore          Int               @default(0)
-  teamBScore          Int               @default(0)
-  timerStartedAt      DateTime?
-  timerDurationMs     Int               @default(15000)
-  timerElapsedMs      Int               @default(0)
-  questionClockStartedAt DateTime?
-  questionClockDurationMs Int            @default(0)
-  questionClockElapsedMs Int             @default(0)
-  buzzedIsInterrupt   Boolean           @default(false)
-  totalRounds         Int               @default(3)
-  roundNumber         Int               @default(1)
-  questionNumber      Int               @default(1)
-  currentQuestionId   String?
-  currentQuestion     Question?          @relation(fields: [currentQuestionId], references: [id], onDelete: SetNull)
-  buzzedSeatId        String?           @unique
-  buzzedSeat          BuzzerSeat?       @relation("BuzzedSeat", fields: [buzzedSeatId], references: [id], onDelete: SetNull)
-  expiresAt           DateTime
-  seats               BuzzerSeat[]      @relation("RoomSeats")
-  events              BuzzerRoomEvent[]
-  createdAt           DateTime          @default(now())
-  updatedAt           DateTime          @updatedAt
+  id                      String            @id
+  code                    String            @unique
+  organizerPassword       String
+  status                  BuzzerRoomStatus  @default(WAITING)
+  version                 Int               @default(0)
+  schoolLevel             SchoolLevel?
+  teamAName               String            @default("Team A")
+  teamBName               String            @default("Team B")
+  teamAScore              Int               @default(0)
+  teamBScore              Int               @default(0)
+  timerStartedAt          DateTime?
+  timerDurationMs         Int               @default(15000)
+  timerElapsedMs          Int               @default(0)
+  questionClockStartedAt  DateTime?
+  questionClockDurationMs Int               @default(0)
+  questionClockElapsedMs  Int               @default(0)
+  buzzedIsInterrupt       Boolean           @default(false)
+  totalRounds             Int               @default(3)
+  roundNumber             Int               @default(1)
+  questionNumber          Int               @default(1)
+  currentQuestionId       String?
+  buzzedSeatId            String?           @unique
+  buzzedSeat              BuzzerSeat?       @relation("BuzzedSeat", fields: [buzzedSeatId], references: [id], onDelete: SetNull)
+  expiresAt               DateTime
+  seats                   BuzzerSeat[]      @relation("RoomSeats")
+  events                  BuzzerRoomEvent[]
+  createdAt               DateTime          @default(now())
+  updatedAt               DateTime          @updatedAt
 
   @@index([code])
   @@index([expiresAt])
-  @@index([currentQuestionId])
   @@index([status])
 }
 
@@ -522,71 +97,12 @@ model BuzzerSeat {
 }
 
 model BuzzerRoomEvent {
-  id        String           @id
+  id        String              @id
   roomId    String
-  room      BuzzerRoom       @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  room      BuzzerRoom          @relation(fields: [roomId], references: [id], onDelete: Cascade)
   type      BuzzerRoomEventType
   message   String
-  createdAt DateTime         @default(now())
+  createdAt DateTime            @default(now())
 
   @@index([roomId, createdAt])
-}
-
-model User {
-  id               String            @id
-  email            String            @unique
-  displayName      String?
-  avatarUrl        String?
-  practiceAttempts PracticeAttempt[]
-  testAttempts     TestAttempt[]
-  createdAt        DateTime          @default(now())
-  updatedAt        DateTime          @updatedAt
-}
-
-model PracticeAttempt {
-  id          String   @id
-  userId      String
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  questionId  String
-  question    Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
-  answer      String
-  isCorrect   Boolean
-  timeSpentMs Int?
-  createdAt   DateTime @default(now())
-
-  @@index([userId])
-  @@index([questionId])
-  @@index([userId, questionId])
-  @@index([createdAt])
-}
-
-model TestAttempt {
-  id               String              @id
-  userId           String
-  user             User                @relation(fields: [userId], references: [id], onDelete: Cascade)
-  testId           String
-  test             Test                @relation(fields: [testId], references: [id], onDelete: Cascade)
-  startedAt        DateTime            @default(now())
-  completedAt      DateTime?
-  timeLimitMinutes Int
-  score            Int?
-  totalQuestions   Int
-  answers          TestAttemptAnswer[]
-
-  @@index([userId])
-  @@index([testId])
-}
-
-model TestAttemptAnswer {
-  id          String      @id
-  attemptId   String
-  attempt     TestAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
-  questionId  String
-  question    Question    @relation(fields: [questionId], references: [id], onDelete: Cascade)
-  answer      String
-  isCorrect   Boolean
-  timeSpentMs Int?
-
-  @@unique([attemptId, questionId])
-  @@index([attemptId])
 }
