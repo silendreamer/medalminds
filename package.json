@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "vercel-build": "prisma migrate deploy && prisma db seed && next build",
+    "vercel-build": "prisma migrate deploy && next build",
     "start": "next start",
     "lint": "eslint .",
     "test": "vitest run",
@@ -13,26 +13,13 @@
     "postinstall": "prisma generate",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
-    "db:deploy": "prisma migrate deploy",
-    "db:seed": "tsx prisma/seed.ts",
-    "import:osti-ms-science-bowl": "tsx scripts/import-osti-ms-science-bowl.ts",
-    "import:osti-sqlite": "tsx scripts/import-osti-sqlite-to-prisma.ts",
-    "generate:answer-explanations": "tsx scripts/generate-answer-explanations.ts",
-    "generate:question-concepts": "tsx scripts/generate-question-concepts.ts",
-    "expand:concept-lessons": "tsx scripts/expand-concept-lessons.ts",
-    "batch:question-concepts": "tsx scripts/run-question-concept-batches.ts",
-    "classify:question-topics": "tsx scripts/classify-question-topics.ts",
-    "report:question-topics": "tsx scripts/topic-classification-report.ts"
+    "db:deploy": "prisma migrate deploy"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.106.0",
     "@prisma/adapter-pg": "^7.8.0",
     "@prisma/client": "^7.8.0",
-    "better-sqlite3": "^12.10.0",
-    "cheerio": "^1.0.0-rc.14",
     "lucide-react": "^1.17.0",
     "next": "16.2.9",
-    "pdf-parse": "^1.1.1",
     "pg": "^8.21.0",
     "react": "19.2.1",
     "react-dom": "19.2.1"
@@ -40,7 +27,6 @@
   "devDependencies": {
     "@playwright/test": "^1.61.1",
     "@types/node": "^24.10.1",
-    "@types/pdf-parse": "^1.1.3",
     "@types/pg": "^8.20.0",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
@@ -56,8 +42,5 @@
   "overrides": {
     "@hono/node-server": "^1.19.13",
     "postcss": "^8.5.10"
-  },
-  "prisma": {
-    "seed": "tsx prisma/seed.ts"
   }
 }
