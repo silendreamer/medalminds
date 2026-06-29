@@ -18,17 +18,15 @@ export async function getNsbQuestions(): Promise<PracticeQuestion[]> {
     nsbQuestionsCache = rawQuestions.map((q: any) => ({
       id: q.id,
       competitionSlug: q.competitionSlug as "science-bowl",
-      category: q.category,
+      subject: q.category,
       level: q.schoolLevel === "MIDDLE_SCHOOL" ? "Middle School" : "High School",
-      difficulty: q.difficulty === "FOUNDATIONAL" ? "Foundational" : q.difficulty === "ADVANCED" ? "Advanced" : "Intermediate",
-      type: q.format === "multiple_choice" ? "multiple_choice" : "short_answer",
+      difficulty: q.difficulty as "EASY" | "MEDIUM" | "HARD",
+      type: q.format as "multiple_choice" | "short_answer",
       prompt: q.text,
       choices: q.choices && q.choices.length > 0 ? q.choices : undefined,
       correctAnswer: (q.choices && q.answerIndex != null) ? q.choices[q.answerIndex] : q.answer,
-      explanation: "", // NSB JSON doesn't have explanations; we could add them separately
-      lessonIds: q.lessonIds || [],
-      displayText: q.displayText ?? undefined,
-      displayChoices: q.displayChoices && q.displayChoices.length > 0 ? q.displayChoices : undefined
+      explanation: "",
+      lessonIds: q.lessonIds || []
     }));
 
     return nsbQuestionsCache;

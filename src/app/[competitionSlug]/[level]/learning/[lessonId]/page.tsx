@@ -19,7 +19,7 @@ export default async function LessonDetailPage({
   let nextLesson: { slug: string; title: string } | null = null;
   let currentIndex = -1;
   let subtopicLessonsCount = 0;
-  let subtopicLabel = lesson.category ?? "";
+  let subtopicLabel = lesson.subject ?? "";
 
   if (competitionSlug === "science-bowl") {
     const rawLessons = await getNsbLessons();

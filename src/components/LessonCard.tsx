@@ -20,7 +20,7 @@ export function LessonCard({ lesson }: { lesson: Lesson }) {
         <span className="badge">{lesson.estimatedMinutes} min</span>
       </div>
       <div className="badge-list">
-        <span className="badge neutral">{lesson.category}</span>
+        <span className="badge neutral">{lesson.subject}</span>
         <span className="badge neutral">{lesson.level}</span>
       </div>
       <Link className="button" href={lessonPath(lesson.competitionSlug, normalizeLevel(lesson.level), lesson.slug)}>

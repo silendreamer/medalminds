@@ -87,7 +87,7 @@ export function TestRunner({ test, questions }: { test: Test; questions: Practic
                 <span className="eyebrow">
                   Question {current + 1} of {questions.length}
                 </span>
-                <h2>{question.category}</h2>
+                <h2>{question.subject}</h2>
               </div>
               <span className="badge neutral">{question.difficulty}</span>
             </div>

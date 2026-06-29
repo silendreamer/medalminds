@@ -8,7 +8,7 @@ export const competitions: Competition[] = [
     description:
       "Train for buzzer-style science rounds with concise explanations, mixed categories, and quick recall drills.",
     subdomain: "science-bowl",
-    categories: ["Biology", "Chemistry", "Physics", "Earth & Space", "Energy", "Math"]
+    subjects: ["Biology", "Chemistry", "Physics", "Earth and Space Science", "Energy", "Math"]
   },
   {
     slug: "science-olympiad",
@@ -17,7 +17,7 @@ export const competitions: Competition[] = [
     description:
       "Build concept fluency for lab, field, engineering, and analysis events through structured lessons and checks.",
     subdomain: "science-olympiad",
-    categories: ["Anatomy", "Astronomy", "Disease Detectives", "Dynamic Planet", "Forensics", "Machines"]
+    subjects: ["Anatomy", "Astronomy", "Disease Detectives", "Dynamic Planet", "Forensics", "Machines"]
   },
   {
     slug: "math-olympiad",
@@ -26,6 +26,6 @@ export const competitions: Competition[] = [
     description:
       "Practice number theory, algebra, geometry, combinatorics, probability, and logic with step-by-step reasoning.",
     subdomain: "math-olympiad",
-    categories: ["Number Theory", "Algebra", "Geometry", "Combinatorics", "Probability", "Logic"]
+    subjects: ["Number Theory", "Algebra", "Geometry", "Combinatorics", "Probability", "Logic"]
   }
 ];

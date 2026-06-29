@@ -404,7 +404,7 @@ async function getQuestionIdsForTest(test: (typeof tests)[number]) {
   const match = test.id.match(/-(\d+)$/);
   const testNumber = match ? Number(match[1]) : 1;
   const take = Math.max(test.questionIds.length, 8);
-  const categories = scienceBowlCategoryAliases(test.categories, test.title);
+  const categories = scienceBowlCategoryAliases(test.subjects, test.title);
   const schoolLevel = scienceBowlSchoolLevelForTitle(test.title);
 
   const questions = await prisma.question.findMany({
@@ -452,7 +452,7 @@ async function main() {
         description: competition.description,
         shortDescription: competition.shortDescription,
         subdomain: competition.subdomain,
-        categories: competition.categories
+        categories: competition.subjects
       },
       create: {
         id: competition.slug,
@@ -461,7 +461,7 @@ async function main() {
         description: competition.description,
         shortDescription: competition.shortDescription,
         subdomain: competition.subdomain,
-        categories: competition.categories
+        categories: competition.subjects
       }
     });
   }
@@ -497,7 +497,7 @@ async function main() {
         id: lesson.id,
         levelId: competitionLevelIdFor(lesson.competitionSlug, lesson.level),
         title: lesson.title,
-        category: lesson.category,
+        category: lesson.subject,
         estimatedMinutes: lesson.estimatedMinutes,
         summary: lesson.summary,
         keyConcepts: lesson.keyConcepts,
@@ -510,7 +510,7 @@ async function main() {
         levelId: competitionLevelIdFor(lesson.competitionSlug, lesson.level),
         slug: lesson.slug,
         title: lesson.title,
-        category: lesson.category,
+        category: lesson.subject,
         estimatedMinutes: lesson.estimatedMinutes,
         summary: lesson.summary,
         keyConcepts: lesson.keyConcepts,
@@ -615,7 +615,7 @@ async function main() {
         id: test.id,
         levelId: competitionLevelIdFor(test.competitionSlug, test.level),
         title: test.title,
-        categories: test.categories,
+        categories: test.subjects,
         timeLimitMinutes: test.timeLimitMinutes,
         description: test.description
       },
@@ -625,7 +625,7 @@ async function main() {
         levelId: competitionLevelIdFor(test.competitionSlug, test.level),
         slug: test.slug,
         title: test.title,
-        categories: test.categories,
+        categories: test.subjects,
         timeLimitMinutes: test.timeLimitMinutes,
         description: test.description
       }

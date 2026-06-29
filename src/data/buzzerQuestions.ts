@@ -2,7 +2,7 @@ export interface BuzzerQuestion {
   id: string;
   competitionSlug: "science-bowl";
   category: string;
-  difficulty: "Foundational" | "Intermediate" | "Advanced";
+  difficulty: "EASY" | "MEDIUM" | "HARD";
   tossupPrompt: string;
   tossupAnswer: string;
   tossupExplanation: string;
@@ -16,7 +16,7 @@ export const buzzerQuestions: BuzzerQuestion[] = [
     id: "bb-sb-1",
     competitionSlug: "science-bowl",
     category: "Biology",
-    difficulty: "Foundational",
+    difficulty: "EASY",
     tossupPrompt: "What organelle is the primary site of ATP production during aerobic respiration?",
     tossupAnswer: "mitochondrion",
     tossupExplanation: "Mitochondria carry out the later stages of cellular respiration and generate most ATP in eukaryotic cells.",
@@ -28,7 +28,7 @@ export const buzzerQuestions: BuzzerQuestion[] = [
     id: "bb-sb-2",
     competitionSlug: "science-bowl",
     category: "Chemistry",
-    difficulty: "Intermediate",
+    difficulty: "MEDIUM",
     tossupPrompt: "What type of bond forms when atoms share pairs of electrons?",
     tossupAnswer: "covalent bond",
     tossupExplanation: "Covalent bonds involve shared electron pairs, unlike ionic bonds that involve electron transfer.",
@@ -40,7 +40,7 @@ export const buzzerQuestions: BuzzerQuestion[] = [
     id: "bb-sb-3",
     competitionSlug: "science-bowl",
     category: "Physics",
-    difficulty: "Foundational",
+    difficulty: "EASY",
     tossupPrompt: "What quantity is equal to mass times acceleration according to Newton's second law?",
     tossupAnswer: "force",
     tossupExplanation: "Newton's second law is F = ma, so net force equals mass times acceleration.",
@@ -52,7 +52,7 @@ export const buzzerQuestions: BuzzerQuestion[] = [
     id: "bb-sb-4",
     competitionSlug: "science-bowl",
     category: "Earth & Space",
-    difficulty: "Intermediate",
+    difficulty: "MEDIUM",
     tossupPrompt: "What type of galaxy contains the Milky Way's flat disk and spiral arms?",
     tossupAnswer: "spiral galaxy",
     tossupExplanation: "The Milky Way is a barred spiral galaxy with a disk, central bulge, and spiral arms.",
@@ -64,7 +64,7 @@ export const buzzerQuestions: BuzzerQuestion[] = [
     id: "bb-sb-5",
     competitionSlug: "science-bowl",
     category: "Energy",
-    difficulty: "Foundational",
+    difficulty: "EASY",
     tossupPrompt: "What energy transformation occurs when a solar panel produces electricity from sunlight?",
     tossupAnswer: "light energy to electrical energy",
     tossupExplanation: "Photovoltaic cells convert radiant energy from sunlight into electrical energy.",
@@ -76,7 +76,7 @@ export const buzzerQuestions: BuzzerQuestion[] = [
     id: "bb-sb-6",
     competitionSlug: "science-bowl",
     category: "Math",
-    difficulty: "Intermediate",
+    difficulty: "MEDIUM",
     tossupPrompt: "What is the value of 3 squared plus 4 squared?",
     tossupAnswer: "25",
     tossupExplanation: "3 squared is 9 and 4 squared is 16, so their sum is 25.",
@@ -88,7 +88,7 @@ export const buzzerQuestions: BuzzerQuestion[] = [
     id: "bb-sb-7",
     competitionSlug: "science-bowl",
     category: "Biology",
-    difficulty: "Advanced",
+    difficulty: "HARD",
     tossupPrompt: "What process produces RNA from a DNA template?",
     tossupAnswer: "transcription",
     tossupExplanation: "Transcription copies information from DNA into RNA using RNA polymerase.",
@@ -100,7 +100,7 @@ export const buzzerQuestions: BuzzerQuestion[] = [
     id: "bb-sb-8",
     competitionSlug: "science-bowl",
     category: "Chemistry",
-    difficulty: "Advanced",
+    difficulty: "HARD",
     tossupPrompt: "What principle states that a stressed equilibrium shifts to reduce the stress?",
     tossupAnswer: "Le Chatelier's principle",
     tossupExplanation: "Le Chatelier's principle predicts how equilibrium systems respond to changes in concentration, pressure, or temperature.",
@@ -112,7 +112,7 @@ export const buzzerQuestions: BuzzerQuestion[] = [
     id: "bb-sb-9",
     competitionSlug: "science-bowl",
     category: "Physics",
-    difficulty: "Intermediate",
+    difficulty: "MEDIUM",
     tossupPrompt: "What circuit quantity is measured in ohms?",
     tossupAnswer: "resistance",
     tossupExplanation: "Resistance opposes electric current and is measured in ohms.",
@@ -124,7 +124,7 @@ export const buzzerQuestions: BuzzerQuestion[] = [
     id: "bb-sb-10",
     competitionSlug: "science-bowl",
     category: "Earth & Space",
-    difficulty: "Foundational",
+    difficulty: "EASY",
     tossupPrompt: "What layer of Earth's atmosphere contains most weather?",
     tossupAnswer: "troposphere",
     tossupExplanation: "The troposphere is the lowest atmospheric layer and contains most clouds and weather systems.",

@@ -62,7 +62,7 @@ export const tests: Test[] = competitions.flatMap((competition) =>
       competitionSlug: competition.slug,
       title: theme,
       level: levels[index % levels.length],
-      categories: competition.categories.slice(index % 3, index % 3 + 3),
+      subjects: competition.subjects.slice(index % 3, index % 3 + 3),
       timeLimitMinutes: 12 + index * 2,
       description: `A compact ${competition.name} practice test focused on ${theme.toLowerCase()} with instant review after submission.`,
       questionIds: rotatedIds

@@ -15,9 +15,9 @@ export function TestCard({ test }: { test: Test }) {
       <div className="badge-list">
         <span className="badge neutral">{test.level}</span>
         <span className="badge neutral">{test.questionIds.length} questions</span>
-        {test.categories.map((category) => (
-          <span className="badge neutral" key={category}>
-            {category}
+        {test.subjects.map((subject) => (
+          <span className="badge neutral" key={subject}>
+            {subject}
           </span>
         ))}
       </div>

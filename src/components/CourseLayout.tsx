@@ -303,7 +303,7 @@ export function CourseLayout({ tree, activeLesson, activeLessonSlug, competition
           <article className="lesson-article">
             {/* Meta bar */}
             <div className="lesson-meta-bar">
-              <span className="lesson-subtopic-label">{activeTopic?.subTopicName || activeLesson.category}</span>
+              <span className="lesson-subtopic-label">{activeTopic?.subTopicName || activeLesson.subject}</span>
             </div>
 
             {/* Title block */}

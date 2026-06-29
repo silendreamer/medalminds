@@ -5,7 +5,6 @@ import { useState } from "react";
 import type { Lesson, PracticeQuestion } from "@/types";
 import { lessonPath } from "@/lib/routes";
 import { QuestionText } from "@/components/QuestionText";
-import { getDisplayText, getDisplayChoice, getDisplayCorrectAnswer } from "@/lib/formatQuestionText";
 
 function normalizeLevel(level: string): string {
   const l = level.toLowerCase();
@@ -76,7 +75,7 @@ export function SimplePracticeQuestion({
   }
 
   const typeLabel = question.type === "multiple_choice" ? "Multiple choice" : "Short answer";
-  const categoryLabel = question.category ?? "";
+  const categoryLabel = question.subject ?? "";
 
   return (
     <>
@@ -94,7 +93,7 @@ export function SimplePracticeQuestion({
         </div>
 
         {/* Question */}
-        <p className="question-prompt"><QuestionText html={getDisplayText(question)} /></p>
+        <p className="question-prompt"><QuestionText html={question.prompt} /></p>
 
         {/* Choices or text input */}
         {question.type === "multiple_choice" ? (
@@ -122,7 +121,7 @@ export function SimplePracticeQuestion({
                   disabled={checked}
                 >
                   <span className="pq-choice-label">{label}</span>
-                  <span className="pq-choice-text"><QuestionText html={getDisplayChoice(question, index)} /></span>
+                  <span className="pq-choice-text"><QuestionText html={choice} /></span>
                 </button>
               );
             })}
@@ -150,7 +149,7 @@ export function SimplePracticeQuestion({
           <div className={`pq-feedback ${correct ? "pq-feedback--correct" : "pq-feedback--incorrect"}`}>
             <p className="pq-feedback-verdict">
               {correct ? "✓ Correct" : "✗ Incorrect"}{" "}
-              <span>— <QuestionText html={getDisplayCorrectAnswer(question)} /></span>
+              <span>— <QuestionText html={question.correctAnswer} /></span>
             </p>
             {question.explanation && (
               <p className="pq-feedback-explanation"><QuestionText html={question.explanation} /></p>
@@ -191,7 +190,7 @@ export function SimplePracticeQuestion({
           <div className="modal-card stack">
             <div className="card-header">
               <div>
-                <span className="eyebrow">{selectedLesson.category}</span>
+                <span className="eyebrow">{selectedLesson.subject}</span>
                 <h2>{selectedLesson.title}</h2>
               </div>
               <button className="ghost-button" onClick={() => setLessonOpen(false)}>Close</button>

@@ -63,7 +63,7 @@ export function QuickTestRunner({ questions }: { questions: PracticeQuestion[] }
           <span className="eyebrow">
             Question {current + 1} of {questions.length}
           </span>
-          <h2>{question.category}</h2>
+          <h2>{question.subject}</h2>
         </div>
         <span className="badge neutral">Multiple choice</span>
       </div>

@@ -23,13 +23,13 @@ export function PracticeQuestionCard({ questions }: { questions: PracticeQuestio
   const [checked, setChecked] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  const categories = useMemo(() => ["All", ...Array.from(new Set(questions.map((q) => q.category)))], [questions]);
+  const categories = useMemo(() => ["All", ...Array.from(new Set(questions.map((q) => q.subject)))], [questions]);
   const difficulties = useMemo(() => ["All", ...Array.from(new Set(questions.map((q) => q.difficulty)))], [questions]);
   const types = ["All", "multiple_choice", "short_answer"];
 
   const filtered = questions.filter(
     (question) =>
-      (category === "All" || question.category === category) &&
+      (category === "All" || question.subject === category) &&
       (difficulty === "All" || question.difficulty === difficulty) &&
       (type === "All" || question.type === type)
   );
@@ -107,7 +107,7 @@ export function PracticeQuestionCard({ questions }: { questions: PracticeQuestio
               <span className="eyebrow">
                 Question {activeIndex + 1} of {filtered.length}
               </span>
-              <h2>{question.category}</h2>
+              <h2>{question.subject}</h2>
             </div>
             <div className="badge-list">
               <span className="badge neutral">{question.difficulty}</span>

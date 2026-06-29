@@ -8,15 +8,15 @@ export interface Competition {
   description: string;
   shortDescription: string;
   subdomain: string;
-  categories: string[];
+  subjects: string[];
 }
 
 export interface PracticeQuestion {
   id: string;
   competitionSlug: CompetitionSlug;
-  category: string;
+  subject: string;
   level: string;
-  difficulty: "Foundational" | "Intermediate" | "Advanced";
+  difficulty: "EASY" | "MEDIUM" | "HARD";
   type: QuestionType;
   prompt: string;
   choices?: string[];
@@ -24,8 +24,6 @@ export interface PracticeQuestion {
   alternateAnswers?: string[];
   explanation: string;
   lessonIds?: string[];
-  displayText?: string;
-  displayChoices?: string[];
 }
 
 export interface Lesson {
@@ -33,7 +31,7 @@ export interface Lesson {
   slug: string;
   competitionSlug: CompetitionSlug;
   title: string;
-  category: string;
+  subject: string;
   level: string;
   estimatedMinutes: number;
   summary: string;
@@ -51,7 +49,7 @@ export interface Test {
   competitionSlug: CompetitionSlug;
   title: string;
   level: string;
-  categories: string[];
+  subjects: string[];
   timeLimitMinutes: number;
   description: string;
   questionIds: string[];

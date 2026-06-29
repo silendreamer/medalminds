@@ -84,15 +84,14 @@ export default async function CompetitionPage({
       }
     : undefined;
 
-  // Get subjects for the hub display — always use competition.categories (now unified across MS and HS)
-  const displayedSubjects = competition.categories;
+  const displayedSubjects = competition.subjects;
   const subjectCounts = await Promise.all(
-    displayedSubjects.map(async (category) => ({
-      category,
-      counts: await getContentCountsForSubject(competitionSlug, category, selectedSchoolLevel)
+    displayedSubjects.map(async (subject) => ({
+      subject,
+      counts: await getContentCountsForSubject(competitionSlug, subject, selectedSchoolLevel)
     }))
   );
-  const countsBySubject = new Map(subjectCounts.map((item) => [item.category, item.counts]));
+  const countsBySubject = new Map(subjectCounts.map((item) => [item.subject, item.counts]));
 
   // For non-Science Bowl competitions, show legacy multi-step flow
   const showLegacyFlow = !isScienceBowl;

@@ -148,19 +148,6 @@ function questionClockRemaining(room: RoomWithRelations) {
   return Math.max(0, room.questionClockDurationMs - elapsed);
 }
 
-function stripInlineMultipleChoiceOptions(prompt: string) {
-  const stripped = prompt
-    .replace(/\s+W\)\s+[\s\S]*?\s+X\)\s+[\s\S]*?\s+Y\)\s+[\s\S]*?\s+Z\)\s+[\s\S]*$/i, "")
-    .replace(/\s+/g, " ")
-    .trim();
-
-  return stripped || prompt;
-}
-
-function stripQuestionFormatPrefix(prompt: string) {
-  const stripped = prompt.replace(/^\s*(multiple choice|short answer)\s+/i, "").trim();
-  return stripped || prompt;
-}
 
 function effectiveStatus(room: RoomWithRelations) {
   if (room.status === "ENDED") return "ENDED";
@@ -210,16 +197,16 @@ function questionForOrganizer(room: RoomWithRelations): (PracticeQuestion & { co
   return {
     id: question.id,
     competitionSlug: "science-bowl",
-    category: question.category,
+    subject: question.category,
     level: question.competitionLevel?.name ?? "",
     difficulty:
       question.difficulty === "FOUNDATIONAL"
-        ? "Foundational"
+        ? "EASY"
         : question.difficulty === "ADVANCED"
-        ? "Advanced"
-        : "Intermediate",
+        ? "HARD"
+        : "MEDIUM",
     type,
-    prompt: stripQuestionFormatPrefix(stripInlineMultipleChoiceOptions(question.prompt)),
+    prompt: question.prompt,
     choices: type === "multiple_choice" ? choices : undefined,
     correctAnswer: correctText,
     alternateAnswers: [],

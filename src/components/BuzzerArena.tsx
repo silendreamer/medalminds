@@ -35,7 +35,7 @@ function formatSeatLabel(slot: string) {
 
 type OrganizerQuestion = {
   id: string;
-  category: string;
+  subject: string;
   questionKind: string;
   format: string;
   prompt: string;
@@ -739,7 +739,7 @@ function OrganizerConsole({
             {question ? (
               <div className="buzzer-question-stack">
                 <p className="buzzer-question-line">
-                  {question.category} - {question.format}
+                  {question.subject} - {question.format}
                 </p>
                 <p className="buzzer-question-text">{question.prompt}</p>
                 {isMultipleChoice ? (
