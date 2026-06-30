@@ -22145,7 +22145,7 @@
       "base pairing rules"
     ],
     "summary": "Learn how DNA stores the instructions for building every living thing, and why its structure makes it perfect for that job.",
-    "contentPath": "content/nsb/ms/life-science/genetics-heredity/dna-blueprint-of-life.md"
+    "contentPath": "content/nsb/ms/biology/genetics-heredity/dna-blueprint-of-life.md"
   },
   {
     "id": "nsb-lesson-1168",
@@ -22163,7 +22163,7 @@
       "DNA polymerase"
     ],
     "summary": "Understand how a cell creates two perfect copies of its entire DNA before dividing, and which enzymes make it happen.",
-    "contentPath": "content/nsb/ms/life-science/genetics-heredity/dna-replication-copying-the-code.md"
+    "contentPath": "content/nsb/ms/biology/genetics-heredity/dna-replication-copying-the-code.md"
   },
   {
     "id": "nsb-lesson-1169",
@@ -22181,7 +22181,7 @@
       "translation"
     ],
     "summary": "Trace the path from DNA in the nucleus to a working protein in the cytoplasm, the most fundamental process in all of biology.",
-    "contentPath": "content/nsb/ms/life-science/genetics-heredity/dna-to-protein-central-dogma.md"
+    "contentPath": "content/nsb/ms/biology/genetics-heredity/dna-to-protein-central-dogma.md"
   },
   {
     "id": "nsb-lesson-1170",
@@ -22199,7 +22199,7 @@
       "genetic testing"
     ],
     "summary": "See how scientists use DNA's unique variation between individuals to solve crimes, establish identity, and diagnose genetic diseases.",
-    "contentPath": "content/nsb/ms/life-science/genetics-heredity/dna-evidence-real-life.md"
+    "contentPath": "content/nsb/ms/biology/genetics-heredity/dna-evidence-real-life.md"
   },
   {
     "id": "nsb-lesson-1171",
@@ -22217,7 +22217,7 @@
       "genotype-phenotype connection"
     ],
     "summary": "Connect the molecular world of DNA to the visible traits you can see — and understand why siblings from the same parents look different.",
-    "contentPath": "content/nsb/ms/life-science/genetics-heredity/dna-variation-and-traits.md"
+    "contentPath": "content/nsb/ms/biology/genetics-heredity/dna-variation-and-traits.md"
   },
   {
     "id": "nsb-lesson-1172",
@@ -22235,7 +22235,7 @@
       "central dogma"
     ],
     "summary": "A structured review of all core DNA concepts — from double helix to protein production — with 20 must-know facts.",
-    "contentPath": "content/nsb/ms/life-science/genetics-heredity/dna-quick-review.md"
+    "contentPath": "content/nsb/ms/biology/genetics-heredity/dna-quick-review.md"
   },
   {
     "id": "nsb-lesson-1173",
@@ -22253,7 +22253,7 @@
       "inheritance"
     ],
     "summary": "Synthesize DNA structure, replication, and the central dogma into a unified picture of how genetic information flows from parent to offspring to protein.",
-    "contentPath": "content/nsb/ms/life-science/genetics-heredity/dna-genetics-connecting-dots.md"
+    "contentPath": "content/nsb/ms/biology/genetics-heredity/dna-genetics-connecting-dots.md"
   },
   {
     "id": "nsb-lesson-1174",
@@ -22271,7 +22271,7 @@
       "trap avoidance"
     ],
     "summary": "The 15 facts most likely to appear in Science Bowl DNA toss-ups, with clue-word recognition strategies and common wrong answers.",
-    "contentPath": "content/nsb/ms/life-science/genetics-heredity/science-bowl-dna-high-yield.md"
+    "contentPath": "content/nsb/ms/biology/genetics-heredity/science-bowl-dna-high-yield.md"
   },
   {
     "id": "nsb-lesson-1175",
@@ -22289,7 +22289,7 @@
       "phenotype expression"
     ],
     "summary": "Learn the fundamental rules Gregor Mendel discovered that explain why some traits appear and others hide across generations.",
-    "contentPath": "content/nsb/ms/life-science/genetics-heredity/dominant-recessive-traits-rules.md"
+    "contentPath": "content/nsb/ms/biology/genetics-heredity/dominant-recessive-traits-rules.md"
   },
   {
     "id": "nsb-lesson-1176",
@@ -22307,7 +22307,7 @@
       "environment and trait expression"
     ],
     "summary": "Understand the critical distinction between an organism's genetic makeup (genotype) and the physical traits it actually displays (phenotype).",
-    "contentPath": "content/nsb/ms/life-science/genetics-heredity/genotype-vs-phenotype.md"
+    "contentPath": "content/nsb/ms/biology/genetics-heredity/genotype-vs-phenotype.md"
   },
   {
     "id": "nsb-lesson-1177",
@@ -22325,7 +22325,7 @@
       "Mendel's experimental method"
     ],
     "summary": "Master the two laws Mendel derived from pea plant crosses — the foundation of classical genetics.",
-    "contentPath": "content/nsb/ms/life-science/genetics-heredity/mendels-laws-inheritance.md"
+    "contentPath": "content/nsb/ms/biology/genetics-heredity/mendels-laws-inheritance.md"
   },
   {
     "id": "nsb-lesson-1178",
@@ -22343,7 +22343,7 @@
       "trait tracking"
     ],
     "summary": "Use real genetic concepts to analyze how traits — from attached earlobes to genetic diseases — are inherited across family generations.",
-    "contentPath": "content/nsb/ms/life-science/genetics-heredity/inherited-traits-in-your-family.md"
+    "contentPath": "content/nsb/ms/biology/genetics-heredity/inherited-traits-in-your-family.md"
   },
   {
     "id": "nsb-lesson-1179",
@@ -22361,7 +22361,7 @@
       "ABO blood types"
     ],
     "summary": "Discover what happens when neither allele is fully dominant — and how this explains blood types, flower colors, and more.",
-    "contentPath": "content/nsb/ms/life-science/genetics-heredity/codominance-incomplete-dominance.md"
+    "contentPath": "content/nsb/ms/biology/genetics-heredity/codominance-incomplete-dominance.md"
   },
   {
     "id": "nsb-lesson-1180",
@@ -22379,7 +22379,7 @@
       "key vocabulary"
     ],
     "summary": "A fast-paced review of all inheritance concepts — dominant/recessive, genotype/phenotype, Mendel's laws, and non-Mendelian patterns.",
-    "contentPath": "content/nsb/ms/life-science/genetics-heredity/traits-inheritance-review.md"
+    "contentPath": "content/nsb/ms/biology/genetics-heredity/traits-inheritance-review.md"
   },
   {
     "id": "nsb-lesson-1181",
@@ -22397,7 +22397,7 @@
       "predicting offspring"
     ],
     "summary": "Bring together Mendelian and non-Mendelian inheritance to tackle the multi-step problems common in Science Bowl rounds.",
-    "contentPath": "content/nsb/ms/life-science/genetics-heredity/inheritance-patterns-synthesis.md"
+    "contentPath": "content/nsb/ms/biology/genetics-heredity/inheritance-patterns-synthesis.md"
   },
   {
     "id": "nsb-lesson-1182",
@@ -22415,7 +22415,7 @@
       "prediction problems"
     ],
     "summary": "The most-tested genetics terms and toss-up recognition patterns for Science Bowl, with 5 practice stems.",
-    "contentPath": "content/nsb/ms/life-science/genetics-heredity/science-bowl-genetics-vocab-tossups.md"
+    "contentPath": "content/nsb/ms/biology/genetics-heredity/science-bowl-genetics-vocab-tossups.md"
   },
   {
     "id": "nsb-lesson-1183",
@@ -22433,7 +22433,7 @@
       "reading ratios"
     ],
     "summary": "Learn to set up and read a Punnett square to predict what fraction of offspring will inherit each genotype and phenotype.",
-    "contentPath": "content/nsb/ms/life-science/genetics-heredity/punnett-square-prediction-tool.md"
+    "contentPath": "content/nsb/ms/biology/genetics-heredity/punnett-square-prediction-tool.md"
   },
   {
     "id": "nsb-lesson-1184",
@@ -22451,7 +22451,7 @@
       "probability fractions"
     ],
     "summary": "Master setting up and interpreting monohybrid Punnett squares, including predicting specific offspring probabilities.",
-    "contentPath": "content/nsb/ms/life-science/genetics-heredity/monohybrid-crosses-one-trait.md"
+    "contentPath": "content/nsb/ms/biology/genetics-heredity/monohybrid-crosses-one-trait.md"
   },
   {
     "id": "nsb-lesson-1185",
@@ -22469,7 +22469,7 @@
       "expected vs. observed"
     ],
     "summary": "Apply the product rule and sum rule to predict the probability of specific genetic outcomes — a crucial skill for Science Bowl problems.",
-    "contentPath": "content/nsb/ms/life-science/genetics-heredity/probability-in-genetics.md"
+    "contentPath": "content/nsb/ms/biology/genetics-heredity/probability-in-genetics.md"
   },
   {
     "id": "nsb-lesson-1186",
@@ -22487,7 +22487,7 @@
       "9:3:3:1 ratio"
     ],
     "summary": "Master the 4×4 Punnett square for two genes simultaneously, and understand when the 9:3:3:1 ratio applies.",
-    "contentPath": "content/nsb/ms/life-science/genetics-heredity/dihybrid-crosses-two-traits.md"
+    "contentPath": "content/nsb/ms/biology/genetics-heredity/dihybrid-crosses-two-traits.md"
   },
   {
     "id": "nsb-lesson-1187",
@@ -22506,7 +22506,7 @@
       "carrier probability"
     ],
     "summary": "Apply Punnett square analysis to real human genetic disorders, understanding inheritance risk for families.",
-    "contentPath": "content/nsb/ms/life-science/genetics-heredity/punnett-squares-genetic-disorders.md"
+    "contentPath": "content/nsb/ms/biology/genetics-heredity/punnett-squares-genetic-disorders.md"
   },
   {
     "id": "nsb-lesson-1188",
@@ -22524,7 +22524,7 @@
       "ratios"
     ],
     "summary": "Work through 8 genetics problems of increasing difficulty to confirm your Punnett square skills.",
-    "contentPath": "content/nsb/ms/life-science/genetics-heredity/punnett-square-review-problem-set.md"
+    "contentPath": "content/nsb/ms/biology/genetics-heredity/punnett-square-review-problem-set.md"
   },
   {
     "id": "nsb-lesson-1189",
@@ -22542,7 +22542,7 @@
       "trap avoidance"
     ],
     "summary": "Bowl-specific strategies for solving Punnett square problems in under 10 seconds, with the 5 patterns you'll see most often.",
-    "contentPath": "content/nsb/ms/life-science/genetics-heredity/science-bowl-speed-genetics.md"
+    "contentPath": "content/nsb/ms/biology/genetics-heredity/science-bowl-speed-genetics.md"
   },
   {
     "id": "nsb-lesson-1190",
@@ -22560,7 +22560,7 @@
       "somatic vs. germline"
     ],
     "summary": "Learn what mutations actually are at the molecular level, what causes them, and why they matter for health and evolution.",
-    "contentPath": "content/nsb/ms/life-science/genetics-heredity/what-is-a-mutation.md"
+    "contentPath": "content/nsb/ms/biology/genetics-heredity/what-is-a-mutation.md"
   },
   {
     "id": "nsb-lesson-1191",
@@ -22578,7 +22578,7 @@
       "chromosomal mutation"
     ],
     "summary": "Catalog the main types of DNA mutations from the molecular to chromosomal level, and understand why frameshifts are so disruptive.",
-    "contentPath": "content/nsb/ms/life-science/genetics-heredity/types-of-mutations.md"
+    "contentPath": "content/nsb/ms/biology/genetics-heredity/types-of-mutations.md"
   },
   {
     "id": "nsb-lesson-1192",
@@ -22596,7 +22596,7 @@
       "natural selection"
     ],
     "summary": "Understand the three major sources of genetic variation in populations, and why variation is essential for a species' survival.",
-    "contentPath": "content/nsb/ms/life-science/genetics-heredity/genetic-variation-why-different.md"
+    "contentPath": "content/nsb/ms/biology/genetics-heredity/genetic-variation-why-different.md"
   },
   {
     "id": "nsb-lesson-1193",
@@ -22614,7 +22614,7 @@
       "carcinogens"
     ],
     "summary": "Connect mutations in specific DNA-controlling genes to the uncontrolled cell division that defines cancer.",
-    "contentPath": "content/nsb/ms/life-science/genetics-heredity/mutations-and-cancer.md"
+    "contentPath": "content/nsb/ms/biology/genetics-heredity/mutations-and-cancer.md"
   },
   {
     "id": "nsb-lesson-1194",
@@ -22632,7 +22632,7 @@
       "antibiotic resistance"
     ],
     "summary": "Explore real examples of mutations that have proven advantageous, and how they drive evolutionary change over time.",
-    "contentPath": "content/nsb/ms/life-science/genetics-heredity/beneficial-mutations-evolution.md"
+    "contentPath": "content/nsb/ms/biology/genetics-heredity/beneficial-mutations-evolution.md"
   },
   {
     "id": "nsb-lesson-1195",
@@ -22650,7 +22650,7 @@
       "effects on protein"
     ],
     "summary": "Comprehensive review of all mutation types, their causes, and their biological consequences.",
-    "contentPath": "content/nsb/ms/life-science/genetics-heredity/mutations-review-types-causes-effects.md"
+    "contentPath": "content/nsb/ms/biology/genetics-heredity/mutations-review-types-causes-effects.md"
   },
   {
     "id": "nsb-lesson-1196",
@@ -22667,7 +22667,7 @@
       "population genetics"
     ],
     "summary": "Connect mutations and genetic variation to evolution by natural selection — the complete chain from molecule to species change.",
-    "contentPath": "content/nsb/ms/life-science/genetics-heredity/variation-evolution-complete-picture.md"
+    "contentPath": "content/nsb/ms/biology/genetics-heredity/variation-evolution-complete-picture.md"
   },
   {
     "id": "nsb-lesson-1197",
@@ -22685,7 +22685,7 @@
       "competition traps"
     ],
     "summary": "The 15 most bowl-tested mutation and variation facts, with clue-word recognition and 5 practice toss-up stems.",
-    "contentPath": "content/nsb/ms/life-science/genetics-heredity/science-bowl-mutations-high-yield.md"
+    "contentPath": "content/nsb/ms/biology/genetics-heredity/science-bowl-mutations-high-yield.md"
   },
   {
     "id": "nsb-lesson-1198",
@@ -22703,7 +22703,7 @@
       "pulmonary vs. systemic circulation"
     ],
     "summary": "Learn how the heart pumps blood through two loops of circulation to deliver oxygen and remove waste from every cell in the body.",
-    "contentPath": "content/nsb/ms/life-science/human-body-systems/heart-blood-vessels-transportation.md"
+    "contentPath": "content/nsb/ms/biology/human-body-systems/heart-blood-vessels-transportation.md"
   },
   {
     "id": "nsb-lesson-1199",
@@ -22722,7 +22722,7 @@
       "platelets"
     ],
     "summary": "Understand the four components of blood — and how each performs a specific function essential to life.",
-    "contentPath": "content/nsb/ms/life-science/human-body-systems/blood-living-fluid.md"
+    "contentPath": "content/nsb/ms/biology/human-body-systems/blood-living-fluid.md"
   },
   {
     "id": "nsb-lesson-1200",
@@ -22740,7 +22740,7 @@
       "breathing mechanics"
     ],
     "summary": "Trace the path of oxygen from air into your bloodstream and carbon dioxide from blood into exhaled air.",
-    "contentPath": "content/nsb/ms/life-science/human-body-systems/gas-exchange-how-lungs-work.md"
+    "contentPath": "content/nsb/ms/biology/human-body-systems/gas-exchange-how-lungs-work.md"
   },
   {
     "id": "nsb-lesson-1201",
@@ -22758,7 +22758,7 @@
       "lifestyle factors"
     ],
     "summary": "Apply your knowledge of the circulatory system to understand how cardiovascular disease develops and how lifestyle choices affect heart health.",
-    "contentPath": "content/nsb/ms/life-science/human-body-systems/heart-health-circulatory-science.md"
+    "contentPath": "content/nsb/ms/biology/human-body-systems/heart-health-circulatory-science.md"
   },
   {
     "id": "nsb-lesson-1202",
@@ -22776,7 +22776,7 @@
       "altitude physiology"
     ],
     "summary": "Apply respiratory biology to understand how diseases and environmental conditions affect lung function and gas exchange.",
-    "contentPath": "content/nsb/ms/life-science/human-body-systems/respiratory-health-asthma-altitude.md"
+    "contentPath": "content/nsb/ms/biology/human-body-systems/respiratory-health-asthma-altitude.md"
   },
   {
     "id": "nsb-lesson-1203",
@@ -22794,7 +22794,7 @@
       "system interactions"
     ],
     "summary": "A structured review connecting circulatory and respiratory functions — the two systems that work together to deliver oxygen to every cell.",
-    "contentPath": "content/nsb/ms/life-science/human-body-systems/circulatory-respiratory-key-review.md"
+    "contentPath": "content/nsb/ms/biology/human-body-systems/circulatory-respiratory-key-review.md"
   },
   {
     "id": "nsb-lesson-1204",
@@ -22812,7 +22812,7 @@
       "trap avoidance"
     ],
     "summary": "The most-tested circulatory and respiratory facts for Science Bowl, with practice toss-up stems and common traps.",
-    "contentPath": "content/nsb/ms/life-science/human-body-systems/circulation-respiration-synthesis.md"
+    "contentPath": "content/nsb/ms/biology/human-body-systems/circulation-respiration-synthesis.md"
   },
   {
     "id": "nsb-lesson-1205",
@@ -22830,7 +22830,7 @@
       "multi-system questions"
     ],
     "summary": "The 12 most-tested terms and the top 5 trap questions for circulatory and respiratory system Science Bowl toss-ups.",
-    "contentPath": "content/nsb/ms/life-science/human-body-systems/science-bowl-circulatory-respiratory.md"
+    "contentPath": "content/nsb/ms/biology/human-body-systems/science-bowl-circulatory-respiratory.md"
   },
   {
     "id": "nsb-lesson-1206",
@@ -22848,7 +22848,7 @@
       "enzymes"
     ],
     "summary": "Follow a bite of food through the entire digestive system, understanding both mechanical and chemical digestion at each step.",
-    "contentPath": "content/nsb/ms/life-science/human-body-systems/how-digestion-works.md"
+    "contentPath": "content/nsb/ms/biology/human-body-systems/how-digestion-works.md"
   },
   {
     "id": "nsb-lesson-1207",
@@ -22867,7 +22867,7 @@
       "homeostasis"
     ],
     "summary": "Learn how the kidneys filter blood, regulate water balance, and produce urine — maintaining the chemical stability of your body's fluids.",
-    "contentPath": "content/nsb/ms/life-science/human-body-systems/excretory-system-filtering-waste.md"
+    "contentPath": "content/nsb/ms/biology/human-body-systems/excretory-system-filtering-waste.md"
   },
   {
     "id": "nsb-lesson-1208",
@@ -22885,7 +22885,7 @@
       "balanced diet"
     ],
     "summary": "Understand the six classes of nutrients and why each is essential for the body to function properly.",
-    "contentPath": "content/nsb/ms/life-science/human-body-systems/nutrition-connecting-food-to-function.md"
+    "contentPath": "content/nsb/ms/biology/human-body-systems/nutrition-connecting-food-to-function.md"
   },
   {
     "id": "nsb-lesson-1209",
@@ -22904,7 +22904,7 @@
       "diabetes"
     ],
     "summary": "Connect digestive biology to real medical conditions, understanding how disruptions in the GI system lead to disease.",
-    "contentPath": "content/nsb/ms/life-science/human-body-systems/digestive-disorders-applying-gi-science.md"
+    "contentPath": "content/nsb/ms/biology/human-body-systems/digestive-disorders-applying-gi-science.md"
   },
   {
     "id": "nsb-lesson-1210",
@@ -22922,7 +22922,7 @@
       "homeostasis disruption"
     ],
     "summary": "Apply nephron physiology to understand kidney failure, how dialysis artificially replaces kidney function, and the consequences of losing excretory homeostasis.",
-    "contentPath": "content/nsb/ms/life-science/human-body-systems/kidney-disease-and-dialysis.md"
+    "contentPath": "content/nsb/ms/biology/human-body-systems/kidney-disease-and-dialysis.md"
   },
   {
     "id": "nsb-lesson-1211",
@@ -22940,7 +22940,7 @@
       "kidney function"
     ],
     "summary": "Fast-paced review connecting the digestive and excretory systems — the organs, enzymes, hormones, and diseases most tested in Science Bowl.",
-    "contentPath": "content/nsb/ms/life-science/human-body-systems/digestive-excretory-review.md"
+    "contentPath": "content/nsb/ms/biology/human-body-systems/digestive-excretory-review.md"
   },
   {
     "id": "nsb-lesson-1212",
@@ -22958,7 +22958,7 @@
       "trap answers"
     ],
     "summary": "Top 15 digestive and excretory facts for Science Bowl with clue-word recognition and 5 practice toss-up stems.",
-    "contentPath": "content/nsb/ms/life-science/human-body-systems/science-bowl-digestive-excretory.md"
+    "contentPath": "content/nsb/ms/biology/human-body-systems/science-bowl-digestive-excretory.md"
   },
   {
     "id": "nsb-lesson-1213",
@@ -22976,7 +22976,7 @@
       "CNS vs. PNS"
     ],
     "summary": "Understand how neurons transmit electrical signals at lightning speed, allowing you to react, sense, think, and control every body movement.",
-    "contentPath": "content/nsb/ms/life-science/human-body-systems/nervous-system-how-it-works.md"
+    "contentPath": "content/nsb/ms/biology/human-body-systems/nervous-system-how-it-works.md"
   },
   {
     "id": "nsb-lesson-1214",
@@ -22995,7 +22995,7 @@
       "comparison to nervous system"
     ],
     "summary": "Learn how hormones control long-term body functions — from growth and metabolism to reproduction and stress response.",
-    "contentPath": "content/nsb/ms/life-science/human-body-systems/endocrine-system-chemical-messengers.md"
+    "contentPath": "content/nsb/ms/biology/human-body-systems/endocrine-system-chemical-messengers.md"
   },
   {
     "id": "nsb-lesson-1215",
@@ -23014,7 +23014,7 @@
       "limbic system"
     ],
     "summary": "Map the major brain regions to their specific functions — understanding how a 3-pound organ controls personality, movement, memory, and breathing simultaneously.",
-    "contentPath": "content/nsb/ms/life-science/human-body-systems/brain-regions-and-functions.md"
+    "contentPath": "content/nsb/ms/biology/human-body-systems/brain-regions-and-functions.md"
   },
   {
     "id": "nsb-lesson-1216",
@@ -23033,7 +23033,7 @@
       "addiction"
     ],
     "summary": "Apply your knowledge of synapses and neurotransmitters to understand how different drugs alter nervous system function.",
-    "contentPath": "content/nsb/ms/life-science/human-body-systems/drug-effects-nervous-system.md"
+    "contentPath": "content/nsb/ms/biology/human-body-systems/drug-effects-nervous-system.md"
   },
   {
     "id": "nsb-lesson-1217",
@@ -23052,7 +23052,7 @@
       "feedback"
     ],
     "summary": "Apply endocrine physiology to understand how your body responds to stress, grows during childhood, and undergoes puberty.",
-    "contentPath": "content/nsb/ms/life-science/human-body-systems/hormones-stress-growth-reproduction.md"
+    "contentPath": "content/nsb/ms/biology/human-body-systems/hormones-stress-growth-reproduction.md"
   },
   {
     "id": "nsb-lesson-1218",
@@ -23070,7 +23070,7 @@
       "feedback loops"
     ],
     "summary": "Comprehensive review of nervous and endocrine system must-knows for Science Bowl.",
-    "contentPath": "content/nsb/ms/life-science/human-body-systems/nervous-endocrine-systems-review.md"
+    "contentPath": "content/nsb/ms/biology/human-body-systems/nervous-endocrine-systems-review.md"
   },
   {
     "id": "nsb-lesson-1219",
@@ -23088,7 +23088,7 @@
       "neuron clues"
     ],
     "summary": "The 15 most-tested nervous and endocrine terms for Science Bowl with clue-word recognition and 5 practice toss-up stems.",
-    "contentPath": "content/nsb/ms/life-science/human-body-systems/science-bowl-nervous-endocrine.md"
+    "contentPath": "content/nsb/ms/biology/human-body-systems/science-bowl-nervous-endocrine.md"
   },
   {
     "id": "nsb-lesson-1220",
@@ -23106,7 +23106,7 @@
       "growth plates"
     ],
     "summary": "Understand what bones are actually made of, why they're strong yet lightweight, and how they grow throughout childhood.",
-    "contentPath": "content/nsb/ms/life-science/human-body-systems/bones-structure-function-growth.md"
+    "contentPath": "content/nsb/ms/biology/human-body-systems/bones-structure-function-growth.md"
   },
   {
     "id": "nsb-lesson-1221",
@@ -23124,7 +23124,7 @@
       "sliding filament theory"
     ],
     "summary": "Learn how muscle cells convert ATP into mechanical force using the sliding filament theory — the molecular mechanism behind every movement you make.",
-    "contentPath": "content/nsb/ms/life-science/human-body-systems/muscles-how-contraction-works.md"
+    "contentPath": "content/nsb/ms/biology/human-body-systems/muscles-how-contraction-works.md"
   },
   {
     "id": "nsb-lesson-1222",
@@ -23142,7 +23142,7 @@
       "joint injury"
     ],
     "summary": "Understand how different joint types allow movement, and what connective tissues hold joints together.",
-    "contentPath": "content/nsb/ms/life-science/human-body-systems/joints-and-skeleton-in-motion.md"
+    "contentPath": "content/nsb/ms/biology/human-body-systems/joints-and-skeleton-in-motion.md"
   },
   {
     "id": "nsb-lesson-1223",
@@ -23160,7 +23160,7 @@
       "injury recovery"
     ],
     "summary": "Apply musculoskeletal biology to understand how exercise makes you stronger, what happens during injury and recovery, and how different types of training have different physiological effects.",
-    "contentPath": "content/nsb/ms/life-science/human-body-systems/exercise-science-musculoskeletal.md"
+    "contentPath": "content/nsb/ms/biology/human-body-systems/exercise-science-musculoskeletal.md"
   },
   {
     "id": "nsb-lesson-1224",
@@ -23179,7 +23179,7 @@
       "overuse injuries"
     ],
     "summary": "Apply anatomy and physiology to understand the most common sports injuries and how the body heals.",
-    "contentPath": "content/nsb/ms/life-science/human-body-systems/sports-injuries-musculoskeletal.md"
+    "contentPath": "content/nsb/ms/biology/human-body-systems/sports-injuries-musculoskeletal.md"
   },
   {
     "id": "nsb-lesson-1225",
@@ -23198,7 +23198,7 @@
       "connective tissue"
     ],
     "summary": "Comprehensive review of the musculoskeletal system — bones, muscles, joints, and connective tissues — with the key terms and facts tested in Science Bowl.",
-    "contentPath": "content/nsb/ms/life-science/human-body-systems/musculoskeletal-system-review.md"
+    "contentPath": "content/nsb/ms/biology/human-body-systems/musculoskeletal-system-review.md"
   },
   {
     "id": "nsb-lesson-1226",
@@ -23216,7 +23216,7 @@
       "trap avoidance"
     ],
     "summary": "The 15 most-tested musculoskeletal facts for Science Bowl, with 5 practice toss-up stems.",
-    "contentPath": "content/nsb/ms/life-science/human-body-systems/science-bowl-musculoskeletal-high-yield.md"
+    "contentPath": "content/nsb/ms/biology/human-body-systems/science-bowl-musculoskeletal-high-yield.md"
   },
   {
     "id": "nsb-lesson-1227",
@@ -23234,7 +23234,7 @@
       "survival of the fittest"
     ],
     "summary": "Natural selection is the process by which individuals with advantageous traits survive and reproduce more successfully, passing those traits to offspring.",
-    "contentPath": "content/nsb/ms/life-science/evolution-classification/what-is-natural-selection.md"
+    "contentPath": "content/nsb/ms/biology/evolution-classification/what-is-natural-selection.md"
   },
   {
     "id": "nsb-lesson-1228",
@@ -23252,7 +23252,7 @@
       "physiological adaptation"
     ],
     "summary": "Adaptations are heritable traits that increase an organism's fitness in its environment, and they come in structural, behavioral, and physiological forms.",
-    "contentPath": "content/nsb/ms/life-science/evolution-classification/adaptations-form-fits-function.md"
+    "contentPath": "content/nsb/ms/biology/evolution-classification/adaptations-form-fits-function.md"
   },
   {
     "id": "nsb-lesson-1229",
@@ -23271,7 +23271,7 @@
       "sexual selection"
     ],
     "summary": "Selection pressures are environmental factors that affect which individuals survive and reproduce, driving population-level change over time.",
-    "contentPath": "content/nsb/ms/life-science/evolution-classification/selection-pressures-real-world.md"
+    "contentPath": "content/nsb/ms/biology/evolution-classification/selection-pressures-real-world.md"
   },
   {
     "id": "nsb-lesson-1230",
@@ -23289,7 +23289,7 @@
       "environmental pressure"
     ],
     "summary": "The Galápagos finches are a classic case study showing how a single ancestral population can diversify through natural selection in different environments.",
-    "contentPath": "content/nsb/ms/life-science/evolution-classification/natural-selection-case-studies.md"
+    "contentPath": "content/nsb/ms/biology/evolution-classification/natural-selection-case-studies.md"
   },
   {
     "id": "nsb-lesson-1231",
@@ -23308,7 +23308,7 @@
       "thermoregulation"
     ],
     "summary": "Organisms in extreme environments show dramatic adaptations that illustrate how natural selection shapes traits to match specific environmental conditions.",
-    "contentPath": "content/nsb/ms/life-science/evolution-classification/adaptations-across-biomes.md"
+    "contentPath": "content/nsb/ms/biology/evolution-classification/adaptations-across-biomes.md"
   },
   {
     "id": "nsb-lesson-1232",
@@ -23326,7 +23326,7 @@
       "purposeful change"
     ],
     "summary": "Several common misunderstandings about natural selection can be cleared up by applying the core principles carefully.",
-    "contentPath": "content/nsb/ms/life-science/evolution-classification/natural-selection-misconceptions.md"
+    "contentPath": "content/nsb/ms/biology/evolution-classification/natural-selection-misconceptions.md"
   },
   {
     "id": "nsb-lesson-1233",
@@ -23344,7 +23344,7 @@
       "application of principles"
     ],
     "summary": "A synthesis review applying natural selection concepts to novel scenarios.",
-    "contentPath": "content/nsb/ms/life-science/evolution-classification/natural-selection-quiz-synthesis.md"
+    "contentPath": "content/nsb/ms/biology/evolution-classification/natural-selection-quiz-synthesis.md"
   },
   {
     "id": "nsb-lesson-1234",
@@ -23363,7 +23363,7 @@
       "competition tips"
     ],
     "summary": "Key facts, bowl-style toss-up patterns, and common traps for Science Bowl natural selection questions.",
-    "contentPath": "content/nsb/ms/life-science/evolution-classification/natural-selection-competition-facts.md"
+    "contentPath": "content/nsb/ms/biology/evolution-classification/natural-selection-competition-facts.md"
   },
   {
     "id": "nsb-lesson-1235",
@@ -23382,7 +23382,7 @@
       "stratigraphy"
     ],
     "summary": "Fossils preserved in sedimentary rock layers provide a chronological record of life on Earth, with older fossils in deeper layers.",
-    "contentPath": "content/nsb/ms/life-science/evolution-classification/reading-the-rock-record.md"
+    "contentPath": "content/nsb/ms/biology/evolution-classification/reading-the-rock-record.md"
   },
   {
     "id": "nsb-lesson-1236",
@@ -23401,7 +23401,7 @@
       "gaps in the fossil record"
     ],
     "summary": "Transitional fossils show intermediate features between ancestral and descendant groups, providing direct evidence for evolutionary change.",
-    "contentPath": "content/nsb/ms/life-science/evolution-classification/transitional-fossils.md"
+    "contentPath": "content/nsb/ms/biology/evolution-classification/transitional-fossils.md"
   },
   {
     "id": "nsb-lesson-1237",
@@ -23420,7 +23420,7 @@
       "homologous structures"
     ],
     "summary": "Multiple independent lines of evidence from the fossil record support the theory of evolution, including transitional forms, biogeography, and anatomical patterns.",
-    "contentPath": "content/nsb/ms/life-science/evolution-classification/fossils-evidence-evolution.md"
+    "contentPath": "content/nsb/ms/biology/evolution-classification/fossils-evidence-evolution.md"
   },
   {
     "id": "nsb-lesson-1238",
@@ -23438,7 +23438,7 @@
       "relative dating"
     ],
     "summary": "Apply stratigraphy and fossil interpretation skills to reconstruct the history of life in a hypothetical rock column.",
-    "contentPath": "content/nsb/ms/life-science/evolution-classification/fossil-evidence-case-study.md"
+    "contentPath": "content/nsb/ms/biology/evolution-classification/fossil-evidence-case-study.md"
   },
   {
     "id": "nsb-lesson-1239",
@@ -23456,7 +23456,7 @@
       "practical fossil analysis"
     ],
     "summary": "Index fossils and stratigraphic correlation allow geologists to match rock layers across vast distances and establish relative dates.",
-    "contentPath": "content/nsb/ms/life-science/evolution-classification/fossil-evidence-classroom.md"
+    "contentPath": "content/nsb/ms/biology/evolution-classification/fossil-evidence-classroom.md"
   },
   {
     "id": "nsb-lesson-1240",
@@ -23475,7 +23475,7 @@
       "transitional forms"
     ],
     "summary": "Synthesis review connecting fossil types, dating methods, and their role as evidence for evolution.",
-    "contentPath": "content/nsb/ms/life-science/evolution-classification/fossil-evidence-review.md"
+    "contentPath": "content/nsb/ms/biology/evolution-classification/fossil-evidence-review.md"
   },
   {
     "id": "nsb-lesson-1241",
@@ -23493,7 +23493,7 @@
       "dating methods"
     ],
     "summary": "High-yield fossil facts, bowl-style toss-up patterns, and common traps for Science Bowl questions.",
-    "contentPath": "content/nsb/ms/life-science/evolution-classification/fossil-facts-competition.md"
+    "contentPath": "content/nsb/ms/biology/evolution-classification/fossil-facts-competition.md"
   },
   {
     "id": "nsb-lesson-1242",
@@ -23512,7 +23512,7 @@
       "classification levels"
     ],
     "summary": "Taxonomy organizes the diversity of life into a hierarchical system that reflects evolutionary relationships and enables scientists worldwide to communicate clearly.",
-    "contentPath": "content/nsb/ms/life-science/evolution-classification/why-classify-living-things.md"
+    "contentPath": "content/nsb/ms/biology/evolution-classification/why-classify-living-things.md"
   },
   {
     "id": "nsb-lesson-1243",
@@ -23532,7 +23532,7 @@
       "eukaryote"
     ],
     "summary": "All life is organized into three domains based on cell structure and molecular evidence: Bacteria, Archaea, and Eukarya.",
-    "contentPath": "content/nsb/ms/life-science/evolution-classification/three-domains-of-life.md"
+    "contentPath": "content/nsb/ms/biology/evolution-classification/three-domains-of-life.md"
   },
   {
     "id": "nsb-lesson-1244",
@@ -23551,7 +23551,7 @@
       "phylum Chordata"
     ],
     "summary": "Animals are divided into vertebrates (with a backbone) and invertebrates (without), with vertebrates further classified into five major classes.",
-    "contentPath": "content/nsb/ms/life-science/evolution-classification/classifying-vertebrates-invertebrates.md"
+    "contentPath": "content/nsb/ms/biology/evolution-classification/classifying-vertebrates-invertebrates.md"
   },
   {
     "id": "nsb-lesson-1245",
@@ -23569,7 +23569,7 @@
       "observable traits"
     ],
     "summary": "A dichotomous key uses a series of paired questions to identify an unknown organism, demonstrating how classification is based on observable characteristics.",
-    "contentPath": "content/nsb/ms/life-science/evolution-classification/building-dichotomous-key.md"
+    "contentPath": "content/nsb/ms/biology/evolution-classification/building-dichotomous-key.md"
   },
   {
     "id": "nsb-lesson-1246",
@@ -23587,7 +23587,7 @@
       "molecular taxonomy"
     ],
     "summary": "Taxonomists use morphology, behavior, ecology, and increasingly DNA to classify organisms in real research settings.",
-    "contentPath": "content/nsb/ms/life-science/evolution-classification/classification-in-the-field.md"
+    "contentPath": "content/nsb/ms/biology/evolution-classification/classification-in-the-field.md"
   },
   {
     "id": "nsb-lesson-1247",
@@ -23606,7 +23606,7 @@
       "vertebrates"
     ],
     "summary": "Synthesis review of classification concepts from the three domains to vertebrate classes.",
-    "contentPath": "content/nsb/ms/life-science/evolution-classification/taxonomy-classification-review.md"
+    "contentPath": "content/nsb/ms/biology/evolution-classification/taxonomy-classification-review.md"
   },
   {
     "id": "nsb-lesson-1248",
@@ -23625,7 +23625,7 @@
       "bowl tips"
     ],
     "summary": "High-yield taxonomy facts and bowl-style toss-up strategies for Science Bowl classification questions.",
-    "contentPath": "content/nsb/ms/life-science/evolution-classification/taxonomy-competition-tips.md"
+    "contentPath": "content/nsb/ms/biology/evolution-classification/taxonomy-competition-tips.md"
   },
   {
     "id": "nsb-lesson-1249",
@@ -23644,7 +23644,7 @@
       "allopatric speciation"
     ],
     "summary": "Speciation is the process by which one species splits into two or more distinct species, driven primarily by reproductive isolation.",
-    "contentPath": "content/nsb/ms/life-science/evolution-classification/what-is-speciation.md"
+    "contentPath": "content/nsb/ms/biology/evolution-classification/what-is-speciation.md"
   },
   {
     "id": "nsb-lesson-1250",
@@ -23662,7 +23662,7 @@
       "adaptive radiation"
     ],
     "summary": "Islands are natural laboratories for speciation — geographic isolation promotes rapid diversification from founder populations.",
-    "contentPath": "content/nsb/ms/life-science/evolution-classification/speciation-island-biogeography.md"
+    "contentPath": "content/nsb/ms/biology/evolution-classification/speciation-island-biogeography.md"
   },
   {
     "id": "nsb-lesson-1251",
@@ -23681,7 +23681,7 @@
       "phylogenetic tree"
     ],
     "summary": "Species arise through speciation and disappear through extinction; the history of life is marked by five mass extinctions and one ongoing sixth extinction.",
-    "contentPath": "content/nsb/ms/life-science/evolution-classification/rates-speciation-extinction.md"
+    "contentPath": "content/nsb/ms/biology/evolution-classification/rates-speciation-extinction.md"
   },
   {
     "id": "nsb-lesson-1252",
@@ -23699,7 +23699,7 @@
       "cichlid fish"
     ],
     "summary": "Three case studies illustrate different mechanisms of speciation: ring species, polyploidy in plants, and cichlid fish radiation.",
-    "contentPath": "content/nsb/ms/life-science/evolution-classification/speciation-case-studies.md"
+    "contentPath": "content/nsb/ms/biology/evolution-classification/speciation-case-studies.md"
   },
   {
     "id": "nsb-lesson-1253",
@@ -23718,7 +23718,7 @@
       "reproductive isolation"
     ],
     "summary": "Synthesis review connecting speciation mechanisms, reproductive isolation, and the history of biodiversity.",
-    "contentPath": "content/nsb/ms/life-science/evolution-classification/speciation-review.md"
+    "contentPath": "content/nsb/ms/biology/evolution-classification/speciation-review.md"
   },
   {
     "id": "nsb-lesson-1254",
@@ -23736,7 +23736,7 @@
       "adaptive radiation"
     ],
     "summary": "High-yield speciation facts, bowl-style toss-up patterns, and common traps for Science Bowl speciation questions.",
-    "contentPath": "content/nsb/ms/life-science/evolution-classification/speciation-competition-tips.md"
+    "contentPath": "content/nsb/ms/biology/evolution-classification/speciation-competition-tips.md"
   },
   {
     "id": "nsb-lesson-1255",
@@ -23755,7 +23755,7 @@
       "trophic level"
     ],
     "summary": "All organisms in an ecosystem are classified by how they obtain energy: producers make their own, consumers eat others, and decomposers break down dead matter.",
-    "contentPath": "content/nsb/ms/life-science/ecology/producers-consumers-decomposers.md"
+    "contentPath": "content/nsb/ms/biology/ecology/producers-consumers-decomposers.md"
   },
   {
     "id": "nsb-lesson-1256",
@@ -23774,7 +23774,7 @@
       "trophic efficiency"
     ],
     "summary": "Only about 10% of energy at one trophic level is available to the next level, which explains why food chains are short and why carnivores are rarer than herbivores.",
-    "contentPath": "content/nsb/ms/life-science/ecology/energy-flow-ten-percent-rule.md"
+    "contentPath": "content/nsb/ms/biology/ecology/energy-flow-ten-percent-rule.md"
   },
   {
     "id": "nsb-lesson-1257",
@@ -23793,7 +23793,7 @@
       "trophic cascade"
     ],
     "summary": "Food webs represent the complex reality of feeding relationships in ecosystems, and the removal of key species can trigger cascading effects throughout the web.",
-    "contentPath": "content/nsb/ms/life-science/ecology/food-chains-food-webs.md"
+    "contentPath": "content/nsb/ms/biology/ecology/food-chains-food-webs.md"
   },
   {
     "id": "nsb-lesson-1258",
@@ -23812,7 +23812,7 @@
       "10% rule application"
     ],
     "summary": "Apply food web and energy flow concepts to a marine ecosystem, tracing energy from phytoplankton to apex predators.",
-    "contentPath": "content/nsb/ms/life-science/ecology/energy-flow-aquatic-ecosystem.md"
+    "contentPath": "content/nsb/ms/biology/ecology/energy-flow-aquatic-ecosystem.md"
   },
   {
     "id": "nsb-lesson-1259",
@@ -23830,7 +23830,7 @@
       "ecosystem services"
     ],
     "summary": "Trace energy through a prairie food web and calculate the consequences of removing or adding a species.",
-    "contentPath": "content/nsb/ms/life-science/ecology/energy-flow-prairie-ecosystem.md"
+    "contentPath": "content/nsb/ms/biology/ecology/energy-flow-prairie-ecosystem.md"
   },
   {
     "id": "nsb-lesson-1260",
@@ -23849,7 +23849,7 @@
       "10% rule"
     ],
     "summary": "Synthesis review applying food web, energy pyramid, and keystone species concepts to novel scenarios.",
-    "contentPath": "content/nsb/ms/life-science/ecology/food-web-stability-review.md"
+    "contentPath": "content/nsb/ms/biology/ecology/food-web-stability-review.md"
   },
   {
     "id": "nsb-lesson-1261",
@@ -23868,7 +23868,7 @@
       "bowl tips"
     ],
     "summary": "High-yield food web and energy flow facts for Science Bowl competition preparation.",
-    "contentPath": "content/nsb/ms/life-science/ecology/food-web-competition-facts.md"
+    "contentPath": "content/nsb/ms/biology/ecology/food-web-competition-facts.md"
   },
   {
     "id": "nsb-lesson-1262",
@@ -23887,7 +23887,7 @@
       "terrestrial biomes"
     ],
     "summary": "A biome is a large geographic area characterized by specific climate conditions that support characteristic communities of plants and animals.",
-    "contentPath": "content/nsb/ms/life-science/ecology/what-is-a-biome.md"
+    "contentPath": "content/nsb/ms/biology/ecology/what-is-a-biome.md"
   },
   {
     "id": "nsb-lesson-1263",
@@ -23906,7 +23906,7 @@
       "permafrost"
     ],
     "summary": "Tropical rainforests and tundra represent opposite extremes of Earth's biomes — one is the most biodiverse, the other among the most challenging environments for life.",
-    "contentPath": "content/nsb/ms/life-science/ecology/rainforests-tundra-extremes.md"
+    "contentPath": "content/nsb/ms/biology/ecology/rainforests-tundra-extremes.md"
   },
   {
     "id": "nsb-lesson-1264",
@@ -23925,7 +23925,7 @@
       "temperate deciduous forest"
     ],
     "summary": "Grasslands, deserts, and temperate forests each have distinctive climate patterns and characteristic species adapted to their conditions.",
-    "contentPath": "content/nsb/ms/life-science/ecology/grasslands-deserts-temperate-forests.md"
+    "contentPath": "content/nsb/ms/biology/ecology/grasslands-deserts-temperate-forests.md"
   },
   {
     "id": "nsb-lesson-1265",
@@ -23944,7 +23944,7 @@
       "rain shadow effect"
     ],
     "summary": "Climate graphs (climatographs) show monthly temperature and precipitation patterns that predict biome type; the rain shadow effect explains why some areas are unexpectedly dry.",
-    "contentPath": "content/nsb/ms/life-science/ecology/biome-distribution-why.md"
+    "contentPath": "content/nsb/ms/biology/ecology/biome-distribution-why.md"
   },
   {
     "id": "nsb-lesson-1266",
@@ -23962,7 +23962,7 @@
       "species comparison"
     ],
     "summary": "Similar climate conditions on different continents produce similar biomes with ecologically equivalent but evolutionarily distinct species — a demonstration of convergent evolution.",
-    "contentPath": "content/nsb/ms/life-science/ecology/comparing-biomes-across-continents.md"
+    "contentPath": "content/nsb/ms/biology/ecology/comparing-biomes-across-continents.md"
   },
   {
     "id": "nsb-lesson-1267",
@@ -23980,7 +23980,7 @@
       "climate factors"
     ],
     "summary": "Synthesis review of biome types, their climate characteristics, and the adaptations of organisms within them.",
-    "contentPath": "content/nsb/ms/life-science/ecology/biomes-review.md"
+    "contentPath": "content/nsb/ms/biology/ecology/biomes-review.md"
   },
   {
     "id": "nsb-lesson-1268",
@@ -23998,7 +23998,7 @@
       "climate zones"
     ],
     "summary": "High-yield biome facts and bowl-style toss-up strategies for Science Bowl ecology questions.",
-    "contentPath": "content/nsb/ms/life-science/ecology/biome-competition-tips.md"
+    "contentPath": "content/nsb/ms/biology/ecology/biome-competition-tips.md"
   },
   {
     "id": "nsb-lesson-1269",
@@ -24017,7 +24017,7 @@
       "carrying capacity"
     ],
     "summary": "A population is a group of individuals of the same species in the same area, and its size is regulated by birth, death, immigration, and emigration.",
-    "contentPath": "content/nsb/ms/life-science/ecology/what-is-a-population.md"
+    "contentPath": "content/nsb/ms/biology/ecology/what-is-a-population.md"
   },
   {
     "id": "nsb-lesson-1270",
@@ -24036,7 +24036,7 @@
       "S-curve"
     ],
     "summary": "Populations grow exponentially when resources are unlimited but follow logistic (S-shaped) growth when limited by carrying capacity.",
-    "contentPath": "content/nsb/ms/life-science/ecology/population-growth-models.md"
+    "contentPath": "content/nsb/ms/biology/ecology/population-growth-models.md"
   },
   {
     "id": "nsb-lesson-1271",
@@ -24054,7 +24054,7 @@
       "boom-bust cycle"
     ],
     "summary": "Predator and prey populations are linked — as prey increase, predators increase; then predators reduce prey, causing predators to decline, allowing prey to recover.",
-    "contentPath": "content/nsb/ms/life-science/ecology/predator-prey-dynamics.md"
+    "contentPath": "content/nsb/ms/biology/ecology/predator-prey-dynamics.md"
   },
   {
     "id": "nsb-lesson-1272",
@@ -24072,7 +24072,7 @@
       "age structure"
     ],
     "summary": "Human population grew slowly for most of history, then surged exponentially after the Industrial Revolution — with complex implications for Earth's carrying capacity.",
-    "contentPath": "content/nsb/ms/life-science/ecology/human-population-growth.md"
+    "contentPath": "content/nsb/ms/biology/ecology/human-population-growth.md"
   },
   {
     "id": "nsb-lesson-1273",
@@ -24090,7 +24090,7 @@
       "population viability"
     ],
     "summary": "Understanding population dynamics is essential for wildlife conservation — managing hunting, invasive species, and habitat to maintain viable populations.",
-    "contentPath": "content/nsb/ms/life-science/ecology/population-growth-wildlife-management.md"
+    "contentPath": "content/nsb/ms/biology/ecology/population-growth-wildlife-management.md"
   },
   {
     "id": "nsb-lesson-1274",
@@ -24109,7 +24109,7 @@
       "predator-prey"
     ],
     "summary": "Synthesis review connecting population growth models, limiting factors, predator-prey dynamics, and human population concepts.",
-    "contentPath": "content/nsb/ms/life-science/ecology/population-dynamics-review.md"
+    "contentPath": "content/nsb/ms/biology/ecology/population-dynamics-review.md"
   },
   {
     "id": "nsb-lesson-1275",
@@ -24127,7 +24127,7 @@
       "growth models"
     ],
     "summary": "High-yield population dynamics facts and bowl-style toss-up strategies for Science Bowl ecology questions.",
-    "contentPath": "content/nsb/ms/life-science/ecology/population-dynamics-competition-tips.md"
+    "contentPath": "content/nsb/ms/biology/ecology/population-dynamics-competition-tips.md"
   },
   {
     "id": "nsb-lesson-1276",
@@ -24146,7 +24146,7 @@
       "invasive species"
     ],
     "summary": "Human activities — habitat destruction, pollution, invasive species, and climate change — are the primary drivers of the current biodiversity crisis.",
-    "contentPath": "content/nsb/ms/life-science/ecology/how-humans-change-ecosystems.md"
+    "contentPath": "content/nsb/ms/biology/ecology/how-humans-change-ecosystems.md"
   },
   {
     "id": "nsb-lesson-1277",
@@ -24165,7 +24165,7 @@
       "acid rain"
     ],
     "summary": "Pollution enters ecosystems and can concentrate through food webs (biomagnification) or cause dramatic ecosystem disruption through nutrient overloading and acidification.",
-    "contentPath": "content/nsb/ms/life-science/ecology/pollution-effects-ecosystems.md"
+    "contentPath": "content/nsb/ms/biology/ecology/pollution-effects-ecosystems.md"
   },
   {
     "id": "nsb-lesson-1278",
@@ -24184,7 +24184,7 @@
       "phenological mismatch"
     ],
     "summary": "Human-caused climate change is shifting ecosystems worldwide, with effects including coral bleaching, species range shifts, and phenological mismatches.",
-    "contentPath": "content/nsb/ms/life-science/ecology/climate-change-ecosystems.md"
+    "contentPath": "content/nsb/ms/biology/ecology/climate-change-ecosystems.md"
   },
   {
     "id": "nsb-lesson-1279",
@@ -24202,7 +24202,7 @@
       "habitat restoration"
     ],
     "summary": "Conservation efforts have successfully recovered many species from near-extinction, demonstrating that targeted intervention can reverse biodiversity loss.",
-    "contentPath": "content/nsb/ms/life-science/ecology/conservation-success-stories.md"
+    "contentPath": "content/nsb/ms/biology/ecology/conservation-success-stories.md"
   },
   {
     "id": "nsb-lesson-1280",
@@ -24221,7 +24221,7 @@
       "citizen science"
     ],
     "summary": "Watersheds connect human land use to downstream water quality, and individuals can take concrete actions to reduce their ecological footprint.",
-    "contentPath": "content/nsb/ms/life-science/ecology/human-impact-your-watershed.md"
+    "contentPath": "content/nsb/ms/biology/ecology/human-impact-your-watershed.md"
   },
   {
     "id": "nsb-lesson-1281",
@@ -24240,7 +24240,7 @@
       "climate change"
     ],
     "summary": "Synthesis review connecting habitat loss, pollution, climate change, and conservation to the current biodiversity crisis.",
-    "contentPath": "content/nsb/ms/life-science/ecology/human-impact-review.md"
+    "contentPath": "content/nsb/ms/biology/ecology/human-impact-review.md"
   },
   {
     "id": "nsb-lesson-1282",
@@ -24258,7 +24258,7 @@
       "climate change bowl facts"
     ],
     "summary": "High-yield human impact ecology facts and bowl-style toss-up strategies for Science Bowl competition.",
-    "contentPath": "content/nsb/ms/life-science/ecology/human-impact-competition-tips.md"
+    "contentPath": "content/nsb/ms/biology/ecology/human-impact-competition-tips.md"
   },
   {
     "id": "nsb-lesson-1283",
@@ -24277,7 +24277,7 @@
       "vascular tissue"
     ],
     "summary": "Plants have specialized structures designed for water uptake, support, and photosynthesis.",
-    "contentPath": "content/nsb/ms/life-science/plant-biology/main-plant-parts.md"
+    "contentPath": "content/nsb/ms/biology/plant-biology/main-plant-parts.md"
   },
   {
     "id": "nsb-lesson-1284",
@@ -24296,7 +24296,7 @@
       "phloem"
     ],
     "summary": "Plants are classified by whether they have specialized tissues to transport water and nutrients.",
-    "contentPath": "content/nsb/ms/life-science/plant-biology/vascular-nonvascular-plants.md"
+    "contentPath": "content/nsb/ms/biology/plant-biology/vascular-nonvascular-plants.md"
   },
   {
     "id": "nsb-lesson-1285",
@@ -24315,7 +24315,7 @@
       "tissue systems"
     ],
     "summary": "Plants have three tissue systems, each with specific functions.",
-    "contentPath": "content/nsb/ms/life-science/plant-biology/plant-tissue-systems.md"
+    "contentPath": "content/nsb/ms/biology/plant-biology/plant-tissue-systems.md"
   },
   {
     "id": "nsb-lesson-1286",
@@ -24333,7 +24333,7 @@
       "resource allocation"
     ],
     "summary": "Plants show remarkable adaptations in structure that reflect their environment and growth strategy.",
-    "contentPath": "content/nsb/ms/life-science/plant-biology/plant-adaptations-for-growth.md"
+    "contentPath": "content/nsb/ms/biology/plant-biology/plant-adaptations-for-growth.md"
   },
   {
     "id": "nsb-lesson-1287",
@@ -24352,7 +24352,7 @@
       "leaf venation"
     ],
     "summary": "Flowering plants are divided into two classes based on seed and structural differences.",
-    "contentPath": "content/nsb/ms/life-science/plant-biology/monocots-vs-dicots.md"
+    "contentPath": "content/nsb/ms/biology/plant-biology/monocots-vs-dicots.md"
   },
   {
     "id": "nsb-lesson-1288",
@@ -24372,7 +24372,7 @@
       "light"
     ],
     "summary": "Photosynthesis converts light energy, water, and carbon dioxide into glucose and oxygen.",
-    "contentPath": "content/nsb/ms/life-science/plant-biology/photosynthesis-equation.md"
+    "contentPath": "content/nsb/ms/biology/plant-biology/photosynthesis-equation.md"
   },
   {
     "id": "nsb-lesson-1289",
@@ -24392,7 +24392,7 @@
       "chloroplast"
     ],
     "summary": "Photosynthesis has two main stages: light reactions in the thylakoid and the Calvin cycle in the stroma.",
-    "contentPath": "content/nsb/ms/life-science/plant-biology/light-reactions-dark-reactions.md"
+    "contentPath": "content/nsb/ms/biology/plant-biology/light-reactions-dark-reactions.md"
   },
   {
     "id": "nsb-lesson-1290",
@@ -24411,7 +24411,7 @@
       "gas exchange"
     ],
     "summary": "Stomata are specialized pores that allow plants to exchange gases while conserving water.",
-    "contentPath": "content/nsb/ms/life-science/plant-biology/stomata-gas-exchange.md"
+    "contentPath": "content/nsb/ms/biology/plant-biology/stomata-gas-exchange.md"
   },
   {
     "id": "nsb-lesson-1291",
@@ -24430,7 +24430,7 @@
       "compensation point"
     ],
     "summary": "Photosynthesis rates vary with light intensity and quality, and plants have adapted to their native light conditions.",
-    "contentPath": "content/nsb/ms/life-science/plant-biology/photosynthesis-in-different-light-conditions.md"
+    "contentPath": "content/nsb/ms/biology/plant-biology/photosynthesis-in-different-light-conditions.md"
   },
   {
     "id": "nsb-lesson-1292",
@@ -24449,7 +24449,7 @@
       "glucose breakdown"
     ],
     "summary": "Plants use glucose from photosynthesis as fuel, breaking it down through respiration to release energy.",
-    "contentPath": "content/nsb/ms/life-science/plant-biology/respiration-and-energy-use-in-plants.md"
+    "contentPath": "content/nsb/ms/biology/plant-biology/respiration-and-energy-use-in-plants.md"
   },
   {
     "id": "nsb-lesson-1293",
@@ -24467,7 +24467,7 @@
       "limiting factors"
     ],
     "summary": "Not all light energy becomes stored glucose; plants vary widely in photosynthetic efficiency.",
-    "contentPath": "content/nsb/ms/life-science/plant-biology/photosynthetic-efficiency-and-productivity.md"
+    "contentPath": "content/nsb/ms/biology/plant-biology/photosynthetic-efficiency-and-productivity.md"
   },
   {
     "id": "nsb-lesson-1294",
@@ -24486,7 +24486,7 @@
       "carbon cycling"
     ],
     "summary": "Photosynthesis underpins agriculture, renewable energy, and all terrestrial life.",
-    "contentPath": "content/nsb/ms/life-science/plant-biology/photosynthesis-and-human-applications.md"
+    "contentPath": "content/nsb/ms/biology/plant-biology/photosynthesis-and-human-applications.md"
   },
   {
     "id": "nsb-lesson-1295",
@@ -24504,7 +24504,7 @@
       "light capture strategies"
     ],
     "summary": "Different plants have evolved different strategies to win the competition for light energy.",
-    "contentPath": "content/nsb/ms/life-science/plant-biology/light-competition-plants.md"
+    "contentPath": "content/nsb/ms/biology/plant-biology/light-competition-plants.md"
   },
   {
     "id": "nsb-lesson-1296",
@@ -24523,7 +24523,7 @@
       "clones"
     ],
     "summary": "Plants reproduce both asexually (producing identical copies) and sexually (combining genetic material).",
-    "contentPath": "content/nsb/ms/life-science/plant-biology/asexual-sexual-reproduction-plants.md"
+    "contentPath": "content/nsb/ms/biology/plant-biology/asexual-sexual-reproduction-plants.md"
   },
   {
     "id": "nsb-lesson-1297",
@@ -24542,7 +24542,7 @@
       "spores"
     ],
     "summary": "Plants have two multicellular forms in their life cycle: the sporophyte (diploid, spore-producing) and gametophyte (haploid, gamete-producing).",
-    "contentPath": "content/nsb/ms/life-science/plant-biology/alternation-generations.md"
+    "contentPath": "content/nsb/ms/biology/plant-biology/alternation-generations.md"
   },
   {
     "id": "nsb-lesson-1298",
@@ -24561,7 +24561,7 @@
       "cross-pollination"
     ],
     "summary": "Flowers are reproductive structures that facilitate pollination, the transfer of pollen to the pistil.",
-    "contentPath": "content/nsb/ms/life-science/plant-biology/flower-structure-pollination.md"
+    "contentPath": "content/nsb/ms/biology/plant-biology/flower-structure-pollination.md"
   },
   {
     "id": "nsb-lesson-1299",
@@ -24580,7 +24580,7 @@
       "dispersal"
     ],
     "summary": "After pollination and fertilization, seeds and fruits develop to protect and disperse the next generation.",
-    "contentPath": "content/nsb/ms/life-science/plant-biology/seed-fruit-development.md"
+    "contentPath": "content/nsb/ms/biology/plant-biology/seed-fruit-development.md"
   },
   {
     "id": "nsb-lesson-1300",
@@ -24599,7 +24599,7 @@
       "growth"
     ],
     "summary": "Seed germination is the growth of the embryo into a seedling after conditions become favorable.",
-    "contentPath": "content/nsb/ms/life-science/plant-biology/germination-and-early-growth.md"
+    "contentPath": "content/nsb/ms/biology/plant-biology/germination-and-early-growth.md"
   },
   {
     "id": "nsb-lesson-1301",
@@ -24617,7 +24617,7 @@
       "phenology"
     ],
     "summary": "A complete flowering plant life cycle spans from seed germination to flower production and seed dispersal.",
-    "contentPath": "content/nsb/ms/life-science/plant-biology/the-complete-life-cycle-of-a-flowering-plant.md"
+    "contentPath": "content/nsb/ms/biology/plant-biology/the-complete-life-cycle-of-a-flowering-plant.md"
   },
   {
     "id": "nsb-lesson-1302",
@@ -24635,7 +24635,7 @@
       "reproductive success"
     ],
     "summary": "Plant reproduction has shaped flowers, pollinators, and entire ecosystems through coevolution.",
-    "contentPath": "content/nsb/ms/life-science/plant-biology/plant-reproduction-and-evolution.md"
+    "contentPath": "content/nsb/ms/biology/plant-biology/plant-reproduction-and-evolution.md"
   },
   {
     "id": "nsb-lesson-1303",
@@ -24654,7 +24654,7 @@
       "trade-offs"
     ],
     "summary": "Plants adopt different reproductive strategies — early vs. late flowering, big seeds vs. many seeds — to compete effectively.",
-    "contentPath": "content/nsb/ms/life-science/plant-biology/reproductive-timing-strategy.md"
+    "contentPath": "content/nsb/ms/biology/plant-biology/reproductive-timing-strategy.md"
   },
   {
     "id": "nsb-lesson-1304",
@@ -24673,7 +24673,7 @@
       "plant hormone"
     ],
     "summary": "Tropisms are directional growth responses where plants grow toward or away from stimuli like light and gravity.",
-    "contentPath": "content/nsb/ms/life-science/plant-biology/tropisms-definition.md"
+    "contentPath": "content/nsb/ms/biology/plant-biology/tropisms-definition.md"
   },
   {
     "id": "nsb-lesson-1305",
@@ -24693,7 +24693,7 @@
       "abscisic acid"
     ],
     "summary": "Plant hormones are signaling molecules that coordinate growth, development, and responses to the environment.",
-    "contentPath": "content/nsb/ms/life-science/plant-biology/plant-hormones.md"
+    "contentPath": "content/nsb/ms/biology/plant-biology/plant-hormones.md"
   },
   {
     "id": "nsb-lesson-1306",
@@ -24712,7 +24712,7 @@
       "cell elongation"
     ],
     "summary": "Phototropism involves light sensing, auxin redistribution, and differential cell elongation in response to unidirectional light.",
-    "contentPath": "content/nsb/ms/life-science/plant-biology/phototropism-mechanism.md"
+    "contentPath": "content/nsb/ms/biology/plant-biology/phototropism-mechanism.md"
   },
   {
     "id": "nsb-lesson-1307",
@@ -24732,7 +24732,7 @@
       "gravity sensing"
     ],
     "summary": "Roots sense gravity through specialized cells containing starch-filled plastids that settle downward, triggering auxin redistribution.",
-    "contentPath": "content/nsb/ms/life-science/plant-biology/gravitropism-mechanism.md"
+    "contentPath": "content/nsb/ms/biology/plant-biology/gravitropism-mechanism.md"
   },
   {
     "id": "nsb-lesson-1308",
@@ -24751,7 +24751,7 @@
       "turgor pressure"
     ],
     "summary": "Nastic movements are rapid, non-directional responses mediated by turgor pressure changes rather than growth.",
-    "contentPath": "content/nsb/ms/life-science/plant-biology/nastic-movements-rapid-responses-to-stimuli.md"
+    "contentPath": "content/nsb/ms/biology/plant-biology/nastic-movements-rapid-responses-to-stimuli.md"
   },
   {
     "id": "nsb-lesson-1309",
@@ -24770,7 +24770,7 @@
       "dormancy"
     ],
     "summary": "Plants have internal biological clocks (circadian rhythms) synchronized to day-night cycles, controlling development and flowering.",
-    "contentPath": "content/nsb/ms/life-science/plant-biology/plant-circadian-rhythms-and-photoperiodism.md"
+    "contentPath": "content/nsb/ms/biology/plant-biology/plant-circadian-rhythms-and-photoperiodism.md"
   },
   {
     "id": "nsb-lesson-1310",
@@ -24789,7 +24789,7 @@
       "trade-offs"
     ],
     "summary": "Plants respond to drought, heat, cold, and mechanical stress through hormone signaling and physiological changes.",
-    "contentPath": "content/nsb/ms/life-science/plant-biology/stress-responses-in-plants.md"
+    "contentPath": "content/nsb/ms/biology/plant-biology/stress-responses-in-plants.md"
   },
   {
     "id": "nsb-lesson-1311",
@@ -24807,7 +24807,7 @@
       "phenotypic plasticity"
     ],
     "summary": "Tropisms allow plants to adjust growth direction and shape, competing effectively for light and water.",
-    "contentPath": "content/nsb/ms/life-science/plant-biology/tropisms-and-competition-for-resources.md"
+    "contentPath": "content/nsb/ms/biology/plant-biology/tropisms-and-competition-for-resources.md"
   },
   {
     "id": "nsb-lesson-1312",
@@ -24825,7 +24825,7 @@
       "experimental setup"
     ],
     "summary": "High-frequency Science Bowl tropism questions test terminology and experimental understanding.",
-    "contentPath": "content/nsb/ms/life-science/plant-biology/tropism-bowl-facts.md"
+    "contentPath": "content/nsb/ms/biology/plant-biology/tropism-bowl-facts.md"
   },
   {
     "id": "nsb-lesson-1313",
@@ -26739,7 +26739,7 @@
       "phase changes"
     ],
     "summary": "Learn the three main states of matter, how particle arrangement differs in each, and what happens during phase changes.",
-    "contentPath": "content/nsb/ms/physical-science/matter-properties/what-is-matter-states.md"
+    "contentPath": "content/nsb/ms/chemistry/matter-properties/what-is-matter-states.md"
   },
   {
     "id": "nsb-lesson-1414",
@@ -26757,7 +26757,7 @@
       "Celsius and Kelvin scales"
     ],
     "summary": "Understand the difference between temperature and heat, how thermal energy relates to particle motion, and how temperature scales work.",
-    "contentPath": "content/nsb/ms/physical-science/matter-properties/temperature-heat-thermal-energy.md"
+    "contentPath": "content/nsb/ms/chemistry/matter-properties/temperature-heat-thermal-energy.md"
   },
   {
     "id": "nsb-lesson-1415",
@@ -26775,7 +26775,7 @@
       "stars and lightning"
     ],
     "summary": "Discover the fourth state of matter, how plasma forms, and why it's the dominant state of matter in the universe.",
-    "contentPath": "content/nsb/ms/physical-science/matter-properties/plasma-fourth-state.md"
+    "contentPath": "content/nsb/ms/chemistry/matter-properties/plasma-fourth-state.md"
   },
   {
     "id": "nsb-lesson-1416",
@@ -26793,7 +26793,7 @@
       "atmospheric water cycle"
     ],
     "summary": "Apply your knowledge of states of matter to cooking, weather, and everyday household observations.",
-    "contentPath": "content/nsb/ms/physical-science/matter-properties/states-of-matter-everyday-life.md"
+    "contentPath": "content/nsb/ms/chemistry/matter-properties/states-of-matter-everyday-life.md"
   },
   {
     "id": "nsb-lesson-1417",
@@ -26811,7 +26811,7 @@
       "compressibility"
     ],
     "summary": "Use particle-level diagrams and real examples to compare solids, liquids, and gases across multiple properties.",
-    "contentPath": "content/nsb/ms/physical-science/matter-properties/comparing-states-visual-review.md"
+    "contentPath": "content/nsb/ms/chemistry/matter-properties/comparing-states-visual-review.md"
   },
   {
     "id": "nsb-lesson-1418",
@@ -26829,7 +26829,7 @@
       "temperature scales"
     ],
     "summary": "Twenty high-priority facts covering all four states and phase changes, organized for quick Science Bowl review.",
-    "contentPath": "content/nsb/ms/physical-science/matter-properties/states-of-matter-review-20-facts.md"
+    "contentPath": "content/nsb/ms/chemistry/matter-properties/states-of-matter-review-20-facts.md"
   },
   {
     "id": "nsb-lesson-1419",
@@ -26847,7 +26847,7 @@
       "quick-recall facts"
     ],
     "summary": "Master the highest-yield Science Bowl facts and question patterns for states of matter.",
-    "contentPath": "content/nsb/ms/physical-science/matter-properties/states-of-matter-bowl-extension.md"
+    "contentPath": "content/nsb/ms/chemistry/matter-properties/states-of-matter-bowl-extension.md"
   },
   {
     "id": "nsb-lesson-1420",
@@ -26865,7 +26865,7 @@
       "observable vs. reactive"
     ],
     "summary": "Learn to distinguish physical properties (what you observe) from chemical properties (how a substance reacts), with concrete examples of each.",
-    "contentPath": "content/nsb/ms/physical-science/matter-properties/physical-vs-chemical-properties.md"
+    "contentPath": "content/nsb/ms/chemistry/matter-properties/physical-vs-chemical-properties.md"
   },
   {
     "id": "nsb-lesson-1421",
@@ -26883,7 +26883,7 @@
       "evidence of chemical reaction"
     ],
     "summary": "Distinguish physical changes (same substance, different form) from chemical changes (new substances formed), and recognize the evidence of each.",
-    "contentPath": "content/nsb/ms/physical-science/matter-properties/physical-vs-chemical-changes.md"
+    "contentPath": "content/nsb/ms/chemistry/matter-properties/physical-vs-chemical-changes.md"
   },
   {
     "id": "nsb-lesson-1422",
@@ -26901,7 +26901,7 @@
       "density as identifier"
     ],
     "summary": "Apply physical and chemical properties to identify unknown substances and explain why scientists use multiple properties together.",
-    "contentPath": "content/nsb/ms/physical-science/matter-properties/properties-real-materials.md"
+    "contentPath": "content/nsb/ms/chemistry/matter-properties/properties-real-materials.md"
   },
   {
     "id": "nsb-lesson-1423",
@@ -26919,7 +26919,7 @@
       "intensive vs. extensive properties"
     ],
     "summary": "Rapid review of the physical/chemical property distinction, changes, and intensive vs. extensive properties.",
-    "contentPath": "content/nsb/ms/physical-science/matter-properties/physical-chemical-properties-review.md"
+    "contentPath": "content/nsb/ms/chemistry/matter-properties/physical-chemical-properties-review.md"
   },
   {
     "id": "nsb-lesson-1424",
@@ -26937,7 +26937,7 @@
       "property examples"
     ],
     "summary": "Bowl-specific drills for the physical/chemical property distinction — the patterns, the traps, and the fast-recall facts.",
-    "contentPath": "content/nsb/ms/physical-science/matter-properties/physical-chemical-properties-bowl.md"
+    "contentPath": "content/nsb/ms/chemistry/matter-properties/physical-chemical-properties-bowl.md"
   },
   {
     "id": "nsb-lesson-1425",
@@ -26956,7 +26956,7 @@
       "composition"
     ],
     "summary": "Learn the difference between pure substances (elements and compounds) and mixtures (homogeneous and heterogeneous), and how to classify any sample of matter.",
-    "contentPath": "content/nsb/ms/physical-science/matter-properties/pure-substances-vs-mixtures.md"
+    "contentPath": "content/nsb/ms/chemistry/matter-properties/pure-substances-vs-mixtures.md"
   },
   {
     "id": "nsb-lesson-1426",
@@ -26975,7 +26975,7 @@
       "solubility"
     ],
     "summary": "Understand what makes a solution, the roles of solute and solvent, how concentration works, and what factors affect solubility.",
-    "contentPath": "content/nsb/ms/physical-science/matter-properties/solutions-solutes-solvents-concentration.md"
+    "contentPath": "content/nsb/ms/chemistry/matter-properties/solutions-solutes-solvents-concentration.md"
   },
   {
     "id": "nsb-lesson-1427",
@@ -26994,7 +26994,7 @@
       "real applications"
     ],
     "summary": "Apply separation techniques to real-world scenarios, and understand which method works best for each type of mixture.",
-    "contentPath": "content/nsb/ms/physical-science/matter-properties/mixture-separation-methods.md"
+    "contentPath": "content/nsb/ms/chemistry/matter-properties/mixture-separation-methods.md"
   },
   {
     "id": "nsb-lesson-1428",
@@ -27012,7 +27012,7 @@
       "real-world solutions"
     ],
     "summary": "Explore common real-world mixtures — metallic alloys, atmospheric air, and biological solutions — and understand why mixing matters.",
-    "contentPath": "content/nsb/ms/physical-science/matter-properties/mixtures-alloys-air-applications.md"
+    "contentPath": "content/nsb/ms/chemistry/matter-properties/mixtures-alloys-air-applications.md"
   },
   {
     "id": "nsb-lesson-1429",
@@ -27030,7 +27030,7 @@
       "separation techniques"
     ],
     "summary": "Comprehensive review of matter classification, mixture types, and solution concepts.",
-    "contentPath": "content/nsb/ms/physical-science/matter-properties/mixtures-solutions-synthesis-review.md"
+    "contentPath": "content/nsb/ms/chemistry/matter-properties/mixtures-solutions-synthesis-review.md"
   },
   {
     "id": "nsb-lesson-1430",
@@ -27048,7 +27048,7 @@
       "solution vocabulary"
     ],
     "summary": "Bowl-ready facts, toss-up stems, and trap avoidance for mixtures and solutions.",
-    "contentPath": "content/nsb/ms/physical-science/matter-properties/mixtures-bowl-extension.md"
+    "contentPath": "content/nsb/ms/chemistry/matter-properties/mixtures-bowl-extension.md"
   },
   {
     "id": "nsb-lesson-1431",
@@ -27066,7 +27066,7 @@
       "units"
     ],
     "summary": "Understand density as mass per unit volume, learn the formula, and practice applying it to real materials.",
-    "contentPath": "content/nsb/ms/physical-science/matter-properties/what-is-density-formula.md"
+    "contentPath": "content/nsb/ms/chemistry/matter-properties/what-is-density-formula.md"
   },
   {
     "id": "nsb-lesson-1432",
@@ -27084,7 +27084,7 @@
       "displaced fluid"
     ],
     "summary": "Understand the buoyant force, Archimedes' principle, and the rule that determines whether an object floats or sinks.",
-    "contentPath": "content/nsb/ms/physical-science/matter-properties/buoyancy-why-things-float-sink.md"
+    "contentPath": "content/nsb/ms/chemistry/matter-properties/buoyancy-why-things-float-sink.md"
   },
   {
     "id": "nsb-lesson-1433",
@@ -27102,7 +27102,7 @@
       "ocean layers"
     ],
     "summary": "Apply density and buoyancy principles to submarines, hot air balloons, ocean stratification, and the human body.",
-    "contentPath": "content/nsb/ms/physical-science/matter-properties/density-buoyancy-real-life.md"
+    "contentPath": "content/nsb/ms/chemistry/matter-properties/density-buoyancy-real-life.md"
   },
   {
     "id": "nsb-lesson-1434",
@@ -27120,7 +27120,7 @@
       "Archimedes"
     ],
     "summary": "Full synthesis review of density calculations, Archimedes' principle, and floating/sinking rules.",
-    "contentPath": "content/nsb/ms/physical-science/matter-properties/density-buoyancy-review.md"
+    "contentPath": "content/nsb/ms/chemistry/matter-properties/density-buoyancy-review.md"
   },
   {
     "id": "nsb-lesson-1435",
@@ -27138,7 +27138,7 @@
       "bowl toss-up patterns"
     ],
     "summary": "Competition-ready facts and toss-up practice for density and buoyancy.",
-    "contentPath": "content/nsb/ms/physical-science/matter-properties/density-buoyancy-bowl-extension.md"
+    "contentPath": "content/nsb/ms/chemistry/matter-properties/density-buoyancy-bowl-extension.md"
   },
   {
     "id": "nsb-lesson-1436",
@@ -27157,7 +27157,7 @@
       "nucleus"
     ],
     "summary": "Learn the three subatomic particles, their charges, masses, and locations inside the atom.",
-    "contentPath": "content/nsb/ms/physical-science/atoms-periodic-table/inside-the-atom-protons-neutrons-electrons.md"
+    "contentPath": "content/nsb/ms/chemistry/atoms-periodic-table/inside-the-atom-protons-neutrons-electrons.md"
   },
   {
     "id": "nsb-lesson-1437",
@@ -27177,7 +27177,7 @@
       "modern model"
     ],
     "summary": "Trace the evolution of the atomic model from Dalton's solid sphere through Thomson, Rutherford, Bohr, and the modern quantum model.",
-    "contentPath": "content/nsb/ms/physical-science/atoms-periodic-table/atomic-models-history.md"
+    "contentPath": "content/nsb/ms/chemistry/atoms-periodic-table/atomic-models-history.md"
   },
   {
     "id": "nsb-lesson-1438",
@@ -27196,7 +27196,7 @@
       "mass number"
     ],
     "summary": "Understand what isotopes are, why elements have fractional atomic masses on the periodic table, and how isotopes are used in science.",
-    "contentPath": "content/nsb/ms/physical-science/atoms-periodic-table/isotopes-atomic-mass.md"
+    "contentPath": "content/nsb/ms/chemistry/atoms-periodic-table/isotopes-atomic-mass.md"
   },
   {
     "id": "nsb-lesson-1439",
@@ -27214,7 +27214,7 @@
       "practical applications of atomic structure"
     ],
     "summary": "Apply atomic structure knowledge to understand ions, ionization, and how atomic structure drives real chemical and technological applications.",
-    "contentPath": "content/nsb/ms/physical-science/atoms-periodic-table/atomic-structure-real-science.md"
+    "contentPath": "content/nsb/ms/chemistry/atoms-periodic-table/atomic-structure-real-science.md"
   },
   {
     "id": "nsb-lesson-1440",
@@ -27233,7 +27233,7 @@
       "ions"
     ],
     "summary": "Quick-fire review of all atomic structure concepts: particles, models, isotopes, and ions.",
-    "contentPath": "content/nsb/ms/physical-science/atoms-periodic-table/atomic-structure-rapid-review.md"
+    "contentPath": "content/nsb/ms/chemistry/atoms-periodic-table/atomic-structure-rapid-review.md"
   },
   {
     "id": "nsb-lesson-1441",
@@ -27251,7 +27251,7 @@
       "Bohr model"
     ],
     "summary": "Bowl toss-up patterns, fast facts, and common traps for atomic structure questions.",
-    "contentPath": "content/nsb/ms/physical-science/atoms-periodic-table/atomic-structure-bowl-extension.md"
+    "contentPath": "content/nsb/ms/chemistry/atoms-periodic-table/atomic-structure-bowl-extension.md"
   },
   {
     "id": "nsb-lesson-1442",
@@ -27270,7 +27270,7 @@
       "metals nonmetals metalloids"
     ],
     "summary": "Understand what elements are, their chemical symbols, diatomic elements, and how elements are categorized as metals, nonmetals, and metalloids.",
-    "contentPath": "content/nsb/ms/physical-science/atoms-periodic-table/elements-pure-substances.md"
+    "contentPath": "content/nsb/ms/chemistry/atoms-periodic-table/elements-pure-substances.md"
   },
   {
     "id": "nsb-lesson-1443",
@@ -27289,7 +27289,7 @@
       "naming"
     ],
     "summary": "Learn what makes a compound different from a mixture of elements, how chemical formulas describe compounds, and the law of definite proportions.",
-    "contentPath": "content/nsb/ms/physical-science/atoms-periodic-table/compounds-fixed-ratios.md"
+    "contentPath": "content/nsb/ms/chemistry/atoms-periodic-table/compounds-fixed-ratios.md"
   },
   {
     "id": "nsb-lesson-1444",
@@ -27307,7 +27307,7 @@
       "biological molecules"
     ],
     "summary": "Connect element and compound concepts to food chemistry, biological molecules, and common household chemicals.",
-    "contentPath": "content/nsb/ms/physical-science/atoms-periodic-table/elements-compounds-everyday-life.md"
+    "contentPath": "content/nsb/ms/chemistry/atoms-periodic-table/elements-compounds-everyday-life.md"
   },
   {
     "id": "nsb-lesson-1445",
@@ -27326,7 +27326,7 @@
       "classification"
     ],
     "summary": "Rapid review of element symbols, compound formulas, diatomic elements, and element classification.",
-    "contentPath": "content/nsb/ms/physical-science/atoms-periodic-table/elements-compounds-synthesis-review.md"
+    "contentPath": "content/nsb/ms/chemistry/atoms-periodic-table/elements-compounds-synthesis-review.md"
   },
   {
     "id": "nsb-lesson-1446",
@@ -27345,7 +27345,7 @@
       "atomic mass"
     ],
     "summary": "Navigate the periodic table with confidence — understand how elements are arranged, what periods and groups mean, and what the numbers in each element's box represent.",
-    "contentPath": "content/nsb/ms/physical-science/atoms-periodic-table/reading-the-periodic-table.md"
+    "contentPath": "content/nsb/ms/chemistry/atoms-periodic-table/reading-the-periodic-table.md"
   },
   {
     "id": "nsb-lesson-1447",
@@ -27364,7 +27364,7 @@
       "trends"
     ],
     "summary": "Learn how atomic radius, ionization energy, and electronegativity change across periods and down groups, and why these trends exist.",
-    "contentPath": "content/nsb/ms/physical-science/atoms-periodic-table/periodic-trends.md"
+    "contentPath": "content/nsb/ms/chemistry/atoms-periodic-table/periodic-trends.md"
   },
   {
     "id": "nsb-lesson-1448",
@@ -27382,7 +27382,7 @@
       "reactivity"
     ],
     "summary": "Use periodic table position to predict an element's properties, reactivity, and behavior in chemical reactions.",
-    "contentPath": "content/nsb/ms/physical-science/atoms-periodic-table/periodic-table-application.md"
+    "contentPath": "content/nsb/ms/chemistry/atoms-periodic-table/periodic-table-application.md"
   },
   {
     "id": "nsb-lesson-1449",
@@ -27401,7 +27401,7 @@
       "group families"
     ],
     "summary": "Rapid review of periodic table organization, group families, and periodic trends.",
-    "contentPath": "content/nsb/ms/physical-science/atoms-periodic-table/periodic-table-patterns-review.md"
+    "contentPath": "content/nsb/ms/chemistry/atoms-periodic-table/periodic-table-patterns-review.md"
   },
   {
     "id": "nsb-lesson-1450",
@@ -27420,7 +27420,7 @@
       "bonding drive"
     ],
     "summary": "Understand why atoms form chemical bonds by learning about valence electrons, the octet rule, and how bonding creates more stable electron configurations.",
-    "contentPath": "content/nsb/ms/physical-science/atoms-periodic-table/why-atoms-bond-octet-rule.md"
+    "contentPath": "content/nsb/ms/chemistry/atoms-periodic-table/why-atoms-bond-octet-rule.md"
   },
   {
     "id": "nsb-lesson-1451",
@@ -27439,7 +27439,7 @@
       "examples"
     ],
     "summary": "Learn the two major types of chemical bonds, what distinguishes them, and examples of each type of compound.",
-    "contentPath": "content/nsb/ms/physical-science/atoms-periodic-table/ionic-vs-covalent-bonds.md"
+    "contentPath": "content/nsb/ms/chemistry/atoms-periodic-table/ionic-vs-covalent-bonds.md"
   },
   {
     "id": "nsb-lesson-1452",
@@ -27457,7 +27457,7 @@
       "ionic compound rules"
     ],
     "summary": "Apply bonding rules to predict compound formulas and draw simple Lewis dot structures.",
-    "contentPath": "content/nsb/ms/physical-science/atoms-periodic-table/bonding-predicting-modeling.md"
+    "contentPath": "content/nsb/ms/chemistry/atoms-periodic-table/bonding-predicting-modeling.md"
   },
   {
     "id": "nsb-lesson-1453",
@@ -27476,7 +27476,7 @@
       "properties"
     ],
     "summary": "Comprehensive review of bonding concepts: types, prediction, properties, and nomenclature.",
-    "contentPath": "content/nsb/ms/physical-science/atoms-periodic-table/chemical-bonding-synthesis-review.md"
+    "contentPath": "content/nsb/ms/chemistry/atoms-periodic-table/chemical-bonding-synthesis-review.md"
   },
   {
     "id": "nsb-lesson-1454",
@@ -27495,7 +27495,7 @@
       "bonding"
     ],
     "summary": "Top toss-up patterns and fast-recall facts for atoms, the periodic table, and bonding.",
-    "contentPath": "content/nsb/ms/physical-science/atoms-periodic-table/atoms-periodic-table-bowl-extension.md"
+    "contentPath": "content/nsb/ms/chemistry/atoms-periodic-table/atoms-periodic-table-bowl-extension.md"
   },
   {
     "id": "nsb-lesson-1455",
@@ -27514,7 +27514,7 @@
       "reaction types"
     ],
     "summary": "Learn the definition of a chemical reaction, how to read a chemical equation, and the main types of reactions.",
-    "contentPath": "content/nsb/ms/physical-science/chemical-reactions/what-is-a-chemical-reaction.md"
+    "contentPath": "content/nsb/ms/chemistry/chemical-reactions/what-is-a-chemical-reaction.md"
   },
   {
     "id": "nsb-lesson-1456",
@@ -27532,7 +27532,7 @@
       "coefficients"
     ],
     "summary": "Master the process of balancing chemical equations using coefficients to satisfy the law of conservation of mass.",
-    "contentPath": "content/nsb/ms/physical-science/chemical-reactions/balancing-chemical-equations.md"
+    "contentPath": "content/nsb/ms/chemistry/chemical-reactions/balancing-chemical-equations.md"
   },
   {
     "id": "nsb-lesson-1457",
@@ -27551,7 +27551,7 @@
       "combustion"
     ],
     "summary": "Deep dive into each type of chemical reaction with examples, patterns, and how to recognize each type.",
-    "contentPath": "content/nsb/ms/physical-science/chemical-reactions/types-chemical-reactions-detail.md"
+    "contentPath": "content/nsb/ms/chemistry/chemical-reactions/types-chemical-reactions-detail.md"
   },
   {
     "id": "nsb-lesson-1458",
@@ -27569,7 +27569,7 @@
       "balanced equations"
     ],
     "summary": "Balance and classify real chemical reactions from biology, industry, and everyday life.",
-    "contentPath": "content/nsb/ms/physical-science/chemical-reactions/balancing-classifying-real-reactions.md"
+    "contentPath": "content/nsb/ms/chemistry/chemical-reactions/balancing-classifying-real-reactions.md"
   },
   {
     "id": "nsb-lesson-1459",
@@ -27587,7 +27587,7 @@
       "Law of Conservation of Mass"
     ],
     "summary": "Rapid-fire balancing and classification practice across all five reaction types.",
-    "contentPath": "content/nsb/ms/physical-science/chemical-reactions/balancing-equations-mixed-review.md"
+    "contentPath": "content/nsb/ms/chemistry/chemical-reactions/balancing-equations-mixed-review.md"
   },
   {
     "id": "nsb-lesson-1460",
@@ -27605,7 +27605,7 @@
       "Law of Conservation of Mass"
     ],
     "summary": "Competition-level facts and toss-up stems for chemical reactions and equation balancing.",
-    "contentPath": "content/nsb/ms/physical-science/chemical-reactions/chemical-reactions-bowl-extension.md"
+    "contentPath": "content/nsb/ms/chemistry/chemical-reactions/chemical-reactions-bowl-extension.md"
   },
   {
     "id": "nsb-lesson-1461",
@@ -27624,7 +27624,7 @@
       "closed system"
     ],
     "summary": "Understand the Law of Conservation of Mass, its historical discovery, and why it's the bedrock principle of all chemistry.",
-    "contentPath": "content/nsb/ms/physical-science/chemical-reactions/law-of-conservation-of-mass.md"
+    "contentPath": "content/nsb/ms/chemistry/chemical-reactions/law-of-conservation-of-mass.md"
   },
   {
     "id": "nsb-lesson-1462",
@@ -27642,7 +27642,7 @@
       "closed vs. open systems"
     ],
     "summary": "Apply conservation of mass to calculate unknown masses in reactions and explain surprising observations.",
-    "contentPath": "content/nsb/ms/physical-science/chemical-reactions/conservation-of-mass-in-action.md"
+    "contentPath": "content/nsb/ms/chemistry/chemical-reactions/conservation-of-mass-in-action.md"
   },
   {
     "id": "nsb-lesson-1463",
@@ -27660,7 +27660,7 @@
       "open vs. closed systems"
     ],
     "summary": "Quick synthesis of conservation of mass concepts, calculations, and common misconceptions.",
-    "contentPath": "content/nsb/ms/physical-science/chemical-reactions/conservation-mass-review.md"
+    "contentPath": "content/nsb/ms/chemistry/chemical-reactions/conservation-mass-review.md"
   },
   {
     "id": "nsb-lesson-1464",
@@ -27679,7 +27679,7 @@
       "indicators"
     ],
     "summary": "Learn what acids and bases are, how they're defined, and how the pH scale measures acidity and basicity.",
-    "contentPath": "content/nsb/ms/physical-science/chemical-reactions/introduction-to-acids-bases.md"
+    "contentPath": "content/nsb/ms/chemistry/chemical-reactions/introduction-to-acids-bases.md"
   },
   {
     "id": "nsb-lesson-1465",
@@ -27697,7 +27697,7 @@
       "acid + base → salt + water"
     ],
     "summary": "Understand how acids and bases react together in neutralization reactions to form salts and water, and explore everyday and industrial applications.",
-    "contentPath": "content/nsb/ms/physical-science/chemical-reactions/neutralization-salt-formation.md"
+    "contentPath": "content/nsb/ms/chemistry/chemical-reactions/neutralization-salt-formation.md"
   },
   {
     "id": "nsb-lesson-1466",
@@ -27715,7 +27715,7 @@
       "buffer concept"
     ],
     "summary": "Connect acid-base chemistry to food, medicine, the environment, and laboratory applications.",
-    "contentPath": "content/nsb/ms/physical-science/chemical-reactions/acids-bases-everyday-life.md"
+    "contentPath": "content/nsb/ms/chemistry/chemical-reactions/acids-bases-everyday-life.md"
   },
   {
     "id": "nsb-lesson-1467",
@@ -27734,7 +27734,7 @@
       "common acids/bases"
     ],
     "summary": "Comprehensive acids-and-bases review covering pH, indicators, neutralization, and common examples.",
-    "contentPath": "content/nsb/ms/physical-science/chemical-reactions/acids-bases-synthesis-review.md"
+    "contentPath": "content/nsb/ms/chemistry/chemical-reactions/acids-bases-synthesis-review.md"
   },
   {
     "id": "nsb-lesson-1468",
@@ -27753,7 +27753,7 @@
       "energy diagrams"
     ],
     "summary": "Understand why chemical reactions either release or absorb energy, the concept of activation energy, and how to read energy diagrams.",
-    "contentPath": "content/nsb/ms/physical-science/chemical-reactions/energy-in-chemical-reactions.md"
+    "contentPath": "content/nsb/ms/chemistry/chemical-reactions/energy-in-chemical-reactions.md"
   },
   {
     "id": "nsb-lesson-1469",
@@ -27772,7 +27772,7 @@
       "enzyme"
     ],
     "summary": "Learn what affects how fast a reaction occurs, how catalysts speed up reactions without being consumed, and the role of biological catalysts (enzymes).",
-    "contentPath": "content/nsb/ms/physical-science/chemical-reactions/catalysts-and-reaction-rates.md"
+    "contentPath": "content/nsb/ms/chemistry/chemical-reactions/catalysts-and-reaction-rates.md"
   },
   {
     "id": "nsb-lesson-1470",
@@ -27791,7 +27791,7 @@
       "real applications"
     ],
     "summary": "Explore how exothermic and endothermic reactions power technology, biology, and everyday products.",
-    "contentPath": "content/nsb/ms/physical-science/chemical-reactions/exothermic-endothermic-real-life.md"
+    "contentPath": "content/nsb/ms/chemistry/chemical-reactions/exothermic-endothermic-real-life.md"
   },
   {
     "id": "nsb-lesson-1471",
@@ -27810,7 +27810,7 @@
       "applications"
     ],
     "summary": "Rapid review of exothermic/endothermic reactions, catalysts, and energy concepts.",
-    "contentPath": "content/nsb/ms/physical-science/chemical-reactions/exothermic-endothermic-review.md"
+    "contentPath": "content/nsb/ms/chemistry/chemical-reactions/exothermic-endothermic-review.md"
   },
   {
     "id": "nsb-lesson-1472",
@@ -27829,13 +27829,13 @@
       "activation energy"
     ],
     "summary": "Bowl-specific patterns for exothermic/endothermic reactions, catalysts, and pH for competition readiness.",
-    "contentPath": "content/nsb/ms/physical-science/chemical-reactions/exo-endo-bowl-extension.md"
+    "contentPath": "content/nsb/ms/chemistry/chemical-reactions/exo-endo-bowl-extension.md"
   },
   {
     "id": "nsb-lesson-1473",
     "title": "What Is Speed? Distance, Time, and the Basic Formula",
     "level": "Middle School",
-    "subject": "Chemistry",
+    "subject": "Physics",
     "topicSlug": "forces-motion",
     "subtopic": "Speed, Velocity & Acceleration",
     "slug": "ms-ps-speed-basics",
@@ -27848,13 +27848,13 @@
       "v=d/t"
     ],
     "summary": "Speed measures how much distance an object covers per unit of time, calculated using the formula v = d/t.",
-    "contentPath": "content/nsb/ms/physical-science/forces-motion/ms-ps-speed-basics.md"
+    "contentPath": "content/nsb/ms/physics/forces-motion/ms-ps-speed-basics.md"
   },
   {
     "id": "nsb-lesson-1474",
     "title": "Velocity: Speed with Direction",
     "level": "Middle School",
-    "subject": "Chemistry",
+    "subject": "Physics",
     "topicSlug": "forces-motion",
     "subtopic": "Speed, Velocity & Acceleration",
     "slug": "ms-ps-velocity",
@@ -27867,13 +27867,13 @@
       "displacement"
     ],
     "summary": "Velocity is a vector quantity that includes both speed (magnitude) and direction, making it different from scalar speed.",
-    "contentPath": "content/nsb/ms/physical-science/forces-motion/ms-ps-velocity.md"
+    "contentPath": "content/nsb/ms/physics/forces-motion/ms-ps-velocity.md"
   },
   {
     "id": "nsb-lesson-1475",
     "title": "Acceleration: Changing Velocity",
     "level": "Middle School",
-    "subject": "Chemistry",
+    "subject": "Physics",
     "topicSlug": "forces-motion",
     "subtopic": "Speed, Velocity & Acceleration",
     "slug": "ms-ps-acceleration",
@@ -27886,13 +27886,13 @@
       "deceleration"
     ],
     "summary": "Acceleration measures how quickly velocity changes, calculated as the change in velocity divided by time.",
-    "contentPath": "content/nsb/ms/physical-science/forces-motion/ms-ps-acceleration.md"
+    "contentPath": "content/nsb/ms/physics/forces-motion/ms-ps-acceleration.md"
   },
   {
     "id": "nsb-lesson-1476",
     "title": "Speed Problems in the Real World",
     "level": "Middle School",
-    "subject": "Chemistry",
+    "subject": "Physics",
     "topicSlug": "forces-motion",
     "subtopic": "Speed, Velocity & Acceleration",
     "slug": "ms-ps-speed-application",
@@ -27905,13 +27905,13 @@
       "problem solving"
     ],
     "summary": "Apply the speed formula to multi-step real-world problems involving unit conversions and average speed calculations.",
-    "contentPath": "content/nsb/ms/physical-science/forces-motion/ms-ps-speed-application.md"
+    "contentPath": "content/nsb/ms/physics/forces-motion/ms-ps-speed-application.md"
   },
   {
     "id": "nsb-lesson-1477",
     "title": "Acceleration on a Ramp: Gravity and Inclines",
     "level": "Middle School",
-    "subject": "Chemistry",
+    "subject": "Physics",
     "topicSlug": "forces-motion",
     "subtopic": "Speed, Velocity & Acceleration",
     "slug": "ms-ps-acceleration-ramp",
@@ -27924,13 +27924,13 @@
       "free fall"
     ],
     "summary": "Explore how gravity causes constant acceleration in free fall and on ramps, with worked examples connecting the formula to real scenarios.",
-    "contentPath": "content/nsb/ms/physical-science/forces-motion/ms-ps-acceleration-ramp.md"
+    "contentPath": "content/nsb/ms/physics/forces-motion/ms-ps-acceleration-ramp.md"
   },
   {
     "id": "nsb-lesson-1478",
     "title": "Graphing Motion: Reading Position, Velocity, and Acceleration Graphs",
     "level": "Middle School",
-    "subject": "Chemistry",
+    "subject": "Physics",
     "topicSlug": "forces-motion",
     "subtopic": "Speed, Velocity & Acceleration",
     "slug": "ms-ps-motion-graphs",
@@ -27943,13 +27943,13 @@
       "area under curve"
     ],
     "summary": "Synthesize speed, velocity, and acceleration concepts by reading and interpreting motion graphs.",
-    "contentPath": "content/nsb/ms/physical-science/forces-motion/ms-ps-motion-graphs.md"
+    "contentPath": "content/nsb/ms/physics/forces-motion/ms-ps-motion-graphs.md"
   },
   {
     "id": "nsb-lesson-1479",
     "title": "Speed, Velocity & Acceleration: Competition Prep",
     "level": "Middle School",
-    "subject": "Chemistry",
+    "subject": "Physics",
     "topicSlug": "forces-motion",
     "subtopic": "Speed, Velocity & Acceleration",
     "slug": "ms-ps-kinematics-review",
@@ -27963,13 +27963,13 @@
       "Science Bowl traps"
     ],
     "summary": "Rapid-fire review of the most-tested kinematics concepts and common Science Bowl traps.",
-    "contentPath": "content/nsb/ms/physical-science/forces-motion/ms-ps-kinematics-review.md"
+    "contentPath": "content/nsb/ms/physics/forces-motion/ms-ps-kinematics-review.md"
   },
   {
     "id": "nsb-lesson-1480",
     "title": "Kinematics Bowl Blitz",
     "level": "Middle School",
-    "subject": "Chemistry",
+    "subject": "Physics",
     "topicSlug": "forces-motion",
     "subtopic": "Speed, Velocity & Acceleration",
     "slug": "ms-ps-kinematics-bowl",
@@ -27983,13 +27983,13 @@
       "acceleration"
     ],
     "summary": "Competition-style toss-up practice for speed, velocity, and acceleration questions.",
-    "contentPath": "content/nsb/ms/physical-science/forces-motion/ms-ps-kinematics-bowl.md"
+    "contentPath": "content/nsb/ms/physics/forces-motion/ms-ps-kinematics-bowl.md"
   },
   {
     "id": "nsb-lesson-1481",
     "title": "Newton's First Law: Inertia and the Tendency to Stay Put",
     "level": "Middle School",
-    "subject": "Chemistry",
+    "subject": "Physics",
     "topicSlug": "forces-motion",
     "subtopic": "Newton's Three Laws",
     "slug": "ms-ps-newtons-first-law",
@@ -28002,13 +28002,13 @@
       "equilibrium"
     ],
     "summary": "Newton's First Law states that objects maintain their state of motion unless acted on by a net external force.",
-    "contentPath": "content/nsb/ms/physical-science/forces-motion/ms-ps-newtons-first-law.md"
+    "contentPath": "content/nsb/ms/physics/forces-motion/ms-ps-newtons-first-law.md"
   },
   {
     "id": "nsb-lesson-1482",
     "title": "Newton's Second Law: Force, Mass, and Acceleration",
     "level": "Middle School",
-    "subject": "Chemistry",
+    "subject": "Physics",
     "topicSlug": "forces-motion",
     "subtopic": "Newton's Three Laws",
     "slug": "ms-ps-newtons-second-law",
@@ -28022,13 +28022,13 @@
       "acceleration"
     ],
     "summary": "Newton's Second Law, F = ma, describes how the net force on an object determines its acceleration based on its mass.",
-    "contentPath": "content/nsb/ms/physical-science/forces-motion/ms-ps-newtons-second-law.md"
+    "contentPath": "content/nsb/ms/physics/forces-motion/ms-ps-newtons-second-law.md"
   },
   {
     "id": "nsb-lesson-1483",
     "title": "Newton's Third Law: Action and Reaction",
     "level": "Middle School",
-    "subject": "Chemistry",
+    "subject": "Physics",
     "topicSlug": "forces-motion",
     "subtopic": "Newton's Three Laws",
     "slug": "ms-ps-newtons-third-law",
@@ -28040,13 +28040,13 @@
       "equal and opposite forces"
     ],
     "summary": "Newton's Third Law states that for every action force there is an equal and opposite reaction force acting on a different object.",
-    "contentPath": "content/nsb/ms/physical-science/forces-motion/ms-ps-newtons-third-law.md"
+    "contentPath": "content/nsb/ms/physics/forces-motion/ms-ps-newtons-third-law.md"
   },
   {
     "id": "nsb-lesson-1484",
     "title": "Newton's Laws in Action: Crash-Test Science",
     "level": "Middle School",
-    "subject": "Chemistry",
+    "subject": "Physics",
     "topicSlug": "forces-motion",
     "subtopic": "Newton's Three Laws",
     "slug": "ms-ps-newtons-laws-crash",
@@ -28060,13 +28060,13 @@
       "Newton's laws"
     ],
     "summary": "Apply all three of Newton's Laws to vehicle safety, analyzing why seat belts, crumple zones, and airbags save lives.",
-    "contentPath": "content/nsb/ms/physical-science/forces-motion/ms-ps-newtons-laws-crash.md"
+    "contentPath": "content/nsb/ms/physics/forces-motion/ms-ps-newtons-laws-crash.md"
   },
   {
     "id": "nsb-lesson-1485",
     "title": "Forces and Free-Body Diagrams",
     "level": "Middle School",
-    "subject": "Chemistry",
+    "subject": "Physics",
     "topicSlug": "forces-motion",
     "subtopic": "Newton's Three Laws",
     "slug": "ms-ps-free-body-diagrams",
@@ -28080,13 +28080,13 @@
       "net force"
     ],
     "summary": "Draw and interpret free-body diagrams to find net force and predict motion in real scenarios.",
-    "contentPath": "content/nsb/ms/physical-science/forces-motion/ms-ps-free-body-diagrams.md"
+    "contentPath": "content/nsb/ms/physics/forces-motion/ms-ps-free-body-diagrams.md"
   },
   {
     "id": "nsb-lesson-1486",
     "title": "Newton's Laws Synthesis Review",
     "level": "Middle School",
-    "subject": "Chemistry",
+    "subject": "Physics",
     "topicSlug": "forces-motion",
     "subtopic": "Newton's Three Laws",
     "slug": "ms-ps-newtons-laws-review",
@@ -28099,13 +28099,13 @@
       "action-reaction"
     ],
     "summary": "Comprehensive review connecting all three Newton's Laws through mixed problems and concept synthesis.",
-    "contentPath": "content/nsb/ms/physical-science/forces-motion/ms-ps-newtons-laws-review.md"
+    "contentPath": "content/nsb/ms/physics/forces-motion/ms-ps-newtons-laws-review.md"
   },
   {
     "id": "nsb-lesson-1487",
     "title": "Newton's Laws: Bowl Competition Blitz",
     "level": "Middle School",
-    "subject": "Chemistry",
+    "subject": "Physics",
     "topicSlug": "forces-motion",
     "subtopic": "Newton's Three Laws",
     "slug": "ms-ps-newton-bowl",
@@ -28118,13 +28118,13 @@
       "weight vs mass"
     ],
     "summary": "High-speed toss-up practice for Newton's Laws with trap-avoidance strategies.",
-    "contentPath": "content/nsb/ms/physical-science/forces-motion/ms-ps-newton-bowl.md"
+    "contentPath": "content/nsb/ms/physics/forces-motion/ms-ps-newton-bowl.md"
   },
   {
     "id": "nsb-lesson-1488",
     "title": "What Is Friction? Types and Real-World Effects",
     "level": "Middle School",
-    "subject": "Chemistry",
+    "subject": "Physics",
     "topicSlug": "forces-motion",
     "subtopic": "Friction & Gravity",
     "slug": "ms-ps-friction-basics",
@@ -28138,13 +28138,13 @@
       "coefficient of friction"
     ],
     "summary": "Friction is a contact force that opposes relative motion between surfaces, with static friction stronger than kinetic friction.",
-    "contentPath": "content/nsb/ms/physical-science/forces-motion/ms-ps-friction-basics.md"
+    "contentPath": "content/nsb/ms/physics/forces-motion/ms-ps-friction-basics.md"
   },
   {
     "id": "nsb-lesson-1489",
     "title": "Gravity: Universal Attraction",
     "level": "Middle School",
-    "subject": "Chemistry",
+    "subject": "Physics",
     "topicSlug": "forces-motion",
     "subtopic": "Friction & Gravity",
     "slug": "ms-ps-gravity",
@@ -28158,13 +28158,13 @@
       "Newton's Law of Universal Gravitation"
     ],
     "summary": "Gravity is a universal attractive force between masses that decreases with distance, described by Newton's Law of Universal Gravitation.",
-    "contentPath": "content/nsb/ms/physical-science/forces-motion/ms-ps-gravity.md"
+    "contentPath": "content/nsb/ms/physics/forces-motion/ms-ps-gravity.md"
   },
   {
     "id": "nsb-lesson-1490",
     "title": "Friction and Gravity Working Together",
     "level": "Middle School",
-    "subject": "Chemistry",
+    "subject": "Physics",
     "topicSlug": "forces-motion",
     "subtopic": "Friction & Gravity",
     "slug": "ms-ps-friction-gravity-together",
@@ -28178,13 +28178,13 @@
       "net force"
     ],
     "summary": "Analyze how friction and gravity interact on inclined surfaces, including when objects slide vs. remain stationary.",
-    "contentPath": "content/nsb/ms/physical-science/forces-motion/ms-ps-friction-gravity-together.md"
+    "contentPath": "content/nsb/ms/physics/forces-motion/ms-ps-friction-gravity-together.md"
   },
   {
     "id": "nsb-lesson-1491",
     "title": "Gravity on Different Worlds: Problem Solving",
     "level": "Middle School",
-    "subject": "Chemistry",
+    "subject": "Physics",
     "topicSlug": "forces-motion",
     "subtopic": "Friction & Gravity",
     "slug": "ms-ps-gravity-planets",
@@ -28197,13 +28197,13 @@
       "planet comparisons"
     ],
     "summary": "Apply the weight formula W = mg to solve problems involving gravity on different planets and moons.",
-    "contentPath": "content/nsb/ms/physical-science/forces-motion/ms-ps-gravity-planets.md"
+    "contentPath": "content/nsb/ms/physics/forces-motion/ms-ps-gravity-planets.md"
   },
   {
     "id": "nsb-lesson-1492",
     "title": "Friction and Gravity Bowl Review",
     "level": "Middle School",
-    "subject": "Chemistry",
+    "subject": "Physics",
     "topicSlug": "forces-motion",
     "subtopic": "Friction & Gravity",
     "slug": "ms-ps-friction-gravity-review",
@@ -28217,13 +28217,13 @@
       "inverse-square law"
     ],
     "summary": "Review the interplay of friction and gravity with mixed conceptual and calculation problems.",
-    "contentPath": "content/nsb/ms/physical-science/forces-motion/ms-ps-friction-gravity-review.md"
+    "contentPath": "content/nsb/ms/physics/forces-motion/ms-ps-friction-gravity-review.md"
   },
   {
     "id": "nsb-lesson-1493",
     "title": "Friction & Gravity: Competition Extension",
     "level": "Middle School",
-    "subject": "Chemistry",
+    "subject": "Physics",
     "topicSlug": "forces-motion",
     "subtopic": "Friction & Gravity",
     "slug": "ms-ps-friction-gravity-bowl",
@@ -28237,13 +28237,13 @@
       "Science Bowl facts"
     ],
     "summary": "Competition-focused review of friction and gravity for Science Bowl toss-ups and bonus rounds.",
-    "contentPath": "content/nsb/ms/physical-science/forces-motion/ms-ps-friction-gravity-bowl.md"
+    "contentPath": "content/nsb/ms/physics/forces-motion/ms-ps-friction-gravity-bowl.md"
   },
   {
     "id": "nsb-lesson-1494",
     "title": "What Is a Simple Machine? The Six Types",
     "level": "Middle School",
-    "subject": "Chemistry",
+    "subject": "Physics",
     "topicSlug": "forces-motion",
     "subtopic": "Simple Machines & Mechanical Advantage",
     "slug": "ms-ps-simple-machines-intro",
@@ -28260,13 +28260,13 @@
       "mechanical advantage"
     ],
     "summary": "Simple machines are devices that change the direction or magnitude of a force, and there are exactly six classical types.",
-    "contentPath": "content/nsb/ms/physical-science/forces-motion/ms-ps-simple-machines-intro.md"
+    "contentPath": "content/nsb/ms/physics/forces-motion/ms-ps-simple-machines-intro.md"
   },
   {
     "id": "nsb-lesson-1495",
     "title": "Mechanical Advantage: Getting More Force from Less",
     "level": "Middle School",
-    "subject": "Chemistry",
+    "subject": "Physics",
     "topicSlug": "forces-motion",
     "subtopic": "Simple Machines & Mechanical Advantage",
     "slug": "ms-ps-mechanical-advantage",
@@ -28280,13 +28280,13 @@
       "IMA vs AMA"
     ],
     "summary": "Mechanical advantage (MA) tells how many times a machine multiplies the input force, with ideal MA determined by geometry and actual MA reduced by friction.",
-    "contentPath": "content/nsb/ms/physical-science/forces-motion/ms-ps-mechanical-advantage.md"
+    "contentPath": "content/nsb/ms/physics/forces-motion/ms-ps-mechanical-advantage.md"
   },
   {
     "id": "nsb-lesson-1496",
     "title": "Levers: Classes and Calculations",
     "level": "Middle School",
-    "subject": "Chemistry",
+    "subject": "Physics",
     "topicSlug": "forces-motion",
     "subtopic": "Simple Machines & Mechanical Advantage",
     "slug": "ms-ps-levers",
@@ -28300,13 +28300,13 @@
       "first/second/third class lever"
     ],
     "summary": "Levers come in three classes depending on the relative positions of the fulcrum, effort, and load.",
-    "contentPath": "content/nsb/ms/physical-science/forces-motion/ms-ps-levers.md"
+    "contentPath": "content/nsb/ms/physics/forces-motion/ms-ps-levers.md"
   },
   {
     "id": "nsb-lesson-1497",
     "title": "Simple Machines in Technology",
     "level": "Middle School",
-    "subject": "Chemistry",
+    "subject": "Physics",
     "topicSlug": "forces-motion",
     "subtopic": "Simple Machines & Mechanical Advantage",
     "slug": "ms-ps-simple-machines-technology",
@@ -28320,13 +28320,13 @@
       "mechanical advantage"
     ],
     "summary": "Apply knowledge of simple machines to analyze real compound machines including pulley systems, bicycles, and cranes.",
-    "contentPath": "content/nsb/ms/physical-science/forces-motion/ms-ps-simple-machines-technology.md"
+    "contentPath": "content/nsb/ms/physics/forces-motion/ms-ps-simple-machines-technology.md"
   },
   {
     "id": "nsb-lesson-1498",
     "title": "Simple Machines Review and Bowl Prep",
     "level": "Middle School",
-    "subject": "Chemistry",
+    "subject": "Physics",
     "topicSlug": "forces-motion",
     "subtopic": "Simple Machines & Mechanical Advantage",
     "slug": "ms-ps-simple-machines-review",
@@ -28339,13 +28339,13 @@
       "efficiency"
     ],
     "summary": "Comprehensive review of simple machines, MA calculations, and lever classification for Science Bowl competition.",
-    "contentPath": "content/nsb/ms/physical-science/forces-motion/ms-ps-simple-machines-review.md"
+    "contentPath": "content/nsb/ms/physics/forces-motion/ms-ps-simple-machines-review.md"
   },
   {
     "id": "nsb-lesson-1499",
     "title": "Simple Machines: Bowl Competition Blitz",
     "level": "Middle School",
-    "subject": "Chemistry",
+    "subject": "Physics",
     "topicSlug": "forces-motion",
     "subtopic": "Simple Machines & Mechanical Advantage",
     "slug": "ms-ps-simple-machines-bowl",
@@ -28358,13 +28358,13 @@
       "toss-up recognition"
     ],
     "summary": "Competition-style toss-up practice for simple machines, with high-yield facts and quick classification strategies.",
-    "contentPath": "content/nsb/ms/physical-science/forces-motion/ms-ps-simple-machines-bowl.md"
+    "contentPath": "content/nsb/ms/physics/forces-motion/ms-ps-simple-machines-bowl.md"
   },
   {
     "id": "nsb-lesson-1500",
     "title": "What Is a Wave? Energy, Not Matter, on the Move",
     "level": "Middle School",
-    "subject": "Chemistry",
+    "subject": "Physics",
     "topicSlug": "waves-sound-light",
     "subtopic": "Wave Properties (Frequency, Wavelength, Amplitude)",
     "slug": "ms-ps-wave-basics",
@@ -28378,13 +28378,13 @@
       "electromagnetic wave"
     ],
     "summary": "A wave is a disturbance that transfers energy through a medium (or through space) without permanently displacing the matter itself.",
-    "contentPath": "content/nsb/ms/physical-science/waves-sound-light/ms-ps-wave-basics.md"
+    "contentPath": "content/nsb/ms/physics/waves-sound-light/ms-ps-wave-basics.md"
   },
   {
     "id": "nsb-lesson-1501",
     "title": "Anatomy of a Wave: Frequency, Wavelength, and Amplitude",
     "level": "Middle School",
-    "subject": "Chemistry",
+    "subject": "Physics",
     "topicSlug": "waves-sound-light",
     "subtopic": "Wave Properties (Frequency, Wavelength, Amplitude)",
     "slug": "ms-ps-wave-anatomy",
@@ -28400,13 +28400,13 @@
       "wave speed"
     ],
     "summary": "Waves are described by wavelength (λ), frequency (f), and amplitude (A), with the wave speed formula v = fλ connecting the first two.",
-    "contentPath": "content/nsb/ms/physical-science/waves-sound-light/ms-ps-wave-anatomy.md"
+    "contentPath": "content/nsb/ms/physics/waves-sound-light/ms-ps-wave-anatomy.md"
   },
   {
     "id": "nsb-lesson-1502",
     "title": "Wave Interactions: Reflection, Refraction, and Diffraction",
     "level": "Middle School",
-    "subject": "Chemistry",
+    "subject": "Physics",
     "topicSlug": "waves-sound-light",
     "subtopic": "Wave Properties (Frequency, Wavelength, Amplitude)",
     "slug": "ms-ps-wave-interactions",
@@ -28420,13 +28420,13 @@
       "wave behavior at boundaries"
     ],
     "summary": "Waves interact with boundaries and other waves through reflection, refraction, diffraction, and interference.",
-    "contentPath": "content/nsb/ms/physical-science/waves-sound-light/ms-ps-wave-interactions.md"
+    "contentPath": "content/nsb/ms/physics/waves-sound-light/ms-ps-wave-interactions.md"
   },
   {
     "id": "nsb-lesson-1503",
     "title": "Measuring Waves: Worked Problems",
     "level": "Middle School",
-    "subject": "Chemistry",
+    "subject": "Physics",
     "topicSlug": "waves-sound-light",
     "subtopic": "Wave Properties (Frequency, Wavelength, Amplitude)",
     "slug": "ms-ps-wave-problems",
@@ -28440,13 +28440,13 @@
       "unit analysis"
     ],
     "summary": "Apply wave speed, frequency, wavelength, and period equations to solve multi-step wave problems.",
-    "contentPath": "content/nsb/ms/physical-science/waves-sound-light/ms-ps-wave-problems.md"
+    "contentPath": "content/nsb/ms/physics/waves-sound-light/ms-ps-wave-problems.md"
   },
   {
     "id": "nsb-lesson-1504",
     "title": "Wave Properties Synthesis",
     "level": "Middle School",
-    "subject": "Chemistry",
+    "subject": "Physics",
     "topicSlug": "waves-sound-light",
     "subtopic": "Wave Properties (Frequency, Wavelength, Amplitude)",
     "slug": "ms-ps-wave-properties-review",
@@ -28461,13 +28461,13 @@
       "wave interactions"
     ],
     "summary": "Comprehensive review of wave properties, types, and behaviors for Science Bowl preparation.",
-    "contentPath": "content/nsb/ms/physical-science/waves-sound-light/ms-ps-wave-properties-review.md"
+    "contentPath": "content/nsb/ms/physics/waves-sound-light/ms-ps-wave-properties-review.md"
   },
   {
     "id": "nsb-lesson-1505",
     "title": "Wave Properties: Competition Extension",
     "level": "Middle School",
-    "subject": "Chemistry",
+    "subject": "Physics",
     "topicSlug": "waves-sound-light",
     "subtopic": "Wave Properties (Frequency, Wavelength, Amplitude)",
     "slug": "ms-ps-wave-properties-bowl",
@@ -28481,13 +28481,13 @@
       "Science Bowl formulas"
     ],
     "summary": "High-yield wave facts and toss-up patterns for Science Bowl competition.",
-    "contentPath": "content/nsb/ms/physical-science/waves-sound-light/ms-ps-wave-properties-bowl.md"
+    "contentPath": "content/nsb/ms/physics/waves-sound-light/ms-ps-wave-properties-bowl.md"
   },
   {
     "id": "nsb-lesson-1506",
     "title": "How Sound Works: Compression, Rarefaction, and the Medium",
     "level": "Middle School",
-    "subject": "Chemistry",
+    "subject": "Physics",
     "topicSlug": "waves-sound-light",
     "subtopic": "Sound Waves & the Doppler Effect",
     "slug": "ms-ps-sound-basics",
@@ -28502,13 +28502,13 @@
       "speed of sound"
     ],
     "summary": "Sound is a longitudinal mechanical wave produced by vibrations that create alternating compressions and rarefactions in a medium.",
-    "contentPath": "content/nsb/ms/physical-science/waves-sound-light/ms-ps-sound-basics.md"
+    "contentPath": "content/nsb/ms/physics/waves-sound-light/ms-ps-sound-basics.md"
   },
   {
     "id": "nsb-lesson-1507",
     "title": "Pitch, Loudness, and the Decibel Scale",
     "level": "Middle School",
-    "subject": "Chemistry",
+    "subject": "Physics",
     "topicSlug": "waves-sound-light",
     "subtopic": "Sound Waves & the Doppler Effect",
     "slug": "ms-ps-sound-pitch-loudness",
@@ -28523,13 +28523,13 @@
       "resonance"
     ],
     "summary": "Pitch corresponds to frequency and loudness to amplitude; the decibel scale measures sound intensity on a logarithmic scale.",
-    "contentPath": "content/nsb/ms/physical-science/waves-sound-light/ms-ps-sound-pitch-loudness.md"
+    "contentPath": "content/nsb/ms/physics/waves-sound-light/ms-ps-sound-pitch-loudness.md"
   },
   {
     "id": "nsb-lesson-1508",
     "title": "The Doppler Effect: Why Pitch Shifts with Motion",
     "level": "Middle School",
-    "subject": "Chemistry",
+    "subject": "Physics",
     "topicSlug": "waves-sound-light",
     "subtopic": "Sound Waves & the Doppler Effect",
     "slug": "ms-ps-doppler-effect",
@@ -28543,13 +28543,13 @@
       "speed of source"
     ],
     "summary": "The Doppler effect is the apparent change in frequency observed when a source of waves moves relative to the observer.",
-    "contentPath": "content/nsb/ms/physical-science/waves-sound-light/ms-ps-doppler-effect.md"
+    "contentPath": "content/nsb/ms/physics/waves-sound-light/ms-ps-doppler-effect.md"
   },
   {
     "id": "nsb-lesson-1509",
     "title": "Sound Waves in Technology",
     "level": "Middle School",
-    "subject": "Chemistry",
+    "subject": "Physics",
     "topicSlug": "waves-sound-light",
     "subtopic": "Sound Waves & the Doppler Effect",
     "slug": "ms-ps-sound-technology",
@@ -28563,13 +28563,13 @@
       "echo"
     ],
     "summary": "Apply sound wave principles to real technologies: sonar, medical ultrasound, Doppler radar, and musical instruments.",
-    "contentPath": "content/nsb/ms/physical-science/waves-sound-light/ms-ps-sound-technology.md"
+    "contentPath": "content/nsb/ms/physics/waves-sound-light/ms-ps-sound-technology.md"
   },
   {
     "id": "nsb-lesson-1510",
     "title": "Sound: Synthesis Review",
     "level": "Middle School",
-    "subject": "Chemistry",
+    "subject": "Physics",
     "topicSlug": "waves-sound-light",
     "subtopic": "Sound Waves & the Doppler Effect",
     "slug": "ms-ps-sound-review",
@@ -28584,13 +28584,13 @@
       "ultrasound"
     ],
     "summary": "Rapid-fire synthesis of key sound concepts linking frequency, amplitude, medium, and wave behavior.",
-    "contentPath": "content/nsb/ms/physical-science/waves-sound-light/ms-ps-sound-review.md"
+    "contentPath": "content/nsb/ms/physics/waves-sound-light/ms-ps-sound-review.md"
   },
   {
     "id": "nsb-lesson-1511",
     "title": "Sound & Doppler: Competition Extension",
     "level": "Middle School",
-    "subject": "Chemistry",
+    "subject": "Physics",
     "topicSlug": "waves-sound-light",
     "subtopic": "Sound Waves & the Doppler Effect",
     "slug": "ms-ps-sound-bowl",
@@ -28605,13 +28605,13 @@
       "Science Bowl"
     ],
     "summary": "Competition-ready high-yield facts and toss-up practice for sound waves and the Doppler effect.",
-    "contentPath": "content/nsb/ms/physical-science/waves-sound-light/ms-ps-sound-bowl.md"
+    "contentPath": "content/nsb/ms/physics/waves-sound-light/ms-ps-sound-bowl.md"
   },
   {
     "id": "nsb-lesson-1512",
     "title": "What Is Light? The Electromagnetic Wave",
     "level": "Middle School",
-    "subject": "Chemistry",
+    "subject": "Physics",
     "topicSlug": "waves-sound-light",
     "subtopic": "Light — Reflection & Refraction",
     "slug": "ms-ps-light-basics",
@@ -28625,13 +28625,13 @@
       "photon"
     ],
     "summary": "Light is a transverse electromagnetic wave that travels at 3×10⁸ m/s in a vacuum and does not require a medium.",
-    "contentPath": "content/nsb/ms/physical-science/waves-sound-light/ms-ps-light-basics.md"
+    "contentPath": "content/nsb/ms/physics/waves-sound-light/ms-ps-light-basics.md"
   },
   {
     "id": "nsb-lesson-1513",
     "title": "Reflection: How Mirrors Work",
     "level": "Middle School",
-    "subject": "Chemistry",
+    "subject": "Physics",
     "topicSlug": "waves-sound-light",
     "subtopic": "Light — Reflection & Refraction",
     "slug": "ms-ps-reflection",
@@ -28646,13 +28646,13 @@
       "specular vs diffuse"
     ],
     "summary": "Reflection occurs when light bounces off a surface; the angle of incidence equals the angle of reflection, measured from the normal.",
-    "contentPath": "content/nsb/ms/physical-science/waves-sound-light/ms-ps-reflection.md"
+    "contentPath": "content/nsb/ms/physics/waves-sound-light/ms-ps-reflection.md"
   },
   {
     "id": "nsb-lesson-1514",
     "title": "Refraction: Why Light Bends",
     "level": "Middle School",
-    "subject": "Chemistry",
+    "subject": "Physics",
     "topicSlug": "waves-sound-light",
     "subtopic": "Light — Reflection & Refraction",
     "slug": "ms-ps-refraction",
@@ -28666,13 +28666,13 @@
       "lens"
     ],
     "summary": "Refraction is the bending of light as it passes between media of different optical densities, governed by the change in wave speed.",
-    "contentPath": "content/nsb/ms/physical-science/waves-sound-light/ms-ps-refraction.md"
+    "contentPath": "content/nsb/ms/physics/waves-sound-light/ms-ps-refraction.md"
   },
   {
     "id": "nsb-lesson-1515",
     "title": "Lenses and Optical Instruments",
     "level": "Middle School",
-    "subject": "Chemistry",
+    "subject": "Physics",
     "topicSlug": "waves-sound-light",
     "subtopic": "Light — Reflection & Refraction",
     "slug": "ms-ps-lenses-optics",
@@ -28688,13 +28688,13 @@
       "glasses"
     ],
     "summary": "Apply refraction to understand how convex and concave lenses form images, and how lenses are used in eyes, cameras, and telescopes.",
-    "contentPath": "content/nsb/ms/physical-science/waves-sound-light/ms-ps-lenses-optics.md"
+    "contentPath": "content/nsb/ms/physics/waves-sound-light/ms-ps-lenses-optics.md"
   },
   {
     "id": "nsb-lesson-1516",
     "title": "Reflection and Refraction Review",
     "level": "Middle School",
-    "subject": "Chemistry",
+    "subject": "Physics",
     "topicSlug": "waves-sound-light",
     "subtopic": "Light — Reflection & Refraction",
     "slug": "ms-ps-reflection-refraction-review",
@@ -28708,13 +28708,13 @@
       "lens types"
     ],
     "summary": "Synthesize reflection and refraction concepts with mixed problems and key facts for Science Bowl.",
-    "contentPath": "content/nsb/ms/physical-science/waves-sound-light/ms-ps-reflection-refraction-review.md"
+    "contentPath": "content/nsb/ms/physics/waves-sound-light/ms-ps-reflection-refraction-review.md"
   },
   {
     "id": "nsb-lesson-1517",
     "title": "Light Reflection & Refraction: Competition Extension",
     "level": "Middle School",
-    "subject": "Chemistry",
+    "subject": "Physics",
     "topicSlug": "waves-sound-light",
     "subtopic": "Light — Reflection & Refraction",
     "slug": "ms-ps-light-bowl",
@@ -28729,13 +28729,13 @@
       "Science Bowl"
     ],
     "summary": "High-yield light facts and toss-up practice for Science Bowl competition.",
-    "contentPath": "content/nsb/ms/physical-science/waves-sound-light/ms-ps-light-bowl.md"
+    "contentPath": "content/nsb/ms/physics/waves-sound-light/ms-ps-light-bowl.md"
   },
   {
     "id": "nsb-lesson-1518",
     "title": "The Full Electromagnetic Spectrum: From Radio Waves to Gamma Rays",
     "level": "Middle School",
-    "subject": "Chemistry",
+    "subject": "Physics",
     "topicSlug": "waves-sound-light",
     "subtopic": "The Electromagnetic Spectrum",
     "slug": "ms-ps-em-spectrum",
@@ -28752,13 +28752,13 @@
       "gamma rays"
     ],
     "summary": "The electromagnetic spectrum organizes all EM radiation by wavelength and frequency, from long-wavelength radio waves to short-wavelength gamma rays.",
-    "contentPath": "content/nsb/ms/physical-science/waves-sound-light/ms-ps-em-spectrum.md"
+    "contentPath": "content/nsb/ms/physics/waves-sound-light/ms-ps-em-spectrum.md"
   },
   {
     "id": "nsb-lesson-1519",
     "title": "Electromagnetic Radiation in Medicine and Technology",
     "level": "Middle School",
-    "subject": "Chemistry",
+    "subject": "Physics",
     "topicSlug": "waves-sound-light",
     "subtopic": "The Electromagnetic Spectrum",
     "slug": "ms-ps-em-spectrum-applications",
@@ -28773,13 +28773,13 @@
       "technology"
     ],
     "summary": "Apply knowledge of the electromagnetic spectrum to real-world medical and technological applications.",
-    "contentPath": "content/nsb/ms/physical-science/waves-sound-light/ms-ps-em-spectrum-applications.md"
+    "contentPath": "content/nsb/ms/physics/waves-sound-light/ms-ps-em-spectrum-applications.md"
   },
   {
     "id": "nsb-lesson-1520",
     "title": "Electromagnetic Spectrum Synthesis Review",
     "level": "Middle School",
-    "subject": "Chemistry",
+    "subject": "Physics",
     "topicSlug": "waves-sound-light",
     "subtopic": "The Electromagnetic Spectrum",
     "slug": "ms-ps-em-spectrum-review",
@@ -28794,13 +28794,13 @@
       "Science Bowl traps"
     ],
     "summary": "Comprehensive review of the EM spectrum with mixed application and classification problems.",
-    "contentPath": "content/nsb/ms/physical-science/waves-sound-light/ms-ps-em-spectrum-review.md"
+    "contentPath": "content/nsb/ms/physics/waves-sound-light/ms-ps-em-spectrum-review.md"
   },
   {
     "id": "nsb-lesson-1521",
     "title": "The EM Spectrum: Competition Extension",
     "level": "Middle School",
-    "subject": "Chemistry",
+    "subject": "Physics",
     "topicSlug": "waves-sound-light",
     "subtopic": "The Electromagnetic Spectrum",
     "slug": "ms-ps-em-spectrum-bowl",
@@ -28815,13 +28815,13 @@
       "Science Bowl"
     ],
     "summary": "High-yield EM spectrum facts and toss-up patterns for Science Bowl competition.",
-    "contentPath": "content/nsb/ms/physical-science/waves-sound-light/ms-ps-em-spectrum-bowl.md"
+    "contentPath": "content/nsb/ms/physics/waves-sound-light/ms-ps-em-spectrum-bowl.md"
   },
   {
     "id": "nsb-lesson-1522",
     "title": "Electric Charge: Protons, Electrons, and the Two Types",
     "level": "Middle School",
-    "subject": "Chemistry",
+    "subject": "Physics",
     "topicSlug": "electricity-magnetism",
     "subtopic": "Electric Charge & Static Electricity",
     "slug": "ms-ps-electric-charge",
@@ -28837,13 +28837,13 @@
       "coulomb"
     ],
     "summary": "Electric charge comes in two types — positive (protons) and negative (electrons) — and like charges repel while opposite charges attract.",
-    "contentPath": "content/nsb/ms/physical-science/electricity-magnetism/ms-ps-electric-charge.md"
+    "contentPath": "content/nsb/ms/physics/electricity-magnetism/ms-ps-electric-charge.md"
   },
   {
     "id": "nsb-lesson-1523",
     "title": "Static Electricity: Buildup, Discharge, and Grounding",
     "level": "Middle School",
-    "subject": "Chemistry",
+    "subject": "Physics",
     "topicSlug": "electricity-magnetism",
     "subtopic": "Electric Charge & Static Electricity",
     "slug": "ms-ps-static-electricity",
@@ -28858,13 +28858,13 @@
       "lightning"
     ],
     "summary": "Static electricity is the buildup of electric charge on an object's surface, which can transfer suddenly as a spark when discharged.",
-    "contentPath": "content/nsb/ms/physical-science/electricity-magnetism/ms-ps-static-electricity.md"
+    "contentPath": "content/nsb/ms/physics/electricity-magnetism/ms-ps-static-electricity.md"
   },
   {
     "id": "nsb-lesson-1524",
     "title": "Coulomb's Law: Force Between Charges",
     "level": "Middle School",
-    "subject": "Chemistry",
+    "subject": "Physics",
     "topicSlug": "electricity-magnetism",
     "subtopic": "Electric Charge & Static Electricity",
     "slug": "ms-ps-coulombs-law",
@@ -28878,13 +28878,13 @@
       "inverse-square"
     ],
     "summary": "Coulomb's Law describes how the force between two charges depends on their magnitudes and the distance between them.",
-    "contentPath": "content/nsb/ms/physical-science/electricity-magnetism/ms-ps-coulombs-law.md"
+    "contentPath": "content/nsb/ms/physics/electricity-magnetism/ms-ps-coulombs-law.md"
   },
   {
     "id": "nsb-lesson-1525",
     "title": "Static Electricity in Real Life",
     "level": "Middle School",
-    "subject": "Chemistry",
+    "subject": "Physics",
     "topicSlug": "electricity-magnetism",
     "subtopic": "Electric Charge & Static Electricity",
     "slug": "ms-ps-static-electricity-applications",
@@ -28898,13 +28898,13 @@
       "Van de Graaff"
     ],
     "summary": "Apply static electricity principles to understand photocopiers, electrostatic precipitators, lightning protection, and laboratory demonstrations.",
-    "contentPath": "content/nsb/ms/physical-science/electricity-magnetism/ms-ps-static-electricity-applications.md"
+    "contentPath": "content/nsb/ms/physics/electricity-magnetism/ms-ps-static-electricity-applications.md"
   },
   {
     "id": "nsb-lesson-1526",
     "title": "Static Electricity Review",
     "level": "Middle School",
-    "subject": "Chemistry",
+    "subject": "Physics",
     "topicSlug": "electricity-magnetism",
     "subtopic": "Electric Charge & Static Electricity",
     "slug": "ms-ps-static-electricity-review",
@@ -28918,13 +28918,13 @@
       "applications"
     ],
     "summary": "Synthesize static electricity concepts through mixed problems and concept connections.",
-    "contentPath": "content/nsb/ms/physical-science/electricity-magnetism/ms-ps-static-electricity-review.md"
+    "contentPath": "content/nsb/ms/physics/electricity-magnetism/ms-ps-static-electricity-review.md"
   },
   {
     "id": "nsb-lesson-1527",
     "title": "Static Electricity: Competition Extension",
     "level": "Middle School",
-    "subject": "Chemistry",
+    "subject": "Physics",
     "topicSlug": "electricity-magnetism",
     "subtopic": "Electric Charge & Static Electricity",
     "slug": "ms-ps-static-bowl",
@@ -28938,13 +28938,13 @@
       "Science Bowl traps"
     ],
     "summary": "High-yield static electricity facts and toss-up patterns for Science Bowl competition.",
-    "contentPath": "content/nsb/ms/physical-science/electricity-magnetism/ms-ps-static-bowl.md"
+    "contentPath": "content/nsb/ms/physics/electricity-magnetism/ms-ps-static-bowl.md"
   },
   {
     "id": "nsb-lesson-1528",
     "title": "Electric Current: Charge in Motion",
     "level": "Middle School",
-    "subject": "Chemistry",
+    "subject": "Physics",
     "topicSlug": "electricity-magnetism",
     "subtopic": "Current, Voltage & Resistance",
     "slug": "ms-ps-electric-current",
@@ -28959,13 +28959,13 @@
       "conventional current"
     ],
     "summary": "Electric current is the flow of electric charge through a conductor, measured in amperes, driven by a potential difference (voltage).",
-    "contentPath": "content/nsb/ms/physical-science/electricity-magnetism/ms-ps-electric-current.md"
+    "contentPath": "content/nsb/ms/physics/electricity-magnetism/ms-ps-electric-current.md"
   },
   {
     "id": "nsb-lesson-1529",
     "title": "Voltage and Resistance: The Pressure and Friction of Electricity",
     "level": "Middle School",
-    "subject": "Chemistry",
+    "subject": "Physics",
     "topicSlug": "electricity-magnetism",
     "subtopic": "Current, Voltage & Resistance",
     "slug": "ms-ps-voltage-resistance",
@@ -28981,13 +28981,13 @@
       "V=IR"
     ],
     "summary": "Voltage is the electric potential difference that drives current, while resistance opposes current flow; they're linked by Ohm's Law: V = IR.",
-    "contentPath": "content/nsb/ms/physical-science/electricity-magnetism/ms-ps-voltage-resistance.md"
+    "contentPath": "content/nsb/ms/physics/electricity-magnetism/ms-ps-voltage-resistance.md"
   },
   {
     "id": "nsb-lesson-1530",
     "title": "Electric Power: Energy and Cost",
     "level": "Middle School",
-    "subject": "Chemistry",
+    "subject": "Physics",
     "topicSlug": "electricity-magnetism",
     "subtopic": "Current, Voltage & Resistance",
     "slug": "ms-ps-electric-power",
@@ -29002,13 +29002,13 @@
       "energy cost"
     ],
     "summary": "Electric power measures the rate of energy transfer; combined with Ohm's Law, it lets you calculate energy use and electricity costs.",
-    "contentPath": "content/nsb/ms/physical-science/electricity-magnetism/ms-ps-electric-power.md"
+    "contentPath": "content/nsb/ms/physics/electricity-magnetism/ms-ps-electric-power.md"
   },
   {
     "id": "nsb-lesson-1531",
     "title": "Ohm's Law in Practice: Circuit Calculations",
     "level": "Middle School",
-    "subject": "Chemistry",
+    "subject": "Physics",
     "topicSlug": "electricity-magnetism",
     "subtopic": "Current, Voltage & Resistance",
     "slug": "ms-ps-ohms-law-practice",
@@ -29023,13 +29023,13 @@
       "problem solving"
     ],
     "summary": "Apply Ohm's Law and power equations to solve realistic circuit calculation problems step by step.",
-    "contentPath": "content/nsb/ms/physical-science/electricity-magnetism/ms-ps-ohms-law-practice.md"
+    "contentPath": "content/nsb/ms/physics/electricity-magnetism/ms-ps-ohms-law-practice.md"
   },
   {
     "id": "nsb-lesson-1532",
     "title": "Current, Voltage & Resistance Review",
     "level": "Middle School",
-    "subject": "Chemistry",
+    "subject": "Physics",
     "topicSlug": "electricity-magnetism",
     "subtopic": "Current, Voltage & Resistance",
     "slug": "ms-ps-current-voltage-review",
@@ -29044,13 +29044,13 @@
       "energy"
     ],
     "summary": "Comprehensive review of current, voltage, resistance, and power with mixed problems.",
-    "contentPath": "content/nsb/ms/physical-science/electricity-magnetism/ms-ps-current-voltage-review.md"
+    "contentPath": "content/nsb/ms/physics/electricity-magnetism/ms-ps-current-voltage-review.md"
   },
   {
     "id": "nsb-lesson-1533",
     "title": "Current, Voltage & Resistance: Competition Extension",
     "level": "Middle School",
-    "subject": "Chemistry",
+    "subject": "Physics",
     "topicSlug": "electricity-magnetism",
     "subtopic": "Current, Voltage & Resistance",
     "slug": "ms-ps-current-voltage-bowl",
@@ -29064,13 +29064,13 @@
       "P=IV"
     ],
     "summary": "Competition-ready toss-up practice for current, voltage, resistance, and power questions.",
-    "contentPath": "content/nsb/ms/physical-science/electricity-magnetism/ms-ps-current-voltage-bowl.md"
+    "contentPath": "content/nsb/ms/physics/electricity-magnetism/ms-ps-current-voltage-bowl.md"
   },
   {
     "id": "nsb-lesson-1534",
     "title": "Series Circuits: One Path for Current",
     "level": "Middle School",
-    "subject": "Chemistry",
+    "subject": "Physics",
     "topicSlug": "electricity-magnetism",
     "subtopic": "Series & Parallel Circuits",
     "slug": "ms-ps-series-circuits",
@@ -29084,13 +29084,13 @@
       "voltage divides"
     ],
     "summary": "In a series circuit, all components share a single path, current is the same throughout, and resistances add up directly.",
-    "contentPath": "content/nsb/ms/physical-science/electricity-magnetism/ms-ps-series-circuits.md"
+    "contentPath": "content/nsb/ms/physics/electricity-magnetism/ms-ps-series-circuits.md"
   },
   {
     "id": "nsb-lesson-1535",
     "title": "Parallel Circuits: Multiple Paths for Current",
     "level": "Middle School",
-    "subject": "Chemistry",
+    "subject": "Physics",
     "topicSlug": "electricity-magnetism",
     "subtopic": "Series & Parallel Circuits",
     "slug": "ms-ps-parallel-circuits",
@@ -29104,13 +29104,13 @@
       "total resistance decreases"
     ],
     "summary": "In a parallel circuit, components share the same voltage, current divides among branches, and adding more branches decreases total resistance.",
-    "contentPath": "content/nsb/ms/physical-science/electricity-magnetism/ms-ps-parallel-circuits.md"
+    "contentPath": "content/nsb/ms/physics/electricity-magnetism/ms-ps-parallel-circuits.md"
   },
   {
     "id": "nsb-lesson-1536",
     "title": "Series vs. Parallel: Comparing the Two",
     "level": "Middle School",
-    "subject": "Chemistry",
+    "subject": "Physics",
     "topicSlug": "electricity-magnetism",
     "subtopic": "Series & Parallel Circuits",
     "slug": "ms-ps-series-vs-parallel",
@@ -29125,13 +29125,13 @@
       "fault tolerance"
     ],
     "summary": "Compare series and parallel circuits systematically, including how each responds to component failure and how current, voltage, and resistance behave differently.",
-    "contentPath": "content/nsb/ms/physical-science/electricity-magnetism/ms-ps-series-vs-parallel.md"
+    "contentPath": "content/nsb/ms/physics/electricity-magnetism/ms-ps-series-vs-parallel.md"
   },
   {
     "id": "nsb-lesson-1537",
     "title": "Circuit Problem Solving",
     "level": "Middle School",
-    "subject": "Chemistry",
+    "subject": "Physics",
     "topicSlug": "electricity-magnetism",
     "subtopic": "Series & Parallel Circuits",
     "slug": "ms-ps-circuit-problems",
@@ -29145,13 +29145,13 @@
       "total resistance"
     ],
     "summary": "Solve multi-step series and parallel circuit problems systematically using Ohm's Law.",
-    "contentPath": "content/nsb/ms/physical-science/electricity-magnetism/ms-ps-circuit-problems.md"
+    "contentPath": "content/nsb/ms/physics/electricity-magnetism/ms-ps-circuit-problems.md"
   },
   {
     "id": "nsb-lesson-1538",
     "title": "Series and Parallel Circuits Review",
     "level": "Middle School",
-    "subject": "Chemistry",
+    "subject": "Physics",
     "topicSlug": "electricity-magnetism",
     "subtopic": "Series & Parallel Circuits",
     "slug": "ms-ps-circuits-review",
@@ -29166,13 +29166,13 @@
       "fault tolerance"
     ],
     "summary": "Mixed review of series and parallel circuits, trapping common mistakes and reinforcing key equations.",
-    "contentPath": "content/nsb/ms/physical-science/electricity-magnetism/ms-ps-circuits-review.md"
+    "contentPath": "content/nsb/ms/physics/electricity-magnetism/ms-ps-circuits-review.md"
   },
   {
     "id": "nsb-lesson-1539",
     "title": "Circuits: Competition Extension",
     "level": "Middle School",
-    "subject": "Chemistry",
+    "subject": "Physics",
     "topicSlug": "electricity-magnetism",
     "subtopic": "Series & Parallel Circuits",
     "slug": "ms-ps-circuits-bowl",
@@ -29186,13 +29186,13 @@
       "household wiring"
     ],
     "summary": "High-speed circuit toss-up practice and key facts for Science Bowl competition.",
-    "contentPath": "content/nsb/ms/physical-science/electricity-magnetism/ms-ps-circuits-bowl.md"
+    "contentPath": "content/nsb/ms/physics/electricity-magnetism/ms-ps-circuits-bowl.md"
   },
   {
     "id": "nsb-lesson-1540",
     "title": "Magnetism: Poles, Fields, and Magnetic Materials",
     "level": "Middle School",
-    "subject": "Chemistry",
+    "subject": "Physics",
     "topicSlug": "electricity-magnetism",
     "subtopic": "Magnetism & Electromagnetism",
     "slug": "ms-ps-magnetism-basics",
@@ -29207,13 +29207,13 @@
       "ferromagnetic materials"
     ],
     "summary": "Magnets have north and south poles that attract opposites and repel likes; all magnets produce a magnetic field described by field lines.",
-    "contentPath": "content/nsb/ms/physical-science/electricity-magnetism/ms-ps-magnetism-basics.md"
+    "contentPath": "content/nsb/ms/physics/electricity-magnetism/ms-ps-magnetism-basics.md"
   },
   {
     "id": "nsb-lesson-1541",
     "title": "Earth's Magnetic Field and Compass Navigation",
     "level": "Middle School",
-    "subject": "Chemistry",
+    "subject": "Physics",
     "topicSlug": "electricity-magnetism",
     "subtopic": "Magnetism & Electromagnetism",
     "slug": "ms-ps-earth-magnetic-field",
@@ -29227,13 +29227,13 @@
       "aurora"
     ],
     "summary": "Earth generates a magnetic field from its liquid outer core, which deflects charged particles and guides compass navigation.",
-    "contentPath": "content/nsb/ms/physical-science/electricity-magnetism/ms-ps-earth-magnetic-field.md"
+    "contentPath": "content/nsb/ms/physics/electricity-magnetism/ms-ps-earth-magnetic-field.md"
   },
   {
     "id": "nsb-lesson-1542",
     "title": "Electromagnetism: Current Creates Magnetic Fields",
     "level": "Middle School",
-    "subject": "Chemistry",
+    "subject": "Physics",
     "topicSlug": "electricity-magnetism",
     "subtopic": "Magnetism & Electromagnetism",
     "slug": "ms-ps-electromagnetism",
@@ -29247,13 +29247,13 @@
       "electromagnet"
     ],
     "summary": "Moving electric charges create magnetic fields; this connection between electricity and magnetism, discovered by Oersted, enables electromagnets and countless technologies.",
-    "contentPath": "content/nsb/ms/physical-science/electricity-magnetism/ms-ps-electromagnetism.md"
+    "contentPath": "content/nsb/ms/physics/electricity-magnetism/ms-ps-electromagnetism.md"
   },
   {
     "id": "nsb-lesson-1543",
     "title": "Electromagnetic Induction: Generators and Transformers",
     "level": "Middle School",
-    "subject": "Chemistry",
+    "subject": "Physics",
     "topicSlug": "electricity-magnetism",
     "subtopic": "Magnetism & Electromagnetism",
     "slug": "ms-ps-electromagnetic-induction",
@@ -29267,13 +29267,13 @@
       "Lenz's Law"
     ],
     "summary": "Apply Faraday's Law of electromagnetic induction to understand how generators produce electricity and how transformers change voltage.",
-    "contentPath": "content/nsb/ms/physical-science/electricity-magnetism/ms-ps-electromagnetic-induction.md"
+    "contentPath": "content/nsb/ms/physics/electricity-magnetism/ms-ps-electromagnetic-induction.md"
   },
   {
     "id": "nsb-lesson-1544",
     "title": "Magnetism and Electromagnetism Review",
     "level": "Middle School",
-    "subject": "Chemistry",
+    "subject": "Physics",
     "topicSlug": "electricity-magnetism",
     "subtopic": "Magnetism & Electromagnetism",
     "slug": "ms-ps-magnetism-review",
@@ -29288,13 +29288,13 @@
       "Earth's magnetic field"
     ],
     "summary": "Mixed review of magnetism and electromagnetism connecting static magnets, Oersted, Faraday, motors, and generators.",
-    "contentPath": "content/nsb/ms/physical-science/electricity-magnetism/ms-ps-magnetism-review.md"
+    "contentPath": "content/nsb/ms/physics/electricity-magnetism/ms-ps-magnetism-review.md"
   },
   {
     "id": "nsb-lesson-1545",
     "title": "Magnetism & Electromagnetism: Competition Extension",
     "level": "Middle School",
-    "subject": "Chemistry",
+    "subject": "Physics",
     "topicSlug": "electricity-magnetism",
     "subtopic": "Magnetism & Electromagnetism",
     "slug": "ms-ps-magnetism-bowl",
@@ -29309,6 +29309,6 @@
       "electromagnet"
     ],
     "summary": "High-yield magnetism and electromagnetism facts and toss-up practice for Science Bowl competition.",
-    "contentPath": "content/nsb/ms/physical-science/electricity-magnetism/ms-ps-magnetism-bowl.md"
+    "contentPath": "content/nsb/ms/physics/electricity-magnetism/ms-ps-magnetism-bowl.md"
   }
 ]
