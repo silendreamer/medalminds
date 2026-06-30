@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import type { Lesson, PracticeQuestion } from "@/types";
 import { SimplePracticeQuestion } from "./SimplePracticeQuestion";
@@ -11,7 +10,6 @@ interface PracticeSessionProps {
   competitionSlug: string;
   level: string;
   subject?: string;
-  subjectNames: string[];
 }
 
 const SESSION_KEY = "practice-session-stats";
@@ -38,7 +36,6 @@ export function PracticeSession({
   competitionSlug,
   level,
   subject,
-  subjectNames,
 }: PracticeSessionProps) {
   const [correct, setCorrect] = useState(0);
   const [incorrect, setIncorrect] = useState(0);
@@ -77,28 +74,6 @@ export function PracticeSession({
     <div className="practice-layout">
       {/* Main question */}
       <main className="practice-main">
-        {subjectNames.length > 0 && (
-          <div className="subject-filter-bar">
-            <span className="filter-label">Subject:</span>
-            <div className="subject-chips">
-              {subjectNames.map((subj) => (
-                <Link
-                  key={subj}
-                  href={`/${competitionSlug}/${level}/practice?subject=${encodeURIComponent(subj)}`}
-                  className={`subject-chip ${subject === subj ? "selected" : ""}`}
-                >
-                  {subj}
-                </Link>
-              ))}
-              <Link
-                href={`/${competitionSlug}/${level}/practice`}
-                className={`subject-chip ${!subject ? "selected" : ""}`}
-              >
-                All
-              </Link>
-            </div>
-          </div>
-        )}
         <SimplePracticeQuestion
           question={initialQuestion}
           subtopicLessons={subtopicLessons}
@@ -144,14 +119,6 @@ export function PracticeSession({
               </div>
             </div>
           </div>
-        </div>
-
-        <div className="pq-buzzer-card">
-          <h4>Buzzer mode</h4>
-          <p>Race the clock — answers hide until you buzz in.</p>
-          <Link href={`/${competitionSlug}/buzzer`} className="button pq-buzzer-btn">
-            Switch to buzzer
-          </Link>
         </div>
       </aside>
     </div>

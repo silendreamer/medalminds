@@ -10,7 +10,7 @@ import {
   getRandomQuestionByCompetition,
   getScienceBowlMiddleSchoolCurriculumSubjects,
   isCompetitionSlug,
-  type SchoolLevelFilter
+  type SchoolLevelFilter,
 } from "@/lib/data";
 import { formatApproximateCount } from "@/lib/format";
 import { buildMetadata } from "@/lib/seo";
@@ -112,10 +112,6 @@ export default async function PracticePage({
     );
   }
 
-  // Get all available subjects for the subject filter bar
-  const allSubjects = isScienceBowl ? await getScienceBowlMiddleSchoolCurriculumSubjects() : [];
-  const subjectNames = allSubjects.map((s) => s.name);
-
   const question = q
     ? await getQuestionById(competitionSlug, q, subject, schoolLevel)
     : await getRandomQuestionByCompetition(competitionSlug, subject, schoolLevel);
@@ -135,7 +131,6 @@ export default async function PracticePage({
             competitionSlug={competitionSlug}
             level={level}
             subject={subject}
-            subjectNames={subjectNames}
           />
         ) : (
           <div className="empty">No questions are available yet.</div>
