@@ -3,7 +3,8 @@ import { competitions as localCompetitions } from "@/data/competitions";
 import { lessons as localLessons } from "@/data/lessons";
 import { practiceQuestions as localPracticeQuestions } from "@/data/practiceQuestions";
 import {
-  scienceBowlMiddleSchoolSubjects as staticScienceBowlMiddleSchoolSubjects
+  scienceBowlMiddleSchoolSubjects as staticScienceBowlMiddleSchoolSubjects,
+  getScienceBowlMiddleSchoolSubjectByName as staticGetSubjectByName,
 } from "@/data/scienceBowlMiddleSchoolCurriculum";
 import { tests as localTests } from "@/data/tests";
 import { getNsbQuestions, getNsbLessons, getNsbLessonContent } from "@/data/nsbQuestions";
@@ -200,6 +201,11 @@ export async function getScienceBowlMiddleSchoolCurriculumSubjectByName(name?: s
   return subjects.find(
     (subject) => subject.name.toLowerCase() === normalized || subject.slug === normalized.replace(/\s+/g, "-")
   );
+}
+
+// Sync lookup by URL slug (e.g. "earth-and-space" or "earth-and-space-science")
+export function getScienceBowlMiddleSchoolSubjectBySlug(slug: string) {
+  return staticGetSubjectByName(slug.replace(/-/g, " "));
 }
 
 export async function getQuestionsByCompetition(slug: CompetitionSlug) {

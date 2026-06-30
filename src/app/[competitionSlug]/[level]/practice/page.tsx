@@ -13,6 +13,7 @@ import {
   type SchoolLevelFilter,
 } from "@/lib/data";
 import { formatApproximateCount } from "@/lib/format";
+import { practiceSubjectPath } from "@/lib/routes";
 import { buildMetadata } from "@/lib/seo";
 import "@/app/practice-page.css";
 
@@ -20,24 +21,20 @@ export const dynamic = "force-dynamic";
 
 export async function generateMetadata({
   params,
-  searchParams
 }: {
   params: Promise<{ competitionSlug: string; level: string }>;
-  searchParams: Promise<{ subject?: string }>;
 }): Promise<Metadata> {
   const { competitionSlug, level } = await params;
-  const { subject } = await searchParams;
   if (!isCompetitionSlug(competitionSlug)) return {};
   const competition = await getCompetitionBySlug(competitionSlug);
   if (!competition) return {};
   const levelLabel = level === "middle-school" ? "Middle School " : "";
-  const subjectLabel = subject ? `${subject} ` : "";
 
   return buildMetadata({
-    title: `${levelLabel}${competition.name} ${subjectLabel}Practice Questions | Medal Minds`,
-    description: `Practice ${levelLabel.toLowerCase()}${competition.name} ${subjectLabel.toLowerCase()}questions with instant review, explanations, and competition-focused study links.`,
+    title: `${levelLabel}${competition.name} Practice Questions | Medal Minds`,
+    description: `Practice ${levelLabel.toLowerCase()}${competition.name} questions with instant review, explanations, and competition-focused study links.`,
     path: `/${competitionSlug}/${level}/practice`,
-    keywords: [`${competition.name} practice questions`, `${competition.name} ${subjectLabel}practice`, subject ?? ""].filter(Boolean)
+    keywords: [`${competition.name} practice questions`, `${competition.name} practice`]
   });
 }
 
@@ -46,10 +43,10 @@ export default async function PracticePage({
   searchParams
 }: {
   params: Promise<{ competitionSlug: string; level: string }>;
-  searchParams: Promise<{ subject?: string; q?: string }>;
+  searchParams: Promise<{ q?: string }>;
 }) {
   const { competitionSlug, level } = await params;
-  const { subject, q } = await searchParams;
+  const { q } = await searchParams;
   if (!isCompetitionSlug(competitionSlug)) notFound();
   const competition = await getCompetitionBySlug(competitionSlug);
   if (!competition) notFound();
@@ -60,7 +57,7 @@ export default async function PracticePage({
         ? "HIGH_SCHOOL"
         : undefined;
   const isScienceBowl = competitionSlug === "science-bowl";
-  const curriculumSubjects = isScienceBowl && !subject ? await getScienceBowlMiddleSchoolCurriculumSubjects() : [];
+  const curriculumSubjects = isScienceBowl ? await getScienceBowlMiddleSchoolCurriculumSubjects() : [];
 
   const emojiMap: Record<string, string> = {
     "Biology": "🧬",
@@ -71,7 +68,7 @@ export default async function PracticePage({
     "Math": "∑"
   };
 
-  if (isScienceBowl && !subject) {
+  if (isScienceBowl) {
     const subjectCounts = await Promise.all(
       curriculumSubjects.map(async (item) => ({
         subject: item,
@@ -98,7 +95,7 @@ export default async function PracticePage({
                 <Link
                   key={item.slug}
                   className="subject-card"
-                  href={`/${competitionSlug}/${level}/practice?subject=${encodeURIComponent(item.name)}`}
+                  href={practiceSubjectPath(competitionSlug, level, item.name)}
                 >
                   <div className="subject-card-icon">{emoji}</div>
                   <h4>{item.name}</h4>
@@ -113,8 +110,8 @@ export default async function PracticePage({
   }
 
   const question = q
-    ? await getQuestionById(competitionSlug, q, subject, schoolLevel)
-    : await getRandomQuestionByCompetition(competitionSlug, subject, schoolLevel);
+    ? await getQuestionById(competitionSlug, q, undefined, schoolLevel)
+    : await getRandomQuestionByCompetition(competitionSlug, undefined, schoolLevel);
 
   const levelDisplay = schoolLevel === "MIDDLE_SCHOOL" ? "Middle School" : "High School";
   const subtopicLessons = question?.subtopic
@@ -130,7 +127,6 @@ export default async function PracticePage({
             subtopicLessons={subtopicLessons}
             competitionSlug={competitionSlug}
             level={level}
-            subject={subject}
           />
         ) : (
           <div className="empty">No questions are available yet.</div>

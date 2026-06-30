@@ -9,6 +9,7 @@ interface PracticeSessionProps {
   subtopicLessons?: Lesson[];
   competitionSlug: string;
   level: string;
+  subjectSlug?: string;
   subject?: string;
 }
 
@@ -35,6 +36,7 @@ export function PracticeSession({
   subtopicLessons,
   competitionSlug,
   level,
+  subjectSlug,
   subject,
 }: PracticeSessionProps) {
   const [correct, setCorrect] = useState(0);
@@ -55,17 +57,18 @@ export function PracticeSession({
       ? { correct: stats.correct + 1, incorrect: stats.incorrect, streak: stats.streak + 1 }
       : { correct: stats.correct, incorrect: stats.incorrect + 1, streak: 0 };
     saveStats(next);
-    // Navigate to a new random question
-    const base = `/${competitionSlug}/${level}/practice`;
-    const params = subject ? `?subject=${encodeURIComponent(subject)}` : "";
-    window.location.href = base + params;
-  }, [competitionSlug, level, subject]);
+    const base = subjectSlug
+      ? `/${competitionSlug}/${level}/practice/${subjectSlug}`
+      : `/${competitionSlug}/${level}/practice`;
+    window.location.href = base;
+  }, [competitionSlug, level, subjectSlug]);
 
   const handleSkip = useCallback(() => {
-    const base = `/${competitionSlug}/${level}/practice`;
-    const params = subject ? `?subject=${encodeURIComponent(subject)}` : "";
-    window.location.href = base + params;
-  }, [competitionSlug, level, subject]);
+    const base = subjectSlug
+      ? `/${competitionSlug}/${level}/practice/${subjectSlug}`
+      : `/${competitionSlug}/${level}/practice`;
+    window.location.href = base;
+  }, [competitionSlug, level, subjectSlug]);
 
   const answered = correct + incorrect;
   const progressPct = answered === 0 ? 0 : Math.round((correct / answered) * 100);

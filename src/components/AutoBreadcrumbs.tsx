@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { ChevronRight } from "lucide-react";
 import { competitions } from "@/data/competitions";
 
@@ -33,7 +33,7 @@ function slugToLabel(slug: string): string {
     .join(" ");
 }
 
-function buildCrumbs(pathname: string, searchParams: URLSearchParams): Crumb[] {
+function buildCrumbs(pathname: string): Crumb[] {
   const segments = pathname.replace(/^\//, "").split("/").filter(Boolean);
   if (segments.length === 0) return [];
 
@@ -72,17 +72,22 @@ function buildCrumbs(pathname: string, searchParams: URLSearchParams): Crumb[] {
   crumbs.push({ label: competition.name, href: `/${first}` });
 
   if (level) {
-    crumbs.push({ label: levelLabel(level), href: `/${first}?level=${level}` });
+    // /{slug}/{level} — level hub (no section)
+    if (!section) {
+      crumbs.push({ label: levelLabel(level) });
+      return crumbs;
+    }
+    crumbs.push({ label: levelLabel(level), href: `/${first}/${level}` });
   }
 
   if (!section) return crumbs;
 
-  const subject = searchParams.get("subject");
-
   if (section === "practice") {
-    if (subject) {
+    // fourth segment (with level) is subjectSlug: /{slug}/{level}/practice/{subjectSlug}
+    const subjectSlug = level ? fourth : third;
+    if (subjectSlug) {
       crumbs.push({ label: "Practice", href: `${levelBase}/practice` });
-      crumbs.push({ label: subject });
+      crumbs.push({ label: slugToLabel(subjectSlug) });
     } else {
       crumbs.push({ label: "Practice" });
     }
@@ -90,11 +95,16 @@ function buildCrumbs(pathname: string, searchParams: URLSearchParams): Crumb[] {
   }
 
   if (section === "tests") {
-    // fourth (with level) or third (without level) is testId
-    const testId = level ? fourth : third;
-    if (testId) {
+    const afterTests = level ? fourth : third;
+    const afterAfterTests = level ? fifth : fourth;
+    // /tests/subject/{subjectSlug}
+    if (afterTests === "subject" && afterAfterTests) {
       crumbs.push({ label: "Tests", href: `${levelBase}/tests` });
-      crumbs.push({ label: slugToLabel(testId) });
+      crumbs.push({ label: slugToLabel(afterAfterTests) });
+    } else if (afterTests) {
+      // /tests/{testId}
+      crumbs.push({ label: "Tests", href: `${levelBase}/tests` });
+      crumbs.push({ label: slugToLabel(afterTests) });
     } else {
       crumbs.push({ label: "Tests" });
     }
@@ -103,7 +113,6 @@ function buildCrumbs(pathname: string, searchParams: URLSearchParams): Crumb[] {
 
   if (section === "learning") {
     const learningBase = `${levelBase}/learning`;
-    // Next segment after "learning"
     const afterLearning = level ? fourth : third;
     const afterAfter = level ? fifth : fourth;
 
@@ -117,20 +126,11 @@ function buildCrumbs(pathname: string, searchParams: URLSearchParams): Crumb[] {
     // /learning/{lessonId}
     if (afterLearning && afterLearning !== "subject") {
       crumbs.push({ label: "Learning", href: learningBase });
-      if (subject) {
-        crumbs.push({ label: subject, href: `${learningBase}?subject=${encodeURIComponent(subject)}` });
-      }
       crumbs.push({ label: slugToLabel(afterLearning) });
       return crumbs;
     }
 
-    // /learning (with optional ?subject=)
-    if (subject) {
-      crumbs.push({ label: "Learning", href: learningBase });
-      crumbs.push({ label: subject });
-    } else {
-      crumbs.push({ label: "Learning" });
-    }
+    crumbs.push({ label: "Learning" });
     return crumbs;
   }
 
@@ -140,8 +140,7 @@ function buildCrumbs(pathname: string, searchParams: URLSearchParams): Crumb[] {
 
 export function AutoBreadcrumbs() {
   const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const crumbs = buildCrumbs(pathname, searchParams);
+  const crumbs = buildCrumbs(pathname);
 
   if (crumbs.length <= 1) return null;
 

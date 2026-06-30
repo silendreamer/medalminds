@@ -9,7 +9,7 @@ import {
   getContentCountsForSubject,
   isCompetitionSlug
 } from "@/lib/data";
-import { buzzerPath, learningPath, practicePath, scienceBowlInfoPath, testsPath } from "@/lib/routes";
+import { buzzerPath, competitionLevelPath, learningPath, practicePath, practiceSubjectPath, scienceBowlInfoPath, testsPath } from "@/lib/routes";
 import { buildMetadata, getCompetitionSeo } from "@/lib/seo";
 
 type CompetitionAction = "learning" | "practice" | "tests" | "buzzer";
@@ -119,13 +119,13 @@ export default async function CompetitionPage({
               <span className="level-toggle-label">Division</span>
               <div className="level-toggle">
                 <Link
-                  href={`/${competitionSlug}?level=middle-school`}
+                  href={competitionLevelPath(competitionSlug, "middle-school")}
                   className={`level-toggle-btn ${selectedLevel === "middle-school" ? "active" : ""}`}
                 >
                   Middle School
                 </Link>
                 <Link
-                  href={`/${competitionSlug}?level=high-school`}
+                  href={competitionLevelPath(competitionSlug, "high-school")}
                   className={`level-toggle-btn ${selectedLevel === "high-school" ? "active" : ""}`}
                 >
                   High School
@@ -207,7 +207,7 @@ export default async function CompetitionPage({
                   <Link
                     key={category}
                     className="subject-card"
-                    href={`${practicePath(competitionSlug, selectedLevel ?? "middle-school")}?subject=${encodeURIComponent(category)}`}
+                    href={practiceSubjectPath(competitionSlug, selectedLevel ?? "middle-school", category)}
                   >
                     <div className="subject-card-icon">{emoji}</div>
                     <h4>{category}</h4>

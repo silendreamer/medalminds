@@ -12,6 +12,7 @@ interface TestBuilderProps {
   level: string;
   levelLabel: string;
   subjects: SubjectOption[];
+  preselectedSubject?: string;
 }
 
 const SIZE_OPTIONS = [
@@ -33,8 +34,9 @@ export function TestBuilder({
   level,
   levelLabel,
   subjects,
+  preselectedSubject,
 }: TestBuilderProps) {
-  const [subject, setSubject] = useState<string | null>(null);
+  const [subject, setSubject] = useState<string | null>(preselectedSubject ?? null);
   const [size, setSize] = useState<string | null>(null);
 
   const canStart = subject !== null && size !== null;
@@ -44,10 +46,8 @@ export function TestBuilder({
   function handleStart() {
     if (!canStart) return;
     const actualSize = size === "full" ? 50 : Number(size);
-    const params = new URLSearchParams();
-    if (subject) params.set("subject", subject);
-    params.set("size", String(actualSize));
-    window.location.href = `/${competitionSlug}/${level}/tests?${params.toString()}`;
+    const subjectSlug = subject!.toLowerCase().replace(/[\s&]+/g, "-");
+    window.location.href = `/${competitionSlug}/${level}/tests/subject/${subjectSlug}?size=${actualSize}`;
   }
 
   return (
