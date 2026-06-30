@@ -138,9 +138,9 @@ export const scienceBowlMiddleSchoolSubjects: ScienceBowlCurriculumSubject[] = [
   },
   {
     slug: "earth-and-space-science",
-    name: "Earth and Space Science",
+    name: "Earth and Space",
     shortDescription: "Earth systems, geology, atmosphere, and astronomy — the standard middle-school survey topics that show up across Science Bowl rounds.",
-    whyItMatters: "Earth and Space Science is one of the easiest areas for teams to turn broad school knowledge into real Science Bowl points quickly.",
+    whyItMatters: "Earth and Space is one of the easiest areas for teams to turn broad school knowledge into real Science Bowl points quickly.",
     highYieldTopics: ["Plate tectonics", "Weather vs climate", "Solar system", "Stars", "Geologic time scale"],
     sources: ["Heath Earth Science", "Glencoe Earth Science", "Tarbuck & Lutgens", "SEEDS Foundations of Astronomy"],
     grades: [

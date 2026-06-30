@@ -15,7 +15,7 @@ export const metadata: Metadata = buildMetadata({
 const rulesUrl = "https://science.osti.gov/-/media/wdts/nsb/pdf/NSB-Resources/Rules2026.pdf";
 const doeUrl = "https://www.energy.gov/topics/national-science-bowl";
 
-const topics = ["Biology", "Chemistry", "Earth and Space Science", "Physics", "Energy", "Mathematics"];
+const topics = ["Biology", "Chemistry", "Earth and Space", "Physics", "Energy", "Mathematics"];
 
 const quickFacts = [
   { label: "Sponsor", value: "U.S. Department of Energy", icon: Trophy },

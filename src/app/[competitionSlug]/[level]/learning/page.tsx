@@ -88,7 +88,7 @@ export default async function LearningPage({
       "Biology": "🧬",
       "Chemistry": "⚗️",
       "Physics": "⚛️",
-      "Earth and Space Science": "🌍",
+      "Earth and Space": "🌍",
       "Energy": "⚡",
       "Math": "∑"
     };

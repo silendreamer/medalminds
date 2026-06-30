@@ -8,7 +8,7 @@ export const competitions: Competition[] = [
     description:
       "Train for buzzer-style science rounds with concise explanations, mixed categories, and quick recall drills.",
     subdomain: "science-bowl",
-    subjects: ["Biology", "Chemistry", "Physics", "Earth and Space Science", "Energy", "Math"]
+    subjects: ["Biology", "Chemistry", "Physics", "Earth and Space", "Energy", "Math"]
   },
   {
     slug: "science-olympiad",

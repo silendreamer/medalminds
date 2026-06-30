@@ -129,7 +129,7 @@ export function structuredData() {
           "@id": `${siteUrl}/#organization`
         },
         educationalLevel: ["Middle School", "High School"],
-        teaches: ["Science Bowl", "National Science Bowl", "Biology", "Chemistry", "Physics", "Energy", "Earth and Space Science", "Mathematics"]
+        teaches: ["Science Bowl", "National Science Bowl", "Biology", "Chemistry", "Physics", "Energy", "Earth and Space", "Mathematics"]
       }
     ]
   };
