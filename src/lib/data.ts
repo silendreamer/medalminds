@@ -305,6 +305,8 @@ export async function getLessonsByCompetition(
         title: lesson.title,
         subject: lesson.subject,
         level: lesson.level,
+        topicSlug: lesson.topicSlug || "",
+        subtopic: lesson.subtopic || "",
         estimatedMinutes: lesson.estimatedMinutes || 10,
         summary: lesson.summary || "",
         keyConcepts: lesson.keyConcepts || [],
@@ -336,6 +338,8 @@ export async function getLessonsByIds(lessonIds: string[], competitionSlug: Comp
         title: lesson.title,
         subject: lesson.subject,
         level: lesson.level,
+        topicSlug: lesson.topicSlug || "",
+        subtopic: lesson.subtopic || "",
         estimatedMinutes: lesson.estimatedMinutes || 10,
         summary: lesson.summary || "",
         keyConcepts: lesson.keyConcepts || [],
@@ -345,6 +349,34 @@ export async function getLessonsByIds(lessonIds: string[], competitionSlug: Comp
   }
 
   return localLessons.filter((lesson) => lessonIds.includes(lesson.id) && lesson.competitionSlug === competitionSlug);
+}
+
+export async function getLessonsBySubtopic(
+  competitionSlug: CompetitionSlug,
+  subtopic: string,
+  level: string
+): Promise<Lesson[]> {
+  if (competitionSlug === "science-bowl") {
+    const nsbLessons = await getNsbLessons();
+    return nsbLessons
+      .filter((lesson: any) => lesson.subtopic === subtopic && lesson.level === level)
+      .map((lesson: any) => ({
+        id: lesson.id,
+        slug: lesson.slug,
+        competitionSlug: "science-bowl" as const,
+        title: lesson.title,
+        subject: lesson.subject,
+        level: lesson.level,
+        topicSlug: lesson.topicSlug || "",
+        subtopic: lesson.subtopic || "",
+        estimatedMinutes: lesson.estimatedMinutes || 10,
+        summary: lesson.summary || "",
+        keyConcepts: lesson.keyConcepts || [],
+        contentSections: [],
+        reviewQuestions: [],
+      }));
+  }
+  return [];
 }
 
 export function getTestsByCompetition(slug: CompetitionSlug) {
@@ -366,6 +398,8 @@ export async function getLessonBySlug(slug: CompetitionSlug, lessonSlug: string)
       slug: lesson.slug,
       subject: lesson.subject,
       level: lesson.level,
+      topicSlug: lesson.topicSlug || "",
+      subtopic: lesson.subtopic || "",
       summary: lesson.summary ?? "",
       keyConcepts: lesson.keyConcepts,
       estimatedMinutes: lesson.estimatedMinutes ?? 0,

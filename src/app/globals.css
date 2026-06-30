@@ -3559,6 +3559,72 @@ p {
   animation: scale-in 300ms ease-out;
 }
 
+/* ── Subtopic study panel (below practice question card) ─────────────── */
+
+.subtopic-panel {
+  margin-top: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: var(--radius);
+  background: var(--gradient-glass-light);
+  backdrop-filter: var(--glass-backdrop);
+  padding: clamp(14px, 3vw, 20px);
+  animation: scale-in 250ms ease-out;
+}
+
+.subtopic-panel-header {
+  margin-bottom: 12px;
+}
+
+.subtopic-panel-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 4px 0 0;
+}
+
+.subtopic-lesson-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.subtopic-lesson-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: calc(var(--radius) * 0.7);
+  cursor: pointer;
+  text-align: left;
+  transition: background 150ms, border-color 150ms;
+}
+
+.subtopic-lesson-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.22);
+}
+
+.subtopic-lesson-title {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  flex: 1;
+}
+
+.subtopic-lesson-meta {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
 /* ── Course layout (Anthropic-style two-pane) ─────────────────────────── */
 
 .course-layout {

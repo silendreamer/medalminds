@@ -24,6 +24,7 @@ export interface PracticeQuestion {
   alternateAnswers?: string[];
   explanation: string;
   lessonIds?: string[];
+  subtopic?: string;
 }
 
 export interface Lesson {
@@ -33,6 +34,8 @@ export interface Lesson {
   title: string;
   subject: string;
   level: string;
+  topicSlug: string;
+  subtopic: string;
   estimatedMinutes: number;
   summary: string;
   keyConcepts: string[];

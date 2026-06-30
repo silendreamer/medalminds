@@ -1,9 +1,7 @@
 "use client";
 
-import Link from "next/link";
 import { useState } from "react";
 import type { Lesson, PracticeQuestion } from "@/types";
-import { lessonPath } from "@/lib/routes";
 import { QuestionText } from "@/components/QuestionText";
 
 function normalizeLevel(level: string): string {
@@ -24,18 +22,21 @@ function isCorrect(question: PracticeQuestion, answer: string) {
   return accepted.includes(normalize(answer));
 }
 
+interface ContentSection {
+  heading: string;
+  body: string;
+}
+
 export function SimplePracticeQuestion({
   question,
-  lesson,
-  linkedLessons,
+  subtopicLessons,
   questionNumber,
   totalQuestions,
   onNext,
   onSkip,
 }: {
   question: PracticeQuestion;
-  lesson?: Lesson;
-  linkedLessons?: Lesson[];
+  subtopicLessons?: Lesson[];
   questionNumber?: number;
   totalQuestions?: number;
   onNext?: (wasCorrect: boolean) => void;
@@ -43,8 +44,10 @@ export function SimplePracticeQuestion({
 }) {
   const [answer, setAnswer] = useState("");
   const [checked, setChecked] = useState(false);
-  const [lessonOpen, setLessonOpen] = useState(false);
-  const [selectedLesson, setSelectedLesson] = useState<Lesson | undefined>(lesson ?? linkedLessons?.[0]);
+  const [lessonModalOpen, setLessonModalOpen] = useState(false);
+  const [activeLesson, setActiveLesson] = useState<Lesson | null>(null);
+  const [activeLessonContent, setActiveLessonContent] = useState<ContentSection[] | null>(null);
+  const [contentLoading, setContentLoading] = useState(false);
   const correct = checked && isCorrect(question, answer);
 
   function handleChoice(choice: string) {
@@ -74,7 +77,28 @@ export function SimplePracticeQuestion({
     }
   }
 
-  const typeLabel = question.type === "multiple_choice" ? "Multiple choice" : "Short answer";
+  async function openLesson(lesson: Lesson) {
+    setActiveLesson(lesson);
+    setActiveLessonContent(null);
+    setLessonModalOpen(true);
+    setContentLoading(true);
+    try {
+      const res = await fetch(`/api/lesson-content?slug=${lesson.slug}&competition=${lesson.competitionSlug}`);
+      const data = await res.json();
+      setActiveLessonContent(data.contentSections ?? []);
+    } catch {
+      setActiveLessonContent([]);
+    } finally {
+      setContentLoading(false);
+    }
+  }
+
+  function closeModal() {
+    setLessonModalOpen(false);
+    setActiveLesson(null);
+    setActiveLessonContent(null);
+  }
+
   const categoryLabel = question.subject ?? "";
 
   return (
@@ -154,25 +178,6 @@ export function SimplePracticeQuestion({
             {question.explanation && (
               <p className="pq-feedback-explanation"><QuestionText html={question.explanation} /></p>
             )}
-            {(linkedLessons && linkedLessons.length > 1) && (
-              <div style={{ marginTop: "10px" }}>
-                <label style={{ fontSize: "0.8rem", fontWeight: 600, color: "#667085" }}>Related topic:</label>
-                <select
-                  value={selectedLesson?.id ?? ""}
-                  onChange={(e) => setSelectedLesson(linkedLessons.find((l) => l.id === e.target.value))}
-                  style={{ marginLeft: "8px", padding: "4px 8px", borderRadius: "6px", fontSize: "0.85rem" }}
-                >
-                  {linkedLessons.map((l) => (
-                    <option key={l.id} value={l.id}>{l.title}</option>
-                  ))}
-                </select>
-              </div>
-            )}
-            {selectedLesson && (
-              <button className="pq-learn-link" onClick={() => setLessonOpen(true)}>
-                Learn this topic →
-              </button>
-            )}
           </div>
         )}
 
@@ -185,34 +190,55 @@ export function SimplePracticeQuestion({
         </div>
       </article>
 
-      {lessonOpen && selectedLesson && (
-        <div className="modal-backdrop" role="dialog" aria-modal="true" aria-label={selectedLesson.title}>
+      {/* Subtopic study panel — appears below card after answering */}
+      {checked && subtopicLessons && subtopicLessons.length > 0 && (
+        <div className="subtopic-panel">
+          <div className="subtopic-panel-header">
+            <span className="eyebrow">Study</span>
+            <h3 className="subtopic-panel-title">{question.subtopic}</h3>
+          </div>
+          <ul className="subtopic-lesson-list">
+            {subtopicLessons.map((lesson) => (
+              <li key={lesson.id}>
+                <button className="subtopic-lesson-btn" onClick={() => openLesson(lesson)}>
+                  <span className="subtopic-lesson-title">{lesson.title}</span>
+                  <span className="subtopic-lesson-meta">{lesson.estimatedMinutes} min</span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {/* Full lesson modal */}
+      {lessonModalOpen && activeLesson && (
+        <div
+          className="modal-backdrop"
+          role="dialog"
+          aria-modal="true"
+          aria-label={activeLesson.title}
+          onClick={(e) => { if (e.target === e.currentTarget) closeModal(); }}
+        >
           <div className="modal-card stack">
             <div className="card-header">
               <div>
-                <span className="eyebrow">{selectedLesson.subject}</span>
-                <h2>{selectedLesson.title}</h2>
+                <span className="eyebrow">{activeLesson.subject} · {activeLesson.subtopic}</span>
+                <h2>{activeLesson.title}</h2>
               </div>
-              <button className="ghost-button" onClick={() => setLessonOpen(false)}>Close</button>
+              <button className="ghost-button" onClick={closeModal}>Close</button>
             </div>
-            <p className="card-copy">{selectedLesson.summary}</p>
-            <div className="content-section stack">
-              <h3>Key concepts</h3>
-              <div className="badge-list">
-                {selectedLesson.keyConcepts.map((concept) => (
-                  <span className="badge neutral" key={concept}>{concept}</span>
-                ))}
-              </div>
-            </div>
-            {selectedLesson.contentSections.slice(0, 1).map((section) => (
-              <div className="content-section" key={section.heading}>
-                <h3>{section.heading}</h3>
-                <p>{section.body}</p>
-              </div>
-            ))}
-            <Link className="button" href={lessonPath(selectedLesson.competitionSlug, normalizeLevel(selectedLesson.level), selectedLesson.slug)}>
-              Open full lesson
-            </Link>
+            {contentLoading ? (
+              <p className="card-copy">Loading…</p>
+            ) : activeLessonContent && activeLessonContent.length > 0 ? (
+              activeLessonContent.map((section) => (
+                <div className="content-section" key={section.heading}>
+                  <h3>{section.heading}</h3>
+                  <p>{section.body}</p>
+                </div>
+              ))
+            ) : (
+              <p className="card-copy">No content available.</p>
+            )}
           </div>
         </div>
       )}

@@ -7,8 +7,7 @@ import { SimplePracticeQuestion } from "./SimplePracticeQuestion";
 
 interface PracticeSessionProps {
   initialQuestion: PracticeQuestion;
-  lesson?: Lesson;
-  linkedLessons?: Lesson[];
+  subtopicLessons?: Lesson[];
   competitionSlug: string;
   level: string;
   subject?: string;
@@ -35,8 +34,7 @@ function saveStats(stats: { correct: number; incorrect: number; streak: number }
 
 export function PracticeSession({
   initialQuestion,
-  lesson,
-  linkedLessons,
+  subtopicLessons,
   competitionSlug,
   level,
   subject,
@@ -103,8 +101,7 @@ export function PracticeSession({
         )}
         <SimplePracticeQuestion
           question={initialQuestion}
-          lesson={lesson}
-          linkedLessons={linkedLessons}
+          subtopicLessons={subtopicLessons}
           onNext={handleNext}
           onSkip={handleSkip}
         />

@@ -5,8 +5,7 @@ import Link from "next/link";
 import {
   getCompetitionBySlug,
   getContentCountsForSubject,
-  getLessonsByCompetition,
-  getLessonsByIds,
+  getLessonsBySubtopic,
   getQuestionById,
   getRandomQuestionByCompetition,
   getScienceBowlMiddleSchoolCurriculumSubjects,
@@ -120,16 +119,11 @@ export default async function PracticePage({
   const question = q
     ? await getQuestionById(competitionSlug, q, subject, schoolLevel)
     : await getRandomQuestionByCompetition(competitionSlug, subject, schoolLevel);
-  const lessons = await getLessonsByCompetition(competitionSlug, subject, schoolLevel);
 
-  // Get linked lessons from question.lessonIds
-  let linkedLessons: typeof lessons = [];
-
-  if (question?.lessonIds && question.lessonIds.length > 0) {
-    linkedLessons = await getLessonsByIds(question.lessonIds, competitionSlug);
-  }
-
-  const learnMoreLesson = linkedLessons[0] ?? lessons[0];
+  const levelDisplay = schoolLevel === "MIDDLE_SCHOOL" ? "Middle School" : "High School";
+  const subtopicLessons = question?.subtopic
+    ? await getLessonsBySubtopic(competitionSlug, question.subtopic, levelDisplay)
+    : [];
 
   return (
     <section className="section practice-page-section">
@@ -137,8 +131,7 @@ export default async function PracticePage({
         {question ? (
           <PracticeSession
             initialQuestion={question}
-            lesson={learnMoreLesson}
-            linkedLessons={linkedLessons.length > 0 ? linkedLessons : undefined}
+            subtopicLessons={subtopicLessons}
             competitionSlug={competitionSlug}
             level={level}
             subject={subject}
