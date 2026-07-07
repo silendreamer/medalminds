@@ -18879,7 +18879,7 @@
     "subject": "Earth and Space",
     "topicSlug": "water-systems",
     "subtopic": "The Water Cycle",
-    "slug": "groundwater-aquifers",
+    "slug": "groundwater-aquifers-ms",
     "type": "Core Understanding",
     "estimatedMinutes": 11,
     "keyConcepts": [
@@ -19592,7 +19592,7 @@
     "subject": "Earth and Space",
     "topicSlug": "stars-universe",
     "subtopic": "The Big Bang & Cosmology",
-    "slug": "big-bang-theory",
+    "slug": "big-bang-theory-ms",
     "type": "Core Understanding",
     "estimatedMinutes": 13,
     "keyConcepts": [
@@ -21454,7 +21454,7 @@
     "subject": "Energy",
     "topicSlug": "electricity-grid",
     "subtopic": "How Electricity Is Generated",
-    "slug": "electromagnetic-induction",
+    "slug": "electromagnetic-induction-ms",
     "type": "Core Understanding",
     "estimatedMinutes": 12,
     "keyConcepts": [
@@ -27523,7 +27523,7 @@
     "subject": "Chemistry",
     "topicSlug": "chemical-reactions",
     "subtopic": "Reactants, Products & Balancing",
-    "slug": "balancing-chemical-equations",
+    "slug": "balancing-chemical-equations-ms",
     "type": "Core Understanding",
     "estimatedMinutes": 13,
     "keyConcepts": [
@@ -30272,7 +30272,7 @@
     "subject": "Chemistry",
     "topicSlug": "chemical-reactions",
     "subtopic": "Types of Chemical Reactions",
-    "slug": "types-of-chemical-reactions",
+    "slug": "types-of-chemical-reactions-ms",
     "type": "Core Understanding",
     "estimatedMinutes": 10,
     "keyConcepts": [
@@ -31097,7 +31097,7 @@
     "subject": "Biology",
     "topicSlug": "microbiology-infectious-diseases",
     "subtopic": "Microbiology & Infectious Diseases",
-    "slug": "antibiotics-and-resistance",
+    "slug": "antibiotics-and-resistance-ms",
     "type": "Application",
     "estimatedMinutes": 15,
     "keyConcepts": [
@@ -31116,7 +31116,7 @@
     "subject": "Biology",
     "topicSlug": "experimental-design-methodology",
     "subtopic": "Experimental Design & Methodology",
-    "slug": "understanding-variables-in-experiments",
+    "slug": "understanding-variables-in-experiments-ms",
     "type": "Core Understanding",
     "estimatedMinutes": 12,
     "keyConcepts": [
@@ -31134,7 +31134,7 @@
     "subject": "Biology",
     "topicSlug": "experimental-design-methodology",
     "subtopic": "Experimental Design & Methodology",
-    "slug": "scientific-method-steps",
+    "slug": "scientific-method-steps-ms",
     "type": "Core Understanding",
     "estimatedMinutes": 12,
     "keyConcepts": [
@@ -31207,7 +31207,7 @@
     "subject": "Biology",
     "topicSlug": "cell-structure-function",
     "subtopic": "Cell Structure & Function",
-    "slug": "cell-membrane-structure-function",
+    "slug": "cell-membrane-structure-function-ms",
     "type": "Core Understanding",
     "estimatedMinutes": 10,
     "keyConcepts": [
@@ -31351,7 +31351,7 @@
     "subject": "Biology",
     "topicSlug": "evolution-natural-history",
     "subtopic": "Evolution & Natural History",
-    "slug": "evidence-for-evolution",
+    "slug": "evidence-for-evolution-ms",
     "type": "Core Understanding",
     "estimatedMinutes": 12,
     "keyConcepts": [
@@ -31572,7 +31572,7 @@
     "subject": "Biology",
     "topicSlug": "plant-hormones-growth",
     "subtopic": "Plant Hormones & Growth",
-    "slug": "introduction-to-plant-hormones",
+    "slug": "introduction-to-plant-hormones-ms",
     "type": "Core Understanding",
     "estimatedMinutes": 12,
     "keyConcepts": [
@@ -31646,7 +31646,7 @@
     "subject": "Biology",
     "topicSlug": "viral-biology",
     "subtopic": "Viral Biology",
-    "slug": "virus-structure-classification",
+    "slug": "virus-structure-classification-ms",
     "type": "Core Understanding",
     "estimatedMinutes": 12,
     "keyConcepts": [
@@ -31920,7 +31920,7 @@
     "subject": "Physics",
     "topicSlug": "experimental-design-and-variables",
     "subtopic": "Experimental Design and Variables",
-    "slug": "understanding-variables-in-experiments",
+    "slug": "understanding-variables-in-experiments-ms-2",
     "type": "Core Understanding",
     "estimatedMinutes": 12,
     "keyConcepts": [
@@ -32010,7 +32010,7 @@
     "subject": "Physics",
     "topicSlug": "hypothesis-and-scientific-method",
     "subtopic": "Hypothesis and Scientific Method",
-    "slug": "scientific-method-steps",
+    "slug": "scientific-method-steps-ms-2",
     "type": "Core Understanding",
     "estimatedMinutes": 12,
     "keyConcepts": [
@@ -33603,7 +33603,7 @@
     "subject": "Chemistry",
     "topicSlug": "chemical-equilibrium",
     "subtopic": "Chemical Equilibrium",
-    "slug": "le-chateliers-principle",
+    "slug": "le-chateliers-principle-2",
     "type": "Core Understanding",
     "estimatedMinutes": 12,
     "keyConcepts": [
@@ -34639,7 +34639,7 @@
     "subject": "Physics",
     "topicSlug": "quantum-mechanics-and-particle-physics",
     "subtopic": "Quantum Mechanics and Particle Physics",
-    "slug": "introduction-to-quantum-mechanics",
+    "slug": "introduction-to-quantum-mechanics-2",
     "type": "Core Understanding",
     "estimatedMinutes": 12,
     "keyConcepts": [
@@ -34803,7 +34803,7 @@
     "subject": "Physics",
     "topicSlug": "kinematics-dynamics-rotational-motion",
     "subtopic": "Kinematics and Dynamics of Rotational Motion",
-    "slug": "conservation-angular-momentum",
+    "slug": "conservation-angular-momentum-2",
     "type": "Competition Extension",
     "estimatedMinutes": 10,
     "keyConcepts": [
@@ -35278,7 +35278,7 @@
     "subject": "Physics",
     "topicSlug": "conservation-laws-in-physics",
     "subtopic": "Conservation Laws in Physics",
-    "slug": "conservation-of-momentum",
+    "slug": "conservation-of-momentum-2",
     "type": "Core Understanding",
     "estimatedMinutes": 12,
     "keyConcepts": [
@@ -36353,7 +36353,7 @@
     "subject": "Math",
     "topicSlug": "prime-factorization",
     "subtopic": "Prime Factorization",
-    "slug": "understanding-prime-numbers",
+    "slug": "understanding-prime-numbers-2",
     "type": "Core Understanding",
     "estimatedMinutes": 12,
     "keyConcepts": [
@@ -37386,7 +37386,7 @@
     "subject": "Energy",
     "topicSlug": "spectroscopy-characterization-techniques",
     "subtopic": "Spectroscopy & Characterization Techniques",
-    "slug": "introduction-to-spectroscopy",
+    "slug": "introduction-to-spectroscopy-2",
     "type": "Core Understanding",
     "estimatedMinutes": 12,
     "keyConcepts": [
@@ -37767,7 +37767,7 @@
     "subject": "Energy",
     "topicSlug": "polymer-chemistry-synthesis",
     "subtopic": "Polymer Chemistry & Synthesis",
-    "slug": "introduction-to-polymers",
+    "slug": "introduction-to-polymers-2",
     "type": "Core Understanding",
     "estimatedMinutes": 12,
     "keyConcepts": [
@@ -37803,7 +37803,7 @@
     "subject": "Energy",
     "topicSlug": "polymer-chemistry-synthesis",
     "subtopic": "Polymer Chemistry & Synthesis",
-    "slug": "applications-of-polymers",
+    "slug": "applications-of-polymers-2",
     "type": "Application",
     "estimatedMinutes": 12,
     "keyConcepts": [
@@ -37839,7 +37839,7 @@
     "subject": "Energy",
     "topicSlug": "enzyme-catalysis-biochemistry",
     "subtopic": "Enzyme Catalysis & Biochemistry",
-    "slug": "factors-affecting-enzyme-activity",
+    "slug": "factors-affecting-enzyme-activity-2",
     "type": "Application",
     "estimatedMinutes": 15,
     "keyConcepts": [
@@ -37875,7 +37875,7 @@
     "subject": "Energy",
     "topicSlug": "thermodynamics-phase-transitions",
     "subtopic": "Thermodynamics & Phase Transitions",
-    "slug": "laws-of-thermodynamics",
+    "slug": "laws-of-thermodynamics-2",
     "type": "Core Understanding",
     "estimatedMinutes": 12,
     "keyConcepts": [
@@ -37911,7 +37911,7 @@
     "subject": "Energy",
     "topicSlug": "statistical-mechanics-entropy",
     "subtopic": "Statistical Mechanics & Entropy",
-    "slug": "introduction-to-statistical-mechanics",
+    "slug": "introduction-to-statistical-mechanics-2",
     "type": "Core Understanding",
     "estimatedMinutes": 12,
     "keyConcepts": [

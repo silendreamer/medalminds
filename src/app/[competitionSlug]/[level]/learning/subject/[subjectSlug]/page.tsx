@@ -61,8 +61,9 @@ export default async function SubjectCoursePage({
     );
   }
 
+  const levelDisplay = level === "middle-school" ? "Middle School" : "High School";
   const activeLesson = lessonSlug
-    ? await getLessonBySlug(competitionSlug, lessonSlug)
+    ? await getLessonBySlug(competitionSlug, lessonSlug, levelDisplay)
     : null;
 
   // Find topic/subtopic for active lesson to show in breadcrumb

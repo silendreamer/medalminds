@@ -389,10 +389,13 @@ export function getTestsByCompetition(slug: CompetitionSlug) {
   return Promise.resolve(localTests.filter((test) => test.competitionSlug === slug));
 }
 
-export async function getLessonBySlug(slug: CompetitionSlug, lessonSlug: string) {
+export async function getLessonBySlug(slug: CompetitionSlug, lessonSlug: string, levelHint?: string) {
   if (slug === "science-bowl") {
     const lessons = await getNsbLessons();
-    const lesson = lessons.find((l: any) => l.slug === lessonSlug);
+    const matches = lessons.filter((l: any) => l.slug === lessonSlug);
+    const lesson = levelHint
+      ? (matches.find((l: any) => l.level === levelHint) ?? matches[0])
+      : matches[0];
     if (!lesson) return undefined;
 
     const contentSections = await getNsbLessonContent(lesson.contentPath);
