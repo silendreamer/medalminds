@@ -2844,11 +2844,18 @@ p {
 }
 
 .buzzer-start-grid {
-  width: min(760px, 100%);
-  margin: 0 auto;
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 18px;
+  width: min(760px, 100%) !important;
+  margin: 0 auto !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  margin-bottom: 0 !important;
+}
+
+.buzzer-hub-card {
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  font-size: inherit;
 }
 
 .buzzer-start-card {
