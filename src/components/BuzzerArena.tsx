@@ -587,8 +587,8 @@ export function BuzzerArena() {
         <h1>Buzzer Arena</h1>
         <p className="subtitle">Run live Science Bowl buzzer rounds — head-to-head, toss-up format, real questions.</p>
       </div>
-      <div className="hub-card-grid buzzer-start-grid">
-        <button className="hub-card buzzer-hub-card" disabled={busy} onClick={beginSetup} type="button">
+      <div className="buzzer-start-grid">
+        <button className="buzzer-hub-card" disabled={busy} onClick={beginSetup} type="button">
           <div className="hub-card-icon">⚡</div>
           <h3>Create a game</h3>
           <p>Set team names, school level, rounds, and clock — then share the room code with players.</p>
@@ -597,7 +597,7 @@ export function BuzzerArena() {
             <span className="hub-card-arrow">Set up →</span>
           </div>
         </button>
-        <button className="hub-card buzzer-hub-card" onClick={() => setScreen("join")} type="button">
+        <button className="buzzer-hub-card" onClick={() => setScreen("join")} type="button">
           <div className="hub-card-icon">🎯</div>
           <h3>Join a game</h3>
           <p>Enter a game code from your organizer and pick a seat on your team.</p>
