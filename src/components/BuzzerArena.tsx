@@ -412,12 +412,12 @@ export function BuzzerArena() {
   if (screen === "setup") {
     return (
       <div className="buzzer-room-shell">
-        <div className="buzzer-room-modal card spacious">
+        <div className="buzzer-room-modal card buzzer-setup-modal">
           <div className="buzzer-setup-header">
             <div>
               <span className="eyebrow">Match setup</span>
-              <h1>Set up the match</h1>
-              <p className="subtitle">Complete these steps before you create the room.</p>
+              <h2>Set up the match</h2>
+              <p className="buzzer-setup-subtitle">Complete these steps before you create the room.</p>
             </div>
             <div className="buzzer-stepper" aria-label="Match setup steps">
               {[1, 2].map((step) => (
@@ -441,7 +441,7 @@ export function BuzzerArena() {
                     onChange={(event) => setSetup((current) => ({ ...current, teamAName: event.target.value }))}
                     placeholder="Team A"
                   />
-                  <p className="subtitle">Pick anything fun. You can rename this later.</p>
+                  <p className="buzzer-setup-hint">Pick anything fun. You can rename this later.</p>
                 </label>
                 <label className="card buzzer-setup-card highlight">
                   <span className="buzzer-team-letter">B</span>
@@ -451,7 +451,7 @@ export function BuzzerArena() {
                     onChange={(event) => setSetup((current) => ({ ...current, teamBName: event.target.value }))}
                     placeholder="Team B"
                   />
-                  <p className="subtitle">Pick anything fun. You can rename this later.</p>
+                  <p className="buzzer-setup-hint">Pick anything fun. You can rename this later.</p>
                 </label>
               </div>
               <div className="buzzer-level-row">
