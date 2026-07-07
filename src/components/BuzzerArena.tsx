@@ -366,194 +366,6 @@ export function BuzzerArena() {
     setSetupStep((current) => (current === 2 ? 1 : 1));
   }
 
-  if (screen === "ready" && readyRoom) {
-    return (
-      <div className="buzzer-room-shell">
-        <div className="buzzer-room-modal card spacious">
-          <div className="buzzer-room-modal-header">
-            <div>
-              <span className="eyebrow">Organizer setup</span>
-              <h1>Your game is ready</h1>
-            </div>
-            <button className="ghost-button" onClick={() => setScreen("start")} type="button">
-              Close
-            </button>
-          </div>
-          <p className="subtitle">Share this link with your teams. Save the password so you can rejoin if you close the page.</p>
-          <div className="badge-list">
-            <span className="badge">{readyRoom.room.teamAName}</span>
-            <span className="badge neutral">{readyRoom.room.teamBName}</span>
-            <span className="badge neutral">{readyRoom.room.totalRounds} rounds</span>
-            <span className="badge neutral">{formatTimer(readyRoom.room.timerDurationMs)} round clock</span>
-            <span className="badge neutral">
-              {readyRoom.room.schoolLevel === "MIDDLE_SCHOOL" ? "Middle School" : "High School"}
-            </span>
-          </div>
-          <label className="form-field">
-            <span>Share link</span>
-            <div className="buzzer-copy-row">
-              <input readOnly value={readyRoom.shareUrl} />
-              <button className="ghost-button" onClick={() => copy(readyRoom.shareUrl)} type="button">Copy</button>
-            </div>
-          </label>
-          <label className="form-field">
-            <span>Organizer password</span>
-            <div className="buzzer-copy-row">
-              <input readOnly value={readyRoom.organizerPassword} />
-              <button className="ghost-button" onClick={() => copy(readyRoom.organizerPassword)} type="button">Copy</button>
-            </div>
-          </label>
-          <button className="button button-lg" onClick={enterOrganizerRoom} type="button">Enter game room</button>
-        </div>
-      </div>
-    );
-  }
-
-  if (screen === "setup") {
-    return (
-      <div className="buzzer-room-shell">
-        <div className="buzzer-room-modal card buzzer-setup-modal">
-          <div className="buzzer-setup-header">
-            <div>
-              <span className="eyebrow">Match setup</span>
-              <h2>Set up the match</h2>
-              <p className="buzzer-setup-subtitle">Complete these steps before you create the room.</p>
-            </div>
-            <div className="buzzer-stepper" aria-label="Match setup steps">
-              {[1, 2].map((step) => (
-                <div className={`buzzer-step ${setupStep >= step ? "active" : ""}`} key={step}>
-                  <span>{step}</span>
-                  <strong>{step === 1 ? "Teams" : "Settings"}</strong>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {setupStep === 1 && (
-            <>
-              <div className="buzzer-setup-grid">
-                <label className="card buzzer-setup-card">
-                  <span className="buzzer-team-letter">A</span>
-                  <span className="eyebrow">Team name</span>
-                  <input
-                    autoFocus
-                    value={setup.teamAName}
-                    onChange={(event) => setSetup((current) => ({ ...current, teamAName: event.target.value }))}
-                    placeholder="Team A"
-                  />
-                  <p className="buzzer-setup-hint">Pick anything fun. You can rename this later.</p>
-                </label>
-                <label className="card buzzer-setup-card highlight">
-                  <span className="buzzer-team-letter">B</span>
-                  <span className="eyebrow">Team name</span>
-                  <input
-                    value={setup.teamBName}
-                    onChange={(event) => setSetup((current) => ({ ...current, teamBName: event.target.value }))}
-                    placeholder="Team B"
-                  />
-                  <p className="buzzer-setup-hint">Pick anything fun. You can rename this later.</p>
-                </label>
-              </div>
-              <div className="buzzer-level-row">
-                <span className="eyebrow">Question level <span className="buzzer-level-required">required</span></span>
-                <div className="buzzer-level-buttons">
-                  {([
-                    { value: "MIDDLE_SCHOOL", label: "Middle School" },
-                    { value: "HIGH_SCHOOL", label: "High School" }
-                  ] as const).map(({ value, label }) => (
-                    <button
-                      key={label}
-                      className={`buzzer-level-btn${setup.schoolLevel === value ? " active" : ""}`}
-                      onClick={() => setSetup((current) => ({ ...current, schoolLevel: value }))}
-                      type="button"
-                    >
-                      {label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </>
-          )}
-
-          {setupStep === 2 && (
-            <div className="buzzer-setup-grid settings">
-              <label className="card buzzer-setup-card">
-                <span className="eyebrow">Rounds</span>
-                <strong>Number of rounds</strong>
-                <input
-                  inputMode="numeric"
-                  min={1}
-                  max={20}
-                  type="number"
-                  value={setup.totalRounds}
-                  onChange={(event) => setSetup((current) => ({ ...current, totalRounds: Number(event.target.value || 3) }))}
-                />
-              </label>
-              <label className="card buzzer-setup-card highlight">
-                <span className="eyebrow">Clock</span>
-                <strong>Time limit per round</strong>
-                <input
-                  inputMode="numeric"
-                  min={1}
-                  max={60}
-                  type="number"
-                  value={setup.timerMinutes}
-                  onChange={(event) => setSetup((current) => ({ ...current, timerMinutes: Number(event.target.value || 10) }))}
-                />
-                <p className="subtitle">Enter minutes. The room timer counts down the full round length.</p>
-              </label>
-            </div>
-          )}
-
-          <div className="buzzer-form-actions">
-            <button className="ghost-button" onClick={setupStep === 1 ? () => setScreen("start") : previousStep} type="button">
-              {setupStep === 1 ? "Back" : "Previous"}
-            </button>
-            {setupStep === 1 ? (
-              <button className="button" disabled={!setup.schoolLevel} onClick={nextStep} type="button">
-                Continue
-              </button>
-            ) : (
-              <button className="button" disabled={busy} onClick={createRoom} type="button">
-                Create game
-              </button>
-            )}
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (screen === "join") {
-    return (
-      <div className="buzzer-room-shell">
-        <div className="buzzer-room-modal card spacious">
-          <div>
-            <span className="eyebrow">Join room</span>
-            <h1>Join a game</h1>
-          </div>
-          <label className="form-field">
-            <span>Game code</span>
-            <input value={roomCode} onChange={(event) => setRoomCode(event.target.value.toUpperCase())} placeholder="E.G. 7K2QPM" />
-          </label>
-          <label className="form-field">
-            <span>Your name</span>
-            <input value={participantName} onChange={(event) => setParticipantName(event.target.value)} placeholder="e.g. Priya" />
-          </label>
-          <label className="form-field">
-            <span>Password <em>(optional)</em></span>
-            <input value={organizerPassword} onChange={(event) => setOrganizerPassword(event.target.value)} placeholder="only needed to rejoin as organizer" />
-          </label>
-          {error && <p className="feedback bad">{error}</p>}
-          <div className="buzzer-form-actions">
-            <button className="ghost-button" onClick={() => setScreen("start")} type="button">Back</button>
-            <button className="button" disabled={busy} onClick={joinRoom} type="button">Join game</button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   if (screen === "room" && room) {
     return isOrganizer ? (
       <OrganizerConsole
@@ -579,6 +391,8 @@ export function BuzzerArena() {
       />
     );
   }
+
+  const showOverlay = screen === "setup" || screen === "join" || screen === "ready";
 
   return (
     <div className="buzzer-room-shell">
@@ -608,6 +422,188 @@ export function BuzzerArena() {
         </button>
       </div>
       {error && <p className="feedback bad">{error}</p>}
+
+      {showOverlay && (
+        <div className="buzzer-overlay" role="dialog" aria-modal="true">
+          <div className="buzzer-overlay-backdrop" onClick={() => setScreen("start")} />
+
+          {screen === "setup" && (
+            <div className="buzzer-setup-modal">
+              <div className="buzzer-setup-header">
+                <div>
+                  <span className="eyebrow">Match setup</span>
+                  <h2>Set up the match</h2>
+                  <p className="buzzer-setup-subtitle">Complete these steps before you create the room.</p>
+                </div>
+                <div className="buzzer-stepper" aria-label="Match setup steps">
+                  {[1, 2].map((step) => (
+                    <div className={`buzzer-step ${setupStep >= step ? "active" : ""}`} key={step}>
+                      <span>{step}</span>
+                      <strong>{step === 1 ? "Teams" : "Settings"}</strong>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {setupStep === 1 && (
+                <>
+                  <div className="buzzer-setup-grid">
+                    <label className="buzzer-setup-card">
+                      <span className="buzzer-team-letter">A</span>
+                      <span className="eyebrow">Team name</span>
+                      <input
+                        autoFocus
+                        value={setup.teamAName}
+                        onChange={(event) => setSetup((current) => ({ ...current, teamAName: event.target.value }))}
+                        placeholder="Team A"
+                      />
+                      <p className="buzzer-setup-hint">Pick anything fun. You can rename this later.</p>
+                    </label>
+                    <label className="buzzer-setup-card highlight">
+                      <span className="buzzer-team-letter">B</span>
+                      <span className="eyebrow">Team name</span>
+                      <input
+                        value={setup.teamBName}
+                        onChange={(event) => setSetup((current) => ({ ...current, teamBName: event.target.value }))}
+                        placeholder="Team B"
+                      />
+                      <p className="buzzer-setup-hint">Pick anything fun. You can rename this later.</p>
+                    </label>
+                  </div>
+                  <div className="buzzer-level-row">
+                    <span className="eyebrow">Question level <span className="buzzer-level-required">required</span></span>
+                    <div className="buzzer-level-buttons">
+                      {([
+                        { value: "MIDDLE_SCHOOL", label: "Middle School" },
+                        { value: "HIGH_SCHOOL", label: "High School" }
+                      ] as const).map(({ value, label }) => (
+                        <button
+                          key={label}
+                          className={`buzzer-level-btn${setup.schoolLevel === value ? " active" : ""}`}
+                          onClick={() => setSetup((current) => ({ ...current, schoolLevel: value }))}
+                          type="button"
+                        >
+                          {label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {setupStep === 2 && (
+                <div className="buzzer-setup-grid settings">
+                  <label className="buzzer-setup-card">
+                    <span className="eyebrow">Rounds</span>
+                    <strong>Number of rounds</strong>
+                    <input
+                      inputMode="numeric"
+                      min={1}
+                      max={20}
+                      type="number"
+                      value={setup.totalRounds}
+                      onChange={(event) => setSetup((current) => ({ ...current, totalRounds: Number(event.target.value || 3) }))}
+                    />
+                  </label>
+                  <label className="buzzer-setup-card highlight">
+                    <span className="eyebrow">Clock</span>
+                    <strong>Time limit per round</strong>
+                    <input
+                      inputMode="numeric"
+                      min={1}
+                      max={60}
+                      type="number"
+                      value={setup.timerMinutes}
+                      onChange={(event) => setSetup((current) => ({ ...current, timerMinutes: Number(event.target.value || 10) }))}
+                    />
+                    <p className="subtitle">Enter minutes. The room timer counts down the full round length.</p>
+                  </label>
+                </div>
+              )}
+
+              <div className="buzzer-form-actions">
+                <button className="ghost-button" onClick={setupStep === 1 ? () => setScreen("start") : previousStep} type="button">
+                  {setupStep === 1 ? "Cancel" : "Previous"}
+                </button>
+                {setupStep === 1 ? (
+                  <button className="button" disabled={!setup.schoolLevel} onClick={nextStep} type="button">
+                    Continue
+                  </button>
+                ) : (
+                  <button className="button" disabled={busy} onClick={createRoom} type="button">
+                    Create game
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
+
+          {screen === "join" && (
+            <div className="buzzer-room-modal card spacious">
+              <div>
+                <span className="eyebrow">Join room</span>
+                <h1>Join a game</h1>
+              </div>
+              <label className="form-field">
+                <span>Game code</span>
+                <input value={roomCode} onChange={(event) => setRoomCode(event.target.value.toUpperCase())} placeholder="E.G. 7K2QPM" />
+              </label>
+              <label className="form-field">
+                <span>Your name</span>
+                <input value={participantName} onChange={(event) => setParticipantName(event.target.value)} placeholder="e.g. Priya" />
+              </label>
+              <label className="form-field">
+                <span>Password <em>(optional)</em></span>
+                <input value={organizerPassword} onChange={(event) => setOrganizerPassword(event.target.value)} placeholder="only needed to rejoin as organizer" />
+              </label>
+              {error && <p className="feedback bad">{error}</p>}
+              <div className="buzzer-form-actions">
+                <button className="ghost-button" onClick={() => setScreen("start")} type="button">Cancel</button>
+                <button className="button" disabled={busy} onClick={joinRoom} type="button">Join game</button>
+              </div>
+            </div>
+          )}
+
+          {screen === "ready" && readyRoom && (
+            <div className="buzzer-room-modal card spacious">
+              <div className="buzzer-room-modal-header">
+                <div>
+                  <span className="eyebrow">Organizer setup</span>
+                  <h1>Your game is ready</h1>
+                </div>
+                <button className="ghost-button" onClick={() => setScreen("start")} type="button">
+                  Close
+                </button>
+              </div>
+              <p className="subtitle">Share this link with your teams. Save the password so you can rejoin if you close the page.</p>
+              <div className="badge-list">
+                <span className="badge">{readyRoom.room.teamAName}</span>
+                <span className="badge neutral">{readyRoom.room.teamBName}</span>
+                <span className="badge neutral">{readyRoom.room.totalRounds} rounds</span>
+                <span className="badge neutral">{formatTimer(readyRoom.room.timerDurationMs)} round clock</span>
+                <span className="badge neutral">
+                  {readyRoom.room.schoolLevel === "MIDDLE_SCHOOL" ? "Middle School" : "High School"}
+                </span>
+              </div>
+              <label className="form-field">
+                <span>Share link</span>
+                <div className="buzzer-copy-row">
+                  <input readOnly value={readyRoom.shareUrl} />
+                  <button className="ghost-button" onClick={() => copy(readyRoom.shareUrl)} type="button">Copy</button>
+                </div>
+              </label>
+              <label className="form-field">
+                <span>Organizer password</span>
+                <div className="buzzer-copy-row">
+                  <input readOnly value={readyRoom.organizerPassword} />
+                  <button className="ghost-button" onClick={() => copy(readyRoom.organizerPassword)} type="button">Copy</button>
+                </div>
+              </label>
+              <button className="button button-lg" onClick={enterOrganizerRoom} type="button">Enter game room</button>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

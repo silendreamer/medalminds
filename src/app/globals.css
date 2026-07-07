@@ -2970,8 +2970,37 @@ p {
   margin: 0 auto;
 }
 
+.buzzer-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.buzzer-overlay-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(10, 18, 40, 0.45);
+  backdrop-filter: blur(4px);
+}
+
+.buzzer-overlay > * {
+  position: relative;
+  z-index: 1;
+  max-height: calc(100vh - 48px);
+  overflow-y: auto;
+}
+
 .buzzer-setup-modal {
-  padding: 28px 32px;
+  padding: 36px 40px;
+  width: min(700px, 100%);
+  background: #fff;
+  border: 1px solid #e7e9ee;
+  border-radius: 16px;
+  box-shadow: 0 8px 40px rgba(10, 18, 40, 0.18);
 }
 
 .buzzer-setup-subtitle,
@@ -2987,9 +3016,9 @@ p {
   align-items: flex-start;
   justify-content: space-between;
   gap: 24px;
-  padding-bottom: 20px;
+  padding-bottom: 24px;
   border-bottom: 1px solid #f0f0f0;
-  margin-bottom: 4px;
+  margin-bottom: 24px;
 }
 
 .buzzer-setup-header h2 {
@@ -3048,7 +3077,8 @@ p {
 .buzzer-setup-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
+  gap: 16px;
+  margin-bottom: 8px;
 }
 
 .buzzer-setup-grid.settings {
@@ -3057,12 +3087,13 @@ p {
 
 .buzzer-setup-card {
   display: grid;
-  gap: 10px;
+  gap: 12px;
   align-content: start;
   background: #f9f9f9;
   border: 1px solid #e0e0e0;
-  border-radius: 10px;
-  padding: 16px;
+  border-radius: 12px;
+  padding: 24px;
+  min-height: 180px;
 }
 
 .buzzer-setup-card input {
@@ -3106,7 +3137,8 @@ p {
 
 .buzzer-level-row {
   display: grid;
-  gap: 10px;
+  gap: 12px;
+  margin-top: 8px;
 }
 
 .buzzer-level-required {
@@ -3155,6 +3187,12 @@ p {
   justify-content: space-between;
   gap: 14px;
   flex-wrap: wrap;
+}
+
+.buzzer-setup-modal .buzzer-form-actions {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid #f0f0f0;
 }
 
 .buzzer-room-modal-header > div,
