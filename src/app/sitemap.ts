@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 import { competitions } from "@/data/competitions";
 import { scienceBowlMiddleSchoolSubjects } from "@/data/scienceBowlMiddleSchoolCurriculum";
 
-const BASE_URL = "https://medalminds.com";
+const BASE_URL = "https://medalminds.vercel.app";
 
 const LEVELS = ["middle-school", "high-school"] as const;
 
