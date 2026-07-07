@@ -2783,7 +2783,7 @@ p {
 
 .buzzer-page .subtitle,
 .buzzer-page p {
-  color: var(--muted);
+  color: #666666;
 }
 
 .buzzer-page h1,
@@ -2876,21 +2876,21 @@ p {
 }
 
 .buzzer-start-card span:last-child {
-  color: var(--muted);
+  color: #666666;
 }
 
 .buzzer-start-icon,
 .buzzer-team-letter {
   width: 44px;
   height: 44px;
-  border-radius: 12px;
+  border-radius: 10px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: var(--navy);
-  color: white;
+  background: oklch(0.94 0.02 253);
+  color: var(--sky-blue);
   font-weight: 900;
-  box-shadow: var(--shadow-sm);
+  box-shadow: none;
 }
 
 .buzzer-room-modal {
