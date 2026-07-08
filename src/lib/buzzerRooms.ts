@@ -133,11 +133,11 @@ function effectiveStatus(room: RoomWithRelations) {
   return room.status;
 }
 
-function resumeStatus(room: RoomWithRelations) {
-  if (isBonus(room)) return "BONUS";
-  if (room.buzzedSeatId) return "BUZZED";
-  if (room.questionClockStartedAt) return "RUNNING";
-  return "READING";
+function resumeStatus(room: RoomWithRelations): BuzzerRoomStatus {
+  if (isBonus(room)) return BuzzerRoomStatus.BONUS;
+  if (room.buzzedSeatId) return BuzzerRoomStatus.BUZZED;
+  if (room.questionClockStartedAt) return BuzzerRoomStatus.RUNNING;
+  return BuzzerRoomStatus.READING;
 }
 
 function findLocalQuestion(questionId: string | null | undefined): BuzzerQuestion | null {
@@ -291,13 +291,13 @@ async function includeRoomWithTimeout(code: string) {
     const update = await prisma.buzzerRoom.updateMany({
       where: {
         id: room.id,
-        status: { not: "ENDED" },
+        status: { not: BuzzerRoomStatus.ENDED },
         ...(questionTimerExpired
           ? { questionClockStartedAt: { not: null } }
           : { timerStartedAt: { not: null } })
       },
       data: {
-        status: "TIMEOUT",
+        status: BuzzerRoomStatus.TIMEOUT,
         buzzedSeatId: null,
         questionClockStartedAt: null,
         questionClockElapsedMs: 0,
@@ -462,7 +462,7 @@ export async function applyBuzzerAction(code: string, action: BuzzerRoomAction) 
     await prisma.buzzerRoom.update({
       where: { id: room.id },
       data: {
-        status: room.status === "PAUSED" ? resumeStatus(room) : "READING",
+        status: room.status === "PAUSED" ? resumeStatus(room) : BuzzerRoomStatus.READING,
         timerStartedAt: room.status === "PAUSED" && room.timerStartedAt ? room.timerStartedAt : new Date(),
         timerElapsedMs: room.status === "PAUSED" ? room.timerElapsedMs : 0,
         buzzedSeatId: room.status === "PAUSED" ? room.buzzedSeatId : null,
@@ -506,7 +506,7 @@ export async function applyBuzzerAction(code: string, action: BuzzerRoomAction) 
       await prisma.buzzerRoom.update({
         where: { id: room.id },
         data: {
-          status: "PAUSED",
+          status: BuzzerRoomStatus.PAUSED,
           timerStartedAt: null,
           timerElapsedMs: elapsed,
           questionClockStartedAt: null,
@@ -559,8 +559,8 @@ export async function applyBuzzerAction(code: string, action: BuzzerRoomAction) 
     if (!seat || isBonus(room) || !["READING", "RUNNING"].includes(room.status) || timeRemaining(room) <= 0)
       throw new Error("Buzz is not available.");
     const result = await prisma.buzzerRoom.updateMany({
-      where: { id: room.id, buzzedSeatId: null, status: { in: ["READING", "RUNNING"] } },
-      data: { buzzedSeatId: seat.id, status: "BUZZED", buzzedIsInterrupt: false }
+      where: { id: room.id, buzzedSeatId: null, status: { in: [BuzzerRoomStatus.READING, BuzzerRoomStatus.RUNNING] } },
+      data: { buzzedSeatId: seat.id, status: BuzzerRoomStatus.BUZZED, buzzedIsInterrupt: false }
     });
     if (result.count) {
       await prisma.buzzerSeat.update({ where: { id: seat.id }, data: { buzzedAt: new Date() } });
@@ -594,7 +594,7 @@ export async function applyBuzzerAction(code: string, action: BuzzerRoomAction) 
     await prisma.buzzerRoom.update({
       where: { id: room.id },
       data: {
-        status: bonusAvailable ? "BONUS" : "READING",
+        status: bonusAvailable ? BuzzerRoomStatus.BONUS : BuzzerRoomStatus.READING,
         buzzedSeatId: null,
         currentQuestionId: nextQuestionId,
         ...(!bonusAvailable ? { questionNumber: { increment: 1 } } : {}),
@@ -630,7 +630,7 @@ export async function applyBuzzerAction(code: string, action: BuzzerRoomAction) 
       where: { id: room.id },
       data: {
         currentQuestionId: nextQuestionId,
-        status: room.status === "PAUSED" ? "PAUSED" : "READING",
+        status: room.status === "PAUSED" ? BuzzerRoomStatus.PAUSED : BuzzerRoomStatus.READING,
         buzzedSeatId: null,
         buzzedIsInterrupt: false,
         questionClockStartedAt: null,
@@ -655,7 +655,7 @@ export async function applyBuzzerAction(code: string, action: BuzzerRoomAction) 
     await prisma.buzzerRoom.update({
       where: { id: room.id },
       data: {
-        status: "WAITING",
+        status: BuzzerRoomStatus.WAITING,
         timerStartedAt: null,
         timerElapsedMs: 0,
         questionClockStartedAt: null,
@@ -676,7 +676,7 @@ export async function applyBuzzerAction(code: string, action: BuzzerRoomAction) 
     await prisma.buzzerRoom.update({
       where: { id: room.id },
       data: {
-        status: "ENDED",
+        status: BuzzerRoomStatus.ENDED,
         timerStartedAt: null,
         questionClockStartedAt: null,
         questionClockDurationMs: 0,
