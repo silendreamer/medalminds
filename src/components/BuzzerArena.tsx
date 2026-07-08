@@ -874,10 +874,7 @@ function ParticipantRoom({
           </p>
         </section>
       </div>
-      <section className="card spacious buzzer-participant-log">
-        <h2>Round log</h2>
-        <RoundLog events={room.events} />
-      </section>
+      <RoundLog events={room.events} />
     </div>
   );
 }
