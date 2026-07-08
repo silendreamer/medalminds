@@ -56,7 +56,33 @@ export function SimplePracticeQuestion({
   const [activeLesson, setActiveLesson] = useState<Lesson | null>(null);
   const [activeLessonContent, setActiveLessonContent] = useState<LessonContentResponse | null>(null);
   const [contentLoading, setContentLoading] = useState(false);
+  const [aiExplanation, setAiExplanation] = useState<string | null>(null);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiError, setAiError] = useState<string | null>(null);
   const correct = checked && isCorrect(question, answer);
+
+  async function requestAiExplanation() {
+    setAiLoading(true);
+    setAiError(null);
+    try {
+      const res = await fetch("/api/ai/explain", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          prompt: question.prompt,
+          correctAnswer: question.correctAnswer,
+          choices: question.choices,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.error ?? "Failed to get an explanation.");
+      setAiExplanation(data.explanation);
+    } catch (err) {
+      setAiError(err instanceof Error ? err.message : "Failed to get an explanation.");
+    } finally {
+      setAiLoading(false);
+    }
+  }
 
   function handleChoice(choice: string) {
     if (checked) return;
@@ -192,6 +218,19 @@ export function SimplePracticeQuestion({
             {question.explanation && (
               <p className="pq-feedback-explanation"><QuestionText html={question.explanation} /></p>
             )}
+            <div className="ai-explanation">
+              {!aiExplanation && (
+                <button className="ghost-button" onClick={requestAiExplanation} disabled={aiLoading}>
+                  {aiLoading ? "Thinking…" : "How to solve this (AI)"}
+                </button>
+              )}
+              {aiError && <p className="pq-feedback-explanation">{aiError}</p>}
+              {aiExplanation && (
+                <div className="pq-feedback-explanation">
+                  <strong>How to solve it:</strong> {aiExplanation}
+                </div>
+              )}
+            </div>
           </div>
         )}
 
