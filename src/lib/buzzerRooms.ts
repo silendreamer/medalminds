@@ -1,6 +1,7 @@
 import { BuzzerRoomEventType, BuzzerRoomStatus, Prisma } from "@prisma/client";
 import type { PracticeQuestion } from "@/types";
 import { buzzerQuestions, type BuzzerQuestion } from "@/data/buzzerQuestions";
+import { getNsbBuzzerPool, type NsbBuzzerQuestion } from "@/data/nsbQuestions";
 import { getPrisma } from "./db";
 
 export type BuzzerRole = "organizer" | "participant";
@@ -139,23 +140,65 @@ function resumeStatus(room: RoomWithRelations) {
   return "READING";
 }
 
-function findQuestion(questionId: string | null | undefined): BuzzerQuestion | null {
+function findLocalQuestion(questionId: string | null | undefined): BuzzerQuestion | null {
   if (!questionId) return null;
   return buzzerQuestions.find((q) => q.id === questionId) ?? null;
 }
 
-function randomQuestionId(): string | null {
+async function randomQuestionId(schoolLevel?: string | null): Promise<string | null> {
+  const pool = await getNsbBuzzerPool();
+  if (pool) {
+    const ids =
+      schoolLevel === "MIDDLE_SCHOOL" || schoolLevel === "HIGH_SCHOOL"
+        ? pool.tossupIds[schoolLevel]
+        : [...pool.tossupIds.MIDDLE_SCHOOL, ...pool.tossupIds.HIGH_SCHOOL];
+    if (ids.length) {
+      return ids[Math.floor(Math.random() * ids.length)];
+    }
+  }
   if (!buzzerQuestions.length) return null;
   const index = Math.floor(Math.random() * buzzerQuestions.length);
   return buzzerQuestions[index].id;
 }
 
-function questionForOrganizer(
-  room: RoomWithRelations
-): (PracticeQuestion & { correctLetter: string | null; questionKind: string; format: string }) | null {
-  const pair = findQuestion(room.currentQuestionId);
-  if (!pair) return null;
+type OrganizerQuestion = PracticeQuestion & { correctLetter: string | null; questionKind: string; format: string };
+
+function organizerQuestionFromPool(question: NsbBuzzerQuestion, bonus: boolean): OrganizerQuestion {
+  const isMultipleChoice = question.format === "multiple_choice" && Boolean(question.choices?.length);
+  const correctLetter =
+    isMultipleChoice && question.answerIndex != null ? choiceLetters[question.answerIndex] ?? null : null;
+
+  return {
+    id: question.id,
+    competitionSlug: "science-bowl",
+    subject: question.category,
+    level: "",
+    difficulty: "MEDIUM",
+    type: question.format,
+    prompt: question.text,
+    choices: isMultipleChoice ? question.choices : undefined,
+    correctAnswer: question.answer,
+    alternateAnswers: [],
+    explanation: "",
+    correctLetter,
+    questionKind: bonus ? "BONUS" : "TOSS-UP",
+    format: isMultipleChoice ? "Multiple Choice" : "Short Answer"
+  };
+}
+
+async function questionForOrganizer(room: RoomWithRelations): Promise<OrganizerQuestion | null> {
+  if (!room.currentQuestionId) return null;
   const bonus = isBonus(room);
+
+  const pool = await getNsbBuzzerPool();
+  const tossup = pool?.byId.get(room.currentQuestionId);
+  if (tossup) {
+    const active = bonus && tossup.bonusQuestionId ? pool?.byId.get(tossup.bonusQuestionId) ?? tossup : tossup;
+    return organizerQuestionFromPool(active, bonus);
+  }
+
+  const pair = findLocalQuestion(room.currentQuestionId);
+  if (!pair) return null;
   const prompt = bonus ? pair.bonusPrompt : pair.tossupPrompt;
   const correctAnswer = bonus ? pair.bonusAnswer : pair.tossupAnswer;
   const explanation = bonus ? pair.bonusExplanation : pair.tossupExplanation;
@@ -178,7 +221,7 @@ function questionForOrganizer(
   };
 }
 
-export function serializeBuzzerRoom(room: RoomWithRelations, role: BuzzerRole) {
+export async function serializeBuzzerRoom(room: RoomWithRelations, role: BuzzerRole) {
   const buzzedSeat = room.buzzedSeatId ? room.seats.find((seat) => seat.id === room.buzzedSeatId) ?? null : null;
 
   return {
@@ -222,7 +265,7 @@ export function serializeBuzzerRoom(room: RoomWithRelations, role: BuzzerRole) {
       message: event.message,
       createdAt: event.createdAt.toISOString()
     })),
-    question: role === "organizer" ? questionForOrganizer(room) : null
+    question: role === "organizer" ? await questionForOrganizer(room) : null
   };
 }
 
@@ -295,7 +338,7 @@ export async function createBuzzerRoom(setup?: Partial<BuzzerRoomSetup>) {
     ? setup.schoolLevel
     : null;
   if (!schoolLevel) throw new Error("A school level (Middle School or High School) is required.");
-  const currentQuestionId = randomQuestionId();
+  const currentQuestionId = await randomQuestionId(schoolLevel);
   if (!currentQuestionId) throw new Error("No Science Bowl questions are available.");
   const teamAName = clampText(setup?.teamAName, "Team A");
   const teamBName = clampText(setup?.teamBName, "Team B");
@@ -541,7 +584,7 @@ export async function applyBuzzerAction(code: string, action: BuzzerRoomAction) 
     const correct = action.result === "correct";
     const currentIsBonus = isBonus(room);
     const bonusAvailable = correct && !currentIsBonus;
-    const nextQuestionId = bonusAvailable ? room.currentQuestionId : randomQuestionId();
+    const nextQuestionId = bonusAvailable ? room.currentQuestionId : await randomQuestionId(room.schoolLevel);
     const points = correct ? (currentIsBonus ? 10 : 4) : room.buzzedIsInterrupt ? 4 : 0;
     const pointsTeam = correct
       ? buzzedSeat.team
@@ -582,7 +625,7 @@ export async function applyBuzzerAction(code: string, action: BuzzerRoomAction) 
 
   if (action.type === "nextQuestion") {
     requireOrganizer(room, action.organizerPassword);
-    const nextQuestionId = randomQuestionId();
+    const nextQuestionId = await randomQuestionId(room.schoolLevel);
     await prisma.buzzerRoom.update({
       where: { id: room.id },
       data: {

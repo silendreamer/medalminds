@@ -14,5 +14,5 @@ export async function GET(request: Request, { params }: { params: Promise<{ code
   }
 
   const role = await roleForRoom(code, organizerPassword);
-  return NextResponse.json({ room: serializeBuzzerRoom(room, role) });
+  return NextResponse.json({ room: await serializeBuzzerRoom(room, role) });
 }

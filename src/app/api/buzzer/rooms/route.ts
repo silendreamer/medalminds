@@ -20,7 +20,7 @@ export async function POST(request: Request) {
       code: room.code,
       organizerPassword: room.organizerPassword,
       shareUrl,
-      room: serializeBuzzerRoom(room, "organizer")
+      room: await serializeBuzzerRoom(room, "organizer")
     });
   } catch (error) {
     return NextResponse.json(

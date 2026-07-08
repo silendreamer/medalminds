@@ -37,6 +37,75 @@ export async function getNsbQuestions(): Promise<PracticeQuestion[]> {
   }
 }
 
+export type NsbBuzzerQuestion = {
+  id: string;
+  category: string;
+  schoolLevel: "MIDDLE_SCHOOL" | "HIGH_SCHOOL";
+  format: "multiple_choice" | "short_answer";
+  text: string;
+  choices?: string[];
+  answerIndex?: number;
+  answer: string;
+  questionKind?: "TOSS_UP" | "BONUS";
+  bonusQuestionId?: string;
+};
+
+export type NsbBuzzerPool = {
+  byId: Map<string, NsbBuzzerQuestion>;
+  tossupIds: Record<"MIDDLE_SCHOOL" | "HIGH_SCHOOL", string[]>;
+};
+
+let nsbBuzzerPoolCache: NsbBuzzerPool | null = null;
+
+// Pool for the Buzzer Arena: real Science Bowl toss-ups paired with their
+// bonus question (recovered from the original round PDFs by
+// scripts/derive-question-kind.mjs).
+export async function getNsbBuzzerPool(): Promise<NsbBuzzerPool | null> {
+  if (nsbBuzzerPoolCache) {
+    return nsbBuzzerPoolCache;
+  }
+
+  try {
+    const { default: rawQuestions } = await import("../../docs/nsb/questions.json");
+
+    const byId = new Map<string, NsbBuzzerQuestion>();
+    const tossupIds: NsbBuzzerPool["tossupIds"] = { MIDDLE_SCHOOL: [], HIGH_SCHOOL: [] };
+
+    for (const q of rawQuestions as any[]) {
+      const question: NsbBuzzerQuestion = {
+        id: q.id,
+        category: q.category,
+        schoolLevel: q.schoolLevel,
+        format: q.format,
+        text: q.text,
+        choices: q.choices && q.choices.length > 0 ? q.choices : undefined,
+        answerIndex: q.answerIndex ?? undefined,
+        answer: (q.choices && q.answerIndex != null) ? q.choices[q.answerIndex] : q.answer,
+        questionKind: q.questionKind,
+        bonusQuestionId: q.bonusQuestionId
+      };
+      byId.set(question.id, question);
+    }
+
+    for (const question of byId.values()) {
+      if (
+        question.questionKind === "TOSS_UP" &&
+        question.bonusQuestionId &&
+        byId.has(question.bonusQuestionId) &&
+        (question.schoolLevel === "MIDDLE_SCHOOL" || question.schoolLevel === "HIGH_SCHOOL")
+      ) {
+        tossupIds[question.schoolLevel].push(question.id);
+      }
+    }
+
+    nsbBuzzerPoolCache = { byId, tossupIds };
+    return nsbBuzzerPoolCache;
+  } catch (error) {
+    console.warn("Failed to load NSB buzzer pool from JSON:", error);
+    return null;
+  }
+}
+
 export async function getNsbLessons() {
   try {
     const { default: rawLessons } = await import("../../docs/nsb/lessons.json");

@@ -13,7 +13,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ cod
       "organizerPassword" in action && typeof action.organizerPassword === "string" ? action.organizerPassword : null;
     const role = await roleForRoom(code, organizerPassword);
 
-    return NextResponse.json({ room: serializeBuzzerRoom(room, role) });
+    return NextResponse.json({ room: await serializeBuzzerRoom(room, role) });
   } catch (error) {
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "Unable to apply buzzer action." },
