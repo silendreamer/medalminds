@@ -219,15 +219,29 @@ export function SimplePracticeQuestion({
               <p className="pq-feedback-explanation"><QuestionText html={question.explanation} /></p>
             )}
             <div className="ai-explanation">
-              {!aiExplanation && (
-                <button className="ghost-button" onClick={requestAiExplanation} disabled={aiLoading}>
-                  {aiLoading ? "Thinking…" : "How to solve this (AI)"}
+              {!aiExplanation && !aiError && (
+                <button className="ai-explain-trigger" onClick={requestAiExplanation} disabled={aiLoading}>
+                  <span className="ai-explain-trigger-icon" aria-hidden="true">
+                    {aiLoading ? <span className="ai-spinner" /> : "✨"}
+                  </span>
+                  {aiLoading ? "Thinking…" : "Explain the answer"}
                 </button>
               )}
-              {aiError && <p className="pq-feedback-explanation">{aiError}</p>}
+              {aiError && (
+                <div className="ai-explain-card ai-explain-card--error">
+                  <p className="ai-explain-error-text">{aiError}</p>
+                  <button className="ai-explain-retry" onClick={requestAiExplanation}>
+                    Try again
+                  </button>
+                </div>
+              )}
               {aiExplanation && (
-                <div className="pq-feedback-explanation">
-                  <strong>How to solve it:</strong> {aiExplanation}
+                <div className="ai-explain-card">
+                  <div className="ai-explain-card-header">
+                    <span className="ai-explain-badge">✨ AI tutor</span>
+                    <span className="ai-explain-card-title">Explanation</span>
+                  </div>
+                  <p className="ai-explain-card-body">{aiExplanation}</p>
                 </div>
               )}
             </div>
