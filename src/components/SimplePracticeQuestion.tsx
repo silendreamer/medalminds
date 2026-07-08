@@ -27,6 +27,14 @@ interface ContentSection {
   body: string;
 }
 
+interface LessonContentResponse {
+  title: string;
+  summary: string;
+  keyConcepts: string[];
+  contentSections: ContentSection[];
+  reviewQuestions: string[];
+}
+
 export function SimplePracticeQuestion({
   question,
   subtopicLessons,
@@ -46,7 +54,7 @@ export function SimplePracticeQuestion({
   const [checked, setChecked] = useState(false);
   const [lessonModalOpen, setLessonModalOpen] = useState(false);
   const [activeLesson, setActiveLesson] = useState<Lesson | null>(null);
-  const [activeLessonContent, setActiveLessonContent] = useState<ContentSection[] | null>(null);
+  const [activeLessonContent, setActiveLessonContent] = useState<LessonContentResponse | null>(null);
   const [contentLoading, setContentLoading] = useState(false);
   const correct = checked && isCorrect(question, answer);
 
@@ -85,9 +93,15 @@ export function SimplePracticeQuestion({
     try {
       const res = await fetch(`/api/lesson-content?slug=${lesson.slug}&competition=${lesson.competitionSlug}`);
       const data = await res.json();
-      setActiveLessonContent(data.contentSections ?? []);
+      setActiveLessonContent({
+        title: data.title ?? lesson.title,
+        summary: data.summary ?? "",
+        keyConcepts: data.keyConcepts ?? [],
+        contentSections: data.contentSections ?? [],
+        reviewQuestions: data.reviewQuestions ?? [],
+      });
     } catch {
-      setActiveLessonContent([]);
+      setActiveLessonContent({ title: lesson.title, summary: "", keyConcepts: [], contentSections: [], reviewQuestions: [] });
     } finally {
       setContentLoading(false);
     }
@@ -219,7 +233,7 @@ export function SimplePracticeQuestion({
           aria-label={activeLesson.title}
           onClick={(e) => { if (e.target === e.currentTarget) closeModal(); }}
         >
-          <div className="modal-card stack">
+          <div className="modal-card lesson-modal-card">
             <div className="card-header">
               <div>
                 <span className="eyebrow">{activeLesson.subject} · {activeLesson.subtopic}</span>
@@ -229,13 +243,67 @@ export function SimplePracticeQuestion({
             </div>
             {contentLoading ? (
               <p className="card-copy">Loading…</p>
-            ) : activeLessonContent && activeLessonContent.length > 0 ? (
-              activeLessonContent.map((section) => (
-                <div className="content-section" key={section.heading}>
-                  <h3>{section.heading}</h3>
-                  <p>{section.body}</p>
-                </div>
-              ))
+            ) : activeLessonContent ? (
+              <article className="lesson-article lesson-article--modal">
+                {activeLessonContent.summary && <p className="lesson-summary">{activeLessonContent.summary}</p>}
+
+                {activeLessonContent.keyConcepts.length > 0 && (
+                  <div className="lesson-concepts-box">
+                    <h3 className="lesson-concepts-heading">Key concepts</h3>
+                    <ul className="lesson-concepts-list">
+                      {activeLessonContent.keyConcepts.map((concept) => (
+                        <li key={concept}>{concept}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {activeLessonContent.contentSections.map((section) => {
+                  const isReview = /review questions?/i.test(section.heading);
+                  const isTossUp = /toss.?up|clue/i.test(section.heading);
+                  const lines = section.body
+                    .replace(/\n?---\s*$/, "")
+                    .trim()
+                    .split("\n")
+                    .map((s) => s.trim())
+                    .filter(Boolean)
+                    .map((l) => l.replace(/^\d+\.\s*/, ""));
+                  return (
+                    <div className={`lesson-section${isTossUp ? " lesson-section--no-border" : ""}`} key={section.heading}>
+                      {!isTossUp && <h2 className="lesson-section-heading">{section.heading}</h2>}
+                      {isTossUp ? (
+                        <div style={{ display: "grid", gap: "10px" }}>
+                          {lines.map((clue, i) => (
+                            <div className="lesson-buzz-fact" key={i}>
+                              <div className="lesson-buzz-fact-heading">⚡ Science Bowl Clue</div>
+                              <p className="lesson-buzz-fact-body">{clue}</p>
+                            </div>
+                          ))}
+                        </div>
+                      ) : isReview ? (
+                        <ol className="lesson-review-list">
+                          {(lines.length > 1 ? lines : [section.body.replace(/\n?---\s*$/, "").trim()]).map((q, i) => (
+                            <li key={i}>{q}</li>
+                          ))}
+                        </ol>
+                      ) : (
+                        <p className="lesson-section-body">{section.body}</p>
+                      )}
+                    </div>
+                  );
+                })}
+
+                {activeLessonContent.reviewQuestions.length > 0 && (
+                  <div className="lesson-buzz-fact">
+                    <div className="lesson-buzz-fact-heading">⚡ Buzz-worthy fact</div>
+                    <p className="lesson-buzz-fact-body">{activeLessonContent.reviewQuestions[0]}</p>
+                  </div>
+                )}
+
+                {activeLessonContent.contentSections.length === 0 && !activeLessonContent.summary && (
+                  <p className="card-copy">No content available.</p>
+                )}
+              </article>
             ) : (
               <p className="card-copy">No content available.</p>
             )}

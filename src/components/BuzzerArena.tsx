@@ -539,10 +539,10 @@ export function BuzzerArena() {
           )}
 
           {screen === "join" && (
-            <div className="buzzer-room-modal card spacious">
+            <div className="buzzer-setup-modal buzzer-simple-modal">
               <div>
                 <span className="eyebrow">Join room</span>
-                <h1>Join a game</h1>
+                <h2>Join a game</h2>
               </div>
               <label className="form-field">
                 <span>Game code</span>
@@ -565,17 +565,17 @@ export function BuzzerArena() {
           )}
 
           {screen === "ready" && readyRoom && (
-            <div className="buzzer-room-modal card spacious">
+            <div className="buzzer-setup-modal buzzer-simple-modal">
               <div className="buzzer-room-modal-header">
                 <div>
                   <span className="eyebrow">Organizer setup</span>
-                  <h1>Your game is ready</h1>
+                  <h2>Your game is ready</h2>
                 </div>
                 <button className="ghost-button" onClick={() => setScreen("start")} type="button">
                   Close
                 </button>
               </div>
-              <p className="subtitle">Share this link with your teams. Save the password so you can rejoin if you close the page.</p>
+              <p className="buzzer-setup-subtitle">Share this link with your teams. Save the password so you can rejoin if you close the page.</p>
               <div className="badge-list">
                 <span className="badge">{readyRoom.room.teamAName}</span>
                 <span className="badge neutral">{readyRoom.room.teamBName}</span>
