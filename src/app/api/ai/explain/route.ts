@@ -37,8 +37,9 @@ export async function POST(request: NextRequest) {
           content:
             "You tutor middle and high school students preparing for academic competitions " +
             "(Science Bowl, Science Olympiad, Math Olympiad). Given a question and its correct answer, " +
-            "explain how to solve it in 3-5 short sentences or steps. Be clear and encouraging. " +
-            "Do not restate the question; go straight into the reasoning.",
+            "break down how to solve it into 2-5 short steps. Each step should be one clear sentence. " +
+            "Do not restate the question; go straight into the reasoning. " +
+            'Respond with strict JSON only, in the form {"steps": ["step 1", "step 2", ...]}.',
         },
         {
           role: "user",
@@ -47,6 +48,7 @@ export async function POST(request: NextRequest) {
       ],
       temperature: 0.3,
       max_tokens: 400,
+      response_format: { type: "json_object" },
     }),
   });
 
@@ -56,11 +58,24 @@ export async function POST(request: NextRequest) {
   }
 
   const data = await response.json();
-  const explanation: string | undefined = data?.choices?.[0]?.message?.content?.trim();
-
-  if (!explanation) {
+  const raw: string | undefined = data?.choices?.[0]?.message?.content?.trim();
+  if (!raw) {
     return NextResponse.json({ error: "AI returned no explanation" }, { status: 502 });
   }
 
-  return NextResponse.json({ explanation });
+  let steps: string[] | undefined;
+  try {
+    const parsed = JSON.parse(raw);
+    if (Array.isArray(parsed?.steps)) {
+      steps = parsed.steps.filter((s: unknown) => typeof s === "string" && s.trim()).map((s: string) => s.trim());
+    }
+  } catch {
+    // fall through to plain-text fallback below
+  }
+
+  if (!steps?.length) {
+    return NextResponse.json({ steps: [raw] });
+  }
+
+  return NextResponse.json({ steps });
 }

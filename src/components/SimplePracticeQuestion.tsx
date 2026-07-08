@@ -56,7 +56,7 @@ export function SimplePracticeQuestion({
   const [activeLesson, setActiveLesson] = useState<Lesson | null>(null);
   const [activeLessonContent, setActiveLessonContent] = useState<LessonContentResponse | null>(null);
   const [contentLoading, setContentLoading] = useState(false);
-  const [aiExplanation, setAiExplanation] = useState<string | null>(null);
+  const [aiSteps, setAiSteps] = useState<string[] | null>(null);
   const [aiLoading, setAiLoading] = useState(false);
   const [aiError, setAiError] = useState<string | null>(null);
   const correct = checked && isCorrect(question, answer);
@@ -76,7 +76,7 @@ export function SimplePracticeQuestion({
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data?.error ?? "Failed to get an explanation.");
-      setAiExplanation(data.explanation);
+      setAiSteps(data.steps);
     } catch (err) {
       setAiError(err instanceof Error ? err.message : "Failed to get an explanation.");
     } finally {
@@ -219,7 +219,7 @@ export function SimplePracticeQuestion({
               <p className="pq-feedback-explanation"><QuestionText html={question.explanation} /></p>
             )}
             <div className="ai-explanation">
-              {!aiExplanation && !aiError && (
+              {!aiSteps && !aiError && (
                 <button className="ai-explain-trigger" onClick={requestAiExplanation} disabled={aiLoading}>
                   <span className="ai-explain-trigger-icon" aria-hidden="true">
                     {aiLoading ? <span className="ai-spinner" /> : "✨"}
@@ -235,13 +235,24 @@ export function SimplePracticeQuestion({
                   </button>
                 </div>
               )}
-              {aiExplanation && (
+              {aiSteps && (
                 <div className="ai-explain-card">
                   <div className="ai-explain-card-header">
                     <span className="ai-explain-badge">✨ AI tutor</span>
                     <span className="ai-explain-card-title">Explanation</span>
                   </div>
-                  <p className="ai-explain-card-body">{aiExplanation}</p>
+                  {aiSteps.length > 1 ? (
+                    <ol className="ai-explain-steps">
+                      {aiSteps.map((step, i) => (
+                        <li key={i} className="ai-explain-step">
+                          <span className="ai-explain-step-number">{i + 1}</span>
+                          <span className="ai-explain-step-text">{step}</span>
+                        </li>
+                      ))}
+                    </ol>
+                  ) : (
+                    <p className="ai-explain-card-body">{aiSteps[0]}</p>
+                  )}
                 </div>
               )}
             </div>
