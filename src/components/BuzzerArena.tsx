@@ -456,6 +456,7 @@ export function BuzzerArena() {
                         value={setup.teamAName}
                         onChange={(event) => setSetup((current) => ({ ...current, teamAName: event.target.value }))}
                         placeholder="Team A"
+                        maxLength={24}
                       />
                       <p className="buzzer-setup-hint">Pick anything fun. You can rename this later.</p>
                     </label>
@@ -466,6 +467,7 @@ export function BuzzerArena() {
                         value={setup.teamBName}
                         onChange={(event) => setSetup((current) => ({ ...current, teamBName: event.target.value }))}
                         placeholder="Team B"
+                        maxLength={24}
                       />
                       <p className="buzzer-setup-hint">Pick anything fun. You can rename this later.</p>
                     </label>
@@ -550,7 +552,7 @@ export function BuzzerArena() {
               </label>
               <label className="form-field">
                 <span>Your name</span>
-                <input value={participantName} onChange={(event) => setParticipantName(event.target.value)} placeholder="e.g. Priya" />
+                <input value={participantName} onChange={(event) => setParticipantName(event.target.value)} placeholder="e.g. Priya" maxLength={20} />
               </label>
               <label className="form-field">
                 <span>Password <em>(optional)</em></span>

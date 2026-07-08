@@ -412,9 +412,14 @@ function requireOrganizer(room: RoomWithRelations, organizerPassword?: string) {
   }
 }
 
-function clampText(value: unknown, fallback: string) {
-  const text = String(value ?? "").trim();
+function clampText(value: unknown, fallback: string, maxLength = 24) {
+  const text = String(value ?? "").trim().slice(0, maxLength);
   return text || fallback;
+}
+
+function labelWithTeam(name: string, team: string, room: RoomWithRelations) {
+  const teamName = team === "A" ? room.teamAName : room.teamBName;
+  return `${name} (${teamName})`;
 }
 
 function clampInteger(value: unknown, fallback: number, min: number, max: number) {
@@ -431,8 +436,11 @@ export async function applyBuzzerAction(code: string, action: BuzzerRoomAction) 
   const roomCode = room.code;
 
   if (action.type === "sit") {
-    const participantName = String(action.participantName ?? "").trim().slice(0, 40);
-    if (!participantName) throw new Error("Participant name is required.");
+    const participantName = String(action.participantName ?? "").trim().replace(/\s+/g, " ").slice(0, 20);
+    if (participantName.length < 2) throw new Error("Name must be at least 2 characters.");
+    if (participantName.toUpperCase() === roomCode.toUpperCase()) {
+      throw new Error("Name can't be the same as the room code.");
+    }
     const team = action.team === "B" ? "B" : "A";
     const slot = String(action.slot ?? "").toLowerCase();
     const result = await prisma.buzzerSeat.updateMany({
@@ -441,7 +449,7 @@ export async function applyBuzzerAction(code: string, action: BuzzerRoomAction) 
     });
     if (!result.count) throw new Error("That seat is no longer available.");
     await prisma.buzzerRoomEvent.create({
-      data: { id: id("event"), roomId: room.id, type: "SEAT_TAKEN", message: `${participantName} sat in ${formatSeatLabel(slot)}.` }
+      data: { id: id("event"), roomId: room.id, type: "SEAT_TAKEN", message: `${labelWithTeam(participantName, team, room)} sat in ${formatSeatLabel(slot)}.` }
     });
   }
 
@@ -570,8 +578,8 @@ export async function applyBuzzerAction(code: string, action: BuzzerRoomAction) 
           roomId: room.id,
           type: room.status === "READING" ? "BUZZED_DURING_READING" : "BUZZED",
           message: room.status === "READING"
-            ? `${seat.participantName} buzzed during reading for Team ${seat.team}.`
-            : `${seat.participantName} buzzed in for Team ${seat.team}.`
+            ? `${labelWithTeam(seat.participantName ?? formatSeatLabel(seat.slot), seat.team, room)} buzzed during reading.`
+            : `${labelWithTeam(seat.participantName ?? formatSeatLabel(seat.slot), seat.team, room)} buzzed in.`
         }
       });
     }
@@ -614,11 +622,11 @@ export async function applyBuzzerAction(code: string, action: BuzzerRoomAction) 
         type: correct ? (bonusAvailable ? "BONUS_QUEUED" : "CORRECT") : room.buzzedIsInterrupt ? "INTERRUPT_INCORRECT" : "INCORRECT",
         message: correct
           ? bonusAvailable
-            ? `${buzzedSeat.participantName ?? formatSeatLabel(buzzedSeat.slot)} - Correct (+${points}). Bonus question loaded.`
-            : `${buzzedSeat.participantName ?? formatSeatLabel(buzzedSeat.slot)} - Correct (+${points}).`
+            ? `${labelWithTeam(buzzedSeat.participantName ?? formatSeatLabel(buzzedSeat.slot), buzzedSeat.team, room)} - Correct (+${points}). Bonus question loaded.`
+            : `${labelWithTeam(buzzedSeat.participantName ?? formatSeatLabel(buzzedSeat.slot), buzzedSeat.team, room)} - Correct (+${points}).`
           : room.buzzedIsInterrupt
-          ? `${buzzedSeat.participantName ?? formatSeatLabel(buzzedSeat.slot)} interrupted incorrectly. +4 to ${buzzedSeat.team === "A" ? room.teamBName : room.teamAName}.`
-          : `${buzzedSeat.participantName ?? formatSeatLabel(buzzedSeat.slot)} - Incorrect.`
+          ? `${labelWithTeam(buzzedSeat.participantName ?? formatSeatLabel(buzzedSeat.slot), buzzedSeat.team, room)} interrupted incorrectly. +4 to ${buzzedSeat.team === "A" ? room.teamBName : room.teamAName}.`
+          : `${labelWithTeam(buzzedSeat.participantName ?? formatSeatLabel(buzzedSeat.slot), buzzedSeat.team, room)} - Incorrect.`
       }
     });
   }
