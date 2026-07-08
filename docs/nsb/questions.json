@@ -194948,25 +194948,6 @@
     "questionKind": "BONUS"
   },
   {
-    "sequenceId": 9013,
-    "id": "osti-d58e7202cdb5bd609cc7048320651bcdaa43125e5de29621d83d1fcb3316695a",
-    "text": "What is the probability that an integer chosen at random from the set of all positive integers less than 100 is a multiple of 5?",
-    "format": "short_answer",
-    "answer": "ଵଽ ଽଽ Middle School Round 6A Page 2",
-    "difficulty": "HARD",
-    "schoolLevel": "MIDDLE_SCHOOL",
-    "category": "Math",
-    "competitionSlug": "science-bowl",
-    "lessonIds": [
-      "nsb-lesson-1381",
-      "nsb-lesson-1384",
-      "nsb-lesson-1331"
-    ],
-    "displayText": "What is the probability that an integer chosen at random from the set of all positive integers less than 100 is a multiple of 5?",
-    "subtopic": "Probability Basics",
-    "questionKind": "BONUS"
-  },
-  {
     "sequenceId": 9014,
     "id": "osti-d593341cdb699cdd03e2476d2a5f280157fd7c637fa6d78e0f25695a82282f13",
     "text": "Factor the following equation: x 2 – 6x + 5 = 0",
@@ -231921,9 +231902,7 @@
       "nsb-lesson-1361",
       "nsb-lesson-1340"
     ],
-    "subtopic": "Variables, Expressions & Equations",
-    "questionKind": "TOSS_UP",
-    "bonusQuestionId": "osti-d58e7202cdb5bd609cc7048320651bcdaa43125e5de29621d83d1fcb3316695a"
+    "subtopic": "Variables, Expressions & Equations"
   },
   {
     "sequenceId": 10722,
@@ -262090,26 +262069,6 @@
     "questionKind": "BONUS"
   },
   {
-    "sequenceId": 12107,
-    "id": "osti-1f32ebc3ea1569208f5fa06729a7426edf8bcc04a04f87a6010e2782257a13a9",
-    "text": "Differentiate ݂ ሺ ݔ ሻ ݁ൌ ୡ୭ୱ௫ [f of x equals e to the power of cosine of x] with respect to x.",
-    "format": "short_answer",
-    "answer": "െsin ሺݔሻ݁",
-    "difficulty": "MEDIUM",
-    "schoolLevel": "MIDDLE_SCHOOL",
-    "category": "Math",
-    "competitionSlug": "science-bowl",
-    "lessonIds": [
-      "nsb-lesson-0713",
-      "nsb-lesson-0682",
-      "nsb-lesson-0707"
-    ],
-    "displayText": "Differentiate f(x) = e<sup>cos x</sup> with respect to x.",
-    "subtopic": "Derivatives & Applications",
-    "questionKind": "TOSS_UP",
-    "bonusQuestionId": "osti-81c40866a37087ba455ca488e65a588e162e36dddc0a666770fe11becf4dc2f4"
-  },
-  {
     "sequenceId": 12108,
     "id": "osti-1f37eb359bc371ef357f0d80eeba48dfe9783f01c12007675dfc1e3c4b488d68",
     "text": "Identify all of the following three statements that are true regarding binding energy: 1) The mass of a carbon-12 nucleus is equal to the sum of the masses of 6 unbound protons and 6 unbound neutrons; 2) Mass defect arises due to the equivalence of mass and energy; 3) Iron-56 has the lowest mass per nucleon of any nucleus.",
@@ -262237,25 +262196,6 @@
     ],
     "displayText": "What is the exact value of cos 75° in simplest radical form?",
     "subtopic": "Trigonometric Functions & Unit Circle"
-  },
-  {
-    "sequenceId": 12115,
-    "id": "osti-1f668d9e97479ffa76a2faaa567b471d4d87a773b39c865b3c4a9e34db1c187b",
-    "text": "Simplify the following fraction for values of x for which it is defined: ଺௫ మ ାସ௫ିଶ ସ௫ିଵଶ௫ మ [the fraction with numerator six x squared plus four x minus two and denominator four x minus twelve x squared].",
-    "format": "short_answer",
-    "answer": "െ",
-    "difficulty": "MEDIUM",
-    "schoolLevel": "MIDDLE_SCHOOL",
-    "category": "Math",
-    "competitionSlug": "science-bowl",
-    "lessonIds": [
-      "nsb-lesson-0623",
-      "nsb-lesson-0634",
-      "nsb-lesson-0608"
-    ],
-    "displayText": "Simplify the following fraction for values of x for which it is defined: the fraction with numerator six x<sup>2</sup> plus four x minus two and denominator four x minus twelve x<sup>2</sup>.",
-    "subtopic": "Polynomials, Factoring & Rational Expressions",
-    "questionKind": "BONUS"
   },
   {
     "sequenceId": 12116,
@@ -263702,25 +263642,6 @@
     ],
     "displayText": "Calculate the heating degree day in the U.S. if the day’s high temperature is 70ºF and the low is 30ºF:",
     "subtopic": "Temperature, Heat & Thermal Expansion",
-    "questionKind": "BONUS"
-  },
-  {
-    "sequenceId": 12183,
-    "id": "osti-229143a90adb97dfcd2e9c22aa4251254dc0270919eafa0a8610beaf61e686a1",
-    "text": "Evaluate the following definite integral: ׬ ඥ ሺ9െݔ ଶ ݔ݀ሻ ଴ ିଷ [the integral from negative three to zero of the square root of open parenthesis nine minus x squared close parenthesis d x]",
-    "format": "short_answer",
-    "answer": "ଽగ ସ _______________________________________________________",
-    "difficulty": "MEDIUM",
-    "schoolLevel": "MIDDLE_SCHOOL",
-    "category": "Math",
-    "competitionSlug": "science-bowl",
-    "lessonIds": [
-      "nsb-lesson-0717",
-      "nsb-lesson-0719",
-      "nsb-lesson-0628"
-    ],
-    "displayText": "Evaluate the following definite integral: the integral from negative three to zero of the square root of (nine minus x<sup>2</sup>) d x",
-    "subtopic": "Integrals & Applications",
     "questionKind": "BONUS"
   },
   {
@@ -294401,25 +294322,6 @@
     "subtopic": "Evidence for Evolution & Natural Selection"
   },
   {
-    "sequenceId": 13569,
-    "id": "osti-4078c010e146defbe5581d38e74673bd3b9edbbdf59c5d6e72f5009dd0e96704",
-    "text": "Determine lim ௫→ିగ ሺୡ୭ୱ൫ ௫ ଶ ൗ ൯ሻ గା௫ [the limit as x approaches minus pi of the fraction with numerator cosine of the quantity x divided by two and denominator pi plus x].",
-    "format": "short_answer",
-    "answer": "ଵ ଶ High School Round 11A Page 12",
-    "difficulty": "MEDIUM",
-    "schoolLevel": "MIDDLE_SCHOOL",
-    "category": "Math",
-    "competitionSlug": "science-bowl",
-    "lessonIds": [
-      "nsb-lesson-0707",
-      "nsb-lesson-0660",
-      "nsb-lesson-0649"
-    ],
-    "displayText": "Determine lim x→–π (cos(x/2)/(π + x)).",
-    "subtopic": "Limits & Continuity",
-    "questionKind": "BONUS"
-  },
-  {
     "sequenceId": 13570,
     "id": "osti-4095b6ba31f1e719a41c63c0b6581119113fd46c47d2005007727d84ad74bc0e",
     "text": "Name the mineral whose deficiency in humans causes growth retardation, delayed sexual maturation, infection susceptibility, and diarrhea, contributing to the death of about 800,000 children worldwide per year.",
@@ -320337,9 +320239,7 @@
       "nsb-lesson-0621"
     ],
     "displayText": "In the expansion of (2x – y)<sup>5</sup>, what is the coefficient of the x<sup>3</sup>y<sup>2</sup> term?",
-    "subtopic": "Sequences & Series",
-    "questionKind": "TOSS_UP",
-    "bonusQuestionId": "osti-bd915db5ff2f9541604e50e7de7595671bfde1625a9c3aee59f65476ec94b6c9"
+    "subtopic": "Sequences & Series"
   },
   {
     "sequenceId": 14766,
@@ -353763,9 +353663,7 @@
       "nsb-lesson-0646"
     ],
     "displayText": "A man buys candies for x cents per dozen and sells them for x/9 cents per candy. If he buys the candies for $1.08 per dozen, what is his profit per candy, in cents?",
-    "subtopic": "Number Systems (Natural, Integer, Rational, Real & Complex)",
-    "questionKind": "TOSS_UP",
-    "bonusQuestionId": "osti-1f668d9e97479ffa76a2faaa567b471d4d87a773b39c865b3c4a9e34db1c187b"
+    "subtopic": "Number Systems (Natural, Integer, Rational, Real & Complex)"
   },
   {
     "sequenceId": 16296,
@@ -359958,25 +359856,6 @@
       "Sweden"
     ],
     "subtopic": "Fusion: Plasma Physics & Confinement",
-    "questionKind": "BONUS"
-  },
-  {
-    "sequenceId": 16588,
-    "id": "osti-81c40866a37087ba455ca488e65a588e162e36dddc0a666770fe11becf4dc2f4",
-    "text": "The average ofݔ and ݕ is 5. The average of ݔ and ݖ is 4. Find ݕ in terms of ݖ.",
-    "format": "short_answer",
-    "answer": "ݕ ൌ 2 ൅ ݖ",
-    "difficulty": "MEDIUM",
-    "schoolLevel": "MIDDLE_SCHOOL",
-    "category": "Math",
-    "competitionSlug": "science-bowl",
-    "lessonIds": [
-      "nsb-lesson-0718",
-      "nsb-lesson-0709",
-      "nsb-lesson-0655"
-    ],
-    "displayText": "The average of x and y is 5. The average of x and z is 4. Find y in terms of z.",
-    "subtopic": "Integrals & Applications",
     "questionKind": "BONUS"
   },
   {
@@ -376336,9 +376215,7 @@
       "nsb-lesson-0751",
       "nsb-lesson-0600"
     ],
-    "subtopic": "Number Theory (Divisibility, Primes & Modular Arithmetic)",
-    "questionKind": "TOSS_UP",
-    "bonusQuestionId": "osti-4078c010e146defbe5581d38e74673bd3b9edbbdf59c5d6e72f5009dd0e96704"
+    "subtopic": "Number Theory (Divisibility, Primes & Modular Arithmetic)"
   },
   {
     "sequenceId": 17358,
@@ -390885,26 +390762,6 @@
     "bonusQuestionId": "osti-332c36df5f71565ed630a316168c47155688d765b611d373c7a58f1d7cd98558"
   },
   {
-    "sequenceId": 18005,
-    "id": "osti-aa033c910760438c91481d26cbcf7a3be003d804a858f86af0ee862d4d81cf66",
-    "text": ". For ൑0ݔ [x less than or equal to zero], for what values of x does the inequality ݔ൅1൏ݔ ଶ ൅1 [x plus one is less than x squared plus one] not hold?",
-    "format": "short_answer",
-    "answer": "ൌ0ݔ",
-    "difficulty": "MEDIUM",
-    "schoolLevel": "MIDDLE_SCHOOL",
-    "category": "Math",
-    "competitionSlug": "science-bowl",
-    "lessonIds": [
-      "nsb-lesson-0707",
-      "nsb-lesson-0599",
-      "nsb-lesson-0682"
-    ],
-    "displayText": "For x ≤ 0, for what values of x does the inequality x + 1 < x<sup>2</sup> + 1 not hold?",
-    "subtopic": "Limits & Continuity",
-    "questionKind": "TOSS_UP",
-    "bonusQuestionId": "osti-9360e18e5d95ce335187839b123bff449a0ca75a7e9baa9e8a6d7d4fd558beba"
-  },
-  {
     "sequenceId": 18006,
     "id": "osti-a9c9f558ba43b68366d5b70572b27d6ff4cb50368c3baf73dc7bb43d776d10c3",
     "text": "If an electron is excited to the n = 4 energy level in hydrogen, what is the maximum number of emission lines you would observe?",
@@ -395401,26 +395258,6 @@
     "displayText": "How many positive integers a exist such that log base a of 15,625 is a positive integer?",
     "subtopic": "Mathematical Reasoning, Logic & Proof Techniques",
     "questionKind": "BONUS"
-  },
-  {
-    "sequenceId": 18216,
-    "id": "osti-a5a9397885fc53340545fcabc8a3454b2f4dfad37c0ebe4bce63caa8bfe6fd95",
-    "text": "What is the polar form of the equation: ݔൌݕ?",
-    "format": "short_answer",
-    "answer": "ߠ ൌ45° or ൌߠ గ ସ",
-    "difficulty": "MEDIUM",
-    "schoolLevel": "MIDDLE_SCHOOL",
-    "category": "Math",
-    "competitionSlug": "science-bowl",
-    "lessonIds": [
-      "nsb-lesson-0601",
-      "nsb-lesson-0702",
-      "nsb-lesson-0637"
-    ],
-    "displayText": "What is the polar form of the equation: x = y?",
-    "subtopic": "Number Systems (Natural, Integer, Rational, Real & Complex)",
-    "questionKind": "TOSS_UP",
-    "bonusQuestionId": "osti-1e460ba39f10d6a9b44237b331345207b5d19d07f221b0ba6790bcf3b5820d62"
   },
   {
     "sequenceId": 18217,
@@ -410980,25 +410817,6 @@
     "subtopic": "Geological Mapping & Earth Materials",
     "questionKind": "TOSS_UP",
     "bonusQuestionId": "osti-d593341cdb699cdd03e2476d2a5f280157fd7c637fa6d78e0f25695a82282f13"
-  },
-  {
-    "sequenceId": 18933,
-    "id": "osti-bd915db5ff2f9541604e50e7de7595671bfde1625a9c3aee59f65476ec94b6c9",
-    "text": "Invert the following two by two matrix: ቂ 31 13 ቃ [first row three, one, second row one, three]",
-    "format": "short_answer",
-    "answer": "൤ 3/8 െ1/8 െ1/8 3/8 ൨ High School Round 4A Page 11",
-    "difficulty": "HARD",
-    "schoolLevel": "MIDDLE_SCHOOL",
-    "category": "Math",
-    "competitionSlug": "science-bowl",
-    "lessonIds": [
-      "nsb-lesson-0714",
-      "nsb-lesson-0615",
-      "nsb-lesson-0646"
-    ],
-    "displayText": "Invert the following two by two matrix: ቂ 31 13 ቃ",
-    "subtopic": "Derivatives & Applications",
-    "questionKind": "BONUS"
   },
   {
     "sequenceId": 18934,
@@ -439978,9 +439796,7 @@
       "nsb-lesson-0705"
     ],
     "displayText": "A car leaves its original location traveling due west at a speed of 60 miles per hour and arrives at its destination in 3 hours. Later that day, the car returns to its original location. At what speed, in miles per hour, did it travel to cover the same distance in 2 hours?",
-    "subtopic": "Trigonometric Functions & Unit Circle",
-    "questionKind": "TOSS_UP",
-    "bonusQuestionId": "osti-f29cbc7d75eed826c2e81419d6de85a73d651608c1e494d7f823bb3197d8c1b4"
+    "subtopic": "Trigonometric Functions & Unit Circle"
   },
   {
     "sequenceId": 20268,
@@ -454566,25 +454382,6 @@
     "bonusQuestionId": "osti-6b577af961d41da7438e396ac016d211c7c03cb2474399711d093f1247a392c0"
   },
   {
-    "sequenceId": 20935,
-    "id": "osti-f29cbc7d75eed826c2e81419d6de85a73d651608c1e494d7f823bb3197d8c1b4",
-    "text": ". Simplify: ୪୭୥ ್ ሺ ௕ ೌ ሻ ್ ୪୭୥ ೌ ൫௔ ್ ൯ ೌ . [quantity log in base b of b raised to the power of a raised to the power of b divided by quantity log in base a of a raised to the power of b, raised to the power of a]",
-    "format": "short_answer",
-    "answer": "1",
-    "difficulty": "MEDIUM",
-    "schoolLevel": "MIDDLE_SCHOOL",
-    "category": "Math",
-    "competitionSlug": "science-bowl",
-    "lessonIds": [
-      "nsb-lesson-0629",
-      "nsb-lesson-0636",
-      "nsb-lesson-0671"
-    ],
-    "displayText": ". Simplify: ୪୭୥ ್ ሺ ௕ ೌ ሻ ್ ୪୭୥ ೌ ൫௔ ್ ൯ ೌ . quantity log in base b of b raised to the power of a raised to the power of b divided by quantity log in base a of a raised to the power of b, raised to the power of a",
-    "subtopic": "Radical Expressions & Equations",
-    "questionKind": "BONUS"
-  },
-  {
     "sequenceId": 20936,
     "id": "osti-f27b1de2d27a662899a14e2ccb58830db3a6677c48977df12b0b4757972ca39d",
     "text": "Identify all of the following three terms that can describe the behavior of water: 1) Nucleophile [NU-klee-oh-file]; 2) Lewis base; 3) Bronsted [BRON-sted] acid.",
@@ -457511,9 +457308,7 @@
       "x ≠ z",
       "x/z < 1"
     ],
-    "subtopic": "Radical Expressions & Equations",
-    "questionKind": "TOSS_UP",
-    "bonusQuestionId": "osti-229143a90adb97dfcd2e9c22aa4251254dc0270919eafa0a8610beaf61e686a1"
+    "subtopic": "Radical Expressions & Equations"
   },
   {
     "sequenceId": 21069,
