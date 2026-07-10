@@ -1,12 +1,11 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import type { Lesson, PracticeQuestion } from "@/types";
+import type { PracticeQuestion } from "@/types";
 import { SimplePracticeQuestion } from "./SimplePracticeQuestion";
 
 interface PracticeSessionProps {
   initialQuestion: PracticeQuestion;
-  subtopicLessons?: Lesson[];
   competitionSlug: string;
   level: string;
   subjectSlug?: string;
@@ -33,7 +32,6 @@ function saveStats(stats: { correct: number; incorrect: number; streak: number }
 
 export function PracticeSession({
   initialQuestion,
-  subtopicLessons,
   competitionSlug,
   level,
   subjectSlug,
@@ -79,7 +77,6 @@ export function PracticeSession({
       <main className="practice-main">
         <SimplePracticeQuestion
           question={initialQuestion}
-          subtopicLessons={subtopicLessons}
           onNext={handleNext}
           onSkip={handleSkip}
         />

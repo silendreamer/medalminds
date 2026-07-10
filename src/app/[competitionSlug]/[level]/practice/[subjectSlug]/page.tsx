@@ -3,7 +3,6 @@ import { notFound } from "next/navigation";
 import { PracticeSession } from "@/components/PracticeSession";
 import {
   getCompetitionBySlug,
-  getLessonsBySubtopic,
   getQuestionById,
   getRandomQuestionByCompetition,
   getScienceBowlMiddleSchoolSubjectBySlug,
@@ -56,11 +55,7 @@ export default async function PracticeSubjectPage({
         ? "HIGH_SCHOOL"
         : undefined;
 
-  const levelDisplay = schoolLevel === "MIDDLE_SCHOOL" ? "Middle School" : "High School";
   const question = await getRandomQuestionByCompetition(competitionSlug, subject.name, schoolLevel);
-  const subtopicLessons = question?.subtopic
-    ? await getLessonsBySubtopic(competitionSlug, question.subtopic, levelDisplay)
-    : [];
 
   return (
     <section className="section practice-page-section">
@@ -68,7 +63,6 @@ export default async function PracticeSubjectPage({
         {question ? (
           <PracticeSession
             initialQuestion={question}
-            subtopicLessons={subtopicLessons}
             competitionSlug={competitionSlug}
             level={level}
             subjectSlug={subjectSlug}

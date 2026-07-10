@@ -357,32 +357,33 @@ export async function getLessonsByIds(lessonIds: string[], competitionSlug: Comp
   return localLessons.filter((lesson) => lessonIds.includes(lesson.id) && lesson.competitionSlug === competitionSlug);
 }
 
-export async function getLessonsBySubtopic(
+export async function getQuestionsForLesson(
+  lessonId: string,
   competitionSlug: CompetitionSlug,
-  subtopic: string,
-  level: string
-): Promise<Lesson[]> {
-  if (competitionSlug === "science-bowl") {
-    const nsbLessons = await getNsbLessons();
-    return nsbLessons
-      .filter((lesson: any) => lesson.subtopic === subtopic && lesson.level === level)
-      .map((lesson: any) => ({
-        id: lesson.id,
-        slug: lesson.slug,
-        competitionSlug: "science-bowl" as const,
-        title: lesson.title,
-        subject: lesson.subject,
-        level: lesson.level,
-        topicSlug: lesson.topicSlug || "",
-        subtopic: lesson.subtopic || "",
-        estimatedMinutes: lesson.estimatedMinutes || 10,
-        summary: lesson.summary || "",
-        keyConcepts: lesson.keyConcepts || [],
-        contentSections: [],
-        reviewQuestions: [],
-      }));
+  limit = 5
+): Promise<PracticeQuestion[]> {
+  const pool =
+    competitionSlug === "science-bowl"
+      ? await getNsbQuestions()
+      : localPracticeQuestions.filter((q) => q.competitionSlug === competitionSlug);
+
+  const linked = pool.filter((q) => q.lessonIds?.includes(lessonId));
+
+  // Prefer questions that already have a worked-out explanation, so the
+  // read-only lesson section isn't just a bare question + answer.
+  const withExplanation = linked.filter((q) => q.explainAnswer?.length);
+  const rest = linked.filter((q) => !q.explainAnswer?.length);
+
+  function shuffle<T>(arr: T[]): T[] {
+    const copy = [...arr];
+    for (let i = copy.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [copy[i], copy[j]] = [copy[j], copy[i]];
+    }
+    return copy;
   }
-  return [];
+
+  return [...shuffle(withExplanation), ...shuffle(rest)].slice(0, limit);
 }
 
 export function getTestsByCompetition(slug: CompetitionSlug) {

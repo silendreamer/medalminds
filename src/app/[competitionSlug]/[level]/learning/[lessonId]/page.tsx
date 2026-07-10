@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getCompetitionBySlug, getLessonBySlug, isCompetitionSlug } from "@/lib/data";
+import { getCompetitionBySlug, getLessonBySlug, getQuestionsForLesson, isCompetitionSlug } from "@/lib/data";
 import { getNsbLessons } from "@/data/nsbQuestions";
+import { QuestionText } from "@/components/QuestionText";
+import "@/app/practice-page.css";
 
 export default async function LessonDetailPage({
   params
@@ -13,6 +15,8 @@ export default async function LessonDetailPage({
   const competition = await getCompetitionBySlug(competitionSlug);
   const lesson = await getLessonBySlug(competitionSlug, lessonId);
   if (!competition || !lesson) notFound();
+
+  const lessonQuestions = await getQuestionsForLesson(lesson.id, competitionSlug);
 
   // Find adjacent lessons in the same subtopic via raw NSB JSON
   let prevLesson: { slug: string; title: string } | null = null;
@@ -121,6 +125,42 @@ export default async function LessonDetailPage({
             <div className="lesson-buzz-fact">
               <div className="lesson-buzz-fact-heading">⚡ Buzz-worthy fact</div>
               <p className="lesson-buzz-fact-body">{lesson.reviewQuestions[0]}</p>
+            </div>
+          )}
+
+          {/* Practice questions for this lesson */}
+          {lessonQuestions.length > 0 && (
+            <div className="lesson-practice-questions">
+              <h2 className="lesson-section-heading">Practice questions for this lesson</h2>
+              {lessonQuestions.map((question) => (
+                <div className="lesson-practice-question" key={question.id}>
+                  <p className="question-prompt"><QuestionText html={question.prompt} /></p>
+                  <p className="lesson-practice-answer">
+                    Answer: <QuestionText html={question.correctAnswer} />
+                  </p>
+                  {question.explainAnswer && question.explainAnswer.length > 0 && (
+                    <div className="ai-explanation">
+                      <div className="ai-explain-card">
+                        <div className="ai-explain-card-header">
+                          <span className="ai-explain-card-title">Explanation</span>
+                        </div>
+                        {question.explainAnswer.length > 1 ? (
+                          <ol className="ai-explain-steps">
+                            {question.explainAnswer.map((step, i) => (
+                              <li key={i} className="ai-explain-step">
+                                <span className="ai-explain-step-number">{i + 1}</span>
+                                <span className="ai-explain-step-text">{step}</span>
+                              </li>
+                            ))}
+                          </ol>
+                        ) : (
+                          <p className="ai-explain-card-body">{question.explainAnswer[0]}</p>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
             </div>
           )}
 

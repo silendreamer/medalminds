@@ -5,7 +5,6 @@ import Link from "next/link";
 import {
   getCompetitionBySlug,
   getContentCountsForSubject,
-  getLessonsBySubtopic,
   getQuestionById,
   getRandomQuestionByCompetition,
   getScienceBowlMiddleSchoolCurriculumSubjects,
@@ -113,18 +112,12 @@ export default async function PracticePage({
     ? await getQuestionById(competitionSlug, q, undefined, schoolLevel)
     : await getRandomQuestionByCompetition(competitionSlug, undefined, schoolLevel);
 
-  const levelDisplay = schoolLevel === "MIDDLE_SCHOOL" ? "Middle School" : "High School";
-  const subtopicLessons = question?.subtopic
-    ? await getLessonsBySubtopic(competitionSlug, question.subtopic, levelDisplay)
-    : [];
-
   return (
     <section className="section practice-page-section">
       <div className="container">
         {question ? (
           <PracticeSession
             initialQuestion={question}
-            subtopicLessons={subtopicLessons}
             competitionSlug={competitionSlug}
             level={level}
           />
