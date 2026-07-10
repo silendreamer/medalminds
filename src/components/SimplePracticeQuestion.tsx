@@ -56,33 +56,7 @@ export function SimplePracticeQuestion({
   const [activeLesson, setActiveLesson] = useState<Lesson | null>(null);
   const [activeLessonContent, setActiveLessonContent] = useState<LessonContentResponse | null>(null);
   const [contentLoading, setContentLoading] = useState(false);
-  const [aiSteps, setAiSteps] = useState<string[] | null>(null);
-  const [aiLoading, setAiLoading] = useState(false);
-  const [aiError, setAiError] = useState<string | null>(null);
   const correct = checked && isCorrect(question, answer);
-
-  async function requestAiExplanation() {
-    setAiLoading(true);
-    setAiError(null);
-    try {
-      const res = await fetch("/api/ai/explain", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          prompt: question.prompt,
-          correctAnswer: question.correctAnswer,
-          choices: question.choices,
-        }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data?.error ?? "Failed to get an explanation.");
-      setAiSteps(data.steps);
-    } catch (err) {
-      setAiError(err instanceof Error ? err.message : "Failed to get an explanation.");
-    } finally {
-      setAiLoading(false);
-    }
-  }
 
   function handleChoice(choice: string) {
     if (checked) return;
@@ -208,52 +182,23 @@ export function SimplePracticeQuestion({
           </div>
         )}
 
-        {/* Feedback */}
-        {checked && (
-          <div className={`pq-feedback ${correct ? "pq-feedback--correct" : "pq-feedback--incorrect"}`}>
-            <p className="pq-feedback-verdict">
-              {correct ? "✓ Correct" : "✗ Incorrect"}{" "}
-              <span>— <QuestionText html={question.correctAnswer} /></span>
-            </p>
-            {question.explanation && (
-              <p className="pq-feedback-explanation"><QuestionText html={question.explanation} /></p>
-            )}
-            <div className="ai-explanation">
-              {!aiSteps && !aiError && (
-                <button className="ai-explain-trigger" onClick={requestAiExplanation} disabled={aiLoading}>
-                  <span className="ai-explain-trigger-icon" aria-hidden="true">
-                    {aiLoading ? <span className="ai-spinner" /> : "✨"}
-                  </span>
-                  {aiLoading ? "Thinking…" : "Explain the answer"}
-                </button>
-              )}
-              {aiError && (
-                <div className="ai-explain-card ai-explain-card--error">
-                  <p className="ai-explain-error-text">{aiError}</p>
-                  <button className="ai-explain-retry" onClick={requestAiExplanation}>
-                    Try again
-                  </button>
-                </div>
-              )}
-              {aiSteps && (
-                <div className="ai-explain-card">
-                  <div className="ai-explain-card-header">
-                    <span className="ai-explain-badge">✨ AI tutor</span>
-                    <span className="ai-explain-card-title">Explanation</span>
-                  </div>
-                  {aiSteps.length > 1 ? (
-                    <ol className="ai-explain-steps">
-                      {aiSteps.map((step, i) => (
-                        <li key={i} className="ai-explain-step">
-                          <span className="ai-explain-step-number">{i + 1}</span>
-                          <span className="ai-explain-step-text">{step}</span>
-                        </li>
-                      ))}
-                    </ol>
-                  ) : (
-                    <p className="ai-explain-card-body">{aiSteps[0]}</p>
-                  )}
-                </div>
+        {checked && question.explainAnswer && question.explainAnswer.length > 0 && (
+          <div className="ai-explanation">
+            <div className="ai-explain-card">
+              <div className="ai-explain-card-header">
+                <span className="ai-explain-card-title">Explanation</span>
+              </div>
+              {question.explainAnswer.length > 1 ? (
+                <ol className="ai-explain-steps">
+                  {question.explainAnswer.map((step, i) => (
+                    <li key={i} className="ai-explain-step">
+                      <span className="ai-explain-step-number">{i + 1}</span>
+                      <span className="ai-explain-step-text">{step}</span>
+                    </li>
+                  ))}
+                </ol>
+              ) : (
+                <p className="ai-explain-card-body">{question.explainAnswer[0]}</p>
               )}
             </div>
           </div>

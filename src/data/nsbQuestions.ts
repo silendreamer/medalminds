@@ -26,6 +26,7 @@ export async function getNsbQuestions(): Promise<PracticeQuestion[]> {
       choices: q.choices && q.choices.length > 0 ? q.choices : undefined,
       correctAnswer: (q.choices && q.answerIndex != null) ? q.choices[q.answerIndex] : q.answer,
       explanation: "",
+      explainAnswer: q.explainAnswer && q.explainAnswer.length > 0 ? q.explainAnswer : undefined,
       lessonIds: q.lessonIds || [],
       subtopic: q.subtopic,
     }));

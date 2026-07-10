@@ -23,6 +23,7 @@ export interface PracticeQuestion {
   correctAnswer: string;
   alternateAnswers?: string[];
   explanation: string;
+  explainAnswer?: string[];
   lessonIds?: string[];
   subtopic?: string;
 }
