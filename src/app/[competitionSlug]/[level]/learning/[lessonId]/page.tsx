@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { getCompetitionBySlug, getLessonBySlug, getQuestionsForLesson, isCompetitionSlug } from "@/lib/data";
 import { getNsbLessons } from "@/data/nsbQuestions";
 import { QuestionText } from "@/components/QuestionText";
-import { parseLessonSectionLines } from "@/lib/lessonContent";
+import { parseLessonSectionLines, parseLessonTable } from "@/lib/lessonContent";
 import "@/app/practice-page.css";
 
 export default async function LessonDetailPage({
@@ -89,11 +89,32 @@ export default async function LessonDetailPage({
           {lesson.contentSections.map((section) => {
             const isReview = /review questions?/i.test(section.heading);
             const isTossUp = /toss.?up|clue/i.test(section.heading);
+            const parsedTable = isTossUp ? parseLessonTable(section.body) : null;
             const lines = parseLessonSectionLines(section.body);
             return (
               <div className={`lesson-section${isTossUp ? " lesson-section--no-border" : ""}`} key={section.heading}>
                 {!isTossUp && <h2 className="lesson-section-heading">{section.heading}</h2>}
-                {isTossUp ? (
+                {isTossUp && parsedTable ? (
+                  <div>
+                    <div className="lesson-clue-table-label">⚡ Science Bowl Clue</div>
+                    <div className="lesson-clue-table-wrap">
+                      <table className="lesson-clue-table">
+                        <thead>
+                          <tr>
+                            {parsedTable.table.header.map((h) => <th key={h}>{h}</th>)}
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {parsedTable.table.rows.map((row, i) => (
+                            <tr key={i}>
+                              {row.map((cell, j) => <td key={j}>{cell}</td>)}
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                ) : isTossUp ? (
                   <div style={{ display: "grid", gap: "10px" }}>
                     {lines.map((clue, i) => (
                       <div className="lesson-buzz-fact" key={i}>
