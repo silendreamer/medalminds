@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { SubjectTree } from "@/lib/data";
+import { parseLessonSectionLines } from "@/lib/lessonContent";
 import type { CompetitionSlug, Lesson } from "@/types";
 
 type Props = {
@@ -334,13 +335,7 @@ export function CourseLayout({ tree, activeLesson, activeLessonSlug, competition
             {activeLesson.contentSections.map((section) => {
               const isReview = /review questions?/i.test(section.heading);
               const isTossUp = /toss.?up|clue/i.test(section.heading);
-              const lines = section.body
-                .replace(/\n?---\s*$/, "")
-                .trim()
-                .split("\n")
-                .map((s) => s.trim())
-                .filter(Boolean)
-                .map((l) => l.replace(/^\d+\.\s*/, ""));
+              const lines = parseLessonSectionLines(section.body);
               return (
                 <div className={`lesson-section${isTossUp ? " lesson-section--no-border" : ""}`} key={section.heading}>
                   {!isTossUp && <h2 className="lesson-section-heading">{section.heading}</h2>}

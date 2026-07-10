@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { getCompetitionBySlug, getLessonBySlug, getQuestionsForLesson, isCompetitionSlug } from "@/lib/data";
 import { getNsbLessons } from "@/data/nsbQuestions";
 import { QuestionText } from "@/components/QuestionText";
+import { parseLessonSectionLines } from "@/lib/lessonContent";
 import "@/app/practice-page.css";
 
 export default async function LessonDetailPage({
@@ -88,13 +89,7 @@ export default async function LessonDetailPage({
           {lesson.contentSections.map((section) => {
             const isReview = /review questions?/i.test(section.heading);
             const isTossUp = /toss.?up|clue/i.test(section.heading);
-            const lines = section.body
-              .replace(/\n?---\s*$/, "")
-              .trim()
-              .split("\n")
-              .map((s) => s.trim())
-              .filter(Boolean)
-              .map((l) => l.replace(/^\d+\.\s*/, ""));
+            const lines = parseLessonSectionLines(section.body);
             return (
               <div className={`lesson-section${isTossUp ? " lesson-section--no-border" : ""}`} key={section.heading}>
                 {!isTossUp && <h2 className="lesson-section-heading">{section.heading}</h2>}
