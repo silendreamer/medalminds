@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { Competition } from "@/types";
 import { competitionPath } from "@/lib/routes";
 import { formatApproximateCount } from "@/lib/format";
+import { competitionEmoji } from "@/lib/subjects";
 
 export function CompetitionCard({
   competition,
@@ -19,12 +20,7 @@ export function CompetitionCard({
       : competition.slug === "science-olympiad"
         ? "science-olympiad"
         : "math-olympiad";
-  const emojiIcon =
-    competition.slug === "science-bowl"
-      ? "🧪"
-      : competition.slug === "science-olympiad"
-        ? "🔬"
-        : "∑";
+  const emojiIcon = competitionEmoji(competition.slug);
 
   return (
     <article className={`competition-card ${accentClass}${!isScienceBowl ? " coming-soon" : ""}`}>
@@ -60,11 +56,6 @@ export function CompetitionCard({
           <button
             className="button button-disabled"
             disabled
-            style={{
-              opacity: 0.5,
-              cursor: "not-allowed",
-              pointerEvents: "none"
-            }}
           >
             Coming Soon
           </button>

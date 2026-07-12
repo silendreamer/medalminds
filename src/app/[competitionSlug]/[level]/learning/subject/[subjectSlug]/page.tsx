@@ -81,18 +81,16 @@ export default async function SubjectCoursePage({
   }
 
   return (
-    <>
-      <div style={{ paddingLeft: "24px", paddingRight: "24px", paddingTop: "18px", paddingBottom: "44px" }}>
-        <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
-          <CourseLayout
-            tree={tree}
-            activeLesson={activeLesson ?? null}
-            activeLessonSlug={lessonSlug ?? null}
-            competitionSlug={competitionSlug}
-            activeTopic={activeTopic}
-          />
-        </div>
+    <section className="section course-section">
+      <div className="container">
+        <CourseLayout
+          tree={tree}
+          activeLesson={activeLesson ?? null}
+          activeLessonSlug={lessonSlug ?? null}
+          competitionSlug={competitionSlug}
+          activeTopic={activeTopic}
+        />
       </div>
-    </>
+    </section>
   );
 }

@@ -1,13 +1,7 @@
 import Link from "next/link";
 import type { CompetitionSlug, CurriculumSubject, Lesson } from "@/types";
 import { lessonPath } from "@/lib/routes";
-
-function normalizeLevel(level: string): string {
-  const l = level.toLowerCase();
-  if (l.includes("middle")) return "middle-school";
-  if (l.includes("high")) return "high-school";
-  return l.replace(/\s+/g, "-");
-}
+import { normalizeLevel } from "@/lib/levels";
 
 const stopWords = new Set([
   "and",

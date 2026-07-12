@@ -1,6 +1,18 @@
 export type SchoolLevelFilter = "MIDDLE_SCHOOL" | "HIGH_SCHOOL";
 
 /**
+ * Convert a display-format level string ("Middle School", "High School") to a
+ * URL-level slug ("middle-school", "high-school"). Falls back to a lowercased,
+ * hyphenated version of the input for unrecognised values.
+ */
+export function normalizeLevel(level: string): string {
+  const l = level.toLowerCase();
+  if (l.includes("middle")) return "middle-school";
+  if (l.includes("high")) return "high-school";
+  return l.replace(/\s+/g, "-");
+}
+
+/**
  * Parse a URL-level string (e.g. "middle-school") into the internal SchoolLevelFilter enum.
  * Returns undefined for unrecognized values.
  */

@@ -21,7 +21,6 @@ export default async function LessonDetailPage({
   const lessonQuestions = await getQuestionsForLesson(lesson.id, competitionSlug);
 
   // Find adjacent lessons in the same subtopic via raw NSB JSON
-  let prevLesson: { slug: string; title: string } | null = null;
   let nextLesson: { slug: string; title: string } | null = null;
   let currentIndex = -1;
   let subtopicLessonsCount = 0;
@@ -39,7 +38,6 @@ export default async function LessonDetailPage({
       );
       currentIndex = siblings.findIndex((l: NsbLesson) => l.slug === lessonId);
       subtopicLessonsCount = siblings.length;
-      if (currentIndex > 0) prevLesson = siblings[currentIndex - 1];
       if (currentIndex >= 0 && currentIndex < siblings.length - 1) nextLesson = siblings[currentIndex + 1];
     }
   }
@@ -118,7 +116,7 @@ export default async function LessonDetailPage({
                     </div>
                   </div>
                 ) : isTossUp ? (
-                  <div style={{ display: "grid", gap: "10px" }}>
+                  <div className="lesson-clue-stack">
                     {lines.map((clue, i) => (
                       <div className="lesson-buzz-fact" key={i}>
                         <div className="lesson-buzz-fact-heading">⚡ Science Bowl Clue</div>

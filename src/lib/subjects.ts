@@ -24,3 +24,16 @@ const SUBJECT_EMOJI: Record<string, string> = {
 export function subjectEmoji(name: string): string {
   return SUBJECT_EMOJI[name] ?? "📚";
 }
+
+const COMPETITION_EMOJI: Record<string, string> = {
+  "science-bowl": "🧪",
+  "science-olympiad": "🔬",
+  "math-olympiad": "∑",
+};
+
+/**
+ * Emoji for a competition slug. Returns "🏆" for unrecognised slugs.
+ */
+export function competitionEmoji(slug: string): string {
+  return COMPETITION_EMOJI[slug] ?? "🏆";
+}

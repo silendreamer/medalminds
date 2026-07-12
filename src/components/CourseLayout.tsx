@@ -19,15 +19,13 @@ type Props = {
 export function CourseLayout({ tree, activeLesson, activeLessonSlug, competitionSlug, activeTopic }: Props) {
   const pathname = usePathname();
 
-  // Compute prev/next within the same subtopic
-  let prevLesson: { slug: string; title: string } | null = null;
+  // Compute next lesson within the same subtopic
   let nextLesson: { slug: string; title: string } | null = null;
   if (activeLessonSlug) {
     for (const topic of tree.topics) {
       for (const subTopic of topic.subTopics) {
         const idx = subTopic.lessons.findIndex((l) => l.slug === activeLessonSlug);
         if (idx >= 0) {
-          if (idx > 0) prevLesson = subTopic.lessons[idx - 1];
           if (idx < subTopic.lessons.length - 1) nextLesson = subTopic.lessons[idx + 1];
           break;
         }
@@ -126,38 +124,27 @@ export function CourseLayout({ tree, activeLesson, activeLessonSlug, competition
   const topicCount = tree.topics.length;
 
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "300px 1fr", gap: "26px", alignItems: "start" }}>
+    <div className="course-two-pane">
       {/* Sidebar */}
-      <aside style={{ border: "1px solid #e7e9ee", borderRadius: "12px", overflow: "hidden", position: "sticky", top: "16px" }}>
+      <aside className="course-sidebar">
         {/* Sidebar header */}
-        <div style={{ padding: "18px", borderBottom: "1px solid #eef0f3", display: "flex", alignItems: "center", gap: "12px" }}>
+        <div className="course-sidebar-header">
           <div
-            style={{
-              width: "46px",
-              height: "46px",
-              borderRadius: "11px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              background: subjectColor,
-              color: "white",
-              flexShrink: 0,
-              fontSize: "22px",
-              lineHeight: 1
-            }}
+            className="course-sidebar-icon"
+            style={{ background: subjectColor }}
           >
             {emoji}
           </div>
           <div>
-            <h4 style={{ margin: 0, fontSize: "16px", fontWeight: 600, color: "#1a2745" }}>{tree.name}</h4>
-            <span style={{ display: "block", fontSize: "12px", color: "#667085" }}>
+            <h4 className="course-sidebar-title">{tree.name}</h4>
+            <span className="course-sidebar-meta">
               {lessonCounts} lessons · {topicCount} topics
             </span>
           </div>
         </div>
 
         {/* Navigation */}
-        <nav style={{ padding: "8px", maxHeight: "calc(100vh - 120px)", overflowY: "auto" }}>
+        <nav className="course-sidebar-nav">
           {tree.topics.map((topic) => {
             const isOpen = openTopicId === topic.id;
             const hasLessons = topic.subTopics.some((st) => st.lessons.length > 0);
@@ -169,41 +156,26 @@ export function CourseLayout({ tree, activeLesson, activeLessonSlug, competition
                 <button
                   onClick={() => hasLessons && toggleTopic(topic.id)}
                   disabled={!hasLessons}
+                  className="course-topic-btn"
                   style={{
-                    width: "100%",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    padding: "10px 12px",
-                    borderRadius: "8px",
-                    background: isOpen ? `${subjectColor}15` : "transparent",
-                    color: isOpen ? subjectColor : "#1a2745",
-                    fontWeight: 600,
-                    fontSize: "13.5px",
-                    border: "none",
-                    cursor: hasLessons ? "pointer" : "default",
-                    textAlign: "left",
-                    transition: "all 150ms ease"
+                    background: isOpen ? `${subjectColor}15` : undefined,
+                    color: isOpen ? subjectColor : undefined,
                   }}
                 >
                   <span>{topic.name}</span>
                   <span
-                    style={{
-                      fontSize: "11.5px",
-                      fontWeight: 600,
-                      padding: "2px 8px",
-                      borderRadius: "999px",
-                      background: isOpen ? `${subjectColor}25` : "#f1f3f7",
-                      color: isOpen ? subjectColor : "#667085",
-                      flexShrink: 0
-                    }}
+                    className="course-topic-count"
+                    style={isOpen ? {
+                      background: `${subjectColor}25`,
+                      color: subjectColor,
+                    } : undefined}
                   >
                     {totalLessonsInTopic}
                   </span>
                 </button>
 
                 {isOpen && (
-                  <div style={{ paddingBottom: "6px" }}>
+                  <div className="course-topic-body">
                     {topic.subTopics.map((subTopic) => {
                       const stOpen = openSubTopicId === subTopic.id;
                       const hasSubLessons = subTopic.lessons.length > 0;
@@ -215,68 +187,35 @@ export function CourseLayout({ tree, activeLesson, activeLessonSlug, competition
                           <button
                             onClick={() => hasSubLessons && toggleSubTopic(subTopic.id)}
                             disabled={!hasSubLessons}
-                            style={{
-                              width: "100%",
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "space-between",
-                              padding: "8px 12px 8px 22px",
-                              borderRadius: "7px",
-                              background: "transparent",
-                              color: stOpen ? subjectColor : "#667085",
-                              fontWeight: 600,
-                              fontSize: "12.5px",
-                              border: "none",
-                              cursor: hasSubLessons ? "pointer" : "default",
-                              textAlign: "left",
-                              transition: "color 150ms ease"
-                            }}
+                            className="course-subtopic-btn"
+                            style={stOpen ? { color: subjectColor } : undefined}
                           >
                             <span>{subTopic.name}</span>
                             {hasSubLessons && (
-                              <span style={{
-                                fontSize: "11px",
-                                fontWeight: 600,
-                                padding: "1px 6px",
-                                borderRadius: "999px",
-                                background: "#f1f3f7",
-                                color: "#667085",
-                                flexShrink: 0
-                              }}>
+                              <span className="course-subtopic-count">
                                 {subTopic.lessons.length}
                               </span>
                             )}
                           </button>
 
                           {(stOpen || subTopicHasActive) && hasSubLessons && (
-                            <div style={{ padding: "2px 10px 6px 22px" }}>
+                            <div className="course-lesson-list">
                               {subTopic.lessons.map((lesson) => {
                                 const isActive = lesson.slug === activeLessonSlug;
                                 return (
                                   <Link
                                     key={lesson.id}
                                     href={lessonHref(lesson.slug)}
-                                    style={{
-                                      display: "flex",
-                                      alignItems: "flex-start",
-                                      gap: "8px",
-                                      padding: "7px 8px",
-                                      borderRadius: "7px",
-                                      background: isActive ? "#fff" : "transparent",
-                                      fontSize: "13px",
-                                      fontWeight: isActive ? 600 : 400,
-                                      color: isActive ? "#1a2745" : "#667085",
-                                      textDecoration: "none",
-                                      boxShadow: isActive ? `inset 2px 0 0 ${subjectColor}` : "none",
-                                      transition: "all 150ms ease",
-                                      lineHeight: 1.4
-                                    }}
+                                    className={`course-lesson-link${isActive ? " course-lesson-link--active" : ""}`}
+                                    style={isActive ? {
+                                      boxShadow: `inset 2px 0 0 ${subjectColor}`,
+                                    } : undefined}
                                   >
                                     {(() => {
                                       const isVisited = visitedLessons.has(lesson.slug);
-                                      if (isActive) return <span style={{ color: subjectColor, fontSize: "10px", marginTop: "3px", flexShrink: 0 }}>●</span>;
-                                      if (isVisited) return <span style={{ color: "#22c55e", fontSize: "12px", marginTop: "1px", flexShrink: 0 }}>✓</span>;
-                                      return <span style={{ color: "#c2c7d0", fontSize: "10px", marginTop: "3px", flexShrink: 0 }}>○</span>;
+                                      if (isActive) return <span className="course-lesson-dot" style={{ color: subjectColor }}>●</span>;
+                                      if (isVisited) return <span className="course-lesson-dot course-lesson-dot--visited">✓</span>;
+                                      return <span className="course-lesson-dot course-lesson-dot--unvisited">○</span>;
                                     })()}
                                     {lesson.title}
                                   </Link>
@@ -358,7 +297,7 @@ export function CourseLayout({ tree, activeLesson, activeLessonSlug, competition
                       </div>
                     </div>
                   ) : isTossUp ? (
-                    <div style={{ display: "grid", gap: "10px" }}>
+                    <div className="lesson-clue-stack">
                       {lines.map((clue, i) => (
                         <div className="lesson-buzz-fact" key={i}>
                           <div className="lesson-buzz-fact-heading">⚡ Science Bowl Clue</div>
@@ -402,10 +341,10 @@ export function CourseLayout({ tree, activeLesson, activeLessonSlug, competition
             </div>
           </article>
         ) : (
-          <div style={{ color: "#667085", textAlign: "center", padding: "60px 40px" }}>
-            <span style={{ fontSize: "12px", fontWeight: 600, color: "#b8860b", textTransform: "uppercase", letterSpacing: "0.08em" }}>Get started</span>
-            <h2 style={{ color: "#1a2745", fontSize: "24px", fontWeight: 600, marginTop: "12px" }}>Select a lesson from the left</h2>
-            <p style={{ color: "#667085" }}>Choose a topic from the left to start reading.</p>
+          <div className="course-empty-state">
+            <span className="course-empty-state-eyebrow">Get started</span>
+            <h2 className="course-empty-state-heading">Select a lesson from the left</h2>
+            <p>Choose a topic from the left to start reading.</p>
           </div>
         )}
       </main>

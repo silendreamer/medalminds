@@ -54,13 +54,13 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData()) }}
           type="application/ld+json"
         />
-        <div className="page-shell" style={{ padding: "24px" }}>
-          <div className="screen" style={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
+        <div className="page-shell">
+          <div className="screen">
             <Header />
             <Suspense fallback={null}>
               <AutoBreadcrumbs />
             </Suspense>
-            <main style={{ flex: 1 }}>{children}</main>
+            <main className="page-main">{children}</main>
             <Footer />
           </div>
         </div>

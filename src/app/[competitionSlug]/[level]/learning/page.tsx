@@ -98,7 +98,7 @@ export default async function LearningPage({
               return (
                 <Link
                   key={item.slug}
-                  className="subject-card"
+                  className={`subject-card subject-card--${slugifySubject(item.name)}`}
                   href={`/${competitionSlug}/${level}/learning/subject/${slugifySubject(item.name)}`}
                 >
                   <div className="subject-card-icon">{emoji}</div>
@@ -123,7 +123,7 @@ export default async function LearningPage({
               <h1>{curriculumSubject.name}</h1>
               <p className="subtitle">{curriculumSubject.shortDescription}</p>
               <p>{curriculumSubject.whyItMatters}</p>
-              <p className="curriculum-value-copy">
+              <p>
                 Medal Minds is organizing this track around the 20% of content that tends to produce 80% of Science Bowl points.
               </p>
               <div className="badge-list">

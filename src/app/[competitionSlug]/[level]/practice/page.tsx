@@ -14,7 +14,7 @@ import {
 import { formatApproximateCount } from "@/lib/format";
 import { practiceSubjectPath } from "@/lib/routes";
 import { buildMetadata } from "@/lib/seo";
-import { subjectEmoji } from "@/lib/subjects";
+import { slugifySubject, subjectEmoji } from "@/lib/subjects";
 import { parseSchoolLevel } from "@/lib/levels";
 import "@/app/practice-page.css";
 
@@ -81,7 +81,7 @@ export default async function PracticePage({
               return (
                 <Link
                   key={item.slug}
-                  className="subject-card"
+                  className={`subject-card subject-card--${slugifySubject(item.name)}`}
                   href={practiceSubjectPath(competitionSlug, level, item.name)}
                 >
                   <div className="subject-card-icon">{emoji}</div>

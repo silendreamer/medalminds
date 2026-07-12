@@ -49,6 +49,11 @@ export default async function CompetitionPage({
 
   const isScienceBowl = competitionSlug === "science-bowl";
 
+  // Handle ?action=buzzer redirect for Science Bowl — before any data fetching
+  if (isScienceBowl && action === "buzzer") {
+    redirect(buzzerPath());
+  }
+
   // For Science Bowl, default to middle-school if no level specified
   const selectedLevel = isScienceBowl && (level === "middle-school" || level === "high-school")
     ? level
@@ -74,11 +79,6 @@ export default async function CompetitionPage({
       )
     : [];
   const countsBySubject = new Map(subjectCounts.map((item) => [item.subject, item.counts]));
-
-  // Handle ?action=buzzer redirect for Science Bowl
-  if (isScienceBowl && action === "buzzer") {
-    redirect(buzzerPath());
-  }
 
   // Science Bowl hub: render shared hub component
   if (isScienceBowl) {

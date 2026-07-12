@@ -177,16 +177,14 @@ export default async function HomePage() {
       </section>
 
       <section className="section cta-band">
-        <div className="container stack" style={{ textAlign: "center", alignItems: "center" }}>
+        <div className="container stack cta-band-content">
           <h2>Ready to compete at your best?</h2>
           <p className="cta-description">
             No sign-up required to start. Sign in anytime to save your progress and unlock personalized recommendations.
           </p>
-          <div style={{ display: "flex", justifyContent: "center" }}>
-            <Link className="button button-lg" href={competitionPath("science-bowl")}>
-              Start Learning Free
-            </Link>
-          </div>
+          <Link className="button button-lg" href={competitionPath("science-bowl")}>
+            Start Learning Free
+          </Link>
         </div>
       </section>
     </>

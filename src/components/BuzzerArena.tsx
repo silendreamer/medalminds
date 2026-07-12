@@ -362,11 +362,11 @@ export function BuzzerArena() {
   }
 
   function nextStep() {
-    setSetupStep((current) => (current === 1 ? 2 : 2));
+    setSetupStep(2);
   }
 
   function previousStep() {
-    setSetupStep((current) => (current === 2 ? 1 : 1));
+    setSetupStep(1);
   }
 
   if (screen === "room" && room) {
