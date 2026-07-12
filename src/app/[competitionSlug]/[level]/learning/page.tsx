@@ -16,10 +16,8 @@ import {
 import { formatApproximateCount } from "@/lib/format";
 import { subjectCoursePath } from "@/lib/routes";
 import { buildMetadata } from "@/lib/seo";
-
-function subjectSlugFromName(name: string) {
-  return name.toLowerCase().replace(/\s+/g, "-");
-}
+import { slugifySubject, subjectEmoji } from "@/lib/subjects";
+import { parseSchoolLevel } from "@/lib/levels";
 
 export async function generateMetadata({
   params,
@@ -60,12 +58,7 @@ export default async function LearningPage({
   const isScienceBowl = competitionSlug === "science-bowl";
   const selectedLevel = level;
 
-  const schoolLevel: SchoolLevelFilter | undefined =
-    selectedLevel === "middle-school"
-      ? "MIDDLE_SCHOOL"
-      : selectedLevel === "high-school"
-        ? "HIGH_SCHOOL"
-        : undefined;
+  const schoolLevel: SchoolLevelFilter | undefined = parseSchoolLevel(selectedLevel);
 
   const isScienceBowlWithLevel = isScienceBowl && schoolLevel;
   const curriculumSubjects = isScienceBowlWithLevel ? await getScienceBowlMiddleSchoolCurriculumSubjects() : [];
@@ -84,15 +77,6 @@ export default async function LearningPage({
       }))
     );
 
-    const emojiMap: Record<string, string> = {
-      "Biology": "🧬",
-      "Chemistry": "⚗️",
-      "Physics": "⚛️",
-      "Earth and Space": "🌍",
-      "Energy": "⚡",
-      "Math": "∑"
-    };
-
     const visibleSubjects = subjectCounts.filter(({ counts }) => counts.lessons > 0);
 
     return (
@@ -110,12 +94,12 @@ export default async function LearningPage({
 
           <div className="subjects-grid">
             {visibleSubjects.map(({ subject: item, counts }) => {
-              const emoji = emojiMap[item.name] || "📚";
+              const emoji = subjectEmoji(item.name);
               return (
                 <Link
                   key={item.slug}
                   className="subject-card"
-                  href={`/${competitionSlug}/${level}/learning/subject/${subjectSlugFromName(item.name)}`}
+                  href={`/${competitionSlug}/${level}/learning/subject/${slugifySubject(item.name)}`}
                 >
                   <div className="subject-card-icon">{emoji}</div>
                   <h4>{item.name}</h4>

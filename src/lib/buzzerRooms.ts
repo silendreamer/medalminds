@@ -1,4 +1,5 @@
-import { BuzzerRoomEventType, BuzzerRoomStatus, Prisma } from "@prisma/client";
+import { randomBytes, randomInt, timingSafeEqual } from "node:crypto";
+import { BuzzerRoomStatus, Prisma } from "@prisma/client";
 import type { PracticeQuestion } from "@/types";
 import { buzzerQuestions, type BuzzerQuestion } from "@/data/buzzerQuestions";
 import { getNsbBuzzerPool, type NsbBuzzerQuestion } from "@/data/nsbQuestions";
@@ -39,14 +40,9 @@ const SEATS: Array<{ team: BuzzerTeam; slot: string }> = [
   { team: "B", slot: "b4" }
 ];
 
-const passwordWords = [
-  "comet", "juno", "helix", "nova", "orbit", "kepler", "atlas", "quark",
-  "vector", "lunar", "pioneer", "signal", "rocket", "cinder", "harbor",
-  "mosaic", "summit", "brisk", "ember", "tidal"
-];
 const choiceLetters = ["W", "X", "Y", "Z"];
 
-function formatSeatLabel(slot: string) {
+export function formatSeatLabel(slot: string) {
   const value = slot.trim().toLowerCase();
   if (value === "a1") return "A1";
   if (value === "a2") return "AC";
@@ -70,23 +66,26 @@ function addHours(date: Date, hours: number) {
   return new Date(date.getTime() + hours * 60 * 60 * 1000);
 }
 
-function randomItem(items: string[]) {
-  return items[Math.floor(Math.random() * items.length)];
-}
+// Unambiguous uppercase alphabet — no I, L, O, 0, 1 to avoid misreads
+const CODE_ALPHABET = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
 
 function makeCode() {
-  return Math.random().toString(36).slice(2, 8).toUpperCase();
+  let code = "";
+  for (let i = 0; i < 6; i++) {
+    code += CODE_ALPHABET[randomInt(0, CODE_ALPHABET.length)];
+  }
+  return code;
 }
 
 function makePassword() {
-  return randomItem(passwordWords);
+  return randomBytes(4).toString("hex");
 }
 
 function id(prefix: string) {
   return `${prefix}_${crypto.randomUUID()}`;
 }
 
-function timeRemaining(room: RoomWithRelations) {
+export function timeRemaining(room: RoomWithRelations) {
   if (room.status === "PAUSED") {
     return Math.max(0, room.timerDurationMs - room.timerElapsedMs);
   }
@@ -99,11 +98,11 @@ function timeRemaining(room: RoomWithRelations) {
   return Math.max(0, room.timerDurationMs - elapsed);
 }
 
-function isBonus(room: RoomWithRelations) {
+export function isBonus(room: RoomWithRelations) {
   return room.status === "BONUS";
 }
 
-function questionClockDurationFor(bonus: boolean) {
+export function questionClockDurationFor(bonus: boolean) {
   return bonus ? 20_000 : 5_000;
 }
 
@@ -119,21 +118,21 @@ function startQuestionClockData(room: RoomWithRelations, forceInterrupt: boolean
   };
 }
 
-function questionClockRemaining(room: RoomWithRelations) {
+export function questionClockRemaining(room: RoomWithRelations) {
   if (!room.questionClockDurationMs) return 0;
   if (!room.questionClockStartedAt) return Math.max(0, room.questionClockDurationMs - room.questionClockElapsedMs);
   const elapsed = room.questionClockElapsedMs + (Date.now() - room.questionClockStartedAt.getTime());
   return Math.max(0, room.questionClockDurationMs - elapsed);
 }
 
-function effectiveStatus(room: RoomWithRelations) {
+export function effectiveStatus(room: RoomWithRelations) {
   if (room.status === "ENDED") return "ENDED";
   if (room.questionClockStartedAt && questionClockRemaining(room) <= 0 && room.status !== "PAUSED") return "TIMEOUT";
   if (room.status !== "PAUSED" && room.timerStartedAt && timeRemaining(room) <= 0) return "TIMEOUT";
   return room.status;
 }
 
-function resumeStatus(room: RoomWithRelations): BuzzerRoomStatus {
+export function resumeStatus(room: RoomWithRelations): BuzzerRoomStatus {
   if (isBonus(room)) return BuzzerRoomStatus.BONUS;
   if (room.buzzedSeatId) return BuzzerRoomStatus.BUZZED;
   if (room.questionClockStartedAt) return BuzzerRoomStatus.RUNNING;
@@ -334,9 +333,10 @@ async function includeRoomWithTimeout(code: string) {
 
 export async function createBuzzerRoom(setup?: Partial<BuzzerRoomSetup>) {
   const prisma = getPrisma();
-  const schoolLevel = setup?.schoolLevel === "MIDDLE_SCHOOL" || setup?.schoolLevel === "HIGH_SCHOOL"
-    ? setup.schoolLevel
-    : null;
+  const schoolLevel: "MIDDLE_SCHOOL" | "HIGH_SCHOOL" | null =
+    setup?.schoolLevel === "MIDDLE_SCHOOL" || setup?.schoolLevel === "HIGH_SCHOOL"
+      ? setup.schoolLevel
+      : null;
   if (!schoolLevel) throw new Error("A school level (Middle School or High School) is required.");
   const currentQuestionId = await randomQuestionId(schoolLevel);
   if (!currentQuestionId) throw new Error("No Science Bowl questions are available.");
@@ -353,11 +353,13 @@ export async function createBuzzerRoom(setup?: Partial<BuzzerRoomSetup>) {
     code = makeCode();
   }
 
-  await prisma.buzzerRoom.create({
-    data: {
+  const organizerPassword = makePassword();
+
+  function buildCreateData(roomCode: string): Prisma.BuzzerRoomCreateInput {
+    return {
       id: id("room"),
-      code,
-      organizerPassword: makePassword(),
+      code: roomCode,
+      organizerPassword,
       schoolLevel,
       teamAName,
       teamBName,
@@ -385,8 +387,26 @@ export async function createBuzzerRoom(setup?: Partial<BuzzerRoomSetup>) {
           message: "Game room created."
         }
       }
+    };
+  }
+
+  // Catch unique-constraint violations (race with concurrent creates) and retry up to 3 times
+  let lastCreateError: unknown;
+  for (let retry = 0; retry < 3; retry++) {
+    try {
+      await prisma.buzzerRoom.create({ data: buildCreateData(code) });
+      lastCreateError = null;
+      break;
+    } catch (err) {
+      if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002") {
+        lastCreateError = err;
+        code = makeCode();
+        continue;
+      }
+      throw err;
     }
-  });
+  }
+  if (lastCreateError) throw lastCreateError;
 
   const room = await includeRoom(code);
   if (!room) throw new Error("Failed to create room.");
@@ -397,22 +417,22 @@ export async function getBuzzerRoom(code: string) {
   return includeRoomWithTimeout(code);
 }
 
-export async function roleForRoom(code: string, organizerPassword?: string | null): Promise<BuzzerRole> {
+export function roleForLoadedRoom(room: { organizerPassword: string }, organizerPassword?: string | null): BuzzerRole {
   if (!organizerPassword) return "participant";
-  const room = await getPrisma().buzzerRoom.findFirst({
-    where: { code: code.toUpperCase(), organizerPassword, expiresAt: { gt: new Date() } },
-    select: { id: true }
-  });
-  return room ? "organizer" : "participant";
+  const supplied = Buffer.from(organizerPassword, "utf8");
+  const stored = Buffer.from(room.organizerPassword, "utf8");
+  // Guard for length mismatch — timingSafeEqual requires equal-length buffers
+  if (supplied.length !== stored.length) return "participant";
+  return timingSafeEqual(supplied, stored) ? "organizer" : "participant";
 }
 
 function requireOrganizer(room: RoomWithRelations, organizerPassword?: string) {
-  if (!organizerPassword || organizerPassword !== room.organizerPassword) {
+  if (roleForLoadedRoom(room, organizerPassword) !== "organizer") {
     throw new Error("Organizer password is required.");
   }
 }
 
-function clampText(value: unknown, fallback: string, maxLength = 24) {
+export function clampText(value: unknown, fallback: string, maxLength = 24) {
   const text = String(value ?? "").trim().slice(0, maxLength);
   return text || fallback;
 }
@@ -422,7 +442,7 @@ function labelWithTeam(name: string, team: string, room: RoomWithRelations) {
   return `${name} (${teamName})`;
 }
 
-function clampInteger(value: unknown, fallback: number, min: number, max: number) {
+export function clampInteger(value: unknown, fallback: number, min: number, max: number) {
   const parsed = Number(value);
   if (!Number.isFinite(parsed)) return fallback;
   return Math.min(max, Math.max(min, Math.trunc(parsed)));
@@ -599,8 +619,8 @@ export async function applyBuzzerAction(code: string, action: BuzzerRoomAction) 
       : room.buzzedIsInterrupt
       ? buzzedSeat.team === "A" ? "B" : "A"
       : null;
-    await prisma.buzzerRoom.update({
-      where: { id: room.id },
+    const judged = await prisma.buzzerRoom.updateMany({
+      where: { id: room.id, buzzedSeatId: room.buzzedSeatId, status: room.status },
       data: {
         status: bonusAvailable ? BuzzerRoomStatus.BONUS : BuzzerRoomStatus.READING,
         buzzedSeatId: null,
@@ -614,28 +634,30 @@ export async function applyBuzzerAction(code: string, action: BuzzerRoomAction) 
         ...(points > 0 && pointsTeam === "B" ? { teamBScore: { increment: points } } : {})
       }
     });
-    await prisma.buzzerSeat.updateMany({ where: { roomId: room.id }, data: { buzzedAt: null } });
-    await prisma.buzzerRoomEvent.create({
-      data: {
-        id: id("event"),
-        roomId: room.id,
-        type: correct ? (bonusAvailable ? "BONUS_QUEUED" : "CORRECT") : room.buzzedIsInterrupt ? "INTERRUPT_INCORRECT" : "INCORRECT",
-        message: correct
-          ? bonusAvailable
-            ? `${labelWithTeam(buzzedSeat.participantName ?? formatSeatLabel(buzzedSeat.slot), buzzedSeat.team, room)} - Correct (+${points}). Bonus question loaded.`
-            : `${labelWithTeam(buzzedSeat.participantName ?? formatSeatLabel(buzzedSeat.slot), buzzedSeat.team, room)} - Correct (+${points}).`
-          : room.buzzedIsInterrupt
-          ? `${labelWithTeam(buzzedSeat.participantName ?? formatSeatLabel(buzzedSeat.slot), buzzedSeat.team, room)} interrupted incorrectly. +4 to ${buzzedSeat.team === "A" ? room.teamBName : room.teamAName}.`
-          : `${labelWithTeam(buzzedSeat.participantName ?? formatSeatLabel(buzzedSeat.slot), buzzedSeat.team, room)} - Incorrect.`
-      }
-    });
+    if (judged.count) {
+      await prisma.buzzerSeat.updateMany({ where: { roomId: room.id }, data: { buzzedAt: null } });
+      await prisma.buzzerRoomEvent.create({
+        data: {
+          id: id("event"),
+          roomId: room.id,
+          type: correct ? (bonusAvailable ? "BONUS_QUEUED" : "CORRECT") : room.buzzedIsInterrupt ? "INTERRUPT_INCORRECT" : "INCORRECT",
+          message: correct
+            ? bonusAvailable
+              ? `${labelWithTeam(buzzedSeat.participantName ?? formatSeatLabel(buzzedSeat.slot), buzzedSeat.team, room)} - Correct (+${points}). Bonus question loaded.`
+              : `${labelWithTeam(buzzedSeat.participantName ?? formatSeatLabel(buzzedSeat.slot), buzzedSeat.team, room)} - Correct (+${points}).`
+            : room.buzzedIsInterrupt
+            ? `${labelWithTeam(buzzedSeat.participantName ?? formatSeatLabel(buzzedSeat.slot), buzzedSeat.team, room)} interrupted incorrectly. +4 to ${buzzedSeat.team === "A" ? room.teamBName : room.teamAName}.`
+            : `${labelWithTeam(buzzedSeat.participantName ?? formatSeatLabel(buzzedSeat.slot), buzzedSeat.team, room)} - Incorrect.`
+        }
+      });
+    }
   }
 
   if (action.type === "nextQuestion") {
     requireOrganizer(room, action.organizerPassword);
     const nextQuestionId = await randomQuestionId(room.schoolLevel);
-    await prisma.buzzerRoom.update({
-      where: { id: room.id },
+    const advanced = await prisma.buzzerRoom.updateMany({
+      where: { id: room.id, questionNumber: room.questionNumber },
       data: {
         currentQuestionId: nextQuestionId,
         status: room.status === "PAUSED" ? BuzzerRoomStatus.PAUSED : BuzzerRoomStatus.READING,
@@ -647,15 +669,17 @@ export async function applyBuzzerAction(code: string, action: BuzzerRoomAction) 
         questionNumber: { increment: 1 }
       }
     });
-    await prisma.buzzerSeat.updateMany({ where: { roomId: room.id }, data: { buzzedAt: null } });
-    await prisma.buzzerRoomEvent.create({
-      data: {
-        id: id("event"),
-        roomId: room.id,
-        type: "NEXT_QUESTION",
-        message: `Advanced to question ${room.questionNumber + 1}.`
-      }
-    });
+    if (advanced.count) {
+      await prisma.buzzerSeat.updateMany({ where: { roomId: room.id }, data: { buzzedAt: null } });
+      await prisma.buzzerRoomEvent.create({
+        data: {
+          id: id("event"),
+          roomId: room.id,
+          type: "NEXT_QUESTION",
+          message: `Advanced to question ${room.questionNumber + 1}.`
+        }
+      });
+    }
   }
 
   if (action.type === "reset") {

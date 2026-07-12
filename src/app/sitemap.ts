@@ -1,14 +1,12 @@
 import type { MetadataRoute } from "next";
 import { competitions } from "@/data/competitions";
 import { scienceBowlMiddleSchoolSubjects } from "@/data/scienceBowlMiddleSchoolCurriculum";
+import { siteUrl } from "@/lib/seo";
+import { slugifySubject } from "@/lib/subjects";
 
-const BASE_URL = "https://medalminds.vercel.app";
+const BASE_URL = siteUrl.replace(/\/$/, "");
 
 const LEVELS = ["middle-school", "high-school"] as const;
-
-function subjectSlug(name: string) {
-  return name.toLowerCase().replace(/[\s&]+/g, "-");
-}
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();
@@ -24,8 +22,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const scienceBowlRoutes: MetadataRoute.Sitemap = LEVELS.flatMap((level) => {
     const base = `${BASE_URL}/science-bowl/${level}`;
     const subjectRoutes = scienceBowlMiddleSchoolSubjects.flatMap((s) => [
-      { url: `${base}/practice/${subjectSlug(s.name)}`, lastModified: now, priority: 0.8 },
-      { url: `${base}/tests/subject/${subjectSlug(s.name)}`, lastModified: now, priority: 0.7 },
+      { url: `${base}/practice/${slugifySubject(s.name)}`, lastModified: now, priority: 0.8 },
+      { url: `${base}/tests/subject/${slugifySubject(s.name)}`, lastModified: now, priority: 0.7 },
       { url: `${base}/learning/subject/${s.slug}`, lastModified: now, priority: 0.7 },
     ]);
 
@@ -38,15 +36,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
     ];
   });
 
-  // Science Olympiad and Math Olympiad (no level-scoped routes yet)
+  // Science Olympiad and Math Olympiad (hub page only — sub-routes are not yet live)
   const otherCompetitionRoutes: MetadataRoute.Sitemap = competitions
     .filter((c) => c.slug !== "science-bowl")
-    .flatMap((c) => [
-      { url: `${BASE_URL}/${c.slug}`, lastModified: now, priority: 0.9 },
-      { url: `${BASE_URL}/${c.slug}/practice`, lastModified: now, priority: 0.8 },
-      { url: `${BASE_URL}/${c.slug}/learning`, lastModified: now, priority: 0.8 },
-      { url: `${BASE_URL}/${c.slug}/tests`, lastModified: now, priority: 0.7 },
-    ]);
+    .map((c) => ({ url: `${BASE_URL}/${c.slug}`, lastModified: now, priority: 0.9 }));
 
   return [...staticRoutes, ...scienceBowlRoutes, ...otherCompetitionRoutes];
 }

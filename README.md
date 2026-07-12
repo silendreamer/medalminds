@@ -1,12 +1,8 @@
 # MedalMinds
 
-MedalMinds is a simple Next.js MVP for academic competition prep at `medalminds.com`. It uses local TypeScript data files and dynamic routing to create mini-sites for:
+MedalMinds is a Next.js 16 (App Router) / React 19 site for academic competition prep at `medalminds.com`. It offers practice questions, learning lessons, timed tests, and a real-time Science Bowl Buzzer Arena.
 
-- Science Bowl
-- Science Olympiad
-- Math Olympiad
-
-The app includes practice questions, learning lessons, test-taking flows, and a Science Bowl Buzzer Arena. It can run from local TypeScript data for development, or from PostgreSQL when database environment variables are configured.
+Live product: **Science Bowl** — 25,650 real NSB questions and 2,031 topic lessons covering Biology, Chemistry, Physics, Earth and Space, Energy, and Math for both Middle School and High School levels. Science Olympiad and Math Olympiad are placeholder shells (coming soon).
 
 ## Run locally
 
@@ -15,277 +11,111 @@ npm install
 npm run dev
 ```
 
-Open `http://localhost:3000`.
+Open `http://localhost:3000`. No database is required to run the app — all Science Bowl content is served from committed JSON and Markdown files.
 
-Without database variables, the app automatically uses the local TypeScript sample data. To run against PostgreSQL, copy `.env.example` to `.env.local`, set the database URL values, then run:
-
-```bash
-npm run db:deploy
-npm run db:seed
-npm run dev
-```
+The Buzzer Arena requires PostgreSQL (see below).
 
 ## Routes
 
-- `/`
-- `/science-bowl`
-- `/science-bowl/practice`
-- `/science-bowl/buzzer`
-- `/science-bowl/learning`
-- `/science-bowl/learning/[lessonId]`
-- `/science-bowl/tests`
-- `/science-bowl/tests/[testId]`
-
-The same structure is available for `/science-olympiad` and `/math-olympiad`.
-
-## Data files
-
-Local content lives in:
-
-- `src/data/competitions.ts`
-- `src/data/practiceQuestions.ts`
-- `src/data/lessons.ts`
-- `src/data/tests.ts`
-- `src/data/buzzerQuestions.ts`
-
-Shared types live in `src/types/index.ts`. Data lookup helpers live in `src/lib/data.ts`.
-
-## Import DOE/OSTI Science Bowl Sample Questions
-
-This repo includes scripted importers for DOE/OSTI Science Bowl sample question PDFs.
-
-- Source page: `https://science.osti.gov/wdts/nsb/Regional-Competitions/Resources/MS-Sample-Questions`
-- Source page: `https://science.osti.gov/wdts/nsb/Regional-Competitions/Resources/HS-Sample-Questions`
-- The importer discovers sample-round PDF links automatically from that page.
-- It downloads each PDF, extracts text, parses toss-up and bonus questions, and writes records into `Question` and `Answer` tables.
-- The importer stores source metadata like `sourcePdfUrl`, `sourceSet`, `sourceRound`, and `sourceHash`.
-- Duplicate prevention is implemented using a stable source hash based on the PDF URL, question kind, question number, and normalized prompt.
-
-Run a dry run first:
-
-```bash
-npm run import:osti-ms-science-bowl -- --dry-run --max-pdfs 2
+```
+/                                          # home
+/science-bowl                              # competition hub
+/science-bowl/middle-school                # level hub
+/science-bowl/middle-school/practice
+/science-bowl/middle-school/practice/[subject]
+/science-bowl/middle-school/learning
+/science-bowl/middle-school/learning/[lessonId]
+/science-bowl/middle-school/learning/subject/[subjectSlug]
+/science-bowl/middle-school/tests
+/science-bowl/middle-school/tests/[testId]
+/science-bowl/middle-school/tests/subject/[subjectSlug]
+/science-bowl/high-school/...              # same structure
+/science-bowl/buzzer                       # Buzzer Arena
+/science-bowl/info-session                 # info page
 ```
 
-Export parsed data instead of writing to Postgres:
+Use `src/lib/routes.ts` helpers to build URLs; do not hardcode paths.
+
+## Content architecture
+
+All Science Bowl content is committed to the repo — there is no database-backed content layer:
+
+| Source | Contents |
+|---|---|
+| `docs/nsb/questions.json` | ~24 MB, ~25,650 questions |
+| `docs/nsb/lessons.json` | ~1.4 MB, ~2,031 lesson metadata records |
+| `docs/content/nsb/**` | 2,107 Markdown lesson body files |
+
+Loaders are in `src/data/nsbQuestions.ts`. The JSON files are dynamically imported and memoized at module scope; lesson bodies are read with `fs.readFile` at request time. All reads are coordinated through `src/lib/data.ts`.
+
+**`next.config.ts` must keep `outputFileTracingIncludes: { "/**": ["./docs/content/**"] }`** so Vercel includes the Markdown files in the serverless bundle. Removing it causes lesson pages to silently render with no content.
+
+Science Olympiad and Math Olympiad content arrays (`src/data/practiceQuestions.ts`, `src/data/lessons.ts`) are intentionally empty.
+
+## Buzzer Arena setup (PostgreSQL required)
+
+The Buzzer Arena (`/science-bowl/buzzer`) stores rooms in PostgreSQL. To run it locally:
+
+1. Copy `.env.example` to `.env.local` and fill in your database URL.
+2. Apply the Buzzer Arena schema:
 
 ```bash
-npm run import:osti-ms-science-bowl -- --output-format=csv --max-pdfs 2
+npm run db:deploy
+npm run dev
 ```
+
+There is no seed script. The schema is in `prisma/schema.prisma`; the single migration is `prisma/migrations/0001_buzzer_baseline/`.
+
+## Commands
 
 ```bash
-npm run import:osti-ms-science-bowl -- --output-format=sql --max-pdfs 2
+npm run dev            # Next dev server at http://localhost:3000
+npm run build          # Typecheck + production build
+npm run lint           # ESLint (flat config in eslint.config.mjs)
+npm test               # Vitest (single pass, no DB required)
+npm run test:watch     # Vitest watch mode
+npm run db:generate    # prisma generate (runs automatically on postinstall)
+npm run db:migrate     # Create/apply a migration in dev
+npm run db:deploy      # Apply existing migrations to prod
+npm run vercel-build   # prisma migrate deploy && next build (used by Vercel)
 ```
-
-```bash
-npm run import:osti-ms-science-bowl -- --output-format=sqlite --max-pdfs 2
-```
-
-Import into the database:
-
-```bash
-DATABASE_URL="postgres://..." npm run import:osti-ms-science-bowl
-```
-
-Import the already-generated middle school and high school SQLite exports into the configured Prisma/PostgreSQL database:
-
-```bash
-npm run import:osti-sqlite
-```
-
-This command removes the old MedalMinds placeholder practice rows, reloads the DOE/OSTI Science Bowl rows from `.cache/osti-science-bowl/osti-ms-all-sets.sqlite` and `.cache/osti-science-bowl/osti-hs-all-sets.sqlite`, and creates `AnswerExplanation` rows for each imported question. Keep it as an explicit admin import, not part of the Vercel build command.
-
-Limit import scope:
-
-```bash
-npm run import:osti-ms-science-bowl -- --set 1 --round 1
-```
-
-Notes:
-
-- The script caches downloaded PDFs in `.cache/osti-science-bowl/` unless `--refresh` is passed.
-- The source page warns that answers may change as science advances.
-- If PostgreSQL environment variables are not configured, the importer will not execute database writes.
-
-What tables are populated:
-
-- `Question`
-- `Answer`
-- `AnswerExplanation`
 
 ## Generate worked answer explanations
 
-The app displays `AnswerExplanation.shortExplanation` after a student checks an answer. If that row is missing, it falls back to the legacy `Question.explanation` field. To replace imported placeholder explanations with generated worked solutions, configure `OPENAI_API_KEY` in `.env.local` and run the admin script locally against the same Postgres database used by Vercel.
-
-Dry run a small batch first:
+The `explainAnswer` field on each question in `docs/nsb/questions.json` holds 2–5 step-by-step solution strings shown after a student checks their answer. To backfill missing explanations using OpenAI:
 
 ```bash
-npm run generate:answer-explanations -- --limit=3 --list-only
-npm run generate:answer-explanations -- --limit=3
+# Set OPENAI_API_KEY in .env.local, then:
+npm run generate:nsb-answer-explanations -- --limit=10 --dry-run
+npm run generate:nsb-answer-explanations -- --limit=10
+npm run generate:nsb-answer-explanations            # process all pending
 ```
 
-Write a small batch:
+Flags: `--limit=N` (cap), `--dry-run` (no writes), `--concurrency=N` (default 10), `--openai-rpm=N` (rate limit, default 300). The script is safely resumable — it skips questions that already have a non-empty `explainAnswer`.
 
-```bash
-npm run generate:answer-explanations -- --limit=3 --write
-```
-
-Useful filters:
-
-```bash
-npm run generate:answer-explanations -- --school-level=middle-school --category=Physics --limit=5 --write
-npm run generate:answer-explanations -- --question-id=QUESTION_ID --write
-```
-
-The script prints a `verificationPath` for each generated row, such as:
-
-```text
-/science-bowl/practice?level=middle-school&subject=Physics&q=QUESTION_ID
-```
-
-After Vercel redeploys this code, open `https://medalminds.vercel.app` plus that path to inspect the exact question and confirm the generated solution appears after tapping `Check answer`.
-
-## Group questions into reusable learn-more concepts
-
-Use concepts to avoid generating one lesson per question. The concept generator prefers an existing concept in the same competition/category/school level, links the question to that concept, and creates a new concept lesson only when no existing concept fits. The default write safety cap is `--max-new-concepts=3`.
-
-Inspect candidates without using OpenAI tokens:
-
-```bash
-npm run generate:question-concepts -- --limit=5 --list-only
-```
-
-Dry run AI decisions without writing:
-
-```bash
-npm run generate:question-concepts -- --limit=5
-```
-
-Write links and allow at most three new concept lessons:
-
-```bash
-npm run generate:question-concepts -- --limit=5 --write
-```
-
-Useful filters:
-
-```bash
-npm run generate:question-concepts -- --school-level=middle-school --category=Math --limit=10 --write
-npm run generate:question-concepts -- --question-id=QUESTION_ID --write
-npm run generate:question-concepts -- --limit=50 --max-new-concepts=10 --write
-```
-
-Do not run with a very high `--max-new-concepts` unless you intentionally want to expand the lesson library. Existing concepts should absorb similar questions.
-
-The importer reuses the existing Prisma schema and does not introduce a new ORM.
-
-## Classify Science Bowl topics and subtopics
-
-Use the topic classification pipeline to assign reusable `topic`, `subtopic`, `key_concept`, `difficulty`, and `confidence` fields to questions without modifying the original question content. The results are stored in a separate `QuestionTopicClassification` table.
-
-Dry run a small batch:
-
-```bash
-npm run classify:question-topics -- --dry-run --limit=10
-```
-
-Run one subject only:
-
-```bash
-npm run classify:question-topics -- --write --subject="Life Science" --limit=25
-```
-
-Run a limited test batch:
-
-```bash
-npm run classify:question-topics -- --write --limit=50 --batch-size=5
-```
-
-Run the full classification backfill:
-
-```bash
-npm run classify:question-topics -- --write --limit=50000
-```
-
-Regenerate reports:
-
-```bash
-npm run report:question-topics
-```
-
-Useful flags:
-
-- `--dry-run` prints proposed classifications without writing to the database.
-- `--write` persists results to PostgreSQL.
-- `--limit=NUMBER` caps how many questions are processed.
-- `--batch-size=NUMBER` controls worker batch size.
-- `--subject="Math"` or `--category="Math"` filters by question subject/category.
-- `--overwrite` reprocesses questions that already have classifications.
-
-The report command writes JSON and Markdown summaries into `reports/`, including topic counts by subject, subtopic counts by subject, low-confidence rows, Needs Review rows, and suggested 80/20 curriculum topics based on frequency.
+Optional env vars for this script: `OPENAI_MODEL` (default `gpt-4o-mini`), `OPENAI_RPM`, `OPENAI_CONCURRENCY`.
 
 ## Add a new competition
 
 1. Add a competition record to `src/data/competitions.ts`.
 2. Add the new slug to the `CompetitionSlug` union in `src/types/index.ts`.
-3. Add practice questions in `src/data/practiceQuestions.ts`.
-4. Add lesson topics in `src/data/lessons.ts`.
-5. Add test themes and question IDs in `src/data/tests.ts`.
-
-Because the route structure is dynamic, pages for the new competition will work once the data exists.
-
-## Add questions, lessons, and tests
-
-Questions should include `id`, `competitionSlug`, `category`, `level`, `difficulty`, `type`, `prompt`, `correctAnswer`, and `explanation`. Multiple choice questions also include `choices`; short answer questions can include `alternateAnswers`.
-
-Lessons include a slug, metadata, key concepts, content sections, and mini review questions.
-
-Tests include metadata and a `questionIds` array. The test runner loads those local questions, shows one question at a time, allows navigation, and displays a scored review after submit.
-
-## PostgreSQL backend plan
-
-This MVP now includes a PostgreSQL/Prisma backend path. The data helpers in `src/lib/data.ts` read from PostgreSQL when a supported database URL is configured, and fall back to local TypeScript data when no database URL is present.
-
-The backend architecture, schema, migration details, and deployment notes live in [`docs/postgres-backend-plan.md`](docs/postgres-backend-plan.md).
-
-Implemented backend stack:
-
-- PostgreSQL
-- Prisma
-- `@prisma/adapter-pg` with `pg`
-- Hosted database provider such as Supabase Postgres, Neon, Railway Postgres, or Vercel Postgres
-- Server-side repository functions called from the existing Next.js routes
-
-The current backend pass supports read-only content from PostgreSQL. Competitions now have normalized `CompetitionLevel` rows for divisions or grade bands, such as Middle School, High School, Division B, and Division C. Questions use a generic `Question` table with `QuestionFormat`, `QuestionKind`, `SchoolLevel`, source metadata fields, and a dedupe-friendly `sourceHash`. Practice question answers are normalized into an `Answer` table, answer reveal explanations are normalized into an `AnswerExplanation` table, and difficulty is defined as a PostgreSQL/Prisma enum with `FOUNDATIONAL`, `INTERMEDIATE`, and `ADVANCED`. User accounts, saved progress, admin tools, payments, and real-time features remain out of scope until the core content database is stable.
+3. Add practice questions to `src/data/practiceQuestions.ts` (or a new loader like `src/data/nsbQuestions.ts`).
+4. Add lesson metadata to `src/data/lessons.ts` (or a new loader).
+5. Wire up the new loader in `src/lib/data.ts` (see the `slug === "science-bowl"` pattern).
 
 ## Vercel deployment
 
-For Vercel with Supabase Postgres, add the Supabase/Vercel integration environment variables to the project. The app recognizes:
+Set these environment variables in your Vercel project:
 
-- `DATABASE_URL`
-- `POSTGRES_PRISMA_URL`
-- `POSTGRES_URL`
-- `POSTGRES_URL_NON_POOLING`
-- `DIRECT_URL`
-
-Runtime reads prefer `DATABASE_URL`, then `POSTGRES_PRISMA_URL`, then `POSTGRES_URL`. Prisma migrations prefer `DIRECT_URL` or `POSTGRES_URL_NON_POOLING`.
-
-Set the Vercel build command to:
-
-```bash
-npm run vercel-build
+```
+DATABASE_URL          # PostgreSQL connection string (required for Buzzer Arena)
+NEXT_PUBLIC_SITE_URL  # canonical base URL, e.g. https://medalminds.com
 ```
 
-That command runs:
+Vercel/Supabase integrations may provide `POSTGRES_PRISMA_URL`, `POSTGRES_URL`, or `POSTGRES_URL_NON_POOLING` instead of `DATABASE_URL` — the app reads all of them in that priority order (see `src/lib/db.ts`).
 
-1. `prisma migrate deploy`
-2. `prisma db seed`
-3. `next build`
-
-Do not commit `.env.local` or any Supabase service role keys.
-
-Subdomain routing can also be added later by mapping hostnames like `science-bowl.medalminds.com` to the same competition slugs currently used in path-based routes.
+Set the Vercel build command to `npm run vercel-build` (`prisma migrate deploy && next build`).
 
 ## Disclaimer
 
-This is an independent educational practice platform. It is not affiliated with or endorsed by any official competition organization.
+This is an independent educational practice platform. It is not affiliated with or endorsed by the U.S. Department of Energy, the National Science Bowl, or any other official competition organization.

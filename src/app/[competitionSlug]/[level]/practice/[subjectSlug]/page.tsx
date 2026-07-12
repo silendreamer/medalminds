@@ -10,6 +10,7 @@ import {
   type SchoolLevelFilter,
 } from "@/lib/data";
 import { buildMetadata } from "@/lib/seo";
+import { parseSchoolLevel } from "@/lib/levels";
 import "@/app/practice-page.css";
 
 export const dynamic = "force-dynamic";
@@ -48,12 +49,7 @@ export default async function PracticeSubjectPage({
   const subject = getScienceBowlMiddleSchoolSubjectBySlug(subjectSlug);
   if (!subject) notFound();
 
-  const schoolLevel: SchoolLevelFilter | undefined =
-    level === "middle-school"
-      ? "MIDDLE_SCHOOL"
-      : level === "high-school"
-        ? "HIGH_SCHOOL"
-        : undefined;
+  const schoolLevel: SchoolLevelFilter | undefined = parseSchoolLevel(level);
 
   const question = await getRandomQuestionByCompetition(competitionSlug, subject.name, schoolLevel);
 

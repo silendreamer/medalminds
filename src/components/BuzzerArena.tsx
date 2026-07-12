@@ -224,8 +224,10 @@ export function BuzzerArena() {
   const fetchRoom = useCallback(
     async (code = roomCode, password = organizerPassword) => {
       if (!code.trim()) return null;
-      const query = password.trim() ? `?password=${encodeURIComponent(password.trim())}` : "";
-      const response = await fetch(`/api/buzzer/rooms/${encodeURIComponent(code.trim())}${query}`, { cache: "no-store" });
+      const response = await fetch(`/api/buzzer/rooms/${encodeURIComponent(code.trim())}`, {
+        cache: "no-store",
+        headers: password.trim() ? { "x-organizer-password": password.trim() } : undefined
+      });
       const payload = await response.json();
       if (!response.ok) throw new Error(payload.error ?? "Room not found.");
       setRoom(payload.room);
@@ -246,8 +248,9 @@ export function BuzzerArena() {
   useEffect(() => {
     if (screen !== "room" || !room?.code) return;
     const timer = window.setInterval(() => {
+      if (document.hidden) return;
       fetchRoom(room.code).catch(() => undefined);
-    }, 750);
+    }, 1500);
     return () => window.clearInterval(timer);
   }, [fetchRoom, room?.code, screen]);
 

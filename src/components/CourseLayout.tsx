@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import type { SubjectTree } from "@/lib/data";
 import { parseLessonSectionLines, parseLessonTable } from "@/lib/lessonContent";
 import type { CompetitionSlug, Lesson } from "@/types";
+import { subjectEmoji } from "@/lib/subjects";
 
 type Props = {
   tree: SubjectTree;
@@ -37,6 +38,36 @@ export function CourseLayout({ tree, activeLesson, activeLessonSlug, competition
   // Track visited lessons in localStorage, keyed by subject slug
   const storageKey = `visited-lessons-${tree.slug}`;
   const [visitedLessons, setVisitedLessons] = useState<Set<string>>(new Set());
+
+  // Single open topic/subtopic at a time (accordion behavior)
+  // Declared before the useEffect that calls setOpenTopicId/setOpenSubTopicId to
+  // satisfy react-hooks/immutability (setter refs must be declared before use).
+  const [openTopicId, setOpenTopicId] = useState<string | null>(() => {
+    if (activeLessonSlug) {
+      for (const topic of tree.topics) {
+        for (const subTopic of topic.subTopics) {
+          if (subTopic.lessons.some((l) => l.slug === activeLessonSlug)) {
+            return topic.id;
+          }
+        }
+      }
+    }
+    return null;
+  });
+
+  const [openSubTopicId, setOpenSubTopicId] = useState<string | null>(() => {
+    if (activeLessonSlug) {
+      for (const topic of tree.topics) {
+        for (const subTopic of topic.subTopics) {
+          if (subTopic.lessons.some((l) => l.slug === activeLessonSlug)) {
+            return subTopic.id;
+          }
+        }
+      }
+    }
+    return null;
+  });
+
   useEffect(() => {
     try {
       const stored = localStorage.getItem(storageKey);
@@ -67,33 +98,6 @@ export function CourseLayout({ tree, activeLesson, activeLessonSlug, competition
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeLessonSlug, storageKey]);
 
-  // Single open topic/subtopic at a time (accordion behavior)
-  const [openTopicId, setOpenTopicId] = useState<string | null>(() => {
-    if (activeLessonSlug) {
-      for (const topic of tree.topics) {
-        for (const subTopic of topic.subTopics) {
-          if (subTopic.lessons.some((l) => l.slug === activeLessonSlug)) {
-            return topic.id;
-          }
-        }
-      }
-    }
-    return null;
-  });
-
-  const [openSubTopicId, setOpenSubTopicId] = useState<string | null>(() => {
-    if (activeLessonSlug) {
-      for (const topic of tree.topics) {
-        for (const subTopic of topic.subTopics) {
-          if (subTopic.lessons.some((l) => l.slug === activeLessonSlug)) {
-            return subTopic.id;
-          }
-        }
-      }
-    }
-    return null;
-  });
-
   function toggleTopic(id: string) {
     setOpenTopicId((prev) => (prev === id ? null : id));
     setOpenSubTopicId(null); // collapse any open subtopic when switching topics
@@ -107,19 +111,12 @@ export function CourseLayout({ tree, activeLesson, activeLessonSlug, competition
     return `${pathname}?lesson=${encodeURIComponent(lessonSlug)}`;
   }
 
-  const subjectEmojiMap: Record<string, string> = {
-    "Life Science": "🧬",
-    "Physical Science": "⚛️",
-    "Earth & Space": "🌍",
-    "Energy": "⚡",
-    "Math": "∑"
-  };
-  const emoji = subjectEmojiMap[tree.name] || "📚";
+  const emoji = subjectEmoji(tree.name);
 
   const subjectColorMap: Record<string, string> = {
     "Life Science": "#1f8a5b",
     "Physical Science": "#0066cc",
-    "Earth & Space": "#4b5ba8",
+    "Earth and Space": "#4b5ba8",
     "Energy": "#c97c1c",
     "Math": "#1a2745"
   };

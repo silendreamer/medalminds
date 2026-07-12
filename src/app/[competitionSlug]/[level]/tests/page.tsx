@@ -10,6 +10,7 @@ import {
   type SchoolLevelFilter
 } from "@/lib/data";
 import { buildMetadata } from "@/lib/seo";
+import { parseSchoolLevel } from "@/lib/levels";
 import "@/app/tests-page.css";
 
 export const dynamic = "force-dynamic";
@@ -51,12 +52,7 @@ export default async function TestsPage({
   if (!competition) notFound();
   const requestedSize = Number(size);
   const testSize = [5, 10, 25, 50].includes(requestedSize) ? requestedSize : undefined;
-  const schoolLevel: SchoolLevelFilter | undefined =
-    level === "middle-school"
-      ? "MIDDLE_SCHOOL"
-      : level === "high-school"
-        ? "HIGH_SCHOOL"
-        : undefined;
+  const schoolLevel: SchoolLevelFilter | undefined = parseSchoolLevel(level);
   const isScienceBowl = competitionSlug === "science-bowl";
   const curriculumSubjects = isScienceBowl ? await getScienceBowlMiddleSchoolCurriculumSubjects() : [];
   const quizQuestions = testSize ? await getRandomMultipleChoiceQuestions(competitionSlug, subject ?? null, testSize, schoolLevel) : [];

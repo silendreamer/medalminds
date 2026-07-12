@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { applyBuzzerAction, roleForRoom, serializeBuzzerRoom, type BuzzerRoomAction } from "@/lib/buzzerRooms";
+import { applyBuzzerAction, roleForLoadedRoom, serializeBuzzerRoom, type BuzzerRoomAction } from "@/lib/buzzerRooms";
 
 export const dynamic = "force-dynamic";
 
@@ -11,7 +11,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ cod
     const room = await applyBuzzerAction(code, action);
     const organizerPassword =
       "organizerPassword" in action && typeof action.organizerPassword === "string" ? action.organizerPassword : null;
-    const role = await roleForRoom(code, organizerPassword);
+    const role = roleForLoadedRoom(room, organizerPassword);
 
     return NextResponse.json({ room: await serializeBuzzerRoom(room, role) });
   } catch (error) {

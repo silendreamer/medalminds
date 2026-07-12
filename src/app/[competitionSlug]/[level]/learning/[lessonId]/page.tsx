@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getCompetitionBySlug, getLessonBySlug, getQuestionsForLesson, isCompetitionSlug } from "@/lib/data";
-import { getNsbLessons } from "@/data/nsbQuestions";
+import { getNsbLessons, type NsbLesson } from "@/data/nsbQuestions";
 import { QuestionText } from "@/components/QuestionText";
 import { parseLessonSectionLines, parseLessonTable } from "@/lib/lessonContent";
 import "@/app/practice-page.css";
@@ -14,7 +14,8 @@ export default async function LessonDetailPage({
   const { competitionSlug, level, lessonId } = await params;
   if (!isCompetitionSlug(competitionSlug)) notFound();
   const competition = await getCompetitionBySlug(competitionSlug);
-  const lesson = await getLessonBySlug(competitionSlug, lessonId);
+  const levelDisplay = level === "middle-school" ? "Middle School" : level === "high-school" ? "High School" : undefined;
+  const lesson = await getLessonBySlug(competitionSlug, lessonId, levelDisplay);
   if (!competition || !lesson) notFound();
 
   const lessonQuestions = await getQuestionsForLesson(lesson.id, competitionSlug);
@@ -28,13 +29,15 @@ export default async function LessonDetailPage({
 
   if (competitionSlug === "science-bowl") {
     const rawLessons = await getNsbLessons();
-    const rawCurrent = rawLessons.find((l: any) => l.slug === lessonId);
+    const rawCurrent =
+      (levelDisplay ? rawLessons.find((l: NsbLesson) => l.slug === lessonId && l.level === levelDisplay) : undefined)
+      ?? rawLessons.find((l: NsbLesson) => l.slug === lessonId);
     if (rawCurrent) {
       subtopicLabel = rawCurrent.subtopic ?? rawCurrent.subject ?? "";
       const siblings = rawLessons.filter(
-        (l: any) => l.topicSlug === rawCurrent.topicSlug && l.level === rawCurrent.level
+        (l: NsbLesson) => l.topicSlug === rawCurrent.topicSlug && l.level === rawCurrent.level
       );
-      currentIndex = siblings.findIndex((l: any) => l.slug === lessonId);
+      currentIndex = siblings.findIndex((l: NsbLesson) => l.slug === lessonId);
       subtopicLessonsCount = siblings.length;
       if (currentIndex > 0) prevLesson = siblings[currentIndex - 1];
       if (currentIndex >= 0 && currentIndex < siblings.length - 1) nextLesson = siblings[currentIndex + 1];

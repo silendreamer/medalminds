@@ -105,31 +105,6 @@ export function Header() {
           })}
         </nav>
 
-        {/* Sign In Button */}
-        <Link
-          href="/api/auth/signin"
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: "8px",
-            padding: "12px 22px",
-            minHeight: "44px",
-            borderRadius: "8px",
-            background: "#1a2745",
-            color: "#fff",
-            border: "1px solid #1a2745",
-            fontSize: "14px",
-            fontWeight: 600,
-            fontFamily: "Open Sans, sans-serif",
-            cursor: "pointer",
-            textDecoration: "none",
-            transition: "all 150ms ease",
-            flexShrink: 0
-          }}
-        >
-          Sign In
-        </Link>
       </div>
     </header>
   );

@@ -8,8 +8,6 @@ import {
   getQuestionsByCompetition,
   getRandomMultipleChoiceQuestions,
   getRandomQuestionByCompetition,
-  getTestBySlug,
-  getTestsByCompetition,
   isCompetitionSlug
 } from "./data";
 
@@ -89,11 +87,5 @@ describe("by-slug readers round-trip the list readers", () => {
     const [lesson] = await getLessonsByCompetition("science-bowl");
     expect(lesson).toBeDefined();
     expect((await getLessonBySlug("science-bowl", lesson.slug))?.slug).toBe(lesson.slug);
-  });
-
-  it("getTestBySlug finds a test returned by getTestsByCompetition", async () => {
-    const [test] = await getTestsByCompetition("science-bowl");
-    expect(test).toBeDefined();
-    expect((await getTestBySlug("science-bowl", test.slug))?.slug).toBe(test.slug);
   });
 });

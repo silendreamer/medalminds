@@ -64,11 +64,8 @@ export default async function HomePage() {
               <Link className="button button-lg" href={competitionPath("science-bowl")}>
                 Start Learning Free
               </Link>
-              <Link className="ghost-button button-lg" href="/api/auth/signin">
-                Sign In to Save Progress
-              </Link>
             </div>
-            <p className="hero-note">No sign-up required. Sign in anytime to save your progress.</p>
+            <p className="hero-note">No sign-up required to start.</p>
             <div className="mobile-hero-stats" aria-hidden="true">
               <span><strong>{formatApproximateCount(scienceBowlCounts.questions)}+</strong> questions</span>
               <span>·</span>
@@ -149,6 +146,7 @@ export default async function HomePage() {
               <CompetitionCard
                 competition={competition}
                 counts={countsBySlug.get(competition.slug) ?? { questions: 0, lessons: 0 }}
+                comingSoon={competition.slug !== "science-bowl"}
                 key={competition.slug}
               />
             ))}

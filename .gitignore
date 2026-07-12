@@ -1,16 +1,47 @@
-.cache
-.claude
-.continue/
-.next
+# Dependencies
 node_modules
-reports/
-scripts/
-tmp/
-*.log
+
+# Build / framework output
+.next
+.vercel
 *.tsbuildinfo
+tsconfig.tsbuildinfo
+
+# Test / coverage output
+coverage/
+playwright-report/
+test-results/
+
+# Caches
+.cache
+
+# Env files (keep the example)
 .env*
 !.env.example
+
+# Editor / tooling
+.continue/
+.claude
+
+# Local databases
 *.sqlite
 *.db
-source_files
+
+# Logs
+*.log
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Admin / content-pipeline tooling — not needed to run the website
+scripts/
+reports/
 pipeline
+source_files
+tmp/
+
+# Generated / oversized data artifacts (not needed to run the website)
+docs/nsb/by_subject/
+docs/nsb/*_backup.json
+docs/nsb/*-report.html

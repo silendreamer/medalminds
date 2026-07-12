@@ -5,12 +5,14 @@ import { formatApproximateCount } from "@/lib/format";
 
 export function CompetitionCard({
   competition,
-  counts
+  counts,
+  comingSoon = false
 }: {
   competition: Competition;
   counts: { questions: number; lessons: number };
+  comingSoon?: boolean;
 }) {
-  const isScienceBowl = competition.slug === "science-bowl";
+  const isScienceBowl = !comingSoon && competition.slug === "science-bowl";
   const accentClass =
     competition.slug === "science-bowl"
       ? "science-bowl"

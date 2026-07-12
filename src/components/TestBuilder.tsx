@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { slugifySubject } from "@/lib/subjects";
 
 interface SubjectOption {
   slug: string;
@@ -46,7 +47,7 @@ export function TestBuilder({
   function handleStart() {
     if (!canStart) return;
     const actualSize = size === "full" ? 50 : Number(size);
-    const subjectSlug = subject!.toLowerCase().replace(/[\s&]+/g, "-");
+    const subjectSlug = slugifySubject(subject!);
     window.location.href = `/${competitionSlug}/${level}/tests/subject/${subjectSlug}?size=${actualSize}`;
   }
 

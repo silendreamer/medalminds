@@ -1,5 +1,41 @@
 import type { PracticeQuestion } from "@/types";
 
+/** Shape of each record in docs/nsb/questions.json */
+export type NsbRawQuestion = {
+  id: string;
+  competitionSlug: string;
+  category: string;
+  schoolLevel: "MIDDLE_SCHOOL" | "HIGH_SCHOOL";
+  difficulty: string;
+  format: string;
+  displayText?: string;
+  text: string;
+  choices?: string[];
+  answerIndex?: number | null;
+  answer: string;
+  explainAnswer?: string[];
+  lessonIds?: string[];
+  subtopic?: string;
+  questionKind?: "TOSS_UP" | "BONUS";
+  bonusQuestionId?: string;
+};
+
+/** Shape of each record in docs/nsb/lessons.json */
+export type NsbLesson = {
+  id: string;
+  slug: string;
+  competitionSlug?: string;
+  title: string;
+  subject: string;
+  level: string;
+  topicSlug: string;
+  subtopic: string;
+  estimatedMinutes?: number;
+  summary?: string;
+  keyConcepts?: string[];
+  contentPath: string;
+};
+
 // Dynamically import the NSB questions JSON
 // This allows the data layer to use the linked lesson data
 // Note: This is loaded at build time and memoized in memory
@@ -15,7 +51,7 @@ export async function getNsbQuestions(): Promise<PracticeQuestion[]> {
     const { default: rawQuestions } = await import("../../docs/nsb/questions.json");
 
     // Convert raw JSON to PracticeQuestion format
-    nsbQuestionsCache = rawQuestions.map((q: any) => ({
+    nsbQuestionsCache = (rawQuestions as NsbRawQuestion[]).map((q) => ({
       id: q.id,
       competitionSlug: q.competitionSlug as "science-bowl",
       subject: q.category,
@@ -72,12 +108,12 @@ export async function getNsbBuzzerPool(): Promise<NsbBuzzerPool | null> {
     const byId = new Map<string, NsbBuzzerQuestion>();
     const tossupIds: NsbBuzzerPool["tossupIds"] = { MIDDLE_SCHOOL: [], HIGH_SCHOOL: [] };
 
-    for (const q of rawQuestions as any[]) {
+    for (const q of rawQuestions as NsbRawQuestion[]) {
       const question: NsbBuzzerQuestion = {
         id: q.id,
         category: q.category,
         schoolLevel: q.schoolLevel,
-        format: q.format,
+        format: q.format as "multiple_choice" | "short_answer",
         text: q.displayText || q.text,
         choices: q.choices && q.choices.length > 0 ? q.choices : undefined,
         answerIndex: q.answerIndex ?? undefined,
@@ -107,10 +143,10 @@ export async function getNsbBuzzerPool(): Promise<NsbBuzzerPool | null> {
   }
 }
 
-export async function getNsbLessons() {
+export async function getNsbLessons(): Promise<NsbLesson[]> {
   try {
     const { default: rawLessons } = await import("../../docs/nsb/lessons.json");
-    return rawLessons;
+    return rawLessons as NsbLesson[];
   } catch (error) {
     console.warn("Failed to load NSB lessons from JSON:", error);
     return [];

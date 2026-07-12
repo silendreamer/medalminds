@@ -3,17 +3,9 @@
 import { useState } from "react";
 import type { PracticeQuestion } from "@/types";
 import { QuestionText } from "@/components/QuestionText";
+import { normalizeAnswer, isAnswerCorrect } from "@/lib/grading";
 
 const LABELS = ["W", "X", "Y", "Z"];
-
-function normalize(value: string) {
-  return value.trim().toLowerCase().replace(/\s+/g, " ");
-}
-
-function isCorrect(question: PracticeQuestion, answer: string) {
-  const accepted = [question.correctAnswer, ...(question.alternateAnswers ?? [])].map(normalize);
-  return accepted.includes(normalize(answer));
-}
 
 export function SimplePracticeQuestion({
   question,
@@ -30,7 +22,7 @@ export function SimplePracticeQuestion({
 }) {
   const [answer, setAnswer] = useState("");
   const [checked, setChecked] = useState(false);
-  const correct = checked && isCorrect(question, answer);
+  const correct = checked && isAnswerCorrect(question, answer);
 
   function handleChoice(choice: string) {
     if (checked) return;
@@ -85,7 +77,7 @@ export function SimplePracticeQuestion({
             const label = LABELS[index] ?? String(index + 1);
             let state: "idle" | "selected" | "correct" | "incorrect" | "missed" = "idle";
             if (checked) {
-              if (normalize(choice) === normalize(question.correctAnswer)) {
+              if (normalizeAnswer(choice) === normalizeAnswer(question.correctAnswer)) {
                 state = "correct";
               } else if (answer === choice) {
                 state = "incorrect";

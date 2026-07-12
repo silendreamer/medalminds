@@ -2,16 +2,10 @@
 
 import { useMemo, useState } from "react";
 import type { PracticeQuestion } from "@/types";
+import { QuestionText } from "@/components/QuestionText";
+import { isAnswerCorrect } from "@/lib/grading";
 
 const multipleChoiceLabels = ["W", "X", "Y", "Z"];
-
-function normalize(value: string) {
-  return value.trim().toLowerCase().replace(/\s+/g, " ");
-}
-
-function isCorrect(question: PracticeQuestion, answer: string) {
-  return normalize(question.correctAnswer) === normalize(answer);
-}
 
 export function QuickTestRunner({ questions }: { questions: PracticeQuestion[] }) {
   const [current, setCurrent] = useState(0);
@@ -19,7 +13,7 @@ export function QuickTestRunner({ questions }: { questions: PracticeQuestion[] }
   const [submitted, setSubmitted] = useState(false);
   const question = questions[current];
   const score = useMemo(
-    () => questions.filter((item) => isCorrect(item, answers[item.id] ?? "")).length,
+    () => questions.filter((item) => isAnswerCorrect(item, answers[item.id] ?? "")).length,
     [answers, questions]
   );
 
@@ -39,15 +33,15 @@ export function QuickTestRunner({ questions }: { questions: PracticeQuestion[] }
         <div className="stack">
           {questions.map((item, index) => {
             const userAnswer = answers[item.id] ?? "";
-            const correct = isCorrect(item, userAnswer);
+            const correct = isAnswerCorrect(item, userAnswer);
             return (
               <div className={`feedback ${correct ? "good" : "bad"}`} key={item.id}>
                 <strong>
                   {index + 1}. {correct ? "Correct" : "Missed"}
                 </strong>
-                <p>{item.prompt}</p>
-                <p>Your answer: {userAnswer || "No answer"}</p>
-                <p>Correct answer: {item.correctAnswer}</p>
+                <p><QuestionText html={item.prompt} /></p>
+                <p>Your answer: <QuestionText html={userAnswer || "No answer"} /></p>
+                <p>Correct answer: <QuestionText html={item.correctAnswer} /></p>
               </div>
             );
           })}
@@ -67,7 +61,7 @@ export function QuickTestRunner({ questions }: { questions: PracticeQuestion[] }
         </div>
         <span className="badge neutral">Multiple choice</span>
       </div>
-      <p className="question-prompt">{question.prompt}</p>
+      <p className="question-prompt"><QuestionText html={question.prompt} /></p>
       <div className="stack">
         {question.choices?.map((choice, index) => (
           <button
@@ -75,7 +69,8 @@ export function QuickTestRunner({ questions }: { questions: PracticeQuestion[] }
             key={choice}
             onClick={() => setAnswers((previous) => ({ ...previous, [question.id]: choice }))}
           >
-            {multipleChoiceLabels[index] ? `${multipleChoiceLabels[index]}) ${choice}` : choice}
+            {multipleChoiceLabels[index] ? `${multipleChoiceLabels[index]}) ` : ""}
+            <QuestionText html={choice} />
           </button>
         ))}
       </div>

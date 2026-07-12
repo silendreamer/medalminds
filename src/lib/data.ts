@@ -1,4 +1,3 @@
-import { buzzerQuestions as localBuzzerQuestions } from "@/data/buzzerQuestions";
 import { competitions as localCompetitions } from "@/data/competitions";
 import { lessons as localLessons } from "@/data/lessons";
 import { practiceQuestions as localPracticeQuestions } from "@/data/practiceQuestions";
@@ -6,18 +5,20 @@ import {
   scienceBowlMiddleSchoolSubjects as staticScienceBowlMiddleSchoolSubjects,
   getScienceBowlMiddleSchoolSubjectByName as staticGetSubjectByName,
 } from "@/data/scienceBowlMiddleSchoolCurriculum";
-import { tests as localTests } from "@/data/tests";
-import { getNsbQuestions, getNsbLessons, getNsbLessonContent } from "@/data/nsbQuestions";
+import { getNsbQuestions, getNsbLessons, getNsbLessonContent, type NsbLesson } from "@/data/nsbQuestions";
 import type { CompetitionSlug, Lesson, PracticeQuestion } from "@/types";
+import { slugifySubject } from "@/lib/subjects";
+import { shuffle } from "@/lib/shuffle";
+import { type SchoolLevelFilter, schoolLevelDisplay } from "@/lib/levels";
 
-export type SchoolLevelFilter = "MIDDLE_SCHOOL" | "HIGH_SCHOOL";
+export type { SchoolLevelFilter } from "./levels";
 
 function localQuestionMatchesSubject(question: PracticeQuestion, subject?: string | null) {
   return !subject || question.subject === subject;
 }
 
 function schoolLevelToDisplay(schoolLevel: SchoolLevelFilter): string {
-  return schoolLevel === "MIDDLE_SCHOOL" ? "Middle School" : "High School";
+  return schoolLevelDisplay(schoolLevel);
 }
 
 function levelStringMatchesSchoolLevel(level: string, schoolLevel?: SchoolLevelFilter | null) {
@@ -30,17 +31,24 @@ function localQuestionMatchesSchoolLevel(question: PracticeQuestion, schoolLevel
   return levelStringMatchesSchoolLevel(question.level, schoolLevel);
 }
 
-function shuffle<T>(items: T[]) {
-  const copy = [...items];
-  for (let index = copy.length - 1; index > 0; index -= 1) {
-    const swapIndex = Math.floor(Math.random() * (index + 1));
-    [copy[index], copy[swapIndex]] = [copy[swapIndex], copy[index]];
-  }
-  return copy;
-}
-
-export function contentTag(slug: string) {
-  return `content:${slug}`;
+/**
+ * Map the base fields shared by getLessonsByCompetition and getLessonBySlug.
+ * contentSections and reviewQuestions differ per caller and are NOT set here.
+ */
+function toLesson(nsb: NsbLesson): Omit<Lesson, "contentSections" | "reviewQuestions"> {
+  return {
+    id: nsb.id,
+    slug: nsb.slug,
+    competitionSlug: "science-bowl" as const,
+    title: nsb.title,
+    subject: nsb.subject,
+    level: nsb.level,
+    topicSlug: nsb.topicSlug || "",
+    subtopic: nsb.subtopic || "",
+    estimatedMinutes: nsb.estimatedMinutes ?? 10,
+    summary: nsb.summary ?? "",
+    keyConcepts: nsb.keyConcepts ?? [],
+  };
 }
 
 export function getCompetitions() {
@@ -128,7 +136,7 @@ export function getSubjectsForCompetition(competitionSlug: CompetitionSlug): Pro
     subjects.map((name, order) => ({
       id: `static-subject-${competitionSlug}-${order}`,
       name,
-      slug: name.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
+      slug: slugifySubject(name),
       order
     }))
   );
@@ -137,8 +145,8 @@ export function getSubjectsForCompetition(competitionSlug: CompetitionSlug): Pro
 export async function getSubjectWithTree(competitionSlug: CompetitionSlug, subjectSlug: string, schoolLevel?: SchoolLevelFilter | null): Promise<SubjectTree | null> {
   if (competitionSlug === "science-bowl") {
     const lessons = await getNsbLessons();
-    const subjectDisplay = (lessons as any[]).map((l) => l.subject as string).find(
-      (s) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-") === subjectSlug
+    const subjectDisplay = lessons.map((l) => l.subject).find(
+      (s) => slugifySubject(s) === subjectSlug
     ) ?? subjectSlug;
     const levelDisplay = schoolLevel ? schoolLevelToDisplay(schoolLevel) : null;
     const subjectLessons = lessons.filter(
@@ -299,23 +307,13 @@ export async function getLessonsByCompetition(
   if (slug === "science-bowl") {
     const nsbLessons = await getNsbLessons();
     return nsbLessons
-      .filter((lesson: any) => {
+      .filter((lesson: NsbLesson) => {
         const levelMatch = !schoolLevel || lesson.level === schoolLevelToDisplay(schoolLevel);
         const subjectMatch = !subject || lesson.subject === subject;
         return levelMatch && subjectMatch;
       })
-      .map((lesson: any) => ({
-        id: lesson.id,
-        slug: lesson.slug,
-        competitionSlug: "science-bowl" as const,
-        title: lesson.title,
-        subject: lesson.subject,
-        level: lesson.level,
-        topicSlug: lesson.topicSlug || "",
-        subtopic: lesson.subtopic || "",
-        estimatedMinutes: lesson.estimatedMinutes || 10,
-        summary: lesson.summary || "",
-        keyConcepts: lesson.keyConcepts || [],
+      .map((lesson: NsbLesson): Lesson => ({
+        ...toLesson(lesson),
         contentSections: [],
         reviewQuestions: []
       }));
@@ -327,34 +325,6 @@ export async function getLessonsByCompetition(
       (!subject || lesson.subject === subject) &&
       levelStringMatchesSchoolLevel(lesson.level, schoolLevel)
   );
-}
-
-export async function getLessonsByIds(lessonIds: string[], competitionSlug: CompetitionSlug): Promise<Lesson[]> {
-  if (!lessonIds.length) return [];
-
-  if (competitionSlug === "science-bowl") {
-    const nsbLessons = await getNsbLessons();
-    const idSet = new Set(lessonIds);
-    return nsbLessons
-      .filter((lesson: any) => idSet.has(lesson.id))
-      .map((lesson: any) => ({
-        id: lesson.id,
-        slug: lesson.slug,
-        competitionSlug: "science-bowl" as const,
-        title: lesson.title,
-        subject: lesson.subject,
-        level: lesson.level,
-        topicSlug: lesson.topicSlug || "",
-        subtopic: lesson.subtopic || "",
-        estimatedMinutes: lesson.estimatedMinutes || 10,
-        summary: lesson.summary || "",
-        keyConcepts: lesson.keyConcepts || [],
-        contentSections: [],
-        reviewQuestions: []
-      }));
-  }
-
-  return localLessons.filter((lesson) => lessonIds.includes(lesson.id) && lesson.competitionSlug === competitionSlug);
 }
 
 export async function getQuestionsForLesson(
@@ -374,45 +344,22 @@ export async function getQuestionsForLesson(
   const withExplanation = linked.filter((q) => q.explainAnswer?.length);
   const rest = linked.filter((q) => !q.explainAnswer?.length);
 
-  function shuffle<T>(arr: T[]): T[] {
-    const copy = [...arr];
-    for (let i = copy.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [copy[i], copy[j]] = [copy[j], copy[i]];
-    }
-    return copy;
-  }
-
   return [...shuffle(withExplanation), ...shuffle(rest)].slice(0, limit);
-}
-
-export function getTestsByCompetition(slug: CompetitionSlug) {
-  return Promise.resolve(localTests.filter((test) => test.competitionSlug === slug));
 }
 
 export async function getLessonBySlug(slug: CompetitionSlug, lessonSlug: string, levelHint?: string) {
   if (slug === "science-bowl") {
     const lessons = await getNsbLessons();
-    const matches = lessons.filter((l: any) => l.slug === lessonSlug);
+    const matches = lessons.filter((l: NsbLesson) => l.slug === lessonSlug);
     const lesson = levelHint
-      ? (matches.find((l: any) => l.level === levelHint) ?? matches[0])
+      ? (matches.find((l: NsbLesson) => l.level === levelHint) ?? matches[0])
       : matches[0];
     if (!lesson) return undefined;
 
     const contentSections = await getNsbLessonContent(lesson.contentPath);
 
     return {
-      id: lesson.id,
-      competitionSlug: slug,
-      title: lesson.title,
-      slug: lesson.slug,
-      subject: lesson.subject,
-      level: lesson.level,
-      topicSlug: lesson.topicSlug || "",
-      subtopic: lesson.subtopic || "",
-      summary: lesson.summary ?? "",
-      keyConcepts: lesson.keyConcepts,
-      estimatedMinutes: lesson.estimatedMinutes ?? 0,
+      ...toLesson(lesson),
       contentSections,
       reviewQuestions: []
     };
@@ -421,20 +368,10 @@ export async function getLessonBySlug(slug: CompetitionSlug, lessonSlug: string,
   return localLessons.find((lesson) => lesson.competitionSlug === slug && lesson.slug === lessonSlug);
 }
 
-export async function getTestBySlug(slug: CompetitionSlug, testSlug: string) {
-  return localTests.find((test) => test.competitionSlug === slug && test.slug === testSlug);
-}
-
-export async function getQuestionsForTest(questionIds: string[]) {
-  return questionIds
-    .map((id) => localPracticeQuestions.find((question) => question.id === id))
-    .filter((question): question is NonNullable<typeof question> => Boolean(question));
-}
-
 export async function getContentCounts(slug: CompetitionSlug) {
   if (slug === "science-bowl") {
     const [questions, lessons] = await Promise.all([getNsbQuestions(), getNsbLessons()]);
-    return { questions: questions.length, lessons: (lessons as any[]).length };
+    return { questions: questions.length, lessons: lessons.length };
   }
   return {
     questions: localPracticeQuestions.filter((q) => q.competitionSlug === slug).length,
@@ -447,7 +384,7 @@ export async function getContentCountsBySchoolLevel(slug: CompetitionSlug, schoo
     const [questions, lessons] = await Promise.all([getNsbQuestions(), getNsbLessons()]);
     return {
       questions: questions.filter((q) => localQuestionMatchesSchoolLevel(q, schoolLevel)).length,
-      lessons: (lessons as any[]).filter((l) => l.level === schoolLevelToDisplay(schoolLevel)).length
+      lessons: lessons.filter((l: NsbLesson) => l.level === schoolLevelToDisplay(schoolLevel)).length
     };
   }
   return {
@@ -471,8 +408,8 @@ export async function getContentCountsForSubject(
       questions: questions.filter(
         (q) => localQuestionMatchesSubject(q, subject) && localQuestionMatchesSchoolLevel(q, schoolLevel)
       ).length,
-      lessons: (lessons as any[]).filter(
-        (l) => l.subject === subject && (!schoolLevel || l.level === schoolLevelToDisplay(schoolLevel))
+      lessons: lessons.filter(
+        (l: NsbLesson) => l.subject === subject && (!schoolLevel || l.level === schoolLevelToDisplay(schoolLevel))
       ).length
     };
   }
@@ -493,12 +430,4 @@ export async function getContentCountsForSubject(
   };
 }
 
-export function getBuzzerQuestions() {
-  return Promise.resolve(localBuzzerQuestions);
-}
-
 export const competitions = localCompetitions;
-export const lessons = localLessons;
-export const practiceQuestions = localPracticeQuestions;
-export const tests = localTests;
-export const buzzerQuestions = localBuzzerQuestions;

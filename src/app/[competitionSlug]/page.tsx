@@ -1,33 +1,16 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
-import { StatsCard } from "@/components/StatsCard";
 import {
   getCompetitionBySlug,
-  getContentCounts,
   getContentCountsBySchoolLevel,
   getContentCountsForSubject,
   isCompetitionSlug
 } from "@/lib/data";
-import { buzzerPath, competitionLevelPath, learningPath, practicePath, practiceSubjectPath, scienceBowlInfoPath, testsPath } from "@/lib/routes";
+import { buzzerPath } from "@/lib/routes";
 import { buildMetadata, getCompetitionSeo } from "@/lib/seo";
-
-type CompetitionAction = "learning" | "practice" | "tests" | "buzzer";
-
-const actionLabelMap: Record<CompetitionAction, string> = {
-  learning: "Learning",
-  practice: "Practice Questions",
-  tests: "Quizzes / Tests",
-  buzzer: "Buzzer Practice"
-};
-
-function buildQuery(params: Array<[string, string | undefined]>) {
-  const query = params
-    .filter(([, value]) => Boolean(value))
-    .map(([key, value]) => `${key}=${encodeURIComponent(value ?? "")}`)
-    .join("&");
-  return query ? `?${query}` : "";
-}
+import { parseSchoolLevel } from "@/lib/levels";
+import { ScienceBowlHub } from "@/components/ScienceBowlHub";
 
 export async function generateMetadata({
   params
@@ -55,28 +38,25 @@ export default async function CompetitionPage({
   searchParams
 }: {
   params: Promise<{ competitionSlug: string }>;
-  searchParams: Promise<{ subject?: string; level?: string; action?: string }>;
+  searchParams: Promise<{ level?: string; action?: string }>;
 }) {
   const { competitionSlug } = await params;
-  const { subject, level, action } = await searchParams;
+  const { level, action } = await searchParams;
   if (!isCompetitionSlug(competitionSlug)) notFound();
 
   const competition = await getCompetitionBySlug(competitionSlug);
   if (!competition) notFound();
 
   const isScienceBowl = competitionSlug === "science-bowl";
-  const counts = isScienceBowl ? undefined : await getContentCounts(competitionSlug);
 
   // For Science Bowl, default to middle-school if no level specified
   const selectedLevel = isScienceBowl && (level === "middle-school" || level === "high-school")
     ? level
     : isScienceBowl ? "middle-school" : undefined;
 
-  const selectedLevelLabel = selectedLevel === "middle-school" ? "Middle School" : selectedLevel === "high-school" ? "High School" : undefined;
-  const selectedSchoolLevel =
-    selectedLevel === "middle-school" ? "MIDDLE_SCHOOL" : selectedLevel === "high-school" ? "HIGH_SCHOOL" : undefined;
+  const selectedSchoolLevel = selectedLevel ? parseSchoolLevel(selectedLevel) : undefined;
 
-  // Get counts for both levels
+  // Get counts for the selected level (Science Bowl only)
   const scienceBowlLevelCounts = isScienceBowl
     ? {
         middleSchool: await getContentCountsBySchoolLevel(competitionSlug, "MIDDLE_SCHOOL"),
@@ -85,144 +65,38 @@ export default async function CompetitionPage({
     : undefined;
 
   const displayedSubjects = competition.subjects;
-  const subjectCounts = await Promise.all(
-    displayedSubjects.map(async (subject) => ({
-      subject,
-      counts: await getContentCountsForSubject(competitionSlug, subject, selectedSchoolLevel)
-    }))
-  );
+  const subjectCounts = isScienceBowl
+    ? await Promise.all(
+        displayedSubjects.map(async (subject) => ({
+          subject,
+          counts: await getContentCountsForSubject(competitionSlug, subject, selectedSchoolLevel)
+        }))
+      )
+    : [];
   const countsBySubject = new Map(subjectCounts.map((item) => [item.subject, item.counts]));
 
-  // For non-Science Bowl competitions, show legacy multi-step flow
-  const showLegacyFlow = !isScienceBowl;
-  const selectedAction = action && action in actionLabelMap ? (action as CompetitionAction) : undefined;
-  if (selectedAction === "buzzer") {
+  // Handle ?action=buzzer redirect for Science Bowl
+  if (isScienceBowl && action === "buzzer") {
     redirect(buzzerPath());
   }
-  const buildStageQuery = (...pairs: Array<[string, string | undefined]>) => buildQuery([["level", selectedLevel], ...pairs]);
-  const showLevelSelection = false; // Never show level selection for Science Bowl, always use toggle
-  const showActionSelection = showLegacyFlow && !selectedAction;
-  const showSubjectSelection = showLegacyFlow && !showActionSelection;
 
-  // Science Bowl hub: show directly with level toggle (no multi-step)
-  if (isScienceBowl && !showLegacyFlow) {
+  // Science Bowl hub: render shared hub component
+  if (isScienceBowl) {
+    const levelKey = selectedLevel === "high-school" ? "highSchool" : "middleSchool";
+    const levelCounts = scienceBowlLevelCounts![levelKey];
     return (
-      <section className="section science-bowl-hub">
-        <div className="container stack">
-          <div className="hub-header">
-            <div>
-              <span className="eyebrow">National Science Bowl</span>
-              <h1>Science Bowl prep, built around real toss-ups.</h1>
-              <p className="subtitle">Learn the science, answer authentic questions, and sharpen your buzz time across all five subjects — middle and high school divisions.</p>
-            </div>
-            <div className="level-toggle-wrapper">
-              <span className="level-toggle-label">Division</span>
-              <div className="level-toggle">
-                <Link
-                  href={competitionLevelPath(competitionSlug, "middle-school")}
-                  className={`level-toggle-btn ${selectedLevel === "middle-school" ? "active" : ""}`}
-                >
-                  Middle School
-                </Link>
-                <Link
-                  href={competitionLevelPath(competitionSlug, "high-school")}
-                  className={`level-toggle-btn ${selectedLevel === "high-school" ? "active" : ""}`}
-                >
-                  High School
-                </Link>
-              </div>
-            </div>
-          </div>
-
-          {/* Hub cards: Learn, Practice, Tests */}
-          <div className="grid hub-card-grid">
-            <Link className="hub-card" href={learningPath(competitionSlug, selectedLevel ?? "middle-school")}>
-              <div className="hub-card-icon">📚</div>
-              <h3>Learn</h3>
-              <p>Structured lessons across all five subjects, written to the questions that actually get asked.</p>
-              <div className="hub-card-footer">
-                <span className="hub-card-chip">
-                  {Math.round((scienceBowlLevelCounts?.[selectedLevel === "high-school" ? "highSchool" : "middleSchool"].lessons ?? 0) / 10) * 10}+ lessons
-                </span>
-                <span className="hub-card-arrow">Browse →</span>
-              </div>
-            </Link>
-            <Link className="hub-card" href={practicePath(competitionSlug, selectedLevel ?? "middle-school")}>
-              <div className="hub-card-icon">🎯</div>
-              <h3>Practice</h3>
-              <p>Drill real toss-up and bonus questions by subject with instant explanations.</p>
-              <div className="hub-card-footer">
-                <span className="hub-card-chip">
-                  {Math.round((scienceBowlLevelCounts?.[selectedLevel === "high-school" ? "highSchool" : "middleSchool"].questions ?? 0) / 100) * 100}+ questions
-                </span>
-                <span className="hub-card-arrow">Start →</span>
-              </div>
-            </Link>
-            <Link className="hub-card" href={testsPath(competitionSlug, selectedLevel ?? "middle-school")}>
-              <div className="hub-card-icon">⏱️</div>
-              <h3>Tests</h3>
-              <p>Timed mock rounds that mirror the real format, scored like a live match.</p>
-              <div className="hub-card-footer">
-                <span className="hub-card-chip">Timed rounds</span>
-                <span className="hub-card-arrow">Take →</span>
-              </div>
-            </Link>
-          </div>
-
-          {/* Buzzer section */}
-          <div className="buzzer-band">
-            <div className="buzzer-band-content">
-              <div className="buzzer-band-left">
-                <div className="buzzer-icon">⚡</div>
-                <div>
-                  <h3>Buzzer Arena</h3>
-                  <p>Train reaction time head-to-head. Buzz in before the question finishes.</p>
-                </div>
-              </div>
-              <Link className="buzzer-btn" href={buzzerPath()}>
-                Enter the Arena
-              </Link>
-            </div>
-          </div>
-
-          {/* Subjects section */}
-          <div className="subjects-section">
-            <div className="section-heading">
-              <span className="eyebrow">{displayedSubjects.length} subjects</span>
-              <h2>Pick where to focus</h2>
-            </div>
-            <div className="grid subjects-grid">
-              {displayedSubjects.map((category, idx) => {
-                const emojiMap: Record<string, string> = {
-                  "Biology": "🧬",
-                  "Chemistry": "⚗️",
-                  "Physics": "⚛️",
-                  "Earth & Space": "🌍",
-                  "Energy": "⚡",
-                  "Math": "∑"
-                };
-                const emoji = emojiMap[category] || "📚";
-                const counts = countsBySubject.get(category) ?? { questions: 0, lessons: 0 };
-                return (
-                  <Link
-                    key={category}
-                    className="subject-card"
-                    href={practiceSubjectPath(competitionSlug, selectedLevel ?? "middle-school", category)}
-                  >
-                    <div className="subject-card-icon">{emoji}</div>
-                    <h4>{category}</h4>
-                    <span className="subject-card-count">{countsBySubject.get(category)?.questions ?? 0} questions</span>
-                  </Link>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-      </section>
+      <ScienceBowlHub
+        competitionSlug={competitionSlug}
+        level={selectedLevel as "middle-school" | "high-school"}
+        subjects={displayedSubjects}
+        levelCounts={levelCounts}
+        countsBySubject={countsBySubject}
+        showInfoSessionLink={false}
+      />
     );
   }
 
-  // Non-Science Bowl or legacy flow
+  // Non-Science Bowl: coming-soon page
   return (
     <section className="section">
       <div className="container stack">
@@ -230,109 +104,15 @@ export default async function CompetitionPage({
           <span className="eyebrow">{competition.subdomain}.medalminds.com</span>
           <h1>{competition.name}</h1>
           <p className="subtitle">{competition.description}</p>
-          {counts && <StatsCard {...counts} />}
-          {isScienceBowl && (
-            <div className="actions">
-              <Link className="ghost-button" href={scienceBowlInfoPath()}>
-                Read the info session guide
-              </Link>
-            </div>
-          )}
+          <p>
+            Content for {competition.name} is coming soon. In the meantime, explore Science Bowl.
+          </p>
+          <div className="actions">
+            <Link className="button" href="/science-bowl">
+              Explore Science Bowl
+            </Link>
+          </div>
         </div>
-
-        {showActionSelection ? (
-          <div>
-            <div className="section-heading selection-heading">
-              <div>
-                {selectedLevelLabel && <span className="eyebrow">{selectedLevelLabel}</span>}
-                <h2>Choose what you want to do</h2>
-                <p>Pick a learning mode first, then choose a subject.</p>
-              </div>
-              {selectedLevel && (
-                <Link className="ghost-button" href={`/${competitionSlug}`}>
-                  Change level
-                </Link>
-              )}
-            </div>
-            <div className={`grid ${isScienceBowl ? "four" : "three"} competition-action-grid`}>
-              <Link className="card spacious stack competition-stage-card" href={selectedLevel ? learningPath(competitionSlug, selectedLevel) : `/${competitionSlug}/learning`}>
-                <span className="eyebrow">Learning</span>
-                <h2>Learning</h2>
-                <p>Read lessons and study the concept before you try questions.</p>
-              </Link>
-              <Link className="card spacious stack competition-stage-card" href={selectedLevel ? practicePath(competitionSlug, selectedLevel) : `/${competitionSlug}/practice`}>
-                <span className="eyebrow">Practice</span>
-                <h2>Practice Questions</h2>
-                <p>Get one random question, answer it, then review the explanation.</p>
-              </Link>
-              <Link className="card spacious stack competition-stage-card" href={selectedLevel ? testsPath(competitionSlug, selectedLevel) : `/${competitionSlug}/tests`}>
-                <span className="eyebrow">Tests</span>
-                <h2>Quizzes / Tests</h2>
-                <p>Choose a question set and work through it in test mode.</p>
-              </Link>
-              {isScienceBowl && (
-                <Link className="card spacious stack competition-stage-card competition-stage-card-accent" href={buzzerPath()}>
-                  <span className="eyebrow">Buzzer</span>
-                  <h2>Buzzer Practice</h2>
-                  <p>Create or join a live room for team buzzer practice.</p>
-                </Link>
-              )}
-            </div>
-          </div>
-        ) : showSubjectSelection ? (
-          <div>
-            <div className="section-heading">
-              <div>
-                {selectedLevelLabel && <span className="eyebrow">{selectedLevelLabel}</span>}
-                <h2>Choose a subject for {selectedAction ? actionLabelMap[selectedAction] : "your next step"}</h2>
-              </div>
-              <div className="action-row">
-                {selectedLevel && (
-                  <Link className="ghost-button" href={`/${competitionSlug}`}>
-                    Change level
-                  </Link>
-                )}
-                <Link className="ghost-button" href={`/${competitionSlug}?${buildQuery([["level", selectedLevel], ["action", selectedAction]])}`}>
-                  Change action
-                </Link>
-              </div>
-            </div>
-            <div className="grid competition-subject-grid">
-              {displayedSubjects.map((category) => (
-                <Link
-                  className="card spacious stack competition-stage-card competition-subject-card"
-                  href={
-                    selectedAction === "learning"
-                      ? `${selectedLevel ? learningPath(competitionSlug, selectedLevel) : `/${competitionSlug}/learning`}/subject/${category.toLowerCase().replace(/\s+/g, "-")}`
-                      : selectedAction === "practice"
-                        ? `${selectedLevel ? practicePath(competitionSlug, selectedLevel) : `/${competitionSlug}/practice`}${buildQuery([["subject", category]])}`
-                        : `${selectedLevel ? testsPath(competitionSlug, selectedLevel) : `/${competitionSlug}/tests`}${buildQuery([["subject", category]])}`
-                  }
-                  key={category}
-                >
-                  <span className="eyebrow">Subject</span>
-                  <h2>{category}</h2>
-                  <p>
-                    {selectedAction === "learning"
-                      ? "Open the lesson library for this topic."
-                      : selectedAction === "practice"
-                        ? "Get one random question from this topic."
-                        : "Run a multiple-choice quiz for this topic."}
-                  </p>
-                  <StatsCard {...(countsBySubject.get(category) ?? { questions: 0, lessons: 0 })} />
-                </Link>
-              ))}
-            </div>
-          </div>
-        ) : (
-          <div className="section-heading selected-context">
-            <div>
-              <span className="eyebrow">{selectedLevelLabel ?? competition.name}</span>
-              <h2>Pick an action first</h2>
-              <p>Choose Learning, Practice, or Tests before you pick a subject.</p>
-            </div>
-          </div>
-        )}
       </div>
     </section>
   );

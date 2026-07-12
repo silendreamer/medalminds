@@ -9,20 +9,21 @@ import {
   type SchoolLevelFilter
 } from "@/lib/data";
 import { buildMetadata } from "@/lib/seo";
+import { parseSchoolLevel } from "@/lib/levels";
 
 export async function generateMetadata({
   params
 }: {
   params: Promise<{ competitionSlug: string; level: string; subjectSlug: string }>;
 }): Promise<Metadata> {
-  const { competitionSlug, subjectSlug } = await params;
+  const { competitionSlug, level, subjectSlug } = await params;
   if (!isCompetitionSlug(competitionSlug)) return {};
   const tree = await getSubjectWithTree(competitionSlug, subjectSlug);
   if (!tree) return {};
   return buildMetadata({
     title: `${tree.name} | ${competitionSlug === "science-bowl" ? "Science Bowl" : competitionSlug} Lessons`,
     description: `Study ${tree.name} topics with structured lessons, key concepts, and review questions built for competition prep.`,
-    path: `/${competitionSlug}/learning/subject/${subjectSlug}`
+    path: `/${competitionSlug}/${level}/learning/subject/${subjectSlug}`
   });
 }
 
@@ -40,8 +41,7 @@ export default async function SubjectCoursePage({
   const competition = await getCompetitionBySlug(competitionSlug);
   if (!competition) notFound();
 
-  const schoolLevel: SchoolLevelFilter | undefined =
-    level === "middle-school" ? "MIDDLE_SCHOOL" : level === "high-school" ? "HIGH_SCHOOL" : undefined;
+  const schoolLevel: SchoolLevelFilter | undefined = parseSchoolLevel(level);
 
   const tree = await getSubjectWithTree(competitionSlug, subjectSlug, schoolLevel);
   if (!tree) {

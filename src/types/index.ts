@@ -47,18 +47,6 @@ export interface Lesson {
   reviewQuestions: string[];
 }
 
-export interface Test {
-  id: string;
-  slug: string;
-  competitionSlug: CompetitionSlug;
-  title: string;
-  level: string;
-  subjects: string[];
-  timeLimitMinutes: number;
-  description: string;
-  questionIds: string[];
-}
-
 export interface CurriculumTopic {
   id: string;
   title: string;

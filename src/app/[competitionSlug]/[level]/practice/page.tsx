@@ -14,6 +14,8 @@ import {
 import { formatApproximateCount } from "@/lib/format";
 import { practiceSubjectPath } from "@/lib/routes";
 import { buildMetadata } from "@/lib/seo";
+import { subjectEmoji } from "@/lib/subjects";
+import { parseSchoolLevel } from "@/lib/levels";
 import "@/app/practice-page.css";
 
 export const dynamic = "force-dynamic";
@@ -49,23 +51,9 @@ export default async function PracticePage({
   if (!isCompetitionSlug(competitionSlug)) notFound();
   const competition = await getCompetitionBySlug(competitionSlug);
   if (!competition) notFound();
-  const schoolLevel: SchoolLevelFilter | undefined =
-    level === "middle-school"
-      ? "MIDDLE_SCHOOL"
-      : level === "high-school"
-        ? "HIGH_SCHOOL"
-        : undefined;
+  const schoolLevel: SchoolLevelFilter | undefined = parseSchoolLevel(level);
   const isScienceBowl = competitionSlug === "science-bowl";
   const curriculumSubjects = isScienceBowl ? await getScienceBowlMiddleSchoolCurriculumSubjects() : [];
-
-  const emojiMap: Record<string, string> = {
-    "Biology": "🧬",
-    "Chemistry": "⚗️",
-    "Physics": "⚛️",
-    "Earth & Space": "🌍",
-    "Energy": "⚡",
-    "Math": "∑"
-  };
 
   if (isScienceBowl) {
     const subjectCounts = await Promise.all(
@@ -89,7 +77,7 @@ export default async function PracticePage({
           </div>
           <div className="subjects-grid">
             {subjectCounts.map(({ subject: item, counts }) => {
-              const emoji = emojiMap[item.name] || "📚";
+              const emoji = subjectEmoji(item.name);
               return (
                 <Link
                   key={item.slug}
