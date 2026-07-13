@@ -54,40 +54,48 @@ export default async function CompetitionPage({
     redirect(buzzerPath());
   }
 
-  // For Science Bowl, default to middle-school if no level specified
-  const selectedLevel = isScienceBowl && (level === "middle-school" || level === "high-school")
-    ? level
-    : isScienceBowl ? "middle-school" : undefined;
+  // For Science Bowl, a division is only "selected" via ?level= (e.g. from
+  // breadcrumbs) — otherwise the hub renders the division picker.
+  const selectedLevel =
+    isScienceBowl && (level === "middle-school" || level === "high-school") ? level : undefined;
 
   const selectedSchoolLevel = selectedLevel ? parseSchoolLevel(selectedLevel) : undefined;
 
-  // Get counts for the selected level (Science Bowl only)
-  const scienceBowlLevelCounts = isScienceBowl
-    ? {
-        middleSchool: await getContentCountsBySchoolLevel(competitionSlug, "MIDDLE_SCHOOL"),
-        highSchool: await getContentCountsBySchoolLevel(competitionSlug, "HIGH_SCHOOL")
-      }
-    : undefined;
-
-  const displayedSubjects = competition.subjects;
-  const subjectCounts = isScienceBowl
-    ? await Promise.all(
-        displayedSubjects.map(async (subject) => ({
-          subject,
-          counts: await getContentCountsForSubject(competitionSlug, subject, selectedSchoolLevel)
-        }))
-      )
-    : [];
-  const countsBySubject = new Map(subjectCounts.map((item) => [item.subject, item.counts]));
-
   // Science Bowl hub: render shared hub component
   if (isScienceBowl) {
-    const levelKey = selectedLevel === "high-school" ? "highSchool" : "middleSchool";
-    const levelCounts = scienceBowlLevelCounts![levelKey];
+    const displayedSubjects = competition.subjects;
+
+    if (!selectedLevel) {
+      // No division chosen yet — show the picker with per-division counts.
+      const divisionCounts = {
+        middleSchool: await getContentCountsBySchoolLevel(competitionSlug, "MIDDLE_SCHOOL"),
+        highSchool: await getContentCountsBySchoolLevel(competitionSlug, "HIGH_SCHOOL")
+      };
+      return (
+        <ScienceBowlHub
+          competitionSlug={competitionSlug}
+          subjects={displayedSubjects}
+          divisionCounts={divisionCounts}
+        />
+      );
+    }
+
+    const levelCounts = await getContentCountsBySchoolLevel(
+      competitionSlug,
+      selectedLevel === "high-school" ? "HIGH_SCHOOL" : "MIDDLE_SCHOOL"
+    );
+    const subjectCounts = await Promise.all(
+      displayedSubjects.map(async (subject) => ({
+        subject,
+        counts: await getContentCountsForSubject(competitionSlug, subject, selectedSchoolLevel)
+      }))
+    );
+    const countsBySubject = new Map(subjectCounts.map((item) => [item.subject, item.counts]));
+
     return (
       <ScienceBowlHub
         competitionSlug={competitionSlug}
-        level={selectedLevel as "middle-school" | "high-school"}
+        level={selectedLevel}
         subjects={displayedSubjects}
         levelCounts={levelCounts}
         countsBySubject={countsBySubject}
