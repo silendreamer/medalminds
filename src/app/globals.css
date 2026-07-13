@@ -688,7 +688,7 @@ h1 {
 }
 
 h2 {
-  font-size: clamp(2rem, 3vw, 2.75rem);
+  font-size: 2rem;
   color: var(--brand-deep);
 }
 
@@ -939,7 +939,6 @@ p {
 }
 
 .cta-band h2 {
-  max-width: 720px;
   color: white;
 }
 
