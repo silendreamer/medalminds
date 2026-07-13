@@ -1,9 +1,5 @@
 /* Practice Page Styles */
 
-.practice-page-section {
-  padding: var(--space-4) 0;
-}
-
 /* ── Question card ── */
 .pq-card {
   background: #fff;

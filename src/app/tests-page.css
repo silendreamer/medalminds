@@ -1,9 +1,5 @@
 /* Tests Page Styles */
 
-.tests-page-section {
-  padding: var(--space-4) 0;
-}
-
 /* Hero section with level toggle */
 .tests-page-hero {
   display: flex !important;
