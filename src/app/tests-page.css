@@ -352,6 +352,7 @@
   .subject-chip {
     font-size: 12px !important;
     padding: 12px 10px !important;
+    min-height: 44px !important;
   }
 
   .size-grid {
@@ -399,7 +400,7 @@
   }
 
   .button-start-test {
-    min-height: 40px !important;
+    min-height: 44px !important;
     font-size: 13px !important;
   }
 

@@ -118,7 +118,7 @@ textarea::placeholder {
   background: #fff;
   border-radius: 12px;
   border: 1px solid #dfe3ea;
-  overflow: hidden;
+  overflow: clip;
   box-shadow: 0 8px 30px rgba(15, 23, 42, 0.1);
   margin: 0 auto;
   max-width: 1248px;
@@ -921,11 +921,13 @@ p {
   .breadcrumb-ellipsis {
     display: inline-flex;
   }
-  /* R7: bump breadcrumb link tap target to ≥44px */
-  .breadcrumbs a {
+  /* R7: bump breadcrumb link tap target to ≥44px — uses higher specificity to
+     beat the later base rule .breadcrumbs a { padding: 2px 5px } */
+  .global-breadcrumb-bar .breadcrumbs a {
     display: inline-flex;
     align-items: center;
-    padding-block: 10px;
+    min-height: 44px;
+    padding-block: 12px;
   }
 }
 
