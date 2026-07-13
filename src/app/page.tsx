@@ -291,7 +291,7 @@ export default async function HomePage() {
       <section className="section cta-band">
         <div className="container stack cta-band-content">
           <h2>Study what actually gets asked.</h2>
-          <p className="cta-description">
+          <p>
             The high-yield topics are ranked and the lessons are written. Pick your division and
             start at the top of the curve — free, no sign-up.
           </p>

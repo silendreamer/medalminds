@@ -684,7 +684,6 @@ h3 {
 
 h1 {
   font-size: clamp(28px, 4vw, 48px);
-  max-width: 13ch;
   color: var(--brand-deep);
 }
 
@@ -948,13 +947,6 @@ p {
   color: var(--gold);
 }
 
-.cta-description {
-  color: rgba(255, 255, 255, 0.85);
-  max-width: 500px;
-  margin: 0 auto;
-  font-size: 15px;
-  line-height: 1.6;
-}
 
 .cta-band .button {
   background: var(--gold);
@@ -1558,7 +1550,6 @@ p {
   color: #1a2745;
   margin: 0;
   line-height: 1.2;
-  max-width: none;
 }
 
 .lesson-summary {
@@ -3332,6 +3323,7 @@ p {
   max-width: 600px !important;
   margin: 0 auto 32px !important;
   font-size: 15px !important;
+  line-height: 1.6 !important;
 }
 
 .cta-band .eyebrow {
@@ -3485,7 +3477,6 @@ p {
 
 .hub-header h1 {
   margin: 0 !important;
-  max-width: none !important;
 }
 
 /* Inline division toggle — sits in the content flow under the subtitle */
