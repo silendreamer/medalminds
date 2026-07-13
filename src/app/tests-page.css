@@ -332,6 +332,11 @@
     font-size: 15px !important;
     margin-bottom: 14px !important;
   }
+
+  /* R8: bump subject chip tap target to ≥44px on mobile */
+  .subject-chip {
+    padding-block: 12px !important;
+  }
 }
 
 @media (max-width: 560px) {
@@ -350,7 +355,7 @@
 
   .subject-chip {
     font-size: 12px !important;
-    padding: 6px 10px !important;
+    padding: 12px 10px !important;
   }
 
   .size-grid {

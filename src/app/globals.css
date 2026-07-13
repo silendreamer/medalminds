@@ -1109,6 +1109,12 @@ p {
   .breadcrumb-ellipsis {
     display: inline-flex;
   }
+  /* R7: bump breadcrumb link tap target to ≥44px */
+  .breadcrumbs a {
+    display: inline-flex;
+    align-items: center;
+    padding-block: 10px;
+  }
 }
 
 .global-breadcrumb-bar .breadcrumbs {
@@ -3520,7 +3526,9 @@ p {
   }
 
   .competition-intro {
-    display: none;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
   }
 
   .selected-context {
@@ -4040,6 +4048,7 @@ p {
   display: flex !important;
   flex-direction: column !important;
   gap: 8px !important;
+  min-width: 0 !important;
 }
 
 .level-toggle-label {
@@ -4170,6 +4179,7 @@ p {
   display: flex !important;
   align-items: center !important;
   gap: 18px !important;
+  min-width: 0 !important;
 }
 
 .buzzer-icon {
@@ -4359,7 +4369,7 @@ p {
 
 @media (max-width: 640px) {
   .hub-header {
-    flex-direction: column !important;
+    grid-template-columns: 1fr !important;
     align-items: flex-start !important;
   }
 
@@ -4692,12 +4702,16 @@ p {
   .hub-card-grid {
     grid-template-columns: 1fr !important;
   }
+
+  .subjects-grid {
+    grid-template-columns: 1fr !important;
+  }
 }
 
 /* --- Subject cards: horizontal layout on mobile --- */
 @media (max-width: 640px) {
   .subjects-grid {
-    grid-template-columns: repeat(2, 1fr) !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
     gap: 10px !important;
   }
 
@@ -4707,6 +4721,7 @@ p {
     align-items: center !important;
     gap: 12px !important;
     display: flex !important;
+    min-width: 0 !important;
   }
 
   .subject-card-icon {
@@ -4724,6 +4739,7 @@ p {
 
   .subject-card-count {
     font-size: 12px !important;
+    min-width: 0 !important;
   }
 }
 
@@ -4739,6 +4755,20 @@ p {
     border-right: none !important;
     box-shadow: none !important;
     max-width: 100% !important;
+  }
+
+  /* R2: stack course two-pane grid on mobile */
+  .course-two-pane {
+    grid-template-columns: 1fr !important;
+  }
+
+  .course-sidebar {
+    position: static !important;
+  }
+
+  /* R9: bump course topic button tap target to ≥44px on mobile */
+  .course-topic-btn {
+    padding-block: 13px !important;
   }
 }
 

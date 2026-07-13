@@ -661,4 +661,11 @@
   .stat-box strong {
     font-size: 20px !important;
   }
+
+  /* R10: bump Reset control tap target to ≥44px on mobile */
+  .pq-stats-reset {
+    display: inline-flex !important;
+    align-items: center !important;
+    padding-block: 14px !important;
+  }
 }
