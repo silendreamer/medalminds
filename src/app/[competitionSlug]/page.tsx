@@ -99,7 +99,6 @@ export default async function CompetitionPage({
         subjects={displayedSubjects}
         levelCounts={levelCounts}
         countsBySubject={countsBySubject}
-        showInfoSessionLink={false}
       />
     );
   }

@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { competitions, getContentCounts, getTopicYieldStats } from "@/lib/data";
 import type { NsbTopicYieldStats } from "@/data/nsbQuestions";
-import { competitionPath } from "@/lib/routes";
+import { competitionPath, scienceBowlInfoPath } from "@/lib/routes";
 import { buildMetadata } from "@/lib/seo";
 import { competitionEmoji, subjectEmoji } from "@/lib/subjects";
 
@@ -150,6 +150,9 @@ export default async function HomePage() {
                 See the method
               </a>
             </div>
+            <Link className="yield-new-here-link" href={scienceBowlInfoPath()}>
+              New to Science Bowl? Read the team guide →
+            </Link>
             <div className="yield-hero-stats">
               <span>
                 <strong>{scienceBowlCounts.questions.toLocaleString("en-US")}</strong> real

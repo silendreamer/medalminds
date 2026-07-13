@@ -333,6 +333,23 @@ main {
   font-size: 0.88rem;
 }
 
+/* "New here?" team-guide link — surfaces the Science Bowl explainer to
+   first-time visitors right in the hero, not just deep in the hub. */
+.yield-new-here-link {
+  display: inline-flex;
+  width: fit-content;
+  color: var(--gold);
+  font-weight: 600;
+  font-size: 0.92rem;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  text-decoration-color: rgba(184, 134, 11, 0.55);
+}
+
+.yield-new-here-link:hover {
+  color: oklch(0.72 0.1 88);
+}
+
 .yield-hero-stats strong {
   color: #fff;
   font-weight: 700;
@@ -724,6 +741,14 @@ p {
 
 .grid.two {
   grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+/* A plain `.grid.two` of content cards (info-session-style two-up sections)
+   should never force a shorter card to stretch to match a taller sibling —
+   only grids that explicitly opt into equal-height cards (competition-grid,
+   hub-card-grid, subjects-grid) do that. */
+.grid.two > .card {
+  align-self: start;
 }
 
 .competition-grid {
@@ -1291,6 +1316,12 @@ p {
 .stack {
   display: grid;
   gap: var(--space-3);
+  /* A content stack should hug its own content, never stretch rows to fill
+     leftover height from a taller grid sibling (e.g. two unequal-height
+     .card.spacious.stack columns in .grid.two) — that stretch was blowing
+     up flex-wrapped children like .info-topic-pill into oversized circles
+     with a dead gap above them. */
+  align-content: start;
 }
 
 .stack.compact {
@@ -3495,6 +3526,25 @@ p {
   cursor: pointer !important;
   transition: all 150ms ease !important;
   text-decoration: none !important;
+}
+
+/* "New here?" team-guide link — the first thing a new visitor should see
+   on the Science Bowl hub, so it's not buried below the fold. */
+.new-here-link {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  margin-top: 2px !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  color: var(--sky-blue) !important;
+  text-decoration: underline !important;
+  text-underline-offset: 3px !important;
+  width: fit-content;
+}
+
+.new-here-link:hover {
+  color: #026aa7 !important;
 }
 
 .level-toggle-btn.active {

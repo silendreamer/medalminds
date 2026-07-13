@@ -31,11 +31,6 @@ interface ScienceBowlHubProps {
   countsBySubject?: Map<string, ContentCounts>;
   /** Per-division counts shown on the division picker cards (no-level state). */
   divisionCounts?: { middleSchool: ContentCounts; highSchool: ContentCounts };
-  /**
-   * Whether to render the "Read the info session guide" ghost-button at the bottom.
-   * /science-bowl/{level} shows it (true); /science-bowl does NOT show it (false/omitted).
-   */
-  showInfoSessionLink?: boolean;
 }
 
 function roundedChip(count: number, step: number, unit: string) {
@@ -56,7 +51,6 @@ export function ScienceBowlHub({
   levelCounts,
   countsBySubject,
   divisionCounts,
-  showInfoSessionLink = false,
 }: ScienceBowlHubProps) {
   return (
     <section className="section science-bowl-hub">
@@ -88,6 +82,9 @@ export function ScienceBowlHub({
                 </div>
               </div>
             )}
+            <Link className="new-here-link" href={scienceBowlInfoPath()}>
+              New to Science Bowl? Read the team guide →
+            </Link>
           </div>
         </div>
 
@@ -214,14 +211,6 @@ export function ScienceBowlHub({
                 );
               })}
             </div>
-          </div>
-        )}
-
-        {showInfoSessionLink && level && (
-          <div className="actions">
-            <Link className="ghost-button" href={scienceBowlInfoPath()}>
-              Read the info session guide
-            </Link>
           </div>
         )}
       </div>
