@@ -1,0 +1,242 @@
+/* Account area styles — shared by /account, /account/settings, /account/security */
+
+.account-shell a {
+  color: #1a2745;
+  font-weight: 600;
+  font-size: 14px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  text-decoration: none;
+}
+
+.account-shell a:hover {
+  background: #f2f4f8;
+}
+
+.account-card {
+  background: #fff;
+  border: 1px solid #e7e9ee;
+  border-radius: 14px;
+  padding: 28px;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05);
+}
+
+.account-card + .account-card {
+  margin-top: 24px;
+}
+
+.account-card h2 {
+  margin: 0 0 4px;
+  font-size: 18px;
+  color: #1a2745;
+}
+
+.account-card p.account-card-subtitle {
+  margin: 0 0 20px;
+  font-size: 13px;
+  color: #666666;
+}
+
+.account-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.account-field label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1a2745;
+}
+
+.account-field input {
+  border: 1.5px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 14px;
+  font-family: inherit;
+  color: #1a2745;
+  background: #fff;
+}
+
+.account-field input:focus {
+  outline: none;
+  border-color: #5a92f0;
+}
+
+.account-field-error {
+  font-size: 13px;
+  color: #b91c1c;
+}
+
+.account-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 18px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  background: #5a92f0;
+  color: #fff;
+  transition: background 150ms ease, opacity 150ms ease;
+}
+
+.account-button:hover:not(:disabled) {
+  background: #3f78dc;
+}
+
+.account-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.account-button-secondary {
+  background: #eef2ff;
+  color: #1a2745;
+}
+
+.account-button-secondary:hover:not(:disabled) {
+  background: #e0e6fb;
+}
+
+.account-message {
+  font-size: 13px;
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-bottom: 16px;
+}
+
+.account-message-success {
+  background: #ecfdf3;
+  color: #067647;
+  border: 1px solid #abefc6;
+}
+
+.account-message-error {
+  background: #fef3f2;
+  color: #b42318;
+  border: 1px solid #fecdca;
+}
+
+.account-badge {
+  display: inline-flex;
+  align-items: center;
+  background: #eef2ff;
+  color: #3730a3;
+  border-radius: 999px;
+  padding: 4px 12px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.account-badge-verified {
+  background: #ecfdf3;
+  color: #067647;
+}
+
+.account-badge-unverified {
+  background: #fef3f2;
+  color: #b42318;
+}
+
+.account-profile-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 16px;
+}
+
+.account-profile-row:last-child {
+  margin-bottom: 0;
+}
+
+.account-profile-label {
+  font-size: 12px;
+  color: #666666;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.account-profile-value {
+  font-size: 15px;
+  color: #1a2745;
+  font-weight: 500;
+}
+
+/* ── Danger zone ── */
+.account-danger-zone {
+  border: 1px solid #fecdca;
+  background: #fff7f6;
+  border-radius: 14px;
+  padding: 24px;
+  margin-top: 32px;
+}
+
+.account-danger-zone h2 {
+  margin: 0 0 4px;
+  font-size: 16px;
+  color: #b42318;
+}
+
+.account-danger-zone p {
+  margin: 0 0 16px;
+  font-size: 13px;
+  color: #7a271a;
+}
+
+.account-button-danger {
+  background: #d92d20;
+  color: #fff;
+}
+
+.account-button-danger:hover:not(:disabled) {
+  background: #b42318;
+}
+
+/* ── Sessions list ── */
+.account-session-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 0;
+  border-bottom: 1px solid #f0f1f4;
+}
+
+.account-session-row:last-child {
+  border-bottom: none;
+}
+
+.account-session-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.account-session-ua {
+  font-size: 14px;
+  color: #1a2745;
+  font-weight: 500;
+}
+
+.account-session-date {
+  font-size: 12px;
+  color: #666666;
+}
+
+.account-session-current-badge {
+  display: inline-flex;
+  align-items: center;
+  background: #ecfdf3;
+  color: #067647;
+  border-radius: 999px;
+  padding: 3px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  margin-left: 8px;
+}

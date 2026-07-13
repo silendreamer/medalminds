@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { competitions } from "@/data/competitions";
 import { competitionPath } from "@/lib/routes";
 import { competitionEmoji } from "@/lib/subjects";
+import { UserMenu } from "@/components/auth/UserMenu";
 
 export function Header() {
   const pathname = usePathname();
@@ -49,6 +50,7 @@ export function Header() {
           })}
         </nav>
 
+        <UserMenu />
       </div>
     </header>
   );
