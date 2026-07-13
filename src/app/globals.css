@@ -4283,3 +4283,69 @@ p {
   font-weight: 600;
   margin-top: 12px;
 }
+
+/* ── Route loading skeletons ─────────────────────────────────────────────
+   Shown instantly on navigation while a dynamic route's server render is
+   in flight, so clicks feel immediate instead of frozen for 1-2s. ────── */
+.route-skeleton {
+  display: grid;
+  gap: 10px;
+}
+
+.skeleton-block {
+  background: linear-gradient(90deg, #eef0f5 25%, #f6f7fa 37%, #eef0f5 63%);
+  background-size: 400% 100%;
+  border-radius: 10px;
+  animation: skeleton-shimmer 1.4s ease infinite;
+}
+
+.skeleton-heading {
+  height: 34px;
+  width: min(360px, 60%);
+  margin-bottom: 6px;
+}
+
+.skeleton-subtitle {
+  height: 16px;
+  width: min(520px, 80%);
+  margin-bottom: 26px;
+}
+
+.skeleton-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.skeleton-card {
+  height: 150px;
+  border-radius: 12px;
+}
+
+@media (max-width: 820px) {
+  .skeleton-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 560px) {
+  .skeleton-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-block {
+    animation: none;
+    background: #eef0f5;
+  }
+}

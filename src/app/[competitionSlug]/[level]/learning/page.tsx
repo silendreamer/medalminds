@@ -19,6 +19,13 @@ import { buildMetadata } from "@/lib/seo";
 import { slugifySubject, subjectEmoji } from "@/lib/subjects";
 import { parseSchoolLevel } from "@/lib/levels";
 
+// Note: this route reads `searchParams` (?subject=) directly in the page
+// component to switch between the subject grid and a subject's lesson list,
+// which forces Next to render it dynamically on every request — a
+// generateStaticParams here would have no effect. Splitting the subject
+// detail view onto its own path segment would let the subject-grid case be
+// prerendered; left dynamic for now, covered by loading.tsx instead.
+
 export async function generateMetadata({
   params,
   searchParams

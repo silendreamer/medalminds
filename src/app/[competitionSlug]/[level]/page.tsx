@@ -10,6 +10,15 @@ import { buildMetadata } from "@/lib/seo";
 import { parseSchoolLevel } from "@/lib/levels";
 import { ScienceBowlHub } from "@/components/ScienceBowlHub";
 
+// Only science-bowl/{middle-school,high-school} exist today — prerender both
+// at build time so navigation is a static file, not a per-click render.
+export function generateStaticParams() {
+  return [
+    { competitionSlug: "science-bowl", level: "middle-school" },
+    { competitionSlug: "science-bowl", level: "high-school" }
+  ];
+}
+
 export async function generateMetadata({
   params,
 }: {

@@ -6,6 +6,13 @@ import { QuestionText } from "@/components/QuestionText";
 import { parseLessonSectionLines, parseLessonTable } from "@/lib/lessonContent";
 import "@/app/practice-page.css";
 
+// Lesson content is static per (competitionSlug, level, lessonId) and never
+// changes per-request — cache the rendered page instead of re-reading the
+// 24 MB question JSON + markdown file on every click. Pages are rendered
+// on-demand on first visit (no generateStaticParams — 2,000+ lessons would
+// bloat the build) and then reused for an hour.
+export const revalidate = 3600;
+
 export default async function LessonDetailPage({
   params
 }: {
