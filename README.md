@@ -13,7 +13,7 @@ npm run dev
 
 Open `http://localhost:3000`. No database is required to run the app — all Science Bowl content is served from committed JSON and Markdown files.
 
-The Buzzer Arena requires PostgreSQL (see below).
+The Buzzer Arena **and** Authentication (login/signup/account pages) both require PostgreSQL (see below).
 
 ## Routes
 
@@ -64,7 +64,33 @@ npm run db:deploy
 npm run dev
 ```
 
-There is no seed script. The schema is in `prisma/schema.prisma`; the single migration is `prisma/migrations/0001_buzzer_baseline/`.
+There is no seed script. The schema is in `prisma/schema.prisma`; the Buzzer migration is `prisma/migrations/0001_buzzer_baseline/`.
+
+## Authentication setup (PostgreSQL required)
+
+Auth is [Better Auth](https://better-auth.com) (email + password) backed by the same PostgreSQL database as the Buzzer Arena. To run it locally:
+
+1. Copy `.env.example` to `.env.local` if you haven't already, and fill in:
+   ```
+   DATABASE_URL="postgresql://…"                # same DB as Buzzer Arena
+   BETTER_AUTH_SECRET="…"                        # generate: openssl rand -base64 32
+   ```
+   `BETTER_AUTH_URL` and `RESEND_API_KEY`/`EMAIL_FROM` are optional locally — see comments in `.env.example`. With `RESEND_API_KEY` unset, auth emails (verification, password reset, notices) are printed to the terminal running `npm run dev` instead of sent.
+2. Apply the migrations (Buzzer + auth models both live in `prisma/schema.prisma`; `npm install` already ran `prisma generate` via `postinstall`):
+   ```bash
+   npm run db:deploy
+   npm run dev
+   ```
+
+### Creating a verified test user for local development
+
+The simplest path uses the real signup flow plus the console email fallback:
+
+1. With `RESEND_API_KEY` unset and `npm run dev` running, go to `http://localhost:3000/signup` and create an account.
+2. In the terminal running `npm run dev`, find the printed "Verify your MedalMinds email address" block and copy the verify URL (`http://localhost:3000/api/auth/verify-email?token=…`).
+3. Open that URL in the browser — this verifies the account and signs you in (`autoSignInAfterVerification`).
+
+For a scriptable/non-interactive equivalent, see `e2e/global-setup.ts` — it upserts a verified `User` + credential `Account` row directly via Prisma, hashing the password with Better Auth's own `hashPassword` export (`better-auth/crypto`) so the row is verifiable by the real sign-in flow. That script runs automatically before `npm run test:e2e`; it is not wired into `npm test` (the Vitest suite stays hermetic, no DB).
 
 ## Commands
 
@@ -74,6 +100,7 @@ npm run build          # Typecheck + production build
 npm run lint           # ESLint (flat config in eslint.config.mjs)
 npm test               # Vitest (single pass, no DB required)
 npm run test:watch     # Vitest watch mode
+npm run test:e2e       # Playwright auth smoke test (requires a local DB; not run in CI)
 npm run db:generate    # prisma generate (runs automatically on postinstall)
 npm run db:migrate     # Create/apply a migration in dev
 npm run db:deploy      # Apply existing migrations to prod
@@ -108,13 +135,17 @@ Optional env vars for this script: `OPENAI_MODEL` (default `gpt-4o-mini`), `OPEN
 Set these environment variables in your Vercel project:
 
 ```
-DATABASE_URL          # PostgreSQL connection string (required for Buzzer Arena)
+DATABASE_URL          # PostgreSQL connection string (required for Buzzer Arena and Authentication)
 NEXT_PUBLIC_SITE_URL  # canonical base URL, e.g. https://medalminds.com
+BETTER_AUTH_SECRET    # required in production; generate with: openssl rand -base64 32
+BETTER_AUTH_URL       # optional; falls back to NEXT_PUBLIC_SITE_URL
+RESEND_API_KEY        # optional; without it, auth emails are only logged (not sent)
+EMAIL_FROM            # optional; defaults to "MedalMinds <no-reply@medalminds.com>"
 ```
 
 Vercel/Supabase integrations may provide `POSTGRES_PRISMA_URL`, `POSTGRES_URL`, or `POSTGRES_URL_NON_POOLING` instead of `DATABASE_URL` — the app reads all of them in that priority order (see `src/lib/db.ts`).
 
-Set the Vercel build command to `npm run vercel-build` (`prisma migrate deploy && next build`).
+Set the Vercel build command to `npm run vercel-build` (`prisma migrate deploy && next build`). See `docs/AUTH.md` for auth-specific operations (secret rotation, promoting an admin, Resend domain setup).
 
 ## Disclaimer
 

@@ -59,6 +59,24 @@ PostgreSQL (Prisma + `@prisma/adapter-pg` + `pg` Pool, memoized on `globalThis` 
 
 `src/lib/db.ts` resolves the connection from a priority chain: `DATABASE_URL` → `POSTGRES_PRISMA_URL` → `POSTGRES_URL` → `POSTGRES_URL_NON_POOLING` → assembled from `POSTGRES_HOST`/`POSTGRES_USER`/`POSTGRES_PASSWORD`/`POSTGRES_DATABASE`. Set `NODE_TLS_REJECT_UNAUTHORIZED=0` only for local providers with self-signed certs; never set it in production.
 
+## Authentication
+
+Better Auth (`better-auth`, email+password + Prisma adapter) backs `/login`, `/signup`, `/account/**`. **PostgreSQL is now required for auth**, in addition to the Buzzer Arena — content routes still need no DB.
+
+- Config: `src/lib/auth.ts` — lazy `getAuth()` memoized on `globalThis` (same pattern as `getPrisma()`), so importing this module never throws in DB-less environments; only *calling* `getAuth()` touches the DB.
+- Server session reads: `src/lib/session.ts` (`getSession()` never throws — returns `null` on any failure; `requireSession()` redirects to `/login?next=…`; `requireRole()` calls `notFound()` on mismatch, not a 403).
+- Client entry point: `src/lib/authClient.ts` (`createAuthClient` from `better-auth/react` + `inferAdditionalFields<Auth>()` for a typed `role` field). Note: the installed `better-auth@1.6.23` has no `forgetPassword` method — the real call is `authClient.requestPasswordReset` (see `src/components/auth/ForgotPasswordForm.tsx`).
+- Email: `src/lib/email/sendEmail.ts` (Resend when `RESEND_API_KEY` is set, console fallback otherwise — safe for dev/test), `templates.ts` (pure HTML/text builders), `authEmails.ts` (the contract module `auth.ts` imports by name).
+- API route: `src/app/api/auth/[...all]/route.ts` — `toNextJsHandler(getAuth())`, called lazily inside each handler, `force-dynamic`.
+- Edge gate: `src/proxy.ts` (Next 16's `middleware.ts` successor — this is the actual shipped filename) — optimistic cookie check (`getSessionCookie`, cookie prefix `medalminds`, matcher `/account/:path*`) redirects to `/login?next=…`; the real check is `src/app/account/layout.tsx` calling `requireSession("/account")`.
+- Account area: `src/app/account/**` (profile, settings, security — change password, session list/revoke, delete account) and auth pages under the `src/app/(auth)/**` route group (login, signup, forgot-password, reset-password, verify-email).
+
+Role model: `UserRole { STUDENT PARENT ADMIN }` (`prisma/schema.prisma`). Signup can only ever produce `STUDENT`/`PARENT` — `additionalFields.role` is declared `input: true`, but a `databaseHooks.user.create.before` hook in `src/lib/auth.ts` clamps any other value (including `"ADMIN"`) to `STUDENT` before the row is created. `ADMIN` has no client-reachable path; it's assigned only via direct SQL (see `docs/AUTH.md`).
+
+Hermetic-test guarantee is preserved: `test/setup.ts` still clears all DB env vars, and every auth entry point (`getAuth()`, `getSession()`, the catch-all route) is designed to fail closed rather than throw at import time.
+
+Operations (secret generation/rotation, Resend setup, promoting an admin, revoking sessions, cleanup): `docs/AUTH.md`. Manual end-to-end verification script: `e2e/MANUAL_QA.md`.
+
 ## Routing
 
 Routes are under `src/app/[competitionSlug]/[level]/` where `[level]` is `middle-school` or `high-school` (only valid for science-bowl; the level page calls `notFound()` for other competitions). Sub-routes: `practice/`, `practice/[subjectSlug]`, `learning/`, `learning/[lessonId]`, `learning/subject/[subjectSlug]`, `tests/`, `tests/[testId]`, `tests/subject/[subjectSlug]`. Static: `src/app/science-bowl/{buzzer,info-session}`. Build URLs with helpers in `src/lib/routes.ts`; validate slugs with `isCompetitionSlug()` in `src/lib/data.ts`.
