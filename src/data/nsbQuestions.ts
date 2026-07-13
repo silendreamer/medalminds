@@ -143,6 +143,111 @@ export async function getNsbBuzzerPool(): Promise<NsbBuzzerPool | null> {
   }
 }
 
+export type NsbTopicYieldStats = {
+  /** Questions that carry a subtopic tag (the population the stats describe). */
+  totalQuestions: number;
+  /** Distinct (category, subtopic) pairs. */
+  totalTopics: number;
+  /** Fewest top-ranked topics whose questions add up to ≥ headSharePct. */
+  headTopics: number;
+  /** Share of all tagged questions covered by headTopics (rounded %). */
+  headSharePct: number;
+  /**
+   * Ranked topic frequencies bucketed into equal-size groups for charting,
+   * each bucket a mean count normalized 0..1 against the largest bucket.
+   */
+  curve: number[];
+  /** How many leading curve buckets fall inside the head. */
+  headBuckets: number;
+  /** Per subject: fewest topics covering half that subject's questions. */
+  perSubject: Array<{ subject: string; halfTopics: number; totalTopics: number }>;
+};
+
+const YIELD_CURVE_BUCKETS = 64;
+const YIELD_HEAD_TARGET = 0.8;
+
+let nsbTopicYieldCache: NsbTopicYieldStats | null = null;
+
+/**
+ * Concentration stats behind the "80/20" pitch: how few subtopics account for
+ * most of the historical question bank. Drives the landing-page yield chart.
+ */
+export async function getNsbTopicYieldStats(): Promise<NsbTopicYieldStats | null> {
+  if (nsbTopicYieldCache) {
+    return nsbTopicYieldCache;
+  }
+
+  try {
+    const { default: rawQuestions } = await import("../../docs/nsb/questions.json");
+
+    const byTopic = new Map<string, number>();
+    const bySubject = new Map<string, Map<string, number>>();
+    for (const q of rawQuestions as NsbRawQuestion[]) {
+      if (!q.subtopic) continue;
+      const key = `${q.category}|${q.subtopic}`;
+      byTopic.set(key, (byTopic.get(key) ?? 0) + 1);
+      let subjectTopics = bySubject.get(q.category);
+      if (!subjectTopics) {
+        subjectTopics = new Map();
+        bySubject.set(q.category, subjectTopics);
+      }
+      subjectTopics.set(q.subtopic, (subjectTopics.get(q.subtopic) ?? 0) + 1);
+    }
+
+    const ranked = [...byTopic.values()].sort((a, b) => b - a);
+    const totalQuestions = ranked.reduce((sum, count) => sum + count, 0);
+    if (totalQuestions === 0 || ranked.length === 0) {
+      return null;
+    }
+
+    let covered = 0;
+    let headTopics = 0;
+    for (const count of ranked) {
+      covered += count;
+      headTopics += 1;
+      if (covered >= totalQuestions * YIELD_HEAD_TARGET) break;
+    }
+    const headSharePct = Math.round((100 * covered) / totalQuestions);
+
+    const bucketSize = Math.max(1, Math.ceil(ranked.length / YIELD_CURVE_BUCKETS));
+    const curve: number[] = [];
+    for (let i = 0; i < ranked.length; i += bucketSize) {
+      const bucket = ranked.slice(i, i + bucketSize);
+      curve.push(bucket.reduce((sum, count) => sum + count, 0) / bucket.length);
+    }
+    const maxBucket = curve[0] || 1;
+    const normalizedCurve = curve.map((value) => value / maxBucket);
+    const headBuckets = Math.max(1, Math.round(headTopics / bucketSize));
+
+    const perSubject = [...bySubject.entries()].map(([subject, topics]) => {
+      const counts = [...topics.values()].sort((a, b) => b - a);
+      const subjectTotal = counts.reduce((sum, count) => sum + count, 0);
+      let acc = 0;
+      let halfTopics = 0;
+      for (const count of counts) {
+        acc += count;
+        halfTopics += 1;
+        if (acc >= subjectTotal / 2) break;
+      }
+      return { subject, halfTopics, totalTopics: counts.length };
+    });
+
+    nsbTopicYieldCache = {
+      totalQuestions,
+      totalTopics: ranked.length,
+      headTopics,
+      headSharePct,
+      curve: normalizedCurve,
+      headBuckets,
+      perSubject
+    };
+    return nsbTopicYieldCache;
+  } catch (error) {
+    console.warn("Failed to compute NSB topic yield stats:", error);
+    return null;
+  }
+}
+
 export async function getNsbLessons(): Promise<NsbLesson[]> {
   try {
     const { default: rawLessons } = await import("../../docs/nsb/lessons.json");

@@ -5,7 +5,14 @@ import {
   scienceBowlMiddleSchoolSubjects as staticScienceBowlMiddleSchoolSubjects,
   getScienceBowlMiddleSchoolSubjectByName as staticGetSubjectByName,
 } from "@/data/scienceBowlMiddleSchoolCurriculum";
-import { getNsbQuestions, getNsbLessons, getNsbLessonContent, type NsbLesson } from "@/data/nsbQuestions";
+import {
+  getNsbQuestions,
+  getNsbLessons,
+  getNsbLessonContent,
+  getNsbTopicYieldStats,
+  type NsbLesson,
+  type NsbTopicYieldStats
+} from "@/data/nsbQuestions";
 import type { CompetitionSlug, Lesson, PracticeQuestion } from "@/types";
 import { slugifySubject } from "@/lib/subjects";
 import { shuffle } from "@/lib/shuffle";
@@ -428,6 +435,13 @@ export async function getContentCountsForSubject(
         levelStringMatchesSchoolLevel(l.level, schoolLevel)
     ).length
   };
+}
+
+export async function getTopicYieldStats(slug: CompetitionSlug): Promise<NsbTopicYieldStats | null> {
+  if (slug === "science-bowl") {
+    return getNsbTopicYieldStats();
+  }
+  return null;
 }
 
 export const competitions = localCompetitions;
