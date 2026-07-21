@@ -24,16 +24,22 @@ function clampRole(role: unknown): "STUDENT" | "PARENT" {
     : "STUDENT";
 }
 
+// Canonical production origin. Used as a last-resort fallback so a missing
+// BETTER_AUTH_URL / NEXT_PUBLIC_SITE_URL can never silently collapse
+// trustedOrigins to localhost-only and 403 every real browser request with
+// INVALID_ORIGIN (the "Something went wrong" signup failure). Set
+// BETTER_AUTH_URL explicitly in each environment; this only guards the gap.
+const CANONICAL_SITE_URL = "https://medalminds.com";
+
 function buildAuth() {
-  const siteUrl = process.env.BETTER_AUTH_URL ?? process.env.NEXT_PUBLIC_SITE_URL;
+  const siteUrl =
+    process.env.BETTER_AUTH_URL ?? process.env.NEXT_PUBLIC_SITE_URL ?? CANONICAL_SITE_URL;
 
   return betterAuth({
     database: prismaAdapter(getPrisma(), { provider: "postgresql" }),
     secret: process.env.BETTER_AUTH_SECRET,
     baseURL: siteUrl,
-    trustedOrigins: [siteUrl, "http://localhost:3000"].filter(
-      (origin): origin is string => Boolean(origin)
-    ),
+    trustedOrigins: [...new Set([siteUrl, CANONICAL_SITE_URL, "http://localhost:3000"])],
     emailAndPassword: {
       enabled: true,
       requireEmailVerification: true,
