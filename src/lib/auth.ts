@@ -24,12 +24,19 @@ function clampRole(role: unknown): "STUDENT" | "PARENT" {
     : "STUDENT";
 }
 
-// Canonical production origin. Used as a last-resort fallback so a missing
-// BETTER_AUTH_URL / NEXT_PUBLIC_SITE_URL can never silently collapse
-// trustedOrigins to localhost-only and 403 every real browser request with
-// INVALID_ORIGIN (the "Something went wrong" signup failure). Set
-// BETTER_AUTH_URL explicitly in each environment; this only guards the gap.
-const CANONICAL_SITE_URL = "https://medalminds.com";
+// Canonical production origin. The live site serves from www (the apex
+// medalminds.com 301-redirects to www.medalminds.com), so www is canonical.
+const CANONICAL_SITE_URL = "https://www.medalminds.com";
+
+// Every origin a real browser may send. Both apex and www are always trusted
+// regardless of BETTER_AUTH_URL, so a missing/mismatched env var can never
+// again collapse trustedOrigins and 403 every request with INVALID_ORIGIN
+// (the "Something went wrong" / "Invalid origin" signup failure).
+const ALWAYS_TRUSTED_ORIGINS = [
+  "https://www.medalminds.com",
+  "https://medalminds.com",
+  "http://localhost:3000",
+];
 
 function buildAuth() {
   const siteUrl =
@@ -39,7 +46,7 @@ function buildAuth() {
     database: prismaAdapter(getPrisma(), { provider: "postgresql" }),
     secret: process.env.BETTER_AUTH_SECRET,
     baseURL: siteUrl,
-    trustedOrigins: [...new Set([siteUrl, CANONICAL_SITE_URL, "http://localhost:3000"])],
+    trustedOrigins: [...new Set([siteUrl, ...ALWAYS_TRUSTED_ORIGINS])],
     emailAndPassword: {
       enabled: true,
       requireEmailVerification: true,
