@@ -25,10 +25,24 @@ export async function sendEmail({ to, subject, html, text }: SendEmailInput): Pr
     return;
   }
 
-  try {
-    const resend = new Resend(apiKey);
-    await resend.emails.send({ from, to, subject, html, text });
-  } catch (error) {
-    console.error("sendEmail: failed to send via Resend", error);
+  const resend = new Resend(apiKey);
+  const { data, error } = await resend.emails.send({ from, to, subject, html, text });
+
+  // Resend reports send failures on the resolved `error` field rather than by
+  // throwing (e.g. unverified `from` domain, sandbox recipient restriction,
+  // invalid key). Previously both this and every caller swallowed failures, so
+  // a rejected send looked identical to a delivered one. Surface the real
+  // reason and throw so the failure is detectable instead of silent.
+  if (error) {
+    console.error(
+      `sendEmail: Resend rejected send to ${to} (from ${from}, subject "${subject}"):`,
+      error,
+    );
+    throw new Error(`Resend send failed: ${error.name}: ${error.message}`);
+  }
+
+  if (!data?.id) {
+    console.error(`sendEmail: Resend returned no message id for send to ${to}`);
+    throw new Error("Resend send failed: no message id returned");
   }
 }
