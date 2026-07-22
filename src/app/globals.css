@@ -1731,6 +1731,86 @@ p {
   color: #6b7280;
 }
 
+/* ── AI explanation (shared by the practice page and the course/lesson view) ── */
+.ai-explanation {
+  margin-top: 10px;
+}
+
+.ai-explain-card {
+  border-radius: 12px;
+  border: 1px solid #ddd6fe;
+  background: linear-gradient(135deg, #faf5ff, #eef2ff);
+  padding: 14px 16px;
+  display: grid;
+  gap: 8px;
+  animation: ai-fade-in 0.25s ease;
+}
+
+@keyframes ai-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.ai-explain-card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ai-explain-card-title {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #4c1d95;
+}
+
+.ai-explain-card-body {
+  font-size: 13.5px;
+  color: #3730a3;
+  line-height: 1.65;
+  margin: 0;
+}
+
+.ai-explain-steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.ai-explain-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.ai-explain-step-number {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #7c3aed;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  margin-top: 1px;
+}
+
+.ai-explain-step-text {
+  font-size: 13.5px;
+  color: #3730a3;
+  line-height: 1.6;
+}
+
 .lesson-section-body {
   font-size: 15px;
   line-height: 1.75;
