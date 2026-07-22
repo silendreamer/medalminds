@@ -1,3 +1,4 @@
+import { unstable_cache } from "next/cache";
 import { competitions as localCompetitions } from "@/data/competitions";
 import { lessons as localLessons } from "@/data/lessons";
 import { practiceQuestions as localPracticeQuestions } from "@/data/practiceQuestions";
@@ -7,6 +8,7 @@ import {
 } from "@/data/scienceBowlMiddleSchoolCurriculum";
 import {
   getNsbQuestions,
+  getNsbQuestionsFor,
   getNsbLessons,
   getNsbLessonContent,
   getNsbTopicYieldStats,
@@ -19,6 +21,24 @@ import { shuffle } from "@/lib/shuffle";
 import { type SchoolLevelFilter, schoolLevelDisplay } from "@/lib/levels";
 
 export type { SchoolLevelFilter } from "./levels";
+
+/**
+ * Wrap a compute function in Next's `unstable_cache`, but fall back to calling it
+ * directly when there is no incremental cache available (unit tests, scripts, or
+ * any non-request context). `unstable_cache` throws an "incrementalCache missing"
+ * invariant outside the Next server runtime; this keeps the readers hermetic
+ * (test/setup.ts runs them with no request context) while still caching in prod.
+ */
+async function cached<T>(fn: () => Promise<T>, keyParts: string[], tags: string[]): Promise<T> {
+  try {
+    return await unstable_cache(fn, keyParts, { tags })();
+  } catch (error) {
+    if (error instanceof Error && error.message.includes("incrementalCache missing")) {
+      return fn();
+    }
+    throw error;
+  }
+}
 
 function localQuestionMatchesSubject(question: PracticeQuestion, subject?: string | null) {
   return !subject || question.subject === subject;
@@ -252,7 +272,8 @@ export async function getRandomQuestionByCompetition(
   schoolLevel?: SchoolLevelFilter | null
 ) {
   if (slug === "science-bowl") {
-    const nsbQuestions = await getNsbQuestions();
+    // Load only the shard(s) for this subject+level rather than the whole bank.
+    const nsbQuestions = await getNsbQuestionsFor(subject, schoolLevel);
     if (nsbQuestions.length > 0) {
       const questions = nsbQuestions.filter(
         (question) =>
@@ -309,7 +330,7 @@ export async function getRandomMultipleChoiceQuestions(
   schoolLevel?: SchoolLevelFilter | null
 ) {
   const pool = slug === "science-bowl"
-    ? await getNsbQuestions()
+    ? await getNsbQuestionsFor(subject, schoolLevel)
     : localPracticeQuestions.filter((q) => q.competitionSlug === slug);
 
   return shuffle(
@@ -350,11 +371,15 @@ export async function getLessonsByCompetition(
   );
 }
 
-export async function getQuestionsForLesson(
+// The set of questions linked to a lesson is stable per (lesson, competition),
+// but small (a lesson links only a handful of questions), so it's a good cache
+// unit. We cache the *filtered, explanation-prioritized* candidate list and do
+// the shuffle + limit AFTER the cache, so ordering stays fresh per request while
+// the expensive full-array scan is memoized.
+async function computeLessonQuestionCandidates(
   lessonId: string,
-  competitionSlug: CompetitionSlug,
-  limit = 5
-): Promise<PracticeQuestion[]> {
+  competitionSlug: CompetitionSlug
+): Promise<{ withExplanation: PracticeQuestion[]; rest: PracticeQuestion[] }> {
   const pool =
     competitionSlug === "science-bowl"
       ? await getNsbQuestions()
@@ -364,8 +389,22 @@ export async function getQuestionsForLesson(
 
   // Prefer questions that already have a worked-out explanation, so the
   // read-only lesson section isn't just a bare question + answer.
-  const withExplanation = linked.filter((q) => q.explainAnswer?.length);
-  const rest = linked.filter((q) => !q.explainAnswer?.length);
+  return {
+    withExplanation: linked.filter((q) => q.explainAnswer?.length),
+    rest: linked.filter((q) => !q.explainAnswer?.length)
+  };
+}
+
+export async function getQuestionsForLesson(
+  lessonId: string,
+  competitionSlug: CompetitionSlug,
+  limit = 25
+): Promise<PracticeQuestion[]> {
+  const { withExplanation, rest } = await cached(
+    () => computeLessonQuestionCandidates(lessonId, competitionSlug),
+    ["lesson-questions", competitionSlug, lessonId],
+    ["nsb-content"]
+  );
 
   return [...shuffle(withExplanation), ...shuffle(rest)].slice(0, limit);
 }
@@ -391,7 +430,14 @@ export async function getLessonBySlug(slug: CompetitionSlug, lessonSlug: string,
   return localLessons.find((lesson) => lesson.competitionSlug === slug && lesson.slug === lessonSlug);
 }
 
-export async function getContentCounts(slug: CompetitionSlug) {
+// Content counts are tiny, stable, derived values called many times per hub page
+// (e.g. the practice hub computes counts for all six subjects in parallel).
+// They are the safest, highest-frequency thing to cache: keys are stable per
+// (competition, level, subject), and the serialized payload is just two numbers,
+// so we avoid the data-cache bloat that wrapping the full-array loaders would cause.
+// The `nsb-content` tag lets a future content redeploy invalidate all of them at once.
+
+async function computeContentCounts(slug: CompetitionSlug) {
   if (slug === "science-bowl") {
     const [questions, lessons] = await Promise.all([getNsbQuestions(), getNsbLessons()]);
     return { questions: questions.length, lessons: lessons.length };
@@ -402,7 +448,11 @@ export async function getContentCounts(slug: CompetitionSlug) {
   };
 }
 
-export async function getContentCountsBySchoolLevel(slug: CompetitionSlug, schoolLevel: SchoolLevelFilter) {
+export async function getContentCounts(slug: CompetitionSlug) {
+  return cached(() => computeContentCounts(slug), ["content-counts", slug], ["nsb-content"]);
+}
+
+async function computeContentCountsBySchoolLevel(slug: CompetitionSlug, schoolLevel: SchoolLevelFilter) {
   if (slug === "science-bowl") {
     const [questions, lessons] = await Promise.all([getNsbQuestions(), getNsbLessons()]);
     return {
@@ -420,13 +470,25 @@ export async function getContentCountsBySchoolLevel(slug: CompetitionSlug, schoo
   };
 }
 
-export async function getContentCountsForSubject(
+export async function getContentCountsBySchoolLevel(slug: CompetitionSlug, schoolLevel: SchoolLevelFilter) {
+  return cached(
+    () => computeContentCountsBySchoolLevel(slug, schoolLevel),
+    ["content-counts-by-level", slug, schoolLevel],
+    ["nsb-content"]
+  );
+}
+
+async function computeContentCountsForSubject(
   slug: CompetitionSlug,
   subject: string,
   schoolLevel?: SchoolLevelFilter | null
 ) {
   if (slug === "science-bowl") {
-    const [questions, lessons] = await Promise.all([getNsbQuestions(), getNsbLessons()]);
+    // Only this subject's shard(s) are needed for its count.
+    const [questions, lessons] = await Promise.all([
+      getNsbQuestionsFor(subject, schoolLevel),
+      getNsbLessons()
+    ]);
     return {
       questions: questions.filter(
         (q) => localQuestionMatchesSubject(q, subject) && localQuestionMatchesSchoolLevel(q, schoolLevel)
@@ -451,6 +513,18 @@ export async function getContentCountsForSubject(
         levelStringMatchesSchoolLevel(l.level, schoolLevel)
     ).length
   };
+}
+
+export async function getContentCountsForSubject(
+  slug: CompetitionSlug,
+  subject: string,
+  schoolLevel?: SchoolLevelFilter | null
+) {
+  return cached(
+    () => computeContentCountsForSubject(slug, subject, schoolLevel),
+    ["content-counts-for-subject", slug, subject, schoolLevel ?? "all"],
+    ["nsb-content"]
+  );
 }
 
 export async function getTopicYieldStats(slug: CompetitionSlug): Promise<NsbTopicYieldStats | null> {

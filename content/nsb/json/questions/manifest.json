@@ -1,0 +1,65 @@
+{
+  "shards": [
+    {
+      "key": "biology__HIGH_SCHOOL",
+      "file": "biology__HIGH_SCHOOL.json",
+      "count": 1643
+    },
+    {
+      "key": "biology__MIDDLE_SCHOOL",
+      "file": "biology__MIDDLE_SCHOOL.json",
+      "count": 3760
+    },
+    {
+      "key": "chemistry__HIGH_SCHOOL",
+      "file": "chemistry__HIGH_SCHOOL.json",
+      "count": 1687
+    },
+    {
+      "key": "chemistry__MIDDLE_SCHOOL",
+      "file": "chemistry__MIDDLE_SCHOOL.json",
+      "count": 2134
+    },
+    {
+      "key": "earth-and-space__HIGH_SCHOOL",
+      "file": "earth-and-space__HIGH_SCHOOL.json",
+      "count": 1426
+    },
+    {
+      "key": "earth-and-space__MIDDLE_SCHOOL",
+      "file": "earth-and-space__MIDDLE_SCHOOL.json",
+      "count": 3316
+    },
+    {
+      "key": "energy__HIGH_SCHOOL",
+      "file": "energy__HIGH_SCHOOL.json",
+      "count": 1277
+    },
+    {
+      "key": "energy__MIDDLE_SCHOOL",
+      "file": "energy__MIDDLE_SCHOOL.json",
+      "count": 1647
+    },
+    {
+      "key": "math__HIGH_SCHOOL",
+      "file": "math__HIGH_SCHOOL.json",
+      "count": 1568
+    },
+    {
+      "key": "math__MIDDLE_SCHOOL",
+      "file": "math__MIDDLE_SCHOOL.json",
+      "count": 3000
+    },
+    {
+      "key": "physics__HIGH_SCHOOL",
+      "file": "physics__HIGH_SCHOOL.json",
+      "count": 1587
+    },
+    {
+      "key": "physics__MIDDLE_SCHOOL",
+      "file": "physics__MIDDLE_SCHOOL.json",
+      "count": 2605
+    }
+  ],
+  "total": 25650
+}

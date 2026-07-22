@@ -36,42 +36,121 @@ export type NsbLesson = {
   contentPath: string;
 };
 
-// Dynamically import the NSB questions JSON
-// This allows the data layer to use the linked lesson data
-// Note: This is loaded at build time and memoized in memory
+// ── Sharded question loading ──
+//
+// content/nsb/json/questions.json (~24 MB) is split by scripts/shard-questions.mjs
+// into content/nsb/json/questions/<subject-slug>__<LEVEL>.json (12 shards, ~1–4 MB
+// each). Practice pages need only the shard(s) matching their subject+level, so
+// loading a single ~2 MB shard instead of parsing the whole bank cuts cold-start
+// cost dramatically. Shards are read with fs.readFile at request time (the same
+// pattern as lesson bodies) — which is why next.config.ts must keep the
+// content/nsb/json/questions/** entry in outputFileTracingIncludes, or the shards
+// won't be bundled on Vercel and the loader will return [].
+
+const SUBJECT_SLUGS: Record<string, string> = {
+  Biology: "biology",
+  Chemistry: "chemistry",
+  Physics: "physics",
+  "Earth and Space": "earth-and-space",
+  Energy: "energy",
+  Math: "math",
+};
+
+type ShardLevel = "MIDDLE_SCHOOL" | "HIGH_SCHOOL";
+const SHARD_LEVELS: ShardLevel[] = ["MIDDLE_SCHOOL", "HIGH_SCHOOL"];
+
+// Per-shard cache of the raw records, keyed by "<subject-slug>__<LEVEL>".
+const shardCache = new Map<string, NsbRawQuestion[]>();
+
+function shardKey(subjectSlug: string, level: ShardLevel): string {
+  return `${subjectSlug}__${level}`;
+}
+
+async function loadShard(subjectSlug: string, level: ShardLevel): Promise<NsbRawQuestion[]> {
+  const key = shardKey(subjectSlug, level);
+  const cached = shardCache.get(key);
+  if (cached) return cached;
+
+  try {
+    const fs = await import("fs/promises");
+    const path = await import("path");
+    const fullPath = path.join(process.cwd(), "content", "nsb", "json", "questions", `${key}.json`);
+    const raw = JSON.parse(await fs.readFile(fullPath, "utf-8")) as NsbRawQuestion[];
+    shardCache.set(key, raw);
+    return raw;
+  } catch (error) {
+    console.warn(`Failed to load NSB question shard ${key}:`, error);
+    return [];
+  }
+}
+
+/**
+ * Load raw question records for the given filters, reading only the shards that
+ * match. A null/undefined subject or level widens the load to every matching
+ * shard (e.g. subject only → both levels; neither → all 12 shards).
+ */
+async function loadRawQuestions(
+  subject?: string | null,
+  level?: ShardLevel | null
+): Promise<NsbRawQuestion[]> {
+  const subjectSlugs = subject
+    ? [SUBJECT_SLUGS[subject]].filter(Boolean)
+    : Object.values(SUBJECT_SLUGS);
+  const levels = level ? [level] : SHARD_LEVELS;
+
+  const shards = await Promise.all(
+    subjectSlugs.flatMap((slug) => levels.map((lvl) => loadShard(slug, lvl)))
+  );
+  return shards.flat();
+}
+
+function toPracticeQuestion(q: NsbRawQuestion): PracticeQuestion {
+  return {
+    id: q.id,
+    competitionSlug: q.competitionSlug as "science-bowl",
+    subject: q.category,
+    level: q.schoolLevel === "MIDDLE_SCHOOL" ? "Middle School" : "High School",
+    difficulty: q.difficulty as "EASY" | "MEDIUM" | "HARD",
+    type: q.format as "multiple_choice" | "short_answer",
+    prompt: q.displayText || q.text,
+    choices: q.choices && q.choices.length > 0 ? q.choices : undefined,
+    correctAnswer: (q.choices && q.answerIndex != null) ? q.choices[q.answerIndex] : q.answer,
+    explanation: "",
+    explainAnswer: q.explainAnswer && q.explainAnswer.length > 0 ? q.explainAnswer : undefined,
+    lessonIds: q.lessonIds || [],
+    subtopic: q.subtopic,
+  };
+}
+
 let nsbQuestionsCache: PracticeQuestion[] | null = null;
 
+/**
+ * All NSB questions, composed from every shard. Kept for callers that must scan
+ * the whole bank (lesson/question-by-id lookups, buzzer pool, yield stats).
+ * Memoized at module scope, same as before. Prefer getNsbQuestionsFor() on the
+ * hot path so only the needed shards are loaded.
+ */
 export async function getNsbQuestions(): Promise<PracticeQuestion[]> {
   if (nsbQuestionsCache) {
     return nsbQuestionsCache;
   }
 
-  try {
-    // Import the JSON file dynamically
-    const { default: rawQuestions } = await import("../../content/nsb/json/questions.json");
+  const raw = await loadRawQuestions();
+  if (raw.length === 0) return [];
+  nsbQuestionsCache = raw.map(toPracticeQuestion);
+  return nsbQuestionsCache;
+}
 
-    // Convert raw JSON to PracticeQuestion format
-    nsbQuestionsCache = (rawQuestions as NsbRawQuestion[]).map((q) => ({
-      id: q.id,
-      competitionSlug: q.competitionSlug as "science-bowl",
-      subject: q.category,
-      level: q.schoolLevel === "MIDDLE_SCHOOL" ? "Middle School" : "High School",
-      difficulty: q.difficulty as "EASY" | "MEDIUM" | "HARD",
-      type: q.format as "multiple_choice" | "short_answer",
-      prompt: q.displayText || q.text,
-      choices: q.choices && q.choices.length > 0 ? q.choices : undefined,
-      correctAnswer: (q.choices && q.answerIndex != null) ? q.choices[q.answerIndex] : q.answer,
-      explanation: "",
-      explainAnswer: q.explainAnswer && q.explainAnswer.length > 0 ? q.explainAnswer : undefined,
-      lessonIds: q.lessonIds || [],
-      subtopic: q.subtopic,
-    }));
-
-    return nsbQuestionsCache;
-  } catch (error) {
-    console.warn("Failed to load NSB questions from JSON:", error);
-    return [];
-  }
+/**
+ * Questions for a specific subject and/or level, loading only the matching
+ * shard(s). This is the hot path used by the practice random-question API.
+ */
+export async function getNsbQuestionsFor(
+  subject?: string | null,
+  level?: ShardLevel | null
+): Promise<PracticeQuestion[]> {
+  const raw = await loadRawQuestions(subject, level);
+  return raw.map(toPracticeQuestion);
 }
 
 export type NsbBuzzerQuestion = {
@@ -103,12 +182,12 @@ export async function getNsbBuzzerPool(): Promise<NsbBuzzerPool | null> {
   }
 
   try {
-    const { default: rawQuestions } = await import("../../content/nsb/json/questions.json");
+    const rawQuestions = await loadRawQuestions();
 
     const byId = new Map<string, NsbBuzzerQuestion>();
     const tossupIds: NsbBuzzerPool["tossupIds"] = { MIDDLE_SCHOOL: [], HIGH_SCHOOL: [] };
 
-    for (const q of rawQuestions as NsbRawQuestion[]) {
+    for (const q of rawQuestions) {
       const question: NsbBuzzerQuestion = {
         id: q.id,
         category: q.category,
@@ -178,11 +257,11 @@ export async function getNsbTopicYieldStats(): Promise<NsbTopicYieldStats | null
   }
 
   try {
-    const { default: rawQuestions } = await import("../../content/nsb/json/questions.json");
+    const rawQuestions = await loadRawQuestions();
 
     const byTopic = new Map<string, number>();
     const bySubject = new Map<string, Map<string, number>>();
-    for (const q of rawQuestions as NsbRawQuestion[]) {
+    for (const q of rawQuestions) {
       if (!q.subtopic) continue;
       const key = `${q.category}|${q.subtopic}`;
       byTopic.set(key, (byTopic.get(key) ?? 0) + 1);

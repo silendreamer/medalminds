@@ -6,7 +6,6 @@ import {
   getCompetitionBySlug,
   getContentCountsForSubject,
   getQuestionById,
-  getRandomQuestionByCompetition,
   getScienceBowlMiddleSchoolCurriculumSubjects,
   isCompetitionSlug,
   type SchoolLevelFilter,
@@ -17,8 +16,6 @@ import { buildMetadata } from "@/lib/seo";
 import { slugifySubject, subjectEmoji } from "@/lib/subjects";
 import { parseSchoolLevel } from "@/lib/levels";
 import "@/app/practice-page.css";
-
-export const dynamic = "force-dynamic";
 
 export async function generateMetadata({
   params,
@@ -96,22 +93,22 @@ export default async function PracticePage({
     );
   }
 
-  const question = q
+  // Deep-link case (?q=<id>) still resolves a specific question on the server so
+  // the URL is shareable. The common case renders a static shell and lets
+  // PracticeSession fetch its first question from /api/practice/random — keeping
+  // this page cacheable instead of server-rendered per request.
+  const initialQuestion = q
     ? await getQuestionById(competitionSlug, q, undefined, schoolLevel)
-    : await getRandomQuestionByCompetition(competitionSlug, undefined, schoolLevel);
+    : undefined;
 
   return (
     <section className="section practice-page-section">
       <div className="container">
-        {question ? (
-          <PracticeSession
-            initialQuestion={question}
-            competitionSlug={competitionSlug}
-            level={level}
-          />
-        ) : (
-          <div className="empty">No questions are available yet.</div>
-        )}
+        <PracticeSession
+          initialQuestion={initialQuestion ?? undefined}
+          competitionSlug={competitionSlug}
+          level={level}
+        />
       </div>
     </section>
   );

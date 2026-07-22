@@ -3,17 +3,11 @@ import { notFound } from "next/navigation";
 import { PracticeSession } from "@/components/PracticeSession";
 import {
   getCompetitionBySlug,
-  getQuestionById,
-  getRandomQuestionByCompetition,
   getScienceBowlMiddleSchoolSubjectBySlug,
   isCompetitionSlug,
-  type SchoolLevelFilter,
 } from "@/lib/data";
 import { buildMetadata } from "@/lib/seo";
-import { parseSchoolLevel } from "@/lib/levels";
 import "@/app/practice-page.css";
-
-export const dynamic = "force-dynamic";
 
 export async function generateMetadata({
   params,
@@ -49,24 +43,16 @@ export default async function PracticeSubjectPage({
   const subject = getScienceBowlMiddleSchoolSubjectBySlug(subjectSlug);
   if (!subject) notFound();
 
-  const schoolLevel: SchoolLevelFilter | undefined = parseSchoolLevel(level);
-
-  const question = await getRandomQuestionByCompetition(competitionSlug, subject.name, schoolLevel);
-
+  // Static shell: PracticeSession fetches its questions from /api/practice/random,
+  // so this page needs no per-request server render.
   return (
     <section className="section practice-page-section">
       <div className="container">
-        {question ? (
-          <PracticeSession
-            initialQuestion={question}
-            competitionSlug={competitionSlug}
-            level={level}
-            subjectSlug={subjectSlug}
-            subject={subject.name}
-          />
-        ) : (
-          <div className="empty">No questions are available yet.</div>
-        )}
+        <PracticeSession
+          competitionSlug={competitionSlug}
+          level={level}
+          subject={subject.name}
+        />
       </div>
     </section>
   );

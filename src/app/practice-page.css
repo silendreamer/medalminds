@@ -11,6 +11,13 @@
   box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05);
 }
 
+.pq-card--loading {
+  color: #64748b;
+  text-align: center;
+  min-height: 160px;
+  place-content: center;
+}
+
 .pq-header {
   display: flex;
   align-items: center;
