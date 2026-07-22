@@ -42,9 +42,5 @@ source_files
 tmp/
 
 # Generated / oversized data artifacts (not needed to run the website)
-docs/nsb/by_subject/
-docs/nsb/*_backup.json
-docs/nsb/*-report.html
-docs/auth-plan/
-docs/responsive-refactor/
-docs/FRONTEND_AUDIT.md
+docs/
+e2e/

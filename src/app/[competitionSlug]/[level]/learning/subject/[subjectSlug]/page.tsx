@@ -4,6 +4,7 @@ import { CourseLayout } from "@/components/CourseLayout";
 import {
   getCompetitionBySlug,
   getLessonBySlug,
+  getQuestionsForLesson,
   getSubjectWithTree,
   isCompetitionSlug,
   type SchoolLevelFilter
@@ -66,6 +67,12 @@ export default async function SubjectCoursePage({
     ? await getLessonBySlug(competitionSlug, lessonSlug, levelDisplay)
     : null;
 
+  // Practice questions linked to the active lesson, shown one-at-a-time in the
+  // course view's main pane.
+  const lessonQuestions = activeLesson
+    ? await getQuestionsForLesson(activeLesson.id, competitionSlug)
+    : [];
+
   // Find topic/subtopic for active lesson to show in breadcrumb
   let activeTopic = undefined;
   if (activeLesson) {
@@ -89,6 +96,7 @@ export default async function SubjectCoursePage({
           activeLessonSlug={lessonSlug ?? null}
           competitionSlug={competitionSlug}
           activeTopic={activeTopic}
+          lessonQuestions={lessonQuestions}
         />
       </div>
     </section>

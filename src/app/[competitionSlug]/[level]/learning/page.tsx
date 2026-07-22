@@ -1,7 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
-import { CurriculumTopicExplorer } from "@/components/CurriculumTopicExplorer";
+import { notFound, redirect } from "next/navigation";
 import { LessonCard } from "@/components/LessonCard";
 import {
   getCompetitionBySlug,
@@ -13,7 +12,6 @@ import {
   isCompetitionSlug,
   type SchoolLevelFilter
 } from "@/lib/data";
-import { formatApproximateCount } from "@/lib/format";
 import { subjectCoursePath } from "@/lib/routes";
 import { buildMetadata } from "@/lib/seo";
 import { slugifySubject, subjectEmoji } from "@/lib/subjects";
@@ -120,72 +118,12 @@ export default async function LearningPage({
     );
   }
 
+  // A subject is selected via the legacy ?subject= param. That flow used to
+  // render a separate topic explorer that linked to the now-retired standalone
+  // lesson route; it is replaced by the two-pane course view. Redirect there so
+  // any stale ?subject= link lands on the canonical experience.
   if (isScienceBowlWithLevel && curriculumSubject) {
-    return (
-      <section className="section">
-        <div className="container stack">
-          <section className="card spacious curriculum-hero">
-            <div className="curriculum-hero-copy stack">
-              <span className="eyebrow">Science Bowl middle school</span>
-              <h1>{curriculumSubject.name}</h1>
-              <p className="subtitle">{curriculumSubject.shortDescription}</p>
-              <p>{curriculumSubject.whyItMatters}</p>
-              <p>
-                Medal Minds is organizing this track around the 20% of content that tends to produce 80% of Science Bowl points.
-              </p>
-              <div className="badge-list">
-                {curriculumSubject.highYieldTopics.map((topic) => (
-                  <span className="badge" key={topic}>
-                    {topic}
-                  </span>
-                ))}
-              </div>
-            </div>
-            <div className="curriculum-source-card">
-              <span className="eyebrow">Primary sources</span>
-              <div className="stack compact">
-                {curriculumSubject.sources.map((source) => (
-                  <div className="curriculum-source-row" key={source}>
-                    {source}
-                  </div>
-                ))}
-              </div>
-            </div>
-          </section>
-
-          <section className="stack">
-            <div className="section-heading">
-              <div>
-                <span className="eyebrow">Grade progression</span>
-                <h2>Build the highest-yield middle-school foundation first</h2>
-                <p>Start with core recall in grade 6, then layer in genetics, systems, and deeper competition detail.</p>
-              </div>
-            </div>
-
-            <CurriculumTopicExplorer competitionSlug={competitionSlug} lessons={lessons} subject={curriculumSubject} />
-          </section>
-
-          <section className="stack">
-            <div className="section-heading">
-              <div>
-                <span className="eyebrow">Existing lessons</span>
-                <h2>Current concept lessons in this subject</h2>
-                <p>These stay intact and continue powering the Learn more flow for practice questions and tests.</p>
-              </div>
-            </div>
-            {lessons.length ? (
-              <div className="grid two">
-                {lessons.map((lesson) => (
-                  <LessonCard lesson={lesson} key={lesson.id} />
-                ))}
-              </div>
-            ) : (
-              <div className="empty">No lessons are available yet for this subject.</div>
-            )}
-          </section>
-        </div>
-      </section>
-    );
+    redirect(subjectCoursePath(competitionSlug, level, curriculumSubject.slug));
   }
 
   if (dbSubjects.length > 0) {

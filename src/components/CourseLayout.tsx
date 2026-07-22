@@ -5,8 +5,9 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { SubjectTree } from "@/lib/data";
 import { parseLessonSectionLines, parseLessonTable } from "@/lib/lessonContent";
-import type { CompetitionSlug, Lesson } from "@/types";
+import type { CompetitionSlug, Lesson, PracticeQuestion } from "@/types";
 import { subjectEmoji } from "@/lib/subjects";
+import { LessonQuestions } from "@/components/LessonQuestions";
 
 type Props = {
   tree: SubjectTree;
@@ -14,9 +15,10 @@ type Props = {
   activeLessonSlug: string | null;
   competitionSlug: CompetitionSlug;
   activeTopic?: { topicName: string; subTopicName: string };
+  lessonQuestions?: PracticeQuestion[];
 };
 
-export function CourseLayout({ tree, activeLesson, activeLessonSlug, competitionSlug, activeTopic }: Props) {
+export function CourseLayout({ tree, activeLesson, activeLessonSlug, competitionSlug, activeTopic, lessonQuestions = [] }: Props) {
   const pathname = usePathname();
 
   // Compute next lesson within the same subtopic
@@ -325,6 +327,9 @@ export function CourseLayout({ tree, activeLesson, activeLessonSlug, competition
                 <p className="lesson-buzz-fact-body">{activeLesson.reviewQuestions[0]}</p>
               </div>
             )}
+
+            {/* Practice questions linked to this lesson — one at a time */}
+            <LessonQuestions questions={lessonQuestions} accentColor={subjectColor} />
 
             {/* Nav footer */}
             <div className="lesson-nav">

@@ -1659,6 +1659,78 @@ p {
   margin: 0;
 }
 
+.lesson-practice-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.lesson-practice-progress {
+  font-size: 13px;
+  font-weight: 600;
+  color: #6b7280;
+  white-space: nowrap;
+}
+
+.lesson-practice-choices {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.lesson-practice-choice {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 15px;
+  color: #374151;
+}
+
+.lesson-practice-choice-letter {
+  flex: 0 0 auto;
+  width: 22px;
+  height: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  background: #eef2f7;
+  color: #374151;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.lesson-practice-reveal {
+  justify-self: start;
+  border: none;
+  cursor: pointer;
+}
+
+.lesson-practice-reveal-body {
+  display: grid;
+  gap: 12px;
+}
+
+.lesson-practice-nav {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  min-height: 4px;
+}
+
+.lesson-practice-nav .lesson-nav-btn {
+  border: none;
+  cursor: pointer;
+}
+
+.lesson-practice-done {
+  font-size: 13px;
+  color: #6b7280;
+}
+
 .lesson-section-body {
   font-size: 15px;
   line-height: 1.75;
