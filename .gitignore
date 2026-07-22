@@ -8,9 +8,9 @@ node_modules
 tsconfig.tsbuildinfo
 
 # Test / coverage output
-coverage/
-playwright-report/
-test-results/
+coverage
+playwright-report
+test-results
 
 # Caches
 .cache
@@ -20,7 +20,7 @@ test-results/
 !.env.example
 
 # Editor / tooling
-.continue/
+.continue
 .claude
 
 # Local databases
@@ -35,12 +35,12 @@ test-results/
 Thumbs.db
 
 # Admin / content-pipeline tooling — not needed to run the website
-scripts/
-reports/
+scripts
+reports
 pipeline
 source_files
-tmp/
+tmp
 
 # Generated / oversized data artifacts (not needed to run the website)
-docs/
-e2e/
+docs
+e2e
