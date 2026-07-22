@@ -42,7 +42,7 @@ describe("getQuestionsByCompetition", () => {
     const questions = await getQuestionsByCompetition("science-bowl");
     expect(questions.length).toBeGreaterThan(0);
     expect(questions.every((q) => q.competitionSlug === "science-bowl")).toBe(true);
-  }, 15000);
+  });
 });
 
 describe("getRandomQuestionByCompetition", () => {
