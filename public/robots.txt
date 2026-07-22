@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://medalminds.vercel.app/sitemap.xml
+Sitemap: https://www.medalminds.com/sitemap.xml
