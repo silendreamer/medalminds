@@ -127,7 +127,23 @@ function subjectSlugToName(slug: string): string {
     .join(" ");
 }
 
+// Display-name overrides for topic slugs whose title-cased form reads poorly
+// (or where we want an "&"/lowercase article the slug can't carry).
+const TOPIC_NAME_OVERRIDES: Record<string, string> = {
+  // MS Biology
+  "foundations-of-life": "Cells & the Study of Life",
+  "evolution-classification": "Evolution & Classification",
+  "genetics-heredity": "Genetics & Heredity",
+  "human-body-systems": "Human Body Systems",
+  "plant-biology": "Plant Biology",
+  // New topics created during the cross-subject reorg
+  "measurement-and-scientific-method": "Measurement & the Scientific Method",
+  "atomic-nuclear-physics": "Atomic & Nuclear Physics",
+  "planetary-science-astrobiology": "Planetary Science & Astrobiology"
+};
+
 function topicSlugToName(slug: string): string {
+  if (TOPIC_NAME_OVERRIDES[slug]) return TOPIC_NAME_OVERRIDES[slug];
   return slug
     .split("-")
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))

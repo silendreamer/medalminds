@@ -32,18 +32,18 @@ Vercel build command is `npm run vercel-build` (= `prisma migrate deploy && next
 Content script (run locally against `.env.local`):
 
 ```bash
-npm run generate:nsb-answer-explanations  # backfill explainAnswer in docs/nsb/questions.json via OpenAI
+npm run generate:nsb-answer-explanations  # backfill explainAnswer in content/nsb/json/questions.json via OpenAI
 ```
 
 ## Content architecture (most important concept)
 
 **All content is committed files — there is no database-backed content layer.**
 
-- `docs/nsb/questions.json` — ~24 MB, ~25,650 Science Bowl questions
-- `docs/nsb/lessons.json` — ~1.4 MB, ~2,031 lesson metadata records
-- `docs/content/nsb/**` — 2,107 markdown lesson body files, read at request time via `fs.readFile`
+- `content/nsb/json/questions.json` — ~24 MB, ~25,650 Science Bowl questions
+- `content/nsb/json/lessons.json` — ~1.4 MB, ~2,031 lesson metadata records
+- `content/nsb/lessons/**` — markdown lesson body files, read at request time via `fs.readFile`
 
-Loaders live in `src/data/nsbQuestions.ts`. `getNsbQuestions()` and `getNsbBuzzerPool()` do dynamic `import()` of the JSON and memoize at module scope. `getNsbLessonContent()` calls `fs.readFile` at request time — this is why `next.config.ts` must keep `outputFileTracingIncludes: { "/**": ["./docs/content/**"] }`. **Never remove that entry** or lesson bodies will silently disappear on Vercel (the function catches the error and returns `[]`).
+Loaders live in `src/data/nsbQuestions.ts`. `getNsbQuestions()` and `getNsbBuzzerPool()` do dynamic `import()` of the JSON and memoize at module scope. `getNsbLessonContent()` calls `fs.readFile` at request time — this is why `next.config.ts` must keep `outputFileTracingIncludes: { "/**": ["./content/nsb/lessons/**"] }`. **Never remove that entry** or lesson bodies will silently disappear on Vercel (the function catches the error and returns `[]`). `contentPath` in `lessons.json` is repo-root-relative (`content/nsb/lessons/{hs,ms}/...`) and is resolved via `path.join(process.cwd(), contentPath)`.
 
 **All content reads go through `src/lib/data.ts`.** Every reader special-cases `competitionSlug === "science-bowl"` (NSB JSON path) and falls back to local TypeScript arrays in `src/data/` for other competitions. Those arrays are intentionally empty (`practiceQuestions.ts`, `lessons.ts`). There is no database branch, no caching layer, and no `/api/revalidate` endpoint.
 

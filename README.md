@@ -42,13 +42,13 @@ All Science Bowl content is committed to the repo — there is no database-backe
 
 | Source | Contents |
 |---|---|
-| `docs/nsb/questions.json` | ~24 MB, ~25,650 questions |
-| `docs/nsb/lessons.json` | ~1.4 MB, ~2,031 lesson metadata records |
-| `docs/content/nsb/**` | 2,107 Markdown lesson body files |
+| `content/nsb/json/questions.json` | ~24 MB, ~25,650 questions |
+| `content/nsb/json/lessons.json` | ~1.4 MB, ~2,031 lesson metadata records |
+| `content/nsb/lessons/**` | Markdown lesson body files |
 
 Loaders are in `src/data/nsbQuestions.ts`. The JSON files are dynamically imported and memoized at module scope; lesson bodies are read with `fs.readFile` at request time. All reads are coordinated through `src/lib/data.ts`.
 
-**`next.config.ts` must keep `outputFileTracingIncludes: { "/**": ["./docs/content/**"] }`** so Vercel includes the Markdown files in the serverless bundle. Removing it causes lesson pages to silently render with no content.
+**`next.config.ts` must keep `outputFileTracingIncludes: { "/**": ["./content/nsb/lessons/**"] }`** so Vercel includes the Markdown files in the serverless bundle. Removing it causes lesson pages to silently render with no content.
 
 Science Olympiad and Math Olympiad content arrays (`src/data/practiceQuestions.ts`, `src/data/lessons.ts`) are intentionally empty.
 
@@ -109,7 +109,7 @@ npm run vercel-build   # prisma migrate deploy && next build (used by Vercel)
 
 ## Generate worked answer explanations
 
-The `explainAnswer` field on each question in `docs/nsb/questions.json` holds 2–5 step-by-step solution strings shown after a student checks their answer. To backfill missing explanations using OpenAI:
+The `explainAnswer` field on each question in `content/nsb/json/questions.json` holds 2–5 step-by-step solution strings shown after a student checks their answer. To backfill missing explanations using OpenAI:
 
 ```bash
 # Set OPENAI_API_KEY in .env.local, then:

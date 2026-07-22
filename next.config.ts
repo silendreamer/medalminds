@@ -3,7 +3,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   outputFileTracingIncludes: {
-    "/**": ["./docs/content/**"]
+    "/**": ["./content/nsb/lessons/**"]
   },
   turbopack: {
     root: path.resolve(__dirname)

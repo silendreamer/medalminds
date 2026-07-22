@@ -1,6 +1,6 @@
 import type { PracticeQuestion } from "@/types";
 
-/** Shape of each record in docs/nsb/questions.json */
+/** Shape of each record in content/nsb/json/questions.json */
 export type NsbRawQuestion = {
   id: string;
   competitionSlug: string;
@@ -20,7 +20,7 @@ export type NsbRawQuestion = {
   bonusQuestionId?: string;
 };
 
-/** Shape of each record in docs/nsb/lessons.json */
+/** Shape of each record in content/nsb/json/lessons.json */
 export type NsbLesson = {
   id: string;
   slug: string;
@@ -48,7 +48,7 @@ export async function getNsbQuestions(): Promise<PracticeQuestion[]> {
 
   try {
     // Import the JSON file dynamically
-    const { default: rawQuestions } = await import("../../docs/nsb/questions.json");
+    const { default: rawQuestions } = await import("../../content/nsb/json/questions.json");
 
     // Convert raw JSON to PracticeQuestion format
     nsbQuestionsCache = (rawQuestions as NsbRawQuestion[]).map((q) => ({
@@ -103,7 +103,7 @@ export async function getNsbBuzzerPool(): Promise<NsbBuzzerPool | null> {
   }
 
   try {
-    const { default: rawQuestions } = await import("../../docs/nsb/questions.json");
+    const { default: rawQuestions } = await import("../../content/nsb/json/questions.json");
 
     const byId = new Map<string, NsbBuzzerQuestion>();
     const tossupIds: NsbBuzzerPool["tossupIds"] = { MIDDLE_SCHOOL: [], HIGH_SCHOOL: [] };
@@ -178,7 +178,7 @@ export async function getNsbTopicYieldStats(): Promise<NsbTopicYieldStats | null
   }
 
   try {
-    const { default: rawQuestions } = await import("../../docs/nsb/questions.json");
+    const { default: rawQuestions } = await import("../../content/nsb/json/questions.json");
 
     const byTopic = new Map<string, number>();
     const bySubject = new Map<string, Map<string, number>>();
@@ -250,7 +250,7 @@ export async function getNsbTopicYieldStats(): Promise<NsbTopicYieldStats | null
 
 export async function getNsbLessons(): Promise<NsbLesson[]> {
   try {
-    const { default: rawLessons } = await import("../../docs/nsb/lessons.json");
+    const { default: rawLessons } = await import("../../content/nsb/json/lessons.json");
     return rawLessons as NsbLesson[];
   } catch (error) {
     console.warn("Failed to load NSB lessons from JSON:", error);
@@ -260,12 +260,12 @@ export async function getNsbLessons(): Promise<NsbLesson[]> {
 
 export async function getNsbLessonContent(contentPath: string): Promise<Array<{ heading: string; body: string }>> {
   try {
-    // contentPath is like "content/nsb/hs/biology/scientific-inquiry/scientific-method-observation-to-conclusion.md"
-    // We need to load it from docs/
+    // contentPath is repo-root-relative, e.g.
+    // "content/nsb/lessons/hs/biology/scientific-inquiry/scientific-method-observation-to-conclusion.md"
     const fs = await import("fs/promises");
     const path = await import("path");
 
-    const fullPath = path.join(process.cwd(), "docs", contentPath);
+    const fullPath = path.join(process.cwd(), contentPath);
     const markdown = await fs.readFile(fullPath, "utf-8");
 
     // Remove frontmatter (YAML between --- markers)
