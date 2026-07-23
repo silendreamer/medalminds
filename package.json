@@ -16,7 +16,8 @@
     "db:migrate": "prisma migrate dev",
     "db:deploy": "prisma migrate deploy",
     "generate:nsb-answer-explanations": "tsx scripts/generate-nsb-answer-explanations.ts",
-    "generate:question-shards": "node scripts/shard-questions.mjs"
+    "generate:question-shards": "node scripts/shard-questions.mjs",
+    "audit:unbacked-lessons": "node scripts/audit-unbacked-lessons.mjs"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.8.0",
